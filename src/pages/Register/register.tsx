@@ -1,10 +1,20 @@
 import { Form, Input, Button } from "antd";
 import "./register.css";
 import { Link } from "react-router-dom";
+import { userServ } from "../../services/userServie";
+
+import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
-  const onFinish = (values) => {
-    console.log("Register data:", values);
+  const navigate = useNavigate();
+  const onFinish = async (values) => {
+    try {
+      await userServ.postSignUp(values);
+      console.log("Đăng ký thành công:", values);
+      navigate("/login");
+    } catch (error) {
+      console.error("Đăng ký thất bại:", error);
+    }
   };
 
   return (
@@ -28,7 +38,7 @@ const RegisterPage = () => {
           <Form layout="vertical" onFinish={onFinish}>
             <Form.Item
               label="Họ và tên"
-              name="fullName"
+              name="userName"
               rules={[{ required: true, message: "Vui lòng nhập họ và tên!" }]}
             >
               <Input />

@@ -1,10 +1,35 @@
-import { Form, Input, Button, Checkbox } from "antd";
+import { Form, Input, Button, Checkbox, message } from "antd";
 import "./login.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { userServ } from "../../services/userServie";
+import { useState } from "react";
 
 const LoginPage = () => {
-  const onFinish = (values) => {
-    console.log("Success:", values);
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  const onFinish = async (values: { username: string; password: string }) => {
+    try {
+      setLoading(true);
+      const loginData = {
+        email: values.username,
+        password: values.password,
+      };
+
+      // Gọi API login mới
+      const res = await userServ.postLogin(loginData);
+      // Lưu token vào localStorage
+      localStorage.setItem("accessToken", res.data.accessToken);
+      localStorage.setItem("refreshToken", res.data.refreshToken);
+
+      message.success("Đăng nhập thành công!");
+      navigate("/");
+    } catch (error) {
+      console.error("Login failed:", error);
+      message.error("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -70,6 +95,7 @@ const LoginPage = () => {
                 htmlType="submit"
                 block
                 style={{ backgroundColor: "#24B5CF" }}
+                loading={loading}
               >
                 Đăng nhập
               </Button>
