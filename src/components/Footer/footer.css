@@ -1,0 +1,77 @@
+.footer {
+  background-color: #B2EAEF;
+  color: #1b1b1b;
+  padding: 40px 20px 20px;
+  font-family: 'Nunito Sans', sans-serif;
+  box-shadow: inset 0px 8px 12px rgba(0, 0, 0, 0.1);
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 1280px;
+  margin: 0 auto;
+  border-bottom: 2px solid #a0d6dc;
+  padding-bottom: 30px;
+}
+
+.footer-column {
+  flex: 1;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.logo-section {
+  align-items: center;
+  text-align: center;
+}
+
+.footer-logo {
+  height: 105px;
+  margin-bottom: 5px;
+  width: fit-content;
+}
+
+.slogan {
+  font-weight: 500;
+  font-size: 15px;
+  color: #1f4042;
+  margin-top: 0px;
+}
+
+.contact-section h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.contact-section p {
+  margin: 6px 0;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+}
+
+.icon {
+  color: #e43f5a;
+  margin-right: 8px;
+  min-width: 20px;
+}
+
+.map-section iframe {
+  border-radius: 4px;
+  width: 100%;
+}
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 15px;
+  font-size: 14px;
+  color: #444;
+}

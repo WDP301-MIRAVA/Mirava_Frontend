@@ -47,7 +47,7 @@ const LoginPage = () => {
 
       <div className="login-right">
         <div className="login-box">
-          <img src="mirava-logo.png" alt="Mirava Logo" className="logo" />
+          <img src="../../assets/mirava-logo.png" alt="Mirava Logo" className="logo" />
           <h2>Đăng nhập tài khoản</h2>
           <Form name="login" layout="vertical" onFinish={onFinish}>
             <Form.Item
