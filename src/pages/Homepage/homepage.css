@@ -1,0 +1,427 @@
+/* General Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  color: #333;
+  line-height: 1.6;
+}
+
+.homepage {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+h1, h2, h3 {
+  font-weight: 600;
+}
+
+
+/* Hero Section */
+.hero-section {
+  background-color: #f5fbfb;
+  padding: 60px 0;
+  text-align: center;
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  transition: background-image 1s ease-in-out;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  background: rgba(255, 255, 255, 0.5); /* nhẹ nhàng thôi */
+  z-index: 1;
+}
+
+.hero-content {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.hero-section h1 {
+  font-size: 32px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.hero-section p {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 30px;
+}
+
+.consultation-button {
+  background-color: #00b3b0;
+  color: white;
+  padding: 12px 30px;
+  border-radius: 30px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.consultation-button:hover {
+  background-color: #009693;
+}
+
+.hero-dots {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.dot {
+  height: 10px;
+  width: 10px;
+  background-color: #bbb;
+  border-radius: 50%;
+  margin: 0 5px;
+}
+
+.dot.active {
+  background-color: #00b3b0;
+}
+
+.hero-content,
+.hero-dots {
+  position: relative;
+  z-index: 2;
+}
+
+
+/* Services Section */
+.services-section {
+  display: flex;
+  justify-content: space-between;
+  padding: 50px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.service-box {
+  flex: 1;
+  padding: 30px;
+  text-align: center;
+  background-color: #fff;
+  border-radius: 10px;
+  margin: 0 10px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.service-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.service-icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 20px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.iui-icon {
+  background-image: url('../../assets/ServiceSection/1.png');
+}
+
+.ivf-icon {
+  background-image: url('../../assets/ServiceSection/2.png');
+}
+
+.doctor-icon {
+  background-image: url('../../assets/ServiceSection/3.png');
+}
+
+.service-box h3 {
+  font-size: 16px;
+  color: #333;
+}
+
+/* Doctors Section */
+.doctors-section {
+  padding: 50px;
+  text-align: center;
+  background-color: #f9f9f9;
+}
+
+.doctors-section h2 {
+  margin-bottom: 30px;
+  font-size: 24px;
+}
+
+.doctors-container {
+  display: flex;
+  justify-content: center;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.doctor-card {
+  flex: 1;
+  margin: 0 15px;
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  max-width: 200px;
+}
+
+.doctor-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  background-color: #f5f5f5;
+  background-size: cover;
+  background-position: center;
+}
+
+.doctor-a {
+  background-image: url('./assets/doctor-a.png');
+}
+
+.doctor-b {
+  background-image: url('./assets/doctor-b.png');
+}
+
+.doctor-c {
+  background-image: url('./assets/doctor-c.png');
+}
+
+.doctor-card h3 {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.doctor-card p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.view-more {
+  color: #00b3b0;
+  font-size: 14px;
+}
+
+.view-more:hover {
+  text-decoration: underline;
+}
+
+/* Treatment Process Section */
+.treatment-process-section {
+  padding: 50px;
+  text-align: center;
+}
+
+.treatment-process-section h2 {
+  margin-bottom: 40px;
+  font-size: 24px;
+}
+
+.process-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.process-step {
+  text-align: center;
+  width: 100px;
+}
+
+.process-icon {
+  width: 50px;
+  height: 50px;
+  margin: 0 auto 10px;
+  /* background-color: #00b3b0; */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-size: 60%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.register-icon {
+  background-image: url('../../assets/TreatmentProcessSection/1.png');
+}
+
+.consultation-icon {
+  background-image: url('../../assets/TreatmentProcessSection/2.png');
+}
+
+.examination-icon {
+  background-image: url('../../assets/TreatmentProcessSection/3.png');
+}
+
+.treatment-icon {
+  background-image: url('../../assets/TreatmentProcessSection/4.png');
+}
+
+.follow-up-icon {
+  background-image: url('../../assets/TreatmentProcessSection/5.png');
+}
+
+.process-step p {
+  font-size: 14px;
+  min-height: 38px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.process-line {
+  flex-grow: 1;
+  height: 2px;
+  background-color: #00b3b0;
+  margin: 0 5px;
+}
+
+/* Blog Section */
+.blog-section {
+  padding: 50px;
+  text-align: center;
+  background-color: #f9f9f9;
+}
+
+.blog-section h2 {
+  margin-bottom: 30px;
+  font-size: 24px;
+}
+
+.blog-container {
+  display: flex;
+  justify-content: center;
+  max-width: 1000px;
+  margin: 0 auto;
+  gap: 30px;
+}
+
+.blog-card {
+  flex: 1;
+  background-color: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.05);
+  max-width: 400px;
+}
+
+.blog-img {
+  height: 200px;
+  background-color: #f5f5f5;
+  background-image: url('./assets/blog-placeholder.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.blog-content {
+  padding: 20px;
+  text-align: left;
+}
+
+.blog-content h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.blog-content p {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+/* Health Safety Section */
+.health-safety-section {
+  padding: 40px;
+  text-align: center;
+  background-color: #E0F7FA;
+}
+
+.safety-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 15px;
+  background-image: url('../../assets//HealthSafetySection/Vector.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.health-safety-section h3 {
+  font-size: 18px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.consultation-button-secondary {
+  background-color: #00b3b0;
+  color: white;
+  padding: 10px 25px;
+  border-radius: 30px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.consultation-button-secondary:hover {
+  background-color: #009693;
+}
+
+/* Free Consultation Section */
+.free-consultation-section {
+  padding: 50px;
+  text-align: center;
+  background-color: #00b3b0;
+  color: white;
+}
+
+.free-consultation-section h2 {
+  margin-bottom: 30px;
+  font-size: 24px;
+}
+
+.free-consultation-button {
+  background-color: white;
+  color: #00b3b0;
+  padding: 12px 40px;
+  border-radius: 30px;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.free-consultation-button:hover {
+  background-color: #f5f5f5;
+}
+
+.arrow-icon {
+  margin-left: 10px;
+}

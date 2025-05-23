@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:3000/api/auth";
+const API_URL = "https://mirava-f0rz.onrender.com/api/auth";
 
 export interface LoginRequest {
   email: string;

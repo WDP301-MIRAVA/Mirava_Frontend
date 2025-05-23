@@ -18,12 +18,13 @@ const LoginPage = () => {
 
       // Gọi API login mới
       const res = await userServ.postLogin(loginData);
+      console.log("Login response:", res);
       // Lưu token vào localStorage
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("refreshToken", res.data.refreshToken);
 
       message.success("Đăng nhập thành công!");
-      navigate("/");
+      navigate("/home");
     } catch (error) {
       console.error("Login failed:", error);
       message.error("Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!");
@@ -47,7 +48,11 @@ const LoginPage = () => {
 
       <div className="login-right">
         <div className="login-box">
-          <img src="/mirava-logo.png" alt="Mirava Logo" className="logo" />
+          <img
+            src="../../assets/mirava-logo.png"
+            alt="Mirava Logo"
+            className="logo"
+          />
           <h2>Đăng nhập tài khoản</h2>
           <Form name="login" layout="vertical" onFinish={onFinish}>
             <Form.Item
