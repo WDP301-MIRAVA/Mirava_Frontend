@@ -1,5 +1,6 @@
 import axios, { type AxiosInstance } from "axios";
-const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+const baseURL =
+  import.meta.env.VITE_API_BASE_URL || "https://mirava-f0rz.onrender.com";
 const timeout = parseInt(import.meta.env.VITE_API_TIMEOUT || "5000", 10);
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: baseURL,
