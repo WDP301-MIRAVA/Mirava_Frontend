@@ -10,7 +10,7 @@ import MiravaLogo from '../../assets/mirava-logo.png';
 const navigationItems = [
   { name: 'Trang chủ', path: '/' },
   { name: 'Giới thiệu', path: '/' },
-  { name: 'Dịch vụ', path: '/' },
+  { name: 'Dịch vụ IUI / IVF', path: '/' },
   { name: 'Blog', path: '/' },
   { name: 'Đội ngũ bác sĩ', path: '/' },
   { name: 'Liên hệ', path: '/' },
