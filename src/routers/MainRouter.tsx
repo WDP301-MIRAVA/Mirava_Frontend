@@ -5,6 +5,9 @@ import LoginPage from "../pages/Login/login";
 import RegisterPage from "../pages/Register/register";
 import PrivateRoute from "../utils/PrivateRoute";
 import Homepage from "../pages/Homepage/homepage";
+import Intropage from "../pages/IntroPage/introPage";
+import SearchResult from "../pages/SearchResult/searchresult";
+import AppointmentForm from "../pages/AppointmentForm/appointmentForm";
 
 const MainRouter = () => {
   return (
@@ -13,7 +16,9 @@ const MainRouter = () => {
       <Route path="/home" element={<Homepage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      
+      <Route path="/intro" element={<Intropage />} />
+      <Route path="/searchresult" element={<SearchResult />} />
+      <Route path="/appointment" element={<AppointmentForm />} />
 
       {/* Protected Routes */}
       <Route element={<PrivateRoute />}>

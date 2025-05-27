@@ -25,7 +25,7 @@ const HomePage: React.FC = () => {
   }, []);
 
   const navigateToLogin = () => {
-    window.location.href = '/login';
+    window.location.href = '/appointment';
   };
 
   return (
