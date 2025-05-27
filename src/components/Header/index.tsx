@@ -2,18 +2,15 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import "./Header.css";
-
-// Import your logo image
 import MiravaLogo from "../../assets/mirava-logo.png";
 
 // Define the navigation items
 const navigationItems = [
   { name: "Trang chủ", path: "/home" },
-  { name: "Giới thiệu", path: "/" },
+  { name: "Giới thiệu", path: "/intro" },
   { name: "Dịch vụ IUI / IVF", path: "/" },
   { name: "Blog", path: "/" },
-  { name: "Đội ngũ bác sĩ", path: "/" },
-  { name: "Liên hệ", path: "/" },
+  { name: "Tra cứu kết quả", path: "/searchresult" },
 ];
 
 // The primary header component
