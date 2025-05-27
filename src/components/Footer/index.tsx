@@ -19,7 +19,7 @@ const Footer: React.FC = () => {
         </motion.div>
 
         <motion.div
-          className="footer-column contact-section"
+          className="footer-column contact-section-footer"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}

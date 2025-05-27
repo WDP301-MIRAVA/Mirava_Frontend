@@ -43,14 +43,14 @@
   margin-top: 0px;
 }
 
-.contact-section h3 {
+.contact-section-footer h3 {
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 15px;
   text-align: center;
 }
 
-.contact-section p {
+.contact-section-footer-footer p {
   margin: 6px 0;
   font-size: 15px;
   display: flex;

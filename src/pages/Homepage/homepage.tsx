@@ -39,7 +39,7 @@ const HomePage: React.FC = () => {
         style={{ backgroundImage: `url(${bgImages[currentBgIndex]})` }}
       >
         <div className="hero-overlay" />
-        <div className="hero-content">
+        <div className="hero-content ">
           <h1>Hành trình chạm tới thiên chức làm cha mẹ bắt đầu từ đây</h1>
           <p>Giải pháp điều trị hiếm muộn IUI / IVF toàn diện, an toàn và đồng hành bởi đội ngũ chuyên gia.</p>
           <button className="consultation-button" onClick={navigateToLogin}>Đặt lịch tư vấn miễn phí</button>
