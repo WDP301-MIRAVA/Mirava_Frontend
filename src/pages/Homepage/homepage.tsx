@@ -1,31 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import './homepage.css';
-import Header from '../../components/Header/index';
-import Footer from '../../components/Footer';
+import React, { useState, useEffect } from "react";
+import "./homepage.css";
+import Header from "../../components/Header/index";
+import Footer from "../../components/Footer";
+import heroImg1 from "../../assets/HeroSection/1.png";
+import heroImg2 from "../../assets/HeroSection/2.png";
+import heroImg3 from "../../assets/HeroSection/3.png";
 
-import heroImg1 from '../../assets/HeroSection/1.png';
-import heroImg2 from '../../assets/HeroSection/2.png';
-import heroImg3 from '../../assets/HeroSection/3.png';
-
-const bgImages = [
-  heroImg1,
-  heroImg2,
-  heroImg3,
-];
+const bgImages = [heroImg1, heroImg2, heroImg3];
 
 const HomePage: React.FC = () => {
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentBgIndex(prev => (prev + 1) % bgImages.length);
+      setCurrentBgIndex((prev) => (prev + 1) % bgImages.length);
     }, 5000); // đổi ảnh mỗi 5s
 
     return () => clearInterval(interval);
   }, []);
 
   const navigateToLogin = () => {
-    window.location.href = '/login';
+    window.location.href = "/login";
   };
 
   return (
@@ -41,14 +36,19 @@ const HomePage: React.FC = () => {
         <div className="hero-overlay" />
         <div className="hero-content">
           <h1>Hành trình chạm tới thiên chức làm cha mẹ bắt đầu từ đây</h1>
-          <p>Giải pháp điều trị hiếm muộn IUI / IVF toàn diện, an toàn và đồng hành bởi đội ngũ chuyên gia.</p>
-          <button className="consultation-button" onClick={navigateToLogin}>Đặt lịch tư vấn miễn phí</button>
+          <p>
+            Giải pháp điều trị hiếm muộn IUI / IVF toàn diện, an toàn và đồng
+            hành bởi đội ngũ chuyên gia.
+          </p>
+          <button className="consultation-button" onClick={navigateToLogin}>
+            Đặt lịch tư vấn miễn phí
+          </button>
         </div>
         <div className="hero-dots">
           {bgImages.map((_, index) => (
             <span
               key={index}
-              className={`dot ${index === currentBgIndex ? 'active' : ''}`}
+              className={`dot ${index === currentBgIndex ? "active" : ""}`}
             ></span>
           ))}
         </div>
@@ -78,19 +78,25 @@ const HomePage: React.FC = () => {
             <div className="doctor-img doctor-a"></div>
             <h3>Bác sĩ A</h3>
             <p>Chuyên môn 1</p>
-            <a href="/bac-si/a" className="view-more">Xem thêm</a>
+            <a href="/bac-si/a" className="view-more">
+              Xem thêm
+            </a>
           </div>
           <div className="doctor-card">
             <div className="doctor-img doctor-b"></div>
             <h3>Bác sĩ B</h3>
             <p>Chuyên môn 2</p>
-            <a href="/bac-si/b" className="view-more">Xem thêm</a>
+            <a href="/bac-si/b" className="view-more">
+              Xem thêm
+            </a>
           </div>
           <div className="doctor-card">
             <div className="doctor-img doctor-c"></div>
             <h3>Bác sĩ C</h3>
             <p>Chuyên môn 3</p>
-            <a href="/bac-si/c" className="view-more">Xem thêm</a>
+            <a href="/bac-si/c" className="view-more">
+              Xem thêm
+            </a>
           </div>
         </div>
       </section>
@@ -135,7 +141,9 @@ const HomePage: React.FC = () => {
             <div className="blog-content">
               <h3>Tiêu đề</h3>
               <p>Trích đoạn bài viết...</p>
-              <a href="/blog/1" className="view-more">Xem thêm</a>
+              <a href="/blog/1" className="view-more">
+                Xem thêm
+              </a>
             </div>
           </div>
           <div className="blog-card">
@@ -143,7 +151,9 @@ const HomePage: React.FC = () => {
             <div className="blog-content">
               <h3>Tiêu đề</h3>
               <p>Trích đoạn bài viết...</p>
-              <a href="/blog/2" className="view-more">Xem thêm</a>
+              <a href="/blog/2" className="view-more">
+                Xem thêm
+              </a>
             </div>
           </div>
         </div>
@@ -153,7 +163,12 @@ const HomePage: React.FC = () => {
       <section className="health-safety-section">
         <div className="safety-icon"></div>
         <h3>Cam kết y tế an toàn</h3>
-        <button className="consultation-button-secondary" onClick={navigateToLogin}>Nhận tư vấn từ chuyên gia</button>
+        <button
+          className="consultation-button-secondary"
+          onClick={navigateToLogin}
+        >
+          Nhận tư vấn từ chuyên gia
+        </button>
       </section>
 
       {/* Footer */}
