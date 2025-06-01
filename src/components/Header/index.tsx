@@ -9,7 +9,9 @@ const navigationItems = [
   { name: "Trang chủ", path: "/home" },
   { name: "Giới thiệu", path: "/intro" },
   { name: "Dịch vụ IUI / IVF", path: "/" },
-  { name: "Blog", path: "/" },
+  { name: "Blog", path: "/blog" },
+  { name: "Đặt lịch khám", path: "/appointment" },
+
   { name: "Tra cứu kết quả", path: "/searchresult" },
 ];
 

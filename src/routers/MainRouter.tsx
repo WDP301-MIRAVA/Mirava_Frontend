@@ -7,6 +7,7 @@ import PrivateRoute from "../utils/PrivateRoute";
 import Homepage from "../pages/Homepage/homepage";
 import Intropage from "../pages/IntroPage/introPage";
 import SearchResult from "../pages/SearchResult/searchresult";
+import Appointment from "@/pages/Appointment/appointment";
 
 const MainRouter = () => {
   return (
@@ -19,6 +20,7 @@ const MainRouter = () => {
       <Route path="/searchresult" element={<SearchResult />} />
 
       {/* Protected Routes */}
+      <Route path="/appointment" element={<Appointment />} />
       <Route element={<PrivateRoute />}>
         <Route element={<MainLayout />}>
           <Route path="/" element={<Home />} />
