@@ -8,6 +8,7 @@ import Homepage from "../pages/Homepage/homepage";
 import Intropage from "../pages/IntroPage/introPage";
 import SearchResult from "../pages/SearchResult/searchresult";
 import Appointment from "@/pages/Appointment/appointment";
+import DetailDoctor from "@/pages/DetailDoctor/detailDoctorPage";
 
 const MainRouter = () => {
   return (
@@ -18,6 +19,7 @@ const MainRouter = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/intro" element={<Intropage />} />
       <Route path="/searchresult" element={<SearchResult />} />
+      <Route path="/detaildoctor/:id" element={<DetailDoctor />} />
 
       {/* Protected Routes */}
       <Route path="/appointment" element={<Appointment />} />

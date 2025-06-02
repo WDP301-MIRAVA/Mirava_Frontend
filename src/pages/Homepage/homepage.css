@@ -425,3 +425,38 @@ h1, h2, h3 {
 .arrow-icon {
   margin-left: 10px;
 }
+
+/* Thêm các style này vào cuối file homepage.css */
+
+.loading-message, .error-message {
+  text-align: center;
+  padding: 20px;
+  font-size: 16px;
+  width: 100%;
+  grid-column: 1 / -1; /* Span across all columns */
+}
+
+.loading-message {
+  color: #666;
+}
+
+.error-message {
+  color: #e74c3c;
+  background-color: #ffeaea;
+  border: 1px solid #f5c2c7;
+  border-radius: 8px;
+}
+
+.view-more {
+  background: none;
+  border: none;
+  color: #00b3b0;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0;
+}
+
+.view-more:hover {
+  color: #0056b3;
+}

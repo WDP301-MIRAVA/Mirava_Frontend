@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './homepage.css';
 import Header from '../../components/Header/index';
 import Footer from '../../components/Footer';
+import { DoctorService, type Doctor } from '../../services/doctor.service';
 
 import heroImg1 from '../../assets/HeroSection/1.png';
 import heroImg2 from '../../assets/HeroSection/2.png';
@@ -15,6 +16,9 @@ const bgImages = [
 
 const HomePage: React.FC = () => {
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -24,8 +28,31 @@ const HomePage: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
+
+  const fetchDoctors = async () => {
+    try {
+      setLoading(true);
+      const response = await DoctorService.getDoctors();
+      // Chỉ lấy 3 bác sĩ đầu tiên để hiển thị
+      setDoctors(response.data.slice(0, 3));
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching doctors:', err);
+      setError('Không thể tải thông tin bác sĩ');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const navigateToLogin = () => {
     window.location.href = '/login';
+  };
+
+  const navigateToDoctorDetail = (doctorId: string) => {
+    window.location.href = `/detaildoctor/${doctorId}`;
   };
 
   return (
@@ -74,24 +101,32 @@ const HomePage: React.FC = () => {
       <section className="doctors-section">
         <h2>Đội ngũ bác sĩ</h2>
         <div className="doctors-container">
-          <div className="doctor-card">
-            <div className="doctor-img doctor-a"></div>
-            <h3>Bác sĩ A</h3>
-            <p>Chuyên môn 1</p>
-            <a href="/bac-si/a" className="view-more">Xem thêm</a>
-          </div>
-          <div className="doctor-card">
-            <div className="doctor-img doctor-b"></div>
-            <h3>Bác sĩ B</h3>
-            <p>Chuyên môn 2</p>
-            <a href="/bac-si/b" className="view-more">Xem thêm</a>
-          </div>
-          <div className="doctor-card">
-            <div className="doctor-img doctor-c"></div>
-            <h3>Bác sĩ C</h3>
-            <p>Chuyên môn 3</p>
-            <a href="/bac-si/c" className="view-more">Xem thêm</a>
-          </div>
+          {loading ? (
+            <div className="loading-message">Đang tải thông tin bác sĩ...</div>
+          ) : error ? (
+            <div className="error-message">{error}</div>
+          ) : (
+            doctors.map((doctor, index) => (
+              <div key={doctor._id} className="doctor-card">
+                <div 
+                  className={`doctor-img doctor-${String.fromCharCode(97 + index)}`}
+                  style={{
+                    backgroundImage: `url(${doctor.imageUrl})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                ></div>
+                <h3>{doctor.user.userName}</h3>
+                <p>{doctor.specialty}</p>
+                <button 
+                  className="view-more"
+                  onClick={() => navigateToDoctorDetail(doctor._id)}
+                >
+                  Xem thêm
+                </button>
+              </div>
+            ))
+          )}
         </div>
       </section>
 
