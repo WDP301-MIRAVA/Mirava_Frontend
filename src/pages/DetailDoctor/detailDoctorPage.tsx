@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { DoctorService, type Doctor } from '../../services/doctor.service';
 import './detailDoctorPage.css';
+import Header from '../../components/Header/index';
+import Footer from '../../components/Footer';
 
 const DetailDoctorPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -97,6 +99,8 @@ const DetailDoctorPage: React.FC = () => {
   }
 
   return (
+    <>
+    <Header />
     <div className="doctor-detail-container">
       <div className="doctor-detail-card">
         {/* Back Button */}
@@ -204,6 +208,8 @@ const DetailDoctorPage: React.FC = () => {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 

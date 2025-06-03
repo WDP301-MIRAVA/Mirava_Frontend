@@ -1,34 +1,62 @@
 import { Route, Routes } from "react-router-dom";
-import Home from "../pages/Home/home";
-import MainLayout from "../layouts/MainLayout";
+import Home from "../pages/Profile/profile";
 import LoginPage from "../pages/Login/login";
 import RegisterPage from "../pages/Register/register";
-import PrivateRoute from "../utils/PrivateRoute";
 import Homepage from "../pages/Homepage/homepage";
 import Intropage from "../pages/IntroPage/introPage";
 import SearchResult from "../pages/SearchResult/searchresult";
 import Appointment from "@/pages/Appointment/appointment";
 import DetailDoctor from "@/pages/DetailDoctor/detailDoctorPage";
+import PrivateRoute from "../utils/PrivateRoute";
+import AdminLayout from "@/layouts/AdminLayout/AdminLayout";
+import CustomerLayout from "@/layouts/CustomerLayout/CustomerLayout";
 
 const MainRouter = () => {
   return (
     <Routes>
-      {/* Public Routes */}
+      {/* Public Routes - Các route công khai, ai cũng truy cập được */}
+      <Route path="/" element={<Homepage />} />
       <Route path="/home" element={<Homepage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/intro" element={<Intropage />} />
       <Route path="/searchresult" element={<SearchResult />} />
       <Route path="/detaildoctor/:id" element={<DetailDoctor />} />
-
-      {/* Protected Routes */}
       <Route path="/appointment" element={<Appointment />} />
-      <Route element={<PrivateRoute />}>
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<Home />} />
-          {/* Thêm các route khác cần bảo vệ ở đây */}
-        </Route>
-      </Route>
+
+      {/* Customer Protected Routes - Chỉ customer mới truy cập được */}
+      <Route 
+        path="/customer/*" 
+        element={
+          <PrivateRoute allowedRole="customer" layout={CustomerLayout}>
+            <Routes>
+              <Route index element={<Home />} />
+              <Route path="profile" element={<Home />} />
+              {/* Thêm các route khác cho customer ở đây */}
+              {/* <Route path="medical-history" element={<MedicalHistory />} /> */}
+              {/* <Route path="treatment-plan" element={<TreatmentPlan />} /> */}
+            </Routes>
+          </PrivateRoute>
+        } 
+      />
+
+      {/* Admin Protected Routes - Chỉ admin mới truy cập được */}
+      <Route 
+        path="/admin/*" 
+        element={
+          <PrivateRoute allowedRole="admin" layout={AdminLayout}>
+            <Routes>
+              <Route index element={<div>Admin Dashboard</div>} />
+              {/* <Route path="users" element={<ManageUsers />} /> */}
+              {/* <Route path="doctors" element={<ManageDoctors />} /> */}
+              {/* Thêm các route khác cho admin ở đây */}
+            </Routes>
+          </PrivateRoute>
+        } 
+      />
+
+      {/* Catch all route - Redirect về home nếu không tìm thấy route */}
+      <Route path="*" element={<Homepage />} />
     </Routes>
   );
 };
