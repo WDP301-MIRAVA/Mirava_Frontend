@@ -1,0 +1,564 @@
+
+.treatment-plan-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background-color: #f8fafb;
+  min-height: 100vh;
+}
+
+.treatment-plan-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.treatment-plan-header h1 {
+  color: #2c3e50;
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+}
+
+.subtitle {
+  color: #7f8c8d;
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+.view-toggle {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.toggle-btn {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #00B4C6;
+  background: white;
+  color: #00B4C6;
+  border-radius: 25px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.toggle-btn:hover {
+  background: #00B4C6;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 180, 198, 0.3);
+}
+
+.toggle-btn.active {
+  background: #00B4C6;
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 180, 198, 0.3);
+}
+
+/* List View Styles */
+.list-view {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 1rem;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, #00B4C6, #7dd3fc);
+}
+
+.timeline-item {
+  position: relative;
+  margin-bottom: 2rem;
+  padding-left: 2rem;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: -2rem;
+  top: 0.5rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid #00B4C6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 180, 198, 0.2);
+}
+
+.event-icon {
+  font-size: 1.2rem;
+}
+
+.timeline-content {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #00B4C6;
+  transition: all 0.3s ease;
+}
+
+.timeline-content:hover {
+  transform: translateX(4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.event-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.event-header h3 {
+  color: #2c3e50;
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+}
+
+.event-date {
+  color: #00B4C6;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.event-time {
+  background: #00B4C6;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.event-details {
+  color: #5a6c7d;
+  line-height: 1.6;
+  margin: 0 0 1rem 0;
+}
+
+.medication-info, .instructions {
+  background: #f1f9ff;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-top: 0.75rem;
+  border-left: 3px solid #00B4C6;
+}
+
+.medication-info strong, .instructions strong {
+  color: #00B4C6;
+}
+
+/* Event Type Specific Colors */
+.event-medication .timeline-marker {
+  border-color: #00B4C6;
+}
+
+.event-medication .timeline-content {
+  border-left-color: #00B4C6;
+}
+
+.event-test .timeline-marker {
+  border-color: #f39c12;
+}
+
+.event-test .timeline-content {
+  border-left-color: #f39c12;
+}
+
+.event-ultrasound .timeline-marker {
+  border-color: #9b59b6;
+}
+
+.event-ultrasound .timeline-content {
+  border-left-color: #9b59b6;
+}
+
+.event-procedure .timeline-marker {
+  border-color: #e74c3c;
+}
+
+.event-procedure .timeline-content {
+  border-left-color: #e74c3c;
+}
+
+/* Calendar View Styles */
+.calendar-view {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  margin-bottom: 2rem;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.calendar-header h2 {
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.nav-btn {
+  background: #00B4C6;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.nav-btn:hover {
+  background: #0891a5;
+  transform: scale(1.1);
+}
+
+.calendar-grid {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: #00B4C6;
+}
+
+.weekday {
+  padding: 1rem;
+  text-align: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.calendar-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: white;
+}
+
+.calendar-day {
+  min-height: 80px;
+  padding: 0.5rem;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.calendar-day.active:hover {
+  background: #f0f9ff;
+}
+
+.calendar-day.inactive {
+  background: #f9fafb;
+  cursor: default;
+}
+
+.calendar-day.has-events {
+  background: #fef3f2;
+  border-color: #00B4C6;
+}
+
+.calendar-day.has-events:hover {
+  background: #fde8e6;
+}
+
+.day-number {
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.event-indicators {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.event-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00B4C6;
+}
+
+.event-dot.event-medication {
+  background: #00B4C6;
+}
+
+.event-dot.event-test {
+  background: #f39c12;
+}
+
+.event-dot.event-ultrasound {
+  background: #9b59b6;
+}
+
+.event-dot.event-procedure {
+  background: #e74c3c;
+}
+
+/* Event Details Panel */
+.event-details-panel {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  margin-top: 2rem;
+  overflow: hidden;
+}
+
+.panel-header {
+  background: #00B4C6;
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.panel-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.panel-content {
+  padding: 1.5rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.event-card {
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid #00B4C6;
+  background: #f8fafb;
+}
+
+.event-card:last-child {
+  margin-bottom: 0;
+}
+
+.event-card.event-medication {
+  border-left-color: #00B4C6;
+  background: #f0f9ff;
+}
+
+.event-card.event-test {
+  border-left-color: #f39c12;
+  background: #fef9e7;
+}
+
+.event-card.event-ultrasound {
+  border-left-color: #9b59b6;
+  background: #f4f0ff;
+}
+
+.event-card.event-procedure {
+  border-left-color: #e74c3c;
+  background: #fef2f2;
+}
+
+.event-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.event-card-header h4 {
+  color: #2c3e50;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  flex: 1;
+}
+
+.time {
+  background: #00B4C6;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.event-card p {
+  color: #5a6c7d;
+  line-height: 1.5;
+  margin: 0 0 0.75rem 0;
+}
+
+.event-card .medication-info,
+.event-card .instructions {
+  background: rgba(255, 255, 255, 0.7);
+  margin-top: 0.5rem;
+}
+
+/* Notification Message */
+.notification-message {
+  background: linear-gradient(135deg, #00B4C6, #0891a5);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 16px rgba(0, 180, 198, 0.3);
+}
+
+.notification-icon {
+  font-size: 1.5rem;
+  opacity: 0.9;
+}
+
+.notification-message p {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .treatment-plan-container {
+    padding: 1rem;
+  }
+
+  .treatment-plan-header h1 {
+    font-size: 2rem;
+  }
+
+  .view-toggle {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .toggle-btn {
+    width: 200px;
+  }
+
+  .list-view,
+  .calendar-view {
+    padding: 1rem;
+  }
+
+  .timeline {
+    padding-left: 1.5rem;
+  }
+
+  .timeline-item {
+    padding-left: 1.5rem;
+  }
+
+  .timeline-marker {
+    left: -1.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .event-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .calendar-day {
+    min-height: 60px;
+    padding: 0.25rem;
+  }
+
+  .weekday {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .day-number {
+    font-size: 0.9rem;
+  }
+
+  .panel-header {
+    padding: 1rem;
+  }
+
+  .panel-content {
+    padding: 1rem;
+  }
+
+  .notification-message {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-days {
+    gap: 1px;
+  }
+  
+  .calendar-day {
+    min-height: 50px;
+  }
+  
+  .event-dot {
+    width: 4px;
+    height: 4px;
+  }
+}

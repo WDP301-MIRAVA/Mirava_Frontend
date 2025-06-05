@@ -45,6 +45,10 @@
   justify-content: center;
 }
 
+.logo-image {
+  height: 45px;
+}
+
 .customer-layout .logo-text {
   font-size: 20px;
   font-weight: 700;

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bell, LogOut, ChevronRight } from 'react-feather'; 
 import './CustomerLayout.css';
+import logo from '../../assets/mirava-logo.png'; 
 
 interface CustomerLayoutProps {
   children: React.ReactNode;
@@ -19,7 +20,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({
     if (path === '/customer' || path === '/customer/') return "Trang chủ";
     if (path.includes('/customer/profile')) return "Hồ sơ";
     if (path.includes('/customer/medical-history')) return "Tiền sử y tế";
-    if (path.includes('/customer/treatment-plan')) return "Kế hoạch điều trị";
+    if (path.includes('/customer/treatmentplan')) return "Kế hoạch điều trị";
     if (path.includes('/customer/schedule')) return "Lịch điều trị";
     if (path.includes('/customer/prescription')) return "Đơn thuốc";
     if (path.includes('/customer/reviews')) return "Đánh giá";
@@ -33,37 +34,16 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({
     { id: 1, name: "Trang chủ", label: "Trang chủ", icon: "🏠", path: "/customer" },
     { id: 2, name: "Hồ sơ", label: "Hồ sơ", icon: "👤", path: "/customer/profile" },
     { id: 3, name: "Tiền sử y tế", label: "Tiền sử y tế", icon: "📋", path: "/customer/medical-history" },
-    { id: 4, name: "Kế hoạch điều trị", label: "Kế hoạch điều trị", icon: "📅", path: "/customer/treatment-plan" },
+    { id: 4, name: "Kế hoạch điều trị", label: "Kế hoạch điều trị", icon: "📅", path: "/customer/treatmentplan" },
     { id: 5, name: "Lịch điều trị", label: "Lịch điều trị", icon: "🗓️", path: "/customer/schedule" },
     { id: 6, name: "Đơn thuốc", label: "Đơn thuốc", icon: "💊", path: "/customer/prescription" },
     { id: 7, name: "Đánh giá", label: "Đánh giá", icon: "⭐", path: "/customer/reviews" },
     { id: 8, name: "Liên hệ bác sĩ", label: "Liên hệ bác sĩ", icon: "📞", path: "/customer/contact" }
   ];
 
-  // Lấy thông tin user từ localStorage
-  const getUserData = () => {
-    try {
-      const userInfo = localStorage.getItem("userInfo");
-      if (userInfo) {
-        const parsed = JSON.parse(userInfo);
-        return {
-          name: parsed.name || "Nguyễn Thị Lan",
-          email: parsed.email || "lan.nguyen@email.com",
-          avatar: parsed.avatar || "https://images.unsplash.com/photo-1494790108755-2616b612b5e5?w=80&h=80&fit=crop&crop=face&auto=format"
-        };
-      }
-    } catch (error) {
-      console.error("Error parsing user info:", error);
-    }
-    
-    return {
-      name: "Nguyễn Thị Lan",
-      email: "lan.nguyen@email.com", 
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b5e5?w=80&h=80&fit=crop&crop=face&auto=format"
-    };
-  };
 
-  const userData = getUserData();
+
+
 
   // Tạo breadcrumb dựa trên active menu
   const getBreadcrumb = () => {
@@ -99,28 +79,11 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({
         {/* Logo */}
         <div className="sidebar-logo">
           <div className="logo-icon">
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-              <rect width="32" height="32" rx="8" fill="#00B4C6"/>
-              <path d="M16 8L24 16L16 24L8 16L16 8Z" fill="white"/>
-              <circle cx="16" cy="16" r="4" fill="#00B4C6"/>
-            </svg>
+            <img src={logo} alt="Mirava Logo" className="logo-image" />
           </div>
-          <span className="logo-text">HealthCare</span>
+          <span className="logo-text">Mirava</span>
         </div>
 
-        {/* User Info */}
-        <div className="user-info">
-          <div className="user-avatar">
-            <img 
-              src={userData.avatar}
-              alt="User Avatar"
-            />
-          </div>
-          <div className="user-details">
-            <div className="user-name">{userData.name}</div>
-            <div className="user-email">{userData.email}</div>
-          </div>
-        </div>
 
         {/* Navigation Menu */}
         <nav className="sidebar-nav">
@@ -174,10 +137,6 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({
           </div>
         </div>
 
-        {/* Page Title */}
-        {/* <div className="page-header">
-          <h1 className="page-title">{activeMenuItem}</h1>
-        </div> */}
 
         {/* Page Content */}
         <div className="page-content">
