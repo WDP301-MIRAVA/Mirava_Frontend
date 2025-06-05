@@ -1,5 +1,5 @@
 import { Route, Routes } from "react-router-dom";
-import Home from "../pages/Profile/profile";
+import Profile from "../pages/Profile/profile";
 import LoginPage from "../pages/Login/login";
 import RegisterPage from "../pages/Register/register";
 import Homepage from "../pages/Homepage/homepage";
@@ -10,6 +10,9 @@ import DetailDoctor from "@/pages/DetailDoctor/detailDoctorPage";
 import PrivateRoute from "../utils/PrivateRoute";
 import AdminLayout from "@/layouts/AdminLayout/AdminLayout";
 import CustomerLayout from "@/layouts/CustomerLayout/CustomerLayout";
+import CustomerHome from "@/pages/Customer/Home/Home";
+import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
+
 
 const MainRouter = () => {
   return (
@@ -30,11 +33,11 @@ const MainRouter = () => {
         element={
           <PrivateRoute allowedRole="customer" layout={CustomerLayout}>
             <Routes>
-              <Route index element={<Home />} />
-              <Route path="profile" element={<Home />} />
+              <Route index element={<CustomerHome />} />
+              <Route path="/profile" element={<Profile />} />
               {/* Thêm các route khác cho customer ở đây */}
-              {/* <Route path="medical-history" element={<MedicalHistory />} /> */}
-              {/* <Route path="treatment-plan" element={<TreatmentPlan />} /> */}
+              <Route path="/treatmentplan" element={<TreatmentPlan/>} />
+              
             </Routes>
           </PrivateRoute>
         } 
