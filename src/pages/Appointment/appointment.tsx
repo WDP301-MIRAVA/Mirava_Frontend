@@ -117,47 +117,20 @@ const Appointment = () => {
               validateStatus={!selectedDoctorId ? "error" : "success"}
               help={!selectedDoctorId && "Vui lòng chọn bác sĩ"}
             >
-              <Row style={{ width: "100%" }}>
-                {doctors.map((doc: any) => (
-                  <Col span={6} style={{ width: "100%" }}>
-                    <Card
-                      key={doc._id}
-                      hoverable
-                      className={`doctor-card ${
-                        selectedDoctorId === doc._id ? "selected" : ""
-                      }`}
-                      onClick={() => handleDoctorSelect(doc._id)}
-                      style={{ marginBottom: 16, width: "100%", height: 400 }}
-                    >
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "16px",
-                          flexDirection: "column",
-                          width: "100%",
-                        }}
-                      >
-                        <img
-                          src={doc.imageUrl}
-                          alt={doc.user.userName}
-                          style={{
-                            width: "100%",
-                            height: 100,
-                            objectFit: "cover",
-                            borderRadius: 8,
-                          }}
-                        />
-                        <div>
-                          <Title level={5}>{doc.user.userName}</Title>
-                          <Text strong>Chuyên khoa:</Text> {doc.specialty}{" "}
-                          <br />
-                          <Text strong>Học vị:</Text> {doc.degree} <br />
-                        </div>
-                      </div>
-                    </Card>
-                  </Col>
+              <Select
+                placeholder="Chọn bác sĩ"
+                value={selectedDoctorId}
+                onChange={(value) => handleDoctorSelect(value)}
+                style={{ width: "100%" }}
+                optionFilterProp="children"
+                showSearch
+              >
+                {doctors?.map((doc) => (
+                  <Select.Option key={doc._id} value={doc._id}>
+                    {doc?.user?.userName}
+                  </Select.Option>
                 ))}
-              </Row>
+              </Select>
             </Form.Item>
 
             <Form.Item
