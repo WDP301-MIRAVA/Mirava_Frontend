@@ -1,18 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import './homepage.css';
-import Header from '../../components/Header/index';
-import Footer from '../../components/Footer';
-import { DoctorService, type Doctor } from '../../services/doctor.service';
+import React, { useState, useEffect } from "react";
+import "./homepage.css";
+import Header from "../../components/Header/index";
+import Footer from "../../components/Footer";
+import { DoctorService, type Doctor } from "../../services/doctor.service";
 
-import heroImg1 from '../../assets/HeroSection/1.png';
-import heroImg2 from '../../assets/HeroSection/2.png';
-import heroImg3 from '../../assets/HeroSection/3.png';
+import heroImg1 from "../../assets/HeroSection/1.png";
+import heroImg2 from "../../assets/HeroSection/2.png";
+import heroImg3 from "../../assets/HeroSection/3.png";
 
-const bgImages = [
-  heroImg1,
-  heroImg2,
-  heroImg3,
-];
+const bgImages = [heroImg1, heroImg2, heroImg3];
 
 const HomePage: React.FC = () => {
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
@@ -22,7 +18,7 @@ const HomePage: React.FC = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentBgIndex(prev => (prev + 1) % bgImages.length);
+      setCurrentBgIndex((prev) => (prev + 1) % bgImages.length);
     }, 5000); // đổi ảnh mỗi 5s
 
     return () => clearInterval(interval);
@@ -40,15 +36,15 @@ const HomePage: React.FC = () => {
       setDoctors(response.data.slice(0, 3));
       setError(null);
     } catch (err) {
-      console.error('Error fetching doctors:', err);
-      setError('Không thể tải thông tin bác sĩ');
+      console.error("Error fetching doctors:", err);
+      setError("Không thể tải thông tin bác sĩ");
     } finally {
       setLoading(false);
     }
   };
 
-  const navigateToLogin = () => {
-    window.location.href = '/login';
+  const navigateToAppointment = () => {
+    window.location.href = "/appointment";
   };
 
   const navigateToDoctorDetail = (doctorId: string) => {
@@ -68,14 +64,22 @@ const HomePage: React.FC = () => {
         <div className="hero-overlay" />
         <div className="hero-content ">
           <h1>Hành trình chạm tới thiên chức làm cha mẹ bắt đầu từ đây</h1>
-          <p>Giải pháp điều trị hiếm muộn IUI / IVF toàn diện, an toàn và đồng hành bởi đội ngũ chuyên gia.</p>
-          <button className="consultation-button" onClick={navigateToLogin}>Đặt lịch tư vấn miễn phí</button>
+          <p>
+            Giải pháp điều trị hiếm muộn IUI / IVF toàn diện, an toàn và đồng
+            hành bởi đội ngũ chuyên gia.
+          </p>
+          <button
+            className="consultation-button"
+            onClick={navigateToAppointment}
+          >
+            Đặt lịch tư vấn miễn phí
+          </button>
         </div>
         <div className="hero-dots">
           {bgImages.map((_, index) => (
             <span
               key={index}
-              className={`dot ${index === currentBgIndex ? 'active' : ''}`}
+              className={`dot ${index === currentBgIndex ? "active" : ""}`}
             ></span>
           ))}
         </div>
@@ -108,17 +112,19 @@ const HomePage: React.FC = () => {
           ) : (
             doctors.map((doctor, index) => (
               <div key={doctor._id} className="doctor-card">
-                <div 
-                  className={`doctor-img doctor-${String.fromCharCode(97 + index)}`}
+                <div
+                  className={`doctor-img doctor-${String.fromCharCode(
+                    97 + index
+                  )}`}
                   style={{
                     backgroundImage: `url(${doctor.imageUrl})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
                   }}
                 ></div>
                 <h3>{doctor.user.userName}</h3>
                 <p>{doctor.specialty}</p>
-                <button 
+                <button
                   className="view-more"
                   onClick={() => navigateToDoctorDetail(doctor._id)}
                 >
@@ -170,7 +176,9 @@ const HomePage: React.FC = () => {
             <div className="blog-content">
               <h3>Tiêu đề</h3>
               <p>Trích đoạn bài viết...</p>
-              <a href="/blog/1" className="view-more">Xem thêm</a>
+              <a href="/blog/1" className="view-more">
+                Xem thêm
+              </a>
             </div>
           </div>
           <div className="blog-card">
@@ -178,7 +186,9 @@ const HomePage: React.FC = () => {
             <div className="blog-content">
               <h3>Tiêu đề</h3>
               <p>Trích đoạn bài viết...</p>
-              <a href="/blog/2" className="view-more">Xem thêm</a>
+              <a href="/blog/2" className="view-more">
+                Xem thêm
+              </a>
             </div>
           </div>
         </div>
@@ -188,7 +198,12 @@ const HomePage: React.FC = () => {
       <section className="health-safety-section">
         <div className="safety-icon"></div>
         <h3>Cam kết y tế an toàn</h3>
-        <button className="consultation-button-secondary" onClick={navigateToLogin}>Nhận tư vấn từ chuyên gia</button>
+        <button
+          className="consultation-button-secondary"
+          onClick={navigateToAppointment}
+        >
+          Nhận tư vấn từ chuyên gia
+        </button>
       </section>
 
       {/* Footer */}
