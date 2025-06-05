@@ -1,5 +1,4 @@
-import axios from "axios";
-import { BASE_URL } from "./config";
+import axiosInstance from "./MainService";
 
 // Types
 export interface User {
@@ -98,15 +97,9 @@ export interface TreatmentPlanResponse {
 export const TreatmentPlanService = {
   // Lấy kế hoạch điều trị của bệnh nhân theo patientId
   getTreatmentPlanByPatientId: (patientId: string) =>
-    axios.get<TreatmentPlanResponse>(`${BASE_URL}/api/treatment-plan/patient/${patientId}`, {
-      headers: { "Content-Type": "application/json" },
-    }),
-
-
+    axiosInstance.get(`/api/treatment-plan/patient/${patientId}`),
 
   // Lấy chi tiết kế hoạch điều trị theo ID
   getTreatmentPlanById: (treatmentPlanId: string) =>
-    axios.get<TreatmentPlanResponse>(`${BASE_URL}/api/treatment-plan/${treatmentPlanId}`, {
-      headers: { "Content-Type": "application/json" },
-    }),
+    axiosInstance.get(`/api/treatment-plan/${treatmentPlanId}`),
 };

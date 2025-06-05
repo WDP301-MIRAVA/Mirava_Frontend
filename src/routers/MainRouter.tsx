@@ -13,7 +13,6 @@ import CustomerLayout from "@/layouts/CustomerLayout/CustomerLayout";
 import CustomerHome from "@/pages/Customer/Home/Home";
 import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
 
-
 const MainRouter = () => {
   return (
     <Routes>
@@ -28,24 +27,23 @@ const MainRouter = () => {
       <Route path="/appointment" element={<Appointment />} />
 
       {/* Customer Protected Routes - Chỉ customer mới truy cập được */}
-      <Route 
-        path="/customer/*" 
+      <Route
+        path="/customer/*"
         element={
           <PrivateRoute allowedRole="customer" layout={CustomerLayout}>
             <Routes>
               <Route index element={<CustomerHome />} />
               <Route path="/profile" element={<Profile />} />
               {/* Thêm các route khác cho customer ở đây */}
-              <Route path="/treatmentplan" element={<TreatmentPlan/>} />
-              
+              <Route path="/treatmentplan" element={<TreatmentPlan />} />
             </Routes>
           </PrivateRoute>
-        } 
+        }
       />
 
       {/* Admin Protected Routes - Chỉ admin mới truy cập được */}
-      <Route 
-        path="/admin/*" 
+      <Route
+        path="/admin/*"
         element={
           <PrivateRoute allowedRole="admin" layout={AdminLayout}>
             <Routes>
@@ -55,7 +53,7 @@ const MainRouter = () => {
               {/* Thêm các route khác cho admin ở đây */}
             </Routes>
           </PrivateRoute>
-        } 
+        }
       />
 
       {/* Catch all route - Redirect về home nếu không tìm thấy route */}
