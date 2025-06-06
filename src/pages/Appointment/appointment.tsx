@@ -111,12 +111,7 @@ const Appointment = () => {
               <Input placeholder="Nhập địa chỉ" />
             </Form.Item>
 
-            <Form.Item
-              label="Chọn bác sĩ"
-              required
-              validateStatus={!selectedDoctorId ? "error" : "success"}
-              help={!selectedDoctorId && "Vui lòng chọn bác sĩ"}
-            >
+            <Form.Item label="Chọn bác sĩ" required>
               <Select
                 placeholder="Chọn bác sĩ"
                 value={selectedDoctorId}
