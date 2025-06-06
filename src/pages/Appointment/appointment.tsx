@@ -8,8 +8,6 @@ import {
   Radio,
   Card,
   Typography,
-  Row,
-  Col,
 } from "antd";
 import dayjs from "dayjs";
 import "./appointment.css";
@@ -30,6 +28,11 @@ const Appointment = () => {
   const [doctors, setDoctors] = useState([]);
   const [services, setServices] = useState([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
+  const [workDays, setWorkDays] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(null);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
+
   const fetchDoctors = async () => {
     try {
       const response = await DoctorService.getDoctors();
@@ -53,27 +56,106 @@ const Appointment = () => {
     fetchServices();
   }, []);
 
+  const handleDoctorSelect = (id: string) => {
+    setSelectedDoctorId(id);
+    setSelectedTimeSlot(null);
+    setAvailableTimeSlots([]);
+    const doctor = doctors.find((d) => d._id === id);
+    if (doctor?.workSchedule) {
+      const days = doctor.workSchedule.map(
+        (item: string) => item.split(" ")[0]
+      );
+      setWorkDays(days);
+    } else {
+      setWorkDays([]);
+    }
+  };
+
+  const isDayDisabled = (current: any) => {
+    if (!current || !workDays.length) return true;
+    if (current < dayjs().startOf("day")) return true;
+
+    const dayOfWeek = current.format("dddd");
+    return !workDays.includes(dayOfWeek);
+  };
+
+  const getAvailableTimeSlots = (date: dayjs.Dayjs, doctorId: string) => {
+    const doctor = doctors.find((d) => d._id === doctorId);
+    if (!doctor || !doctor.workSchedule) return [];
+
+    const dayOfWeek = date.format("dddd");
+    const schedule = doctor.workSchedule.find((s: string) =>
+      s.startsWith(dayOfWeek)
+    );
+    if (!schedule) return [];
+
+    const timeParts = schedule.split(" ").slice(1);
+    const timeSlots: string[] = [];
+
+    timeParts.forEach((part: string) => {
+      const [start, end] = part.split("-");
+      let current = dayjs(
+        `${date.format("YYYY-MM-DD")} ${start}`,
+        "YYYY-MM-DD HH:mm"
+      );
+      const endTime = dayjs(
+        `${date.format("YYYY-MM-DD")} ${end}`,
+        "YYYY-MM-DD HH:mm"
+      );
+
+      while (current <= endTime) {
+        timeSlots.push(current.format("HH:mm"));
+        current = current.add(30, "minute");
+      }
+    });
+
+    return timeSlots;
+  };
+
+  const handleDateChange = (date: dayjs.Dayjs | null) => {
+    setSelectedDate(date);
+    setSelectedTimeSlot(null);
+    if (date && selectedDoctorId) {
+      const slots = getAvailableTimeSlots(date, selectedDoctorId);
+      setAvailableTimeSlots(slots);
+    } else {
+      setAvailableTimeSlots([]);
+    }
+  };
+
+  const handleTimeSlotSelect = (slot: string) => {
+    setSelectedTimeSlot(slot);
+  };
+
   const onFinish = async (values: any) => {
     try {
       setLoading(true);
+      if (!selectedTimeSlot || !selectedDate) {
+        toast.error("Vui lòng chọn ngày và khung giờ!");
+        return;
+      }
+
+      const dateWithTime = `${selectedDate.format(
+        "YYYY-MM-DD"
+      )} ${selectedTimeSlot}`;
       const payload = {
         ...values,
         doctorId: selectedDoctorId,
-        date: values.date.format("YYYY-MM-DD"),
+        date: dateWithTime,
       };
       await AppointmentService.createBooking(payload);
       toast.success("Đặt lịch thành công!");
       form.resetFields();
       setSelectedDoctorId(null);
+      setWorkDays([]);
+      setSelectedDate(null);
+      setAvailableTimeSlots([]);
+      setSelectedTimeSlot(null);
     } catch (error) {
       toast.error("Có lỗi xảy ra khi đặt lịch.");
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDoctorSelect = (id: string) => {
-    setSelectedDoctorId(id);
   };
 
   return (
@@ -85,7 +167,7 @@ const Appointment = () => {
             layout="vertical"
             form={form}
             onFinish={onFinish}
-            initialValues={{ gender: "male" }}
+            initialValues={{ gender: "Male" }}
           >
             <Form.Item
               name="fullName"
@@ -128,6 +210,34 @@ const Appointment = () => {
               </Select>
             </Form.Item>
 
+            {selectedDoctorId && (
+              <div style={{ marginBottom: 16 }}>
+                {(() => {
+                  const selectedDoctor = doctors.find(
+                    (doc) => doc._id === selectedDoctorId
+                  );
+                  if (!selectedDoctor) return null;
+
+                  return (
+                    <div
+                      style={{
+                        padding: "10px",
+                        backgroundColor: "#f0f0f0",
+                        borderRadius: "6px",
+                      }}
+                    >
+                      <Text strong>Thời gian làm việc:</Text>
+                      <ul style={{ margin: 0, paddingLeft: "1.2rem" }}>
+                        {selectedDoctor.workSchedule?.map((schedule, idx) => (
+                          <li key={idx}>{schedule}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
+
             <Form.Item
               name="specialty"
               label="Chuyên khoa"
@@ -135,7 +245,9 @@ const Appointment = () => {
             >
               <Select placeholder="Chọn chuyên khoa">
                 {services?.map((service) => (
-                  <Option value={service.method}>{service.name}</Option>
+                  <Option key={service._id} value={service.method}>
+                    {service.name}
+                  </Option>
                 ))}
               </Select>
             </Form.Item>
@@ -156,11 +268,41 @@ const Appointment = () => {
               <DatePicker
                 style={{ width: "100%" }}
                 format="YYYY-MM-DD"
-                disabledDate={(current) =>
-                  current && current < dayjs().startOf("day")
-                }
+                disabledDate={isDayDisabled}
+                onChange={handleDateChange}
               />
             </Form.Item>
+
+            {availableTimeSlots.length > 0 && (
+              <div style={{ marginBottom: 16 }}>
+                <Text strong>Chọn khung giờ:</Text>
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                    marginTop: "8px",
+                  }}
+                >
+                  {availableTimeSlots.map((slot) => (
+                    <Button
+                      key={slot}
+                      onClick={() => handleTimeSlotSelect(slot)}
+                      style={{
+                        backgroundColor:
+                          selectedTimeSlot === slot ? "#13c2c2" : "#e6f7ff",
+                        color: selectedTimeSlot === slot ? "#fff" : "#000",
+                        border: "none",
+                        borderRadius: "4px",
+                        padding: "4px 12px",
+                      }}
+                    >
+                      {slot}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <Form.Item name="note" label="Ghi chú">
               <TextArea rows={3} placeholder="Ghi chú thêm (nếu có)" />
@@ -173,7 +315,7 @@ const Appointment = () => {
                 loading={loading}
                 block
                 className="btn-submit"
-                disabled={!selectedDoctorId}
+                disabled={!selectedDoctorId || !selectedTimeSlot}
               >
                 Đặt lịch khám
               </Button>
