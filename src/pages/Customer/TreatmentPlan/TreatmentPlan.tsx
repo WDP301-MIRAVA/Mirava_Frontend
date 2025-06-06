@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Modal } from "antd";
 import "./TreatmentPlan.css";
 import {
   TreatmentPlanService,
@@ -18,231 +19,27 @@ interface TreatmentEvent {
 }
 
 const TreatmentPlan: React.FC = () => {
-  const [activeView, setActiveView] = useState<"list" | "calendar">("list");
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [treatmentPlan, setTreatmentPlan] = useState<TreatmentEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [plans, setPlans] = useState<ApiTreatmentPlan[]>([]);
+  const [selectedPlan, setSelectedPlan] = useState<ApiTreatmentPlan | null>(
+    null
+  );
+  const [activeView, setActiveView] = useState<"list" | "calendar">("list");
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  // Hàm chuyển đổi data từ API sang format hiện tại
-  const transformApiDataToTreatmentEvents = (
-    apiData: ApiTreatmentPlan[]
-  ): TreatmentEvent[] => {
-    const events: TreatmentEvent[] = [];
-
-    apiData.forEach((plan) => {
-      const cycleStartDate = new Date(plan.cycleStartDate);
-
-      // 1. Ovarian Stimulation Events
-      if (plan.ovarianStimulation) {
-        const stimStartDate = new Date(cycleStartDate);
-        stimStartDate.setDate(
-          stimStartDate.getDate() + plan.ovarianStimulation.startDay - 1
-        );
-
-        // Tạo event cho từng ngày kích thích buồng trứng
-        for (let i = 0; i < plan.ovarianStimulation.durationDays; i++) {
-          const eventDate = new Date(stimStartDate);
-          eventDate.setDate(stimStartDate.getDate() + i);
-
-          events.push({
-            id: `stim-${plan._id}-${i}`,
-            date: eventDate.toISOString().split("T")[0],
-            type: "medication",
-            title: "Tiêm thuốc kích thích buồng trứng",
-            details: `Tiêm thuốc ${plan.ovarianStimulation.medication} để kích thích phát triển nang trứng`,
-            medication: plan.ovarianStimulation.medication,
-            dosage: plan.ovarianStimulation.dailyDosage,
-            instructions: "Tiêm dưới da vào buổi tối, cùng giờ hàng ngày",
-            time: "20:00",
-          });
-        }
-
-        // Monitoring Schedule Events
-        plan.ovarianStimulation.monitoringSchedule.forEach((monitoring) => {
-          const monitoringDate = new Date(cycleStartDate);
-          monitoringDate.setDate(monitoringDate.getDate() + monitoring.day - 1);
-
-          let eventType = "test";
-          let title = "Theo dõi điều trị";
-          let details = monitoring.notes;
-          let instructions = "";
-
-          if (
-            monitoring.type.toLowerCase().includes("ultrasound") ||
-            monitoring.type.toLowerCase().includes("siêu âm")
-          ) {
-            eventType = "ultrasound";
-            title = "Siêu âm kiểm tra nang trứng";
-            details = "Siêu âm đếm số lượng và đo kích thước nang trứng";
-            instructions = "Uống đủ nước trước khi siêu âm 30 phút";
-          } else if (
-            monitoring.type.toLowerCase().includes("blood") ||
-            monitoring.type.toLowerCase().includes("hormone")
-          ) {
-            eventType = "test";
-            title = "Xét nghiệm hormone";
-            details = "Xét nghiệm E2, LH, FSH để theo dõi đáp ứng buồng trứng";
-            instructions = "Nhịn ăn 8 tiếng trước khi xét nghiệm";
-          }
-
-          events.push({
-            id: `monitoring-${plan._id}-${monitoring._id}`,
-            date: monitoringDate.toISOString().split("T")[0],
-            type: eventType,
-            title: title,
-            details: details || monitoring.notes,
-            instructions: instructions,
-            time: eventType === "test" ? "08:00" : "14:30",
-          });
-        });
-      }
-
-      // 2. HCG Injection Event
-      if (plan.hcgInjection && plan.hcgInjection.plannedDate) {
-        const hcgDate = new Date(plan.hcgInjection.plannedDate);
-        events.push({
-          id: `hcg-${plan._id}`,
-          date: hcgDate.toISOString().split("T")[0],
-          type: "medication",
-          title: "Tiêm thuốc ngăn rụng trứng sớm",
-          details:
-            "Tiêm thuốc HCG để kích thích trưởng thành cuối cùng của trứng",
-          medication: plan.hcgInjection.medication,
-          dosage: plan.hcgInjection.dosage,
-          instructions: "Tiêm đúng giờ theo chỉ định của bác sĩ",
-          time: "22:00",
-        });
-      }
-
-      // 3. Egg Retrieval Event
-      if (plan.eggRetrieval && plan.eggRetrieval.plannedDate) {
-        const retrievalDate = new Date(plan.eggRetrieval.plannedDate);
-        events.push({
-          id: `retrieval-${plan._id}`,
-          date: retrievalDate.toISOString().split("T")[0],
-          type: "procedure",
-          title: "Chọc hút trứng",
-          details: "Thủ thuật chọc hút trứng dưới hướng dẫn siêu âm",
-          instructions:
-            plan.eggRetrieval.notes ||
-            "Nhịn ăn uống từ 22:00 ngày hôm trước. Đến bệnh viện lúc 07:00",
-          time: "09:00",
-        });
-      }
-
-      // 4. Embryo Transfer Event
-      if (plan.embryoTransfer && plan.embryoTransfer.plannedDate) {
-        const transferDate = new Date(plan.embryoTransfer.plannedDate);
-        events.push({
-          id: `transfer-${plan._id}`,
-          date: transferDate.toISOString().split("T")[0],
-          type: "procedure",
-          title: "Chuyển phôi",
-          details: `Chuyển phôi giai đoạn ${plan.embryoTransfer.embryoStage} vào buồng tử cung`,
-          instructions:
-            "Uống đủ nước, không cần nhịn ăn. Nghỉ ngơi sau thủ thuật",
-          time: "10:30",
-        });
-      }
-
-      // 5. Post Transfer Monitoring Events
-      if (plan.postTransferMonitoring) {
-        // Beta HCG Test
-        if (plan.postTransferMonitoring.betaHcgTestDate) {
-          const betaDate = new Date(
-            plan.postTransferMonitoring.betaHcgTestDate
-          );
-          events.push({
-            id: `beta-${plan._id}`,
-            date: betaDate.toISOString().split("T")[0],
-            type: "test",
-            title: "Xét nghiệm Beta HCG",
-            details: "Xét nghiệm xác định kết quả có thai",
-            instructions: "Nhịn ăn 8 tiếng trước khi xét nghiệm",
-            time: "08:00",
-          });
-        }
-
-        // Ultrasound Check
-        if (plan.postTransferMonitoring.ultrasoundCheckDate) {
-          const ultrasoundDate = new Date(
-            plan.postTransferMonitoring.ultrasoundCheckDate
-          );
-          events.push({
-            id: `ultrasound-check-${plan._id}`,
-            date: ultrasoundDate.toISOString().split("T")[0],
-            type: "ultrasound",
-            title: "Siêu âm kiểm tra thai",
-            details: "Siêu âm kiểm tra tình trạng thai nang",
-            instructions: "Uống đủ nước trước khi siêu âm 30 phút",
-            time: "14:30",
-          });
-        }
-      }
-    });
-
-    // Sắp xếp events theo ngày
-    return events.sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-  };
-
-  // Mock data để test khi API không hoạt động
-  const getMockData = (): TreatmentEvent[] => {
-    return [
-      {
-        id: "mock-1",
-        date: "2025-06-11",
-        type: "medication",
-        title: "Tiêm thuốc kích thích buồng trứng",
-        details: "Tiêm thuốc Gonal-F để kích thích phát triển nang trứng",
-        medication: "Gonal-F",
-        dosage: "150IU",
-        instructions: "Tiêm dưới da vào buổi tối, cùng giờ hàng ngày",
-        time: "20:00",
-      },
-      {
-        id: "mock-2",
-        date: "2025-06-14",
-        type: "ultrasound",
-        title: "Siêu âm kiểm tra nang trứng",
-        details: "Siêu âm đếm số lượng và đo kích thước nang trứng",
-        instructions: "Uống đủ nước trước khi siêu âm 30 phút",
-        time: "14:30",
-      },
-      {
-        id: "mock-3",
-        date: "2025-06-20",
-        type: "medication",
-        title: "Tiêm thuốc ngăn rụng trứng sớm",
-        details:
-          "Tiêm thuốc HCG để kích thích trưởng thành cuối cùng của trứng",
-        medication: "Ovitrelle",
-        dosage: "250mcg",
-        instructions: "Tiêm đúng giờ theo chỉ định của bác sĩ",
-        time: "22:00",
-      },
-    ];
-  };
-
-  // Fetch data from API
+  // Lấy danh sách kế hoạch điều trị
   useEffect(() => {
-    const fetchTreatmentPlan = async () => {
+    const fetchPlans = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Thử lấy patientId từ nhiều nguồn khác nhau
         let patientId = null;
-
-        // 1. Từ localStorage
         if (typeof window !== "undefined" && window.localStorage) {
           patientId = localStorage.getItem("patientId");
         }
-
-        // 2. Từ sessionStorage nếu không có trong localStorage
         if (
           !patientId &&
           typeof window !== "undefined" &&
@@ -250,66 +47,202 @@ const TreatmentPlan: React.FC = () => {
         ) {
           patientId = sessionStorage.getItem("patientId");
         }
-
-        // 3. Từ URL params
         if (!patientId && typeof window !== "undefined") {
           const urlParams = new URLSearchParams(window.location.search);
           patientId = urlParams.get("patientId");
         }
-
-        // 4. Fallback patientId từ API response mẫu
         if (!patientId) {
-          patientId = "682d873130ae34c185987543"; // Sử dụng patientId từ response mẫu
+          patientId = "682d873130ae34c185987543";
         }
-
-        console.log("Fetching treatment plan for patientId:", patientId);
 
         const response = await TreatmentPlanService.getTreatmentPlanByPatientId(
           patientId
         );
-
-        console.log("API Response:", response);
-
-        if (response && response.data && response.data.length > 0) {
-          const transformedEvents = transformApiDataToTreatmentEvents(
-            response.data
-          );
-          console.log("Transformed events:", transformedEvents);
-          setTreatmentPlan(transformedEvents);
+        // Nếu API trả về { data: [...] }
+        if (response && response.data && Array.isArray(response.data.data)) {
+          setPlans(response.data.data);
+        } else if (Array.isArray(response.data)) {
+          setPlans(response.data);
         } else {
-          console.warn("No treatment plan data found, using mock data");
+          setPlans([]);
           setError("Không tìm thấy kế hoạch điều trị từ API");
-          setTreatmentPlan(getMockData());
         }
       } catch (err) {
-        console.error("Error fetching treatment plan:", err);
-
-        // Xử lý chi tiết các loại lỗi
-        let errorMessage = "Có lỗi xảy ra khi tải kế hoạch điều trị";
-
-        if (err instanceof Error) {
-          if (err.message.includes("Network Error")) {
-            errorMessage = "Lỗi kết nối mạng. Vui lòng kiểm tra internet.";
-          } else if (err.message.includes("404")) {
-            errorMessage = "Không tìm thấy dữ liệu bệnh nhân";
-          } else if (err.message.includes("500")) {
-            errorMessage = "Lỗi server. Vui lòng thử lại sau.";
-          }
-        }
-
-        setError(errorMessage);
-
-        // Fallback to mock data
-        console.log("Using mock data due to API error");
-        setTreatmentPlan(getMockData());
+        setError("Có lỗi xảy ra khi tải kế hoạch điều trị");
+        setPlans([]);
       } finally {
         setLoading(false);
       }
     };
-
-    fetchTreatmentPlan();
+    fetchPlans();
   }, []);
 
+  // Chuyển đổi 1 kế hoạch điều trị sang các event
+  const transformApiPlanToEvents = (
+    plan: ApiTreatmentPlan
+  ): TreatmentEvent[] => {
+    const events: TreatmentEvent[] = [];
+    const cycleStartDate = new Date(plan.cycleStartDate);
+
+    // Ovarian Stimulation Events
+    if (plan.ovarianStimulation) {
+      const stimStartDate = new Date(cycleStartDate);
+      stimStartDate.setDate(
+        stimStartDate.getDate() + plan.ovarianStimulation.startDay - 1
+      );
+      for (let i = 0; i < plan.ovarianStimulation.durationDays; i++) {
+        const eventDate = new Date(stimStartDate);
+        eventDate.setDate(stimStartDate.getDate() + i);
+        events.push({
+          id: `stim-${plan._id}-${i}`,
+          date: eventDate.toISOString().split("T")[0],
+          type: "medication",
+          title: "Tiêm thuốc kích thích buồng trứng",
+          details: `Tiêm thuốc ${plan.ovarianStimulation.medication} để kích thích phát triển nang trứng`,
+          medication: plan.ovarianStimulation.medication,
+          dosage: plan.ovarianStimulation.dailyDosage,
+          instructions: "Tiêm dưới da vào buổi tối, cùng giờ hàng ngày",
+          time: "20:00",
+        });
+      }
+      plan.ovarianStimulation.monitoringSchedule.forEach((monitoring) => {
+        const monitoringDate = new Date(cycleStartDate);
+        monitoringDate.setDate(monitoringDate.getDate() + monitoring.day - 1);
+        let eventType = "test";
+        let title = "Theo dõi điều trị";
+        let details = monitoring.notes;
+        let instructions = "";
+        if (
+          monitoring.type.toLowerCase().includes("ultrasound") ||
+          monitoring.type.toLowerCase().includes("siêu âm")
+        ) {
+          eventType = "ultrasound";
+          title = "Siêu âm kiểm tra nang trứng";
+          details = "Siêu âm đếm số lượng và đo kích thước nang trứng";
+          instructions = "Uống đủ nước trước khi siêu âm 30 phút";
+        } else if (
+          monitoring.type.toLowerCase().includes("blood") ||
+          monitoring.type.toLowerCase().includes("hormone")
+        ) {
+          eventType = "test";
+          title = "Xét nghiệm hormone";
+          details = "Xét nghiệm E2, LH, FSH để theo dõi đáp ứng buồng trứng";
+          instructions = "Nhịn ăn 8 tiếng trước khi xét nghiệm";
+        }
+        events.push({
+          id: `monitoring-${plan._id}-${monitoring._id}`,
+          date: monitoringDate.toISOString().split("T")[0],
+          type: eventType,
+          title: title,
+          details: details || monitoring.notes,
+          instructions: instructions,
+          time: eventType === "test" ? "08:00" : "14:30",
+        });
+      });
+    }
+
+    // HCG Injection Event
+    if (plan.hcgInjection && plan.hcgInjection.plannedDate) {
+      const hcgDate = new Date(plan.hcgInjection.plannedDate);
+      events.push({
+        id: `hcg-${plan._id}`,
+        date: hcgDate.toISOString().split("T")[0],
+        type: "medication",
+        title: "Tiêm thuốc ngăn rụng trứng sớm",
+        details:
+          "Tiêm thuốc HCG để kích thích trưởng thành cuối cùng của trứng",
+        medication: plan.hcgInjection.medication,
+        dosage: plan.hcgInjection.dosage,
+        instructions: "Tiêm đúng giờ theo chỉ định của bác sĩ",
+        time: "22:00",
+      });
+    }
+
+    // Egg Retrieval Event
+    if (plan.eggRetrieval && plan.eggRetrieval.plannedDate) {
+      const retrievalDate = new Date(plan.eggRetrieval.plannedDate);
+      events.push({
+        id: `retrieval-${plan._id}`,
+        date: retrievalDate.toISOString().split("T")[0],
+        type: "procedure",
+        title: "Chọc hút trứng",
+        details: "Thủ thuật chọc hút trứng dưới hướng dẫn siêu âm",
+        instructions:
+          plan.eggRetrieval.notes ||
+          "Nhịn ăn uống từ 22:00 ngày hôm trước. Đến bệnh viện lúc 07:00",
+        time: "09:00",
+      });
+    }
+
+    // Embryo Transfer Event
+    if (plan.embryoTransfer && plan.embryoTransfer.plannedDate) {
+      const transferDate = new Date(plan.embryoTransfer.plannedDate);
+      events.push({
+        id: `transfer-${plan._id}`,
+        date: transferDate.toISOString().split("T")[0],
+        type: "procedure",
+        title: "Chuyển phôi",
+        details: `Chuyển phôi giai đoạn ${plan.embryoTransfer.embryoStage} vào buồng tử cung`,
+        instructions:
+          "Uống đủ nước, không cần nhịn ăn. Nghỉ ngơi sau thủ thuật",
+        time: "10:30",
+      });
+    }
+
+    // Post Transfer Monitoring Events
+    if (plan.postTransferMonitoring) {
+      if (plan.postTransferMonitoring.betaHcgTestDate) {
+        const betaDate = new Date(plan.postTransferMonitoring.betaHcgTestDate);
+        events.push({
+          id: `beta-${plan._id}`,
+          date: betaDate.toISOString().split("T")[0],
+          type: "test",
+          title: "Xét nghiệm Beta HCG",
+          details: "Xét nghiệm xác định kết quả có thai",
+          instructions: "Nhịn ăn 8 tiếng trước khi xét nghiệm",
+          time: "08:00",
+        });
+      }
+      if (plan.postTransferMonitoring.ultrasoundCheckDate) {
+        const ultrasoundDate = new Date(
+          plan.postTransferMonitoring.ultrasoundCheckDate
+        );
+        events.push({
+          id: `ultrasound-check-${plan._id}`,
+          date: ultrasoundDate.toISOString().split("T")[0],
+          type: "ultrasound",
+          title: "Siêu âm kiểm tra thai",
+          details: "Siêu âm kiểm tra tình trạng thai nang",
+          instructions: "Uống đủ nước trước khi siêu âm 30 phút",
+          time: "14:30",
+        });
+      }
+    }
+    return events.sort(
+      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+    );
+  };
+
+  // Hiển thị tóm tắt từng kế hoạch điều trị
+  const renderPlanSummary = (plan: ApiTreatmentPlan) => (
+    <div
+      className="plan-card"
+      key={plan._id}
+      onClick={() => setSelectedPlan(plan)}
+    >
+      <h3>Bác sĩ: {plan.doctor?.user?.userName || "Chưa cập nhật"}</h3>
+      <p>
+        Ngày bắt đầu:{" "}
+        {plan.cycleStartDate
+          ? new Date(plan.cycleStartDate).toLocaleDateString("vi-VN")
+          : "?"}
+      </p>
+      <p>Trạng thái: {plan.status}</p>
+      <button className="view-detail-btn">Xem chi tiết</button>
+    </div>
+  );
+
+  // Các hàm phụ cho event
   const getEventTypeIcon = (type: string) => {
     switch (type) {
       case "medication":
@@ -350,6 +283,7 @@ const TreatmentPlan: React.FC = () => {
     });
   };
 
+  // Calendar helpers
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
@@ -359,25 +293,27 @@ const TreatmentPlan: React.FC = () => {
     const startingDayOfWeek = firstDay.getDay();
 
     const days = [];
-
-    // Add empty cells for days before the first day of the month
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
-
-    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       days.push(day);
     }
-
     return days;
   };
 
+  // Khi chọn 1 kế hoạch, lấy event của kế hoạch đó
+  const selectedPlanEvents = selectedPlan
+    ? transformApiPlanToEvents(selectedPlan)
+    : [];
+
+  // Lấy event theo ngày cho calendar
   const getEventsForDate = (day: number) => {
+    if (!selectedPlan) return [];
     const dateString = `${currentMonth.getFullYear()}-${String(
       currentMonth.getMonth() + 1
     ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return treatmentPlan.filter((event) => event.date === dateString);
+    return selectedPlanEvents.filter((event) => event.date === dateString);
   };
 
   const navigateMonth = (direction: "prev" | "next") => {
@@ -403,7 +339,7 @@ const TreatmentPlan: React.FC = () => {
   };
 
   const selectedDateEvents = selectedDate
-    ? treatmentPlan.filter((event) => event.date === selectedDate)
+    ? selectedPlanEvents.filter((event) => event.date === selectedDate)
     : [];
 
   // Loading state
@@ -412,7 +348,7 @@ const TreatmentPlan: React.FC = () => {
       <div className="treatment-plan-container">
         <div className="treatment-plan-header">
           <h1>Kế hoạch điều trị</h1>
-          <p className="subtitle">Đang tải lịch trình điều trị...</p>
+          <p className="subtitle">Đang tải dữ liệu...</p>
         </div>
         <div style={{ textAlign: "center", padding: "50px" }}>
           <div>⏳ Đang tải dữ liệu...</div>
@@ -421,18 +357,55 @@ const TreatmentPlan: React.FC = () => {
     );
   }
 
-  return (
-    <div className="treatment-plan-container">
-      <div className="treatment-plan-header">
-        <h1>Kế hoạch điều trị</h1>
-        <p className="subtitle">Lịch trình điều trị hỗ trợ sinh sản của bạn</p>
-        {error && (
-          <div style={{ color: "orange", fontSize: "14px", marginTop: "10px" }}>
-            ⚠️ {error} (Hiển thị dữ liệu mẫu)
-          </div>
-        )}
+  // Nếu chưa chọn kế hoạch, hiển thị danh sách
+  if (!selectedPlan) {
+    return (
+      <div className="treatment-plan-container">
+        <div className="treatment-plan-header">
+          <h1>Kế hoạch điều trị</h1>
+          <p className="subtitle">Danh sách các kế hoạch điều trị của bạn</p>
+          {error && (
+            <div
+              style={{ color: "orange", fontSize: "14px", marginTop: "10px" }}
+            >
+              ⚠️ {error}
+            </div>
+          )}
+        </div>
+        <div className="plan-list">
+          {plans.length === 0 && <div>Chưa có kế hoạch điều trị nào.</div>}
+          {plans.map(renderPlanSummary)}
+        </div>
       </div>
+    );
+  }
 
+  // Khi đã chọn 1 kế hoạch, hiển thị chi tiết (modal)
+  return (
+    <Modal
+      open={!!selectedPlan}
+      onCancel={() => {
+        setSelectedPlan(null);
+        setSelectedDate(null);
+        setActiveView("list");
+      }}
+      footer={null}
+      width={900}
+      title={
+        <div>
+          <span>Chi tiết kế hoạch điều trị</span>
+          <div style={{ fontSize: 14, color: "#888" }}>
+            Bác sĩ: {selectedPlan.doctor?.user?.userName || "Chưa cập nhật"} |
+            Ngày bắt đầu:{" "}
+            {selectedPlan.cycleStartDate
+              ? new Date(selectedPlan.cycleStartDate).toLocaleDateString(
+                  "vi-VN"
+                )
+              : "?"}
+          </div>
+        </div>
+      }
+    >
       <div className="view-toggle">
         <button
           className={`toggle-btn ${activeView === "list" ? "active" : ""}`}
@@ -447,11 +420,10 @@ const TreatmentPlan: React.FC = () => {
           📅 Lịch
         </button>
       </div>
-
       {activeView === "list" ? (
         <div className="list-view">
           <div className="timeline">
-            {treatmentPlan.map((event) => (
+            {selectedPlanEvents.map((event) => (
               <div
                 key={event.id}
                 className={`timeline-item ${getEventTypeClass(event.type)}`}
@@ -504,7 +476,6 @@ const TreatmentPlan: React.FC = () => {
               ›
             </button>
           </div>
-
           <div className="calendar-grid">
             <div className="calendar-weekdays">
               {["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map((day) => (
@@ -513,7 +484,6 @@ const TreatmentPlan: React.FC = () => {
                 </div>
               ))}
             </div>
-
             <div className="calendar-days">
               {getDaysInMonth(currentMonth).map((day, index) => {
                 const events = day ? getEventsForDate(day) : [];
@@ -547,7 +517,6 @@ const TreatmentPlan: React.FC = () => {
               })}
             </div>
           </div>
-
           {selectedDate && selectedDateEvents.length > 0 && (
             <div className="event-details-panel">
               <div className="panel-header">
@@ -591,12 +560,11 @@ const TreatmentPlan: React.FC = () => {
           )}
         </div>
       )}
-
-      <div className="notification-message">
+      <div className="notification-message" style={{ marginTop: 24 }}>
         <div className="notification-icon">🔔</div>
         <p>Bạn sẽ nhận được nhắc nhở lịch hẹn qua SMS hoặc Email.</p>
       </div>
-    </div>
+    </Modal>
   );
 };
 
