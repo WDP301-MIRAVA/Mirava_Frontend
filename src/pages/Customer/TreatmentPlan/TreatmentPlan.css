@@ -1,9 +1,9 @@
-
 .treatment-plan-container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    sans-serif;
   background-color: #f8fafb;
   min-height: 100vh;
 }
@@ -35,9 +35,9 @@
 
 .toggle-btn {
   padding: 0.75rem 1.5rem;
-  border: 2px solid #00B4C6;
+  border: 2px solid #00b4c6;
   background: white;
-  color: #00B4C6;
+  color: #00b4c6;
   border-radius: 25px;
   font-weight: 500;
   cursor: pointer;
@@ -46,14 +46,14 @@
 }
 
 .toggle-btn:hover {
-  background: #00B4C6;
+  background: #00b4c6;
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 180, 198, 0.3);
 }
 
 .toggle-btn.active {
-  background: #00B4C6;
+  background: #00b4c6;
   color: white;
   box-shadow: 0 4px 12px rgba(0, 180, 198, 0.3);
 }
@@ -73,13 +73,13 @@
 }
 
 .timeline::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 1rem;
   top: 0;
   bottom: 0;
   width: 2px;
-  background: linear-gradient(to bottom, #00B4C6, #7dd3fc);
+  background: linear-gradient(to bottom, #00b4c6, #7dd3fc);
 }
 
 .timeline-item {
@@ -96,7 +96,7 @@
   height: 3rem;
   border-radius: 50%;
   background: white;
-  border: 3px solid #00B4C6;
+  border: 3px solid #00b4c6;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -112,7 +112,7 @@
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  border-left: 4px solid #00B4C6;
+  border-left: 4px solid #00b4c6;
   transition: all 0.3s ease;
 }
 
@@ -138,13 +138,13 @@
 }
 
 .event-date {
-  color: #00B4C6;
+  color: #00b4c6;
   font-weight: 500;
   font-size: 0.95rem;
 }
 
 .event-time {
-  background: #00B4C6;
+  background: #00b4c6;
   color: white;
   padding: 0.25rem 0.75rem;
   border-radius: 20px;
@@ -158,25 +158,27 @@
   margin: 0 0 1rem 0;
 }
 
-.medication-info, .instructions {
+.medication-info,
+.instructions {
   background: #f1f9ff;
   padding: 0.75rem;
   border-radius: 8px;
   margin-top: 0.75rem;
-  border-left: 3px solid #00B4C6;
+  border-left: 3px solid #00b4c6;
 }
 
-.medication-info strong, .instructions strong {
-  color: #00B4C6;
+.medication-info strong,
+.instructions strong {
+  color: #00b4c6;
 }
 
 /* Event Type Specific Colors */
 .event-medication .timeline-marker {
-  border-color: #00B4C6;
+  border-color: #00b4c6;
 }
 
 .event-medication .timeline-content {
-  border-left-color: #00B4C6;
+  border-left-color: #00b4c6;
 }
 
 .event-test .timeline-marker {
@@ -227,7 +229,7 @@
 }
 
 .nav-btn {
-  background: #00B4C6;
+  background: #00b4c6;
   color: white;
   border: none;
   width: 40px;
@@ -252,7 +254,7 @@
 .calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  background: #00B4C6;
+  background: #00b4c6;
 }
 
 .weekday {
@@ -292,7 +294,7 @@
 
 .calendar-day.has-events {
   background: #fef3f2;
-  border-color: #00B4C6;
+  border-color: #00b4c6;
 }
 
 .calendar-day.has-events:hover {
@@ -316,11 +318,11 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #00B4C6;
+  background: #00b4c6;
 }
 
 .event-dot.event-medication {
-  background: #00B4C6;
+  background: #00b4c6;
 }
 
 .event-dot.event-test {
@@ -345,7 +347,7 @@
 }
 
 .panel-header {
-  background: #00B4C6;
+  background: #00b4c6;
   color: white;
   padding: 1.5rem;
   display: flex;
@@ -389,7 +391,7 @@
   border-radius: 8px;
   padding: 1rem;
   margin-bottom: 1rem;
-  border-left: 4px solid #00B4C6;
+  border-left: 4px solid #00b4c6;
   background: #f8fafb;
 }
 
@@ -398,7 +400,7 @@
 }
 
 .event-card.event-medication {
-  border-left-color: #00B4C6;
+  border-left-color: #00b4c6;
   background: #f0f9ff;
 }
 
@@ -433,7 +435,7 @@
 }
 
 .time {
-  background: #00B4C6;
+  background: #00b4c6;
   color: white;
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
@@ -455,7 +457,7 @@
 
 /* Notification Message */
 .notification-message {
-  background: linear-gradient(135deg, #00B4C6, #0891a5);
+  background: linear-gradient(135deg, #00b4c6, #0891a5);
   color: white;
   padding: 1.5rem;
   border-radius: 12px;
@@ -552,13 +554,76 @@
   .calendar-days {
     gap: 1px;
   }
-  
+
   .calendar-day {
     min-height: 50px;
   }
-  
+
   .event-dot {
     width: 4px;
     height: 4px;
   }
+}
+
+/* Plan List & Card Styles */
+.plan-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.plan-card {
+  background: #f7faff;
+  border: 2px solid #e3e9f7;
+  border-radius: 14px;
+  padding: 24px 28px;
+  min-width: 260px;
+  max-width: 340px;
+  flex: 1 1 260px;
+  box-shadow: 0 4px 16px rgba(0, 180, 198, 0.08);
+  cursor: pointer;
+  transition: box-shadow 0.2s, border 0.2s, transform 0.2s;
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.plan-card:hover {
+  border: 2px solid #00b4c6;
+  box-shadow: 0 8px 32px rgba(0, 180, 198, 0.18);
+  transform: translateY(-4px) scale(1.03);
+}
+
+.plan-card h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.15rem;
+  color: #00b4c6;
+  font-weight: 600;
+}
+
+.plan-card p {
+  margin: 4px 0;
+  color: #444;
+  font-size: 1rem;
+}
+
+.view-detail-btn {
+  margin-top: 16px;
+  background: linear-gradient(90deg, #00b4c6 60%, #7dd3fc 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 22px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 180, 198, 0.1);
+  transition: background 0.2s, transform 0.2s;
+  letter-spacing: 0.5px;
+}
+
+.view-detail-btn:hover {
+  background: linear-gradient(90deg, #0891a5 60%, #00b4c6 100%);
+  transform: translateY(-2px) scale(1.04);
 }
