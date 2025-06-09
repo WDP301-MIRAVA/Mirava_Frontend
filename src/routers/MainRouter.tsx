@@ -12,6 +12,7 @@ import AdminLayout from "@/layouts/AdminLayout/AdminLayout";
 import CustomerLayout from "@/layouts/CustomerLayout/CustomerLayout";
 import CustomerHome from "@/pages/Customer/Home/Home";
 import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
+import DoctorLayout from "@/layouts/DoctorLayout";
 
 const MainRouter = () => {
   return (
@@ -56,7 +57,18 @@ const MainRouter = () => {
         }
       />
 
-      {/* Catch all route - Redirect về home nếu không tìm thấy route */}
+        <Route
+        path="/doctor/*"
+        element={
+          <PrivateRoute allowedRole="Doctor" layout={DoctorLayout}>
+            <Routes>
+              <Route index element={<div>Doctor Dashboard</div>} />
+            
+            </Routes>
+          </PrivateRoute>
+        }
+      />
+
       <Route path="*" element={<Homepage />} />
     </Routes>
   );

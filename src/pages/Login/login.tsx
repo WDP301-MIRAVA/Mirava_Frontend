@@ -33,33 +33,33 @@ const LoginPage = () => {
       console.log({user})
       // // Lưu thông tin role và user info
       // // Kiểm tra xem API trả về role và user info như thế nào
-      // if (res.data.user) {
-      //   // Trường hợp API trả về user object
-      //   localStorage.setItem("role", res.data.user.role || "customer");
-      //   localStorage.setItem("userInfo", JSON.stringify({
-      //     id: res.data.user.id,
-      //     name: res.data.user.name || res.data.user.fullName,
-      //     email: res.data.user.email,
-      //     phone: res.data.user.phone,
-      //   }));
-      // } else if (res.data.role) {
-      //   // Trường hợp API trả về role riêng biệt
-      //   localStorage.setItem("role", res.data.role);
-      //   localStorage.setItem("userInfo", JSON.stringify({
-      //     id: res.data.userId || "unknown",
-      //     name: res.data.userName || "User",
-      //     email: values.username,
-      //   }));
-      // } else {
-      //   // Fallback - mặc định là customer
-      //   console.warn("API không trả về role, đặt mặc định là customer");
-      //   localStorage.setItem("role", "customer");
-      //   localStorage.setItem("userInfo", JSON.stringify({
-      //     id: "unknown",
-      //     name: "User",
-      //     email: values.username,
-      //   }));
-      // }
+      if (res.data.user) {
+        // Trường hợp API trả về user object
+        localStorage.setItem("role", res.data.user.role || "customer");
+        localStorage.setItem("userInfo", JSON.stringify({
+          id: res.data.user.id,
+          name: res.data.user.name || res.data.user.fullName,
+          email: res.data.user.email,
+          phone: res.data.user.phone,
+        }));
+      } else if (res.data.role) {
+        // Trường hợp API trả về role riêng biệt
+        localStorage.setItem("role", res.data.role);
+        localStorage.setItem("userInfo", JSON.stringify({
+          id: res.data.userId || "unknown",
+          name: res.data.userName || "User",
+          email: values.username,
+        }));
+      } else {
+        // Fallback - mặc định là customer
+        console.warn("API không trả về role, đặt mặc định là customer");
+        localStorage.setItem("role", "customer");
+        localStorage.setItem("userInfo", JSON.stringify({
+          id: "unknown",
+          name: "User",
+          email: values.username,
+        }));
+      }
 
       message.success("Đăng nhập thành công!");
       
@@ -68,7 +68,7 @@ const LoginPage = () => {
         case "Admin":
           navigate("/admin");
           break;
-        case "doctor":
+        case "Doctor":
           navigate("/doctor"); // Nếu có role doctor
           break;
         case "customer":
