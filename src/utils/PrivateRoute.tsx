@@ -1,4 +1,5 @@
 import { Navigate } from "react-router-dom";
+import { decodeToken } from "./Decodejwt";
 
 interface PrivateRouteProps {
   children: React.ReactNode;
@@ -8,7 +9,7 @@ interface PrivateRouteProps {
 
 const PrivateRoute = ({ children, allowedRole, layout: LayoutComponent }: PrivateRouteProps) => {
   const accessToken = localStorage.getItem("accessToken");
-  const role = localStorage.getItem("role");
+ const role = decodeToken(accessToken ?? "").role
 
   // Kiểm tra xem user đã đăng nhập và có đúng role không
   if (!accessToken) {

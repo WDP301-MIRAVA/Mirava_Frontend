@@ -45,7 +45,7 @@ const MainRouter = () => {
       <Route
         path="/admin/*"
         element={
-          <PrivateRoute allowedRole="admin" layout={AdminLayout}>
+          <PrivateRoute allowedRole="Admin" layout={AdminLayout}>
             <Routes>
               <Route index element={<div>Admin Dashboard</div>} />
               {/* <Route path="users" element={<ManageUsers />} /> */}
