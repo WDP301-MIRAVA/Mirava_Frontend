@@ -27,10 +27,12 @@ export interface Doctor {
 }
 
 export interface MonitoringSchedule {
+  _id: string;
   day: number;
   type: string;
   notes: string;
-  _id: string;
+  instructions?: string;
+  time?: string;
 }
 
 export interface OvarianStimulation {
@@ -38,6 +40,8 @@ export interface OvarianStimulation {
   durationDays: number;
   medication: string;
   dailyDosage: string;
+  instructions: string;
+  time: string;
   monitoringSchedule: MonitoringSchedule[];
 }
 
@@ -45,21 +49,31 @@ export interface HcgInjection {
   plannedDate: string;
   medication: string;
   dosage: string;
+  instructions?: string;
+  time?: string;
 }
 
 export interface EggRetrieval {
   plannedDate: string;
   notes: string;
+  instructions?: string;
+  time?: string;
 }
 
 export interface EmbryoTransfer {
   plannedDate: string;
   embryoStage: string;
+  instructions?: string;
+  time?: string;
 }
 
 export interface PostTransferMonitoring {
-  betaHcgTestDate: string;
-  ultrasoundCheckDate: string;
+  betaHcgTestDate: string; // Ngày kiểm tra beta HCG
+  betaHcgTestInstructions?: string; // Hướng dẫn kiểm tra beta HCG
+  betaHcgTestTime?: string; // Thời gian kiểm tra beta HCG
+  ultrasoundCheckDate: string; // Ngày kiểm tra siêu âm
+  ultrasoundCheckInstructions?: string; // Hướng dẫn kiểm tra siêu âm
+  ultrasoundCheckTime?: string; // Thời gian kiểm tra siêu âm
 }
 
 export interface Reminder {
@@ -102,4 +116,13 @@ export const TreatmentPlanService = {
   // Lấy chi tiết kế hoạch điều trị theo ID
   getTreatmentPlanById: (treatmentPlanId: string) =>
     axiosInstance.get(`/api/treatment-plan/${treatmentPlanId}`),
+  // cập nhật kế hoạch điều trị instructions và time
+  updateTreatmentPlan: (
+    treatmentPlanId: string,
+    data: Partial<TreatmentPlan>
+  ) =>
+    axiosInstance.patch(
+      `/api/treatment-plan/${treatmentPlanId}/instructions`,
+      data
+    ),
 };

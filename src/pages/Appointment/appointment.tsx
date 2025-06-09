@@ -32,7 +32,9 @@ const Appointment = () => {
   const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
-
+  const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(
+    null
+  );
   const fetchDoctors = async () => {
     try {
       const response = await DoctorService.getDoctors();
@@ -158,6 +160,18 @@ const Appointment = () => {
     }
   };
 
+  // Lấy tất cả các chuyên khoa duy nhất từ danh sách bác sĩ
+  const specialties = Array.from(
+    new Set(
+      doctors.flatMap((doc: any) => (doc.specialty ? [doc.specialty] : []))
+    )
+  );
+
+  // Lọc bác sĩ theo chuyên khoa đã chọn
+  const filteredDoctors = selectedSpecialty
+    ? doctors.filter((doc: any) => doc.specialty === selectedSpecialty)
+    : doctors;
+
   return (
     <>
       <Header />
@@ -193,6 +207,26 @@ const Appointment = () => {
               <Input placeholder="Nhập địa chỉ" />
             </Form.Item>
 
+            <Form.Item
+              name="specialty"
+              label="Chuyên khoa"
+              rules={[{ required: true }]}
+            >
+              <Select
+                placeholder="Chọn chuyên khoa"
+                onChange={(value) => {
+                  setSelectedSpecialty(value);
+                  setSelectedDoctorId(null); // reset chọn bác sĩ khi đổi chuyên khoa
+                }}
+                value={selectedSpecialty}
+              >
+                {specialties.map((specialty) => (
+                  <Option key={specialty} value={specialty}>
+                    {specialty}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
             <Form.Item label="Chọn bác sĩ" required>
               <Select
                 placeholder="Chọn bác sĩ"
@@ -201,15 +235,15 @@ const Appointment = () => {
                 style={{ width: "100%" }}
                 optionFilterProp="children"
                 showSearch
+                disabled={!selectedSpecialty}
               >
-                {doctors?.map((doc) => (
+                {filteredDoctors.map((doc: any) => (
                   <Select.Option key={doc._id} value={doc._id}>
                     {doc?.user?.userName}
                   </Select.Option>
                 ))}
               </Select>
             </Form.Item>
-
             {selectedDoctorId && (
               <div style={{ marginBottom: 16 }}>
                 {(() => {
@@ -237,20 +271,6 @@ const Appointment = () => {
                 })()}
               </div>
             )}
-
-            <Form.Item
-              name="specialty"
-              label="Chuyên khoa"
-              rules={[{ required: true }]}
-            >
-              <Select placeholder="Chọn chuyên khoa">
-                {services?.map((service) => (
-                  <Option key={service._id} value={service.method}>
-                    {service.name}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
 
             <Form.Item name="gender" label="Giới tính">
               <Radio.Group>

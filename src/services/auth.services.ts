@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "./MainService";
 
 const API_URL = "https://mirava-f0rz.onrender.com/api/auth";
 
@@ -15,7 +15,7 @@ export interface AuthResponse {
 export const login = async (
   credentials: LoginRequest
 ): Promise<AuthResponse> => {
-  const response = await axios.post<AuthResponse>(
+  const response = await axiosInstance.post<AuthResponse>(
     `${API_URL}/login`,
     credentials
   );
@@ -38,7 +38,7 @@ export const logout = async (): Promise<string> => {
   }
 
   try {
-    const response = await axios.post(
+    const response = await axiosInstance.post(
       `${API_URL}/logout`,
       { refreshToken },
       { headers: { Authorization: `Bearer ${accessToken}` } }
@@ -69,7 +69,7 @@ export interface RegisterRequest {
 export const register = async (
   data: RegisterRequest
 ): Promise<{ message: string }> => {
-  const response = await axios.post<{ message: string }>(
+  const response = await axiosInstance.post<{ message: string }>(
     `${API_URL}/register`,
     data
   );

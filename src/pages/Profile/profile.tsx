@@ -73,7 +73,7 @@ const Home: React.FC = () => {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       message.success("Đăng xuất thành công!");
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
       message.error("Đăng xuất thất bại!");

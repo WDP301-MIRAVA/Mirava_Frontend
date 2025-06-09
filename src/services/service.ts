@@ -1,9 +1,9 @@
-import axios from "axios";
+import axiosInstance from "./MainService";
 import { BASE_URL } from "./config";
 
 export const Service = {
   getServices: () =>
-    axios.get(`${BASE_URL}/api/service`, {
+    axiosInstance.get(`${BASE_URL}/api/service`, {
       headers: { "Content-Type": "application/json" },
     }),
 };

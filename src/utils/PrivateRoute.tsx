@@ -7,9 +7,13 @@ interface PrivateRouteProps {
   layout: React.ComponentType<{ children: React.ReactNode }>;
 }
 
-const PrivateRoute = ({ children, allowedRole, layout: LayoutComponent }: PrivateRouteProps) => {
+const PrivateRoute = ({
+  children,
+  allowedRole,
+  layout: LayoutComponent,
+}: PrivateRouteProps) => {
   const accessToken = localStorage.getItem("accessToken");
- const role = decodeToken(accessToken ?? "").role
+  const role = decodeToken(accessToken ?? "").role;
 
   // Kiểm tra xem user đã đăng nhập và có đúng role không
   if (!accessToken) {
@@ -21,11 +25,7 @@ const PrivateRoute = ({ children, allowedRole, layout: LayoutComponent }: Privat
   }
 
   // Nếu hợp lệ, render layout với children bên trong
-  return (
-    <LayoutComponent>
-      {children}
-    </LayoutComponent>
-  );
+  return <LayoutComponent>{children}</LayoutComponent>;
 };
 
 export default PrivateRoute;

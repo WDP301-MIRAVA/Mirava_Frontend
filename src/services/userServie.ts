@@ -1,9 +1,9 @@
-import axios from "axios";
+import axiosInstance from "./MainService";
 import { BASE_URL } from "./config";
 
 export const userServ = {
   postLogin: (loginForm: { email: string; password: string }) =>
-    axios.post(`${BASE_URL}/api/auth/login`, loginForm, {
+    axiosInstance.post(`${BASE_URL}/api/auth/login`, loginForm, {
       headers: { "Content-Type": "application/json" },
     }),
 
@@ -14,12 +14,12 @@ export const userServ = {
     phone: string;
     role?: string;
   }) =>
-    axios.post(`${BASE_URL}/api/auth/register`, signUpForm, {
+    axiosInstance.post(`${BASE_URL}/api/auth/register`, signUpForm, {
       headers: { "Content-Type": "application/json" },
     }),
 
   postLogout: (refreshToken: string, accessToken: string) =>
-    axios.post(
+    axiosInstance.post(
       `${BASE_URL}/api/auth/logout`,
       { refreshToken },
       {

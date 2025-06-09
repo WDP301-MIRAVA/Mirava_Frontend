@@ -440,3 +440,83 @@
     justify-content: center;
   }
 }
+/*...existing code...*/
+
+/* Doctor Header */
+.doctor-header {
+  background: linear-gradient(135deg, #4a9b8e 0%, #5cb3a3 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 16px;
+  margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  box-shadow: 0 4px 20px rgba(74, 155, 142, 0.2);
+  position: relative;
+}
+
+.doctor-logout-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  z-index: 10;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+.doctor-logout-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+
+.doctor-logout-btn:active {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive cho logout button */
+@media (max-width: 768px) {
+  .doctor-header {
+    flex-direction: column;
+    text-align: center;
+    padding: 24px;
+    padding-top: 60px; /* Tạo không gian cho nút logout */
+  }
+
+  .doctor-logout-btn {
+    top: 16px;
+    right: 16px;
+    padding: 8px 16px;
+    font-size: 13px;
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .doctor-logout-btn {
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .doctor-header {
+    padding-top: 50px;
+  }
+}

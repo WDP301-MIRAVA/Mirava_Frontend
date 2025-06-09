@@ -3,7 +3,7 @@ import "./homepage.css";
 import Header from "../../components/Header/index";
 import Footer from "../../components/Footer";
 import { DoctorService, type Doctor } from "../../services/doctor.service";
-
+import { BlogService, type Blog } from "../../services/blog.services";
 import heroImg1 from "../../assets/HeroSection/1.png";
 import heroImg2 from "../../assets/HeroSection/2.png";
 import heroImg3 from "../../assets/HeroSection/3.png";
@@ -15,7 +15,28 @@ const HomePage: React.FC = () => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [blogLoading, setBlogLoading] = useState(true);
+  const [blogError, setBlogError] = useState<string | null>(null);
 
+  // lấy 2 bài blog mới nhất`
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        setBlogLoading(true);
+        const res = await BlogService.getBlogs();
+        if (res.data?.data?.blogs) {
+          setBlogs(res.data.data.blogs.slice(0, 2)); // Lấy 2 bài mới nhất
+        }
+        setBlogError(null);
+      } catch (err) {
+        setBlogError("Không thể tải blog");
+      } finally {
+        setBlogLoading(false);
+      }
+    };
+    fetchBlogs();
+  }, []);
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBgIndex((prev) => (prev + 1) % bgImages.length);
@@ -171,26 +192,36 @@ const HomePage: React.FC = () => {
       <section className="blog-section">
         <h2>Blog chia sẻ</h2>
         <div className="blog-container">
-          <div className="blog-card">
-            <div className="blog-img"></div>
-            <div className="blog-content">
-              <h3>Tiêu đề</h3>
-              <p>Trích đoạn bài viết...</p>
-              <a href="/blog/1" className="view-more">
-                Xem thêm
-              </a>
-            </div>
-          </div>
-          <div className="blog-card">
-            <div className="blog-img"></div>
-            <div className="blog-content">
-              <h3>Tiêu đề</h3>
-              <p>Trích đoạn bài viết...</p>
-              <a href="/blog/2" className="view-more">
-                Xem thêm
-              </a>
-            </div>
-          </div>
+          {blogLoading ? (
+            <div className="loading-message">Đang tải blog...</div>
+          ) : blogError ? (
+            <div className="error-message">{blogError}</div>
+          ) : blogs.length === 0 ? (
+            <div className="empty-message">Chưa có bài viết nào</div>
+          ) : (
+            blogs.map((blog) => (
+              <div className="blog-card" key={blog._id}>
+                <div
+                  className="blog-img"
+                  style={{
+                    backgroundImage: `url(${
+                      blog.featuredImage ||
+                      "https://via.placeholder.com/400x250"
+                    })`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                ></div>
+                <div className="blog-content">
+                  <h3>{blog.title}</h3>
+                  <p>{blog.excerpt}</p>
+                  <a href={`/blog/${blog._id}`} className="view-more">
+                    Xem thêm
+                  </a>
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </section>
 

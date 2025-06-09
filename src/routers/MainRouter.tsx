@@ -13,6 +13,7 @@ import CustomerLayout from "@/layouts/CustomerLayout/CustomerLayout";
 import CustomerHome from "@/pages/Customer/Home/Home";
 import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
 import DoctorLayout from "@/layouts/DoctorLayout";
+import DoctorAppoitment from "../pages/Doctor/ViewAppoitment";
 
 const MainRouter = () => {
   return (
@@ -31,7 +32,7 @@ const MainRouter = () => {
       <Route
         path="/customer/*"
         element={
-          <PrivateRoute allowedRole="customer" layout={CustomerLayout}>
+          <PrivateRoute allowedRole="Customer" layout={CustomerLayout}>
             <Routes>
               <Route index element={<CustomerHome />} />
               <Route path="/profile" element={<Profile />} />
@@ -57,13 +58,12 @@ const MainRouter = () => {
         }
       />
 
-        <Route
+      <Route
         path="/doctor/*"
         element={
           <PrivateRoute allowedRole="Doctor" layout={DoctorLayout}>
             <Routes>
-              <Route index element={<div>Doctor Dashboard</div>} />
-            
+              <Route index element={<DoctorAppoitment />} />
             </Routes>
           </PrivateRoute>
         }

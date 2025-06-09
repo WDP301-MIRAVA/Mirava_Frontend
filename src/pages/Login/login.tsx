@@ -29,40 +29,9 @@ const LoginPage = () => {
       // Lưu token vào localStorage
       localStorage.setItem("accessToken", res.data.accessToken);
       localStorage.setItem("refreshToken", res.data.refreshToken);
-      const user = decodeToken(res.data.accessToken)
-      console.log({user})
-      // // Lưu thông tin role và user info
-      // // Kiểm tra xem API trả về role và user info như thế nào
-      if (res.data.user) {
-        // Trường hợp API trả về user object
-        localStorage.setItem("role", res.data.user.role || "customer");
-        localStorage.setItem("userInfo", JSON.stringify({
-          id: res.data.user.id,
-          name: res.data.user.name || res.data.user.fullName,
-          email: res.data.user.email,
-          phone: res.data.user.phone,
-        }));
-      } else if (res.data.role) {
-        // Trường hợp API trả về role riêng biệt
-        localStorage.setItem("role", res.data.role);
-        localStorage.setItem("userInfo", JSON.stringify({
-          id: res.data.userId || "unknown",
-          name: res.data.userName || "User",
-          email: values.username,
-        }));
-      } else {
-        // Fallback - mặc định là customer
-        console.warn("API không trả về role, đặt mặc định là customer");
-        localStorage.setItem("role", "customer");
-        localStorage.setItem("userInfo", JSON.stringify({
-          id: "unknown",
-          name: "User",
-          email: values.username,
-        }));
-      }
-
+      const user = decodeToken(res.data.accessToken);
       message.success("Đăng nhập thành công!");
-      
+      console.log("Decoded user:", user);
       // Chuyển hướng dựa trên role
       switch (user.role) {
         case "Admin":
@@ -71,25 +40,26 @@ const LoginPage = () => {
         case "Doctor":
           navigate("/doctor"); // Nếu có role doctor
           break;
-        case "customer":
+        case "Customer":
         default:
           navigate("/customer");
           break;
       }
-
     } catch (error: unknown) {
       console.error("Login failed:", error);
-      
+
       // Xử lý các loại lỗi khác nhau
       let errorMessage = "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!";
-      
+
       if (
         typeof error === "object" &&
         error !== null &&
         "response" in error &&
         typeof (error as { response?: unknown }).response === "object"
       ) {
-        const err = error as { response: { status: number; data?: { message?: string } } };
+        const err = error as {
+          response: { status: number; data?: { message?: string } };
+        };
         // Lỗi từ server
         switch (err.response.status) {
           case 401:
@@ -115,7 +85,7 @@ const LoginPage = () => {
         // Lỗi mạng
         errorMessage = "Không thể kết nối đến server!";
       }
-      
+
       message.error(errorMessage);
     } finally {
       setLoading(false);

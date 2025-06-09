@@ -1,3 +1,4 @@
+import { DoctorService } from "@/services/doctor.service";
 import React, { useState, useEffect } from "react";
 import {
   Search,
@@ -12,7 +13,13 @@ import {
   Check,
 } from "lucide-react";
 import "./ViewAppointment.css";
-
+import { message } from "antd";
+import { useNavigate } from "react-router-dom";
+import { userServ } from "../../services/userServie";
+import { LogoutOutlined } from "@ant-design/icons";
+import axiosInstance from "../../services/MainService";
+import { BASE_URL } from "../../services/config";
+import axios from "axios";
 interface Doctor {
   _id: string;
   user: {
@@ -52,116 +59,59 @@ const ViewAppointment: React.FC = () => {
     "all" | "pending" | "confirmed"
   >("all");
   const [isLoading, setIsLoading] = useState(true);
-
-  // Mock data based on the provided API response
-  const mockData: Appointment[] = [
-    {
-      _id: "6841a802b41ee89b9ab1bce9",
-      fullName: "Hưng",
-      email: "hungptse172889@fpt.edu.vn",
-      phone: "0333913530",
-      address: "Dong Nai",
-      doctor: {
-        _id: "6841a77f6eb5e7849d19df9b",
-        user: {
-          _id: "6841a77f6eb5e7849d19df99",
-          userName: "Phạm Tuấn Hưng Hàa",
-          email: "hunghaaa12@gmail.com",
-          phone: "0976543810",
-        },
-        degree: "MD, PhD in Reproductive Immunology",
-        specialty: "Miễn dịch học sinh sản",
-        workSchedule: [
-          "Tuesday 9:00-17:00",
-          "Wednesday 9:00-17:00",
-          "Friday 9:00-17:00",
-        ],
-        description:
-          "Chuyên gia hàng đầu về miễn dịch học sinh sản tại Việt Nam",
-        imageUrl: "https://example.com/images/doctors/dr-quan.jpg",
-      },
-      specialty: "IUI",
-      gender: "Male",
-      date: "2025-06-25T00:00:00.000Z",
-      note: "Không có gì",
-      status: "pending",
-    },
-    {
-      _id: "6841a865b41ee89b9ab1bcec",
-      fullName: "Trần Huy Vũ",
-      email: "hungphamwtf@gmail.com",
-      phone: "0333913534",
-      address: "Gia Kiệm",
-      doctor: {
-        _id: "6841a77f6eb5e7849d19df9b",
-        user: {
-          _id: "6841a77f6eb5e7849d19df99",
-          userName: "Phạm Tuấn Hưng Hàa",
-          email: "hunghaaa12@gmail.com",
-          phone: "0976543810",
-        },
-        degree: "MD, PhD in Reproductive Immunology",
-        specialty: "Miễn dịch học sinh sản",
-        workSchedule: [
-          "Tuesday 9:00-17:00",
-          "Wednesday 9:00-17:00",
-          "Friday 9:00-17:00",
-        ],
-        description:
-          "Chuyên gia hàng đầu về miễn dịch học sinh sản tại Việt Nam",
-        imageUrl: "https://example.com/images/doctors/dr-quan.jpg",
-      },
-      specialty: "IVF",
-      gender: "Female",
-      date: "2025-06-20T00:00:00.000Z",
-      note: "Có",
-      status: "confirmed",
-    },
-    {
-      _id: "6841a865b41ee89b9ab1bced",
-      fullName: "Nguyễn Thị Mai",
-      email: "mai.nguyen@gmail.com",
-      phone: "0987654321",
-      address: "Hà Nội",
-      doctor: {
-        _id: "6841a77f6eb5e7849d19df9b",
-        user: {
-          _id: "6841a77f6eb5e7849d19df99",
-          userName: "Phạm Tuấn Hưng Hàa",
-          email: "hunghaaa12@gmail.com",
-          phone: "0976543810",
-        },
-        degree: "MD, PhD in Reproductive Immunology",
-        specialty: "Miễn dịch học sinh sản",
-        workSchedule: [
-          "Tuesday 9:00-17:00",
-          "Wednesday 9:00-17:00",
-          "Friday 9:00-17:00",
-        ],
-        description:
-          "Chuyên gia hàng đầu về miễn dịch học sinh sản tại Việt Nam",
-        imageUrl: "https://example.com/images/doctors/dr-quan.jpg",
-      },
-      specialty: "IVF",
-      gender: "Female",
-      date: "2025-06-30T00:00:00.000Z",
-      note: "Cần tư vấn kỹ về quy trình",
-      status: "pending",
-    },
-  ];
+  const [doctorInfo, setDoctorInfo] = useState<Doctor | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setAppointments(mockData);
-      setFilteredAppointments(mockData);
-      setIsLoading(false);
-    }, 1000);
-  }, []);
+    const fetchAppointments = async () => {
+      setIsLoading(true);
+      try {
+        const res = await DoctorService.getDoctorAppointments();
+        const data = res.data;
+        if (data.success && Array.isArray(data.data)) {
+          setAppointments(data.data);
+          setFilteredAppointments(data.data);
+
+          // Nếu có dữ liệu cuộc hẹn, lấy thông tin doctor từ cuộc hẹn đầu tiên
+          if (data.data.length > 0 && data.data[0].doctor) {
+            setDoctorInfo(data.data[0].doctor);
+          }
+        } else {
+          setAppointments([]);
+          setFilteredAppointments([]);
+        }
+      } catch (error) {
+        console.error("Error fetching appointments:", error);
+
+        // Kiểm tra nếu lỗi 401/403 (Unauthorized/Forbidden)
+        if (
+          axios.isAxiosError(error) &&
+          (error.response?.status === 401 || error.response?.status === 403)
+        ) {
+          message.error("Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.");
+          // Làm sạch localStorage và chuyển hướng về trang login
+          localStorage.removeItem("accessToken");
+          localStorage.removeItem("refreshToken");
+          setTimeout(() => navigate("/login"), 2000);
+        }
+
+        setAppointments([]);
+        setFilteredAppointments([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAppointments();
+
+    // Thêm interval để tự động refresh dữ liệu mỗi 4 phút
+    const refreshInterval = setInterval(fetchAppointments, 4 * 60 * 1000);
+
+    return () => clearInterval(refreshInterval);
+  }, [navigate]);
 
   useEffect(() => {
     let filtered = appointments;
-
     // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter((appointment) =>
@@ -179,14 +129,23 @@ const ViewAppointment: React.FC = () => {
     setFilteredAppointments(filtered);
   }, [searchTerm, statusFilter, appointments]);
 
-  const handleConfirmAppointment = (appointmentId: string) => {
-    setAppointments((prev) =>
-      prev.map((appointment) =>
-        appointment._id === appointmentId
-          ? { ...appointment, status: "confirmed" as const }
-          : appointment
-      )
-    );
+  const handleConfirmAppointment = async (appointmentId: string) => {
+    try {
+      await axiosInstance.patch(
+        `${BASE_URL}/api/appointment/appointments/${appointmentId}/status`,
+        { status: "done" }
+      );
+      // Gọi lại API để lấy danh sách mới nhất
+      const res = await DoctorService.getDoctorAppointments();
+      const data = res.data;
+      if (data.success && Array.isArray(data.data)) {
+        setAppointments(data.data);
+        setFilteredAppointments(data.data);
+        message.success("Cuộc hẹn đã được xác nhận thành công!");
+      }
+    } catch (error) {
+      console.error("Error confirming appointment:", error);
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -208,11 +167,11 @@ const ViewAppointment: React.FC = () => {
   };
 
   const getStatusColor = (status: string) => {
-    return status === "confirmed" ? "confirmed" : "pending";
+    return status === "done" ? "confirmed" : "pending";
   };
 
   const getStatusText = (status: string) => {
-    return status === "confirmed" ? "Đã xác nhận" : "Chờ xác nhận";
+    return status === "done" ? "Đã xác nhận" : "Chờ xác nhận";
   };
 
   if (isLoading) {
@@ -224,7 +183,51 @@ const ViewAppointment: React.FC = () => {
     );
   }
 
-  const doctorInfo = appointments[0]?.doctor;
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      const accessToken = localStorage.getItem("accessToken");
+      if (refreshToken && accessToken) {
+        await userServ.postLogout(refreshToken, accessToken);
+      }
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      message.success("Đăng xuất thành công!");
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+      message.error("Đăng xuất thất bại!");
+    }
+  };
+  if (!doctorInfo) {
+    return (
+      <div className="loading-container">
+        <div className="error-message">
+          <h2>Không thể tải thông tin bác sĩ</h2>
+          <p>
+            Phiên làm việc đã hết hạn hoặc đã xảy ra lỗi. Vui lòng đăng nhập
+            lại.
+          </p>
+          <button
+            className="login-again-button"
+            onClick={() => navigate("/login")}
+            style={{
+              padding: "10px 20px",
+              background: "#1890ff",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              marginTop: "15px",
+            }}
+          >
+            Đăng nhập lại
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="view-appointment-container">
@@ -232,39 +235,51 @@ const ViewAppointment: React.FC = () => {
       <div className="doctor-header">
         <div className="doctor-avatar">
           <img
-            src={doctorInfo?.imageUrl || "/api/placeholder/80/80"}
-            alt={doctorInfo?.user.userName}
+            src={doctorInfo.imageUrl || "https://via.placeholder.com/150"}
+            alt="Doctor avatar"
             onError={(e) => {
-              e.currentTarget.src = "/api/placeholder/80/80";
+              const target = e.target as HTMLImageElement;
+              target.src = "https://via.placeholder.com/150";
             }}
           />
         </div>
         <div className="doctor-info">
-          <h1 className="doctor-name">{doctorInfo?.user.userName}</h1>
+          <h1 className="doctor-name">
+            {doctorInfo.user?.userName || "Bác sĩ"}
+          </h1>
           <div className="doctor-details">
             <div className="detail-item">
               <GraduationCap size={16} />
-              <span>{doctorInfo?.degree}</span>
+              <span>{doctorInfo.degree || "Chưa cập nhật"}</span>
             </div>
             <div className="detail-item">
               <User size={16} />
-              <span>{doctorInfo?.specialty}</span>
+              <span>{doctorInfo.specialty || "Chưa cập nhật"}</span>
             </div>
             <div className="detail-item">
               <Mail size={16} />
-              <span>{doctorInfo?.user.email}</span>
+              <span>{doctorInfo.user?.email || "Chưa cập nhật"}</span>
             </div>
             <div className="detail-item">
               <Phone size={16} />
-              <span>{doctorInfo?.user.phone}</span>
+              <span>{doctorInfo.user?.phone || "Chưa cập nhật"}</span>
             </div>
           </div>
-          <p className="doctor-description">{doctorInfo?.description}</p>
+          <p className="doctor-description">
+            {doctorInfo.description || "Chưa có mô tả"}
+          </p>
           <div className="work-schedule">
             <Clock size={16} />
-            <span>Lịch làm việc: {doctorInfo?.workSchedule.join(", ")}</span>
+            <span>
+              Lịch làm việc:{" "}
+              {doctorInfo.workSchedule?.join(", ") || "Chưa cập nhật"}
+            </span>
           </div>
         </div>
+        <button className="doctor-logout-btn" onClick={handleLogout}>
+          <LogoutOutlined style={{ marginRight: 8 }} />
+          Đăng xuất
+        </button>
       </div>
 
       {/* Controls */}

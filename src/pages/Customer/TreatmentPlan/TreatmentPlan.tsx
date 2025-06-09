@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { Modal } from "antd";
 import "./TreatmentPlan.css";
 import {
   TreatmentPlanService,
@@ -36,44 +35,38 @@ const TreatmentPlan: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        let patientId = null;
-        if (typeof window !== "undefined" && window.localStorage) {
-          patientId = localStorage.getItem("patientId");
-        }
-        if (
-          !patientId &&
-          typeof window !== "undefined" &&
-          window.sessionStorage
-        ) {
-          patientId = sessionStorage.getItem("patientId");
-        }
-        if (!patientId && typeof window !== "undefined") {
-          const urlParams = new URLSearchParams(window.location.search);
-          patientId = urlParams.get("patientId");
-        }
+        // Lấy patientId từ localStorage, sessionStorage hoặc URL
+        let patientId =
+          localStorage.getItem("patientId") ||
+          sessionStorage.getItem("patientId");
         if (!patientId) {
-          patientId = "682d873130ae34c185987543";
+          const urlParams = new URLSearchParams(window.location.search);
+          patientId = urlParams.get("patientId") || "682d873130ae34c185987543"; // Giá trị mặc định
         }
 
+        // Gọi API để lấy kế hoạch điều trị
         const response = await TreatmentPlanService.getTreatmentPlanByPatientId(
           patientId
         );
-        // Nếu API trả về { data: [...] }
-        if (response && response.data && Array.isArray(response.data.data)) {
+
+        if (response?.data?.data && Array.isArray(response.data.data)) {
           setPlans(response.data.data);
-        } else if (Array.isArray(response.data)) {
-          setPlans(response.data);
+          if (response.data.data.length > 0) {
+            setSelectedPlan(response.data.data[0]);
+          }
         } else {
           setPlans([]);
           setError("Không tìm thấy kế hoạch điều trị từ API");
         }
       } catch (err) {
+        console.error("Error fetching treatment plans:", err);
         setError("Có lỗi xảy ra khi tải kế hoạch điều trị");
         setPlans([]);
       } finally {
         setLoading(false);
       }
     };
+
     fetchPlans();
   }, []);
 
@@ -84,7 +77,7 @@ const TreatmentPlan: React.FC = () => {
     const events: TreatmentEvent[] = [];
     const cycleStartDate = new Date(plan.cycleStartDate);
 
-    // Ovarian Stimulation Events
+    // sự kiện kích thích buồng trứng
     if (plan.ovarianStimulation) {
       const stimStartDate = new Date(cycleStartDate);
       stimStartDate.setDate(
@@ -101,47 +94,27 @@ const TreatmentPlan: React.FC = () => {
           details: `Tiêm thuốc ${plan.ovarianStimulation.medication} để kích thích phát triển nang trứng`,
           medication: plan.ovarianStimulation.medication,
           dosage: plan.ovarianStimulation.dailyDosage,
-          instructions: "Tiêm dưới da vào buổi tối, cùng giờ hàng ngày",
-          time: "20:00",
+          instructions:
+            plan.ovarianStimulation.instructions || "Không có hướng dẫn", // Lấy từ API
+          time: plan.ovarianStimulation.time || "Không có thời gian", // Lấy từ API
         });
       }
       plan.ovarianStimulation.monitoringSchedule.forEach((monitoring) => {
         const monitoringDate = new Date(cycleStartDate);
         monitoringDate.setDate(monitoringDate.getDate() + monitoring.day - 1);
-        let eventType = "test";
-        let title = "Theo dõi điều trị";
-        let details = monitoring.notes;
-        let instructions = "";
-        if (
-          monitoring.type.toLowerCase().includes("ultrasound") ||
-          monitoring.type.toLowerCase().includes("siêu âm")
-        ) {
-          eventType = "ultrasound";
-          title = "Siêu âm kiểm tra nang trứng";
-          details = "Siêu âm đếm số lượng và đo kích thước nang trứng";
-          instructions = "Uống đủ nước trước khi siêu âm 30 phút";
-        } else if (
-          monitoring.type.toLowerCase().includes("blood") ||
-          monitoring.type.toLowerCase().includes("hormone")
-        ) {
-          eventType = "test";
-          title = "Xét nghiệm hormone";
-          details = "Xét nghiệm E2, LH, FSH để theo dõi đáp ứng buồng trứng";
-          instructions = "Nhịn ăn 8 tiếng trước khi xét nghiệm";
-        }
         events.push({
           id: `monitoring-${plan._id}-${monitoring._id}`,
           date: monitoringDate.toISOString().split("T")[0],
-          type: eventType,
-          title: title,
-          details: details || monitoring.notes,
-          instructions: instructions,
-          time: eventType === "test" ? "08:00" : "14:30",
+          type: monitoring.type,
+          title: monitoring.notes || "Theo dõi điều trị",
+          details: monitoring.notes,
+          instructions: monitoring.instructions || "Không có hướng dẫn", // Lấy từ API
+          time: monitoring.time || "Không có thời gian", // Lấy từ API
         });
       });
     }
 
-    // HCG Injection Event
+    // Sự kiện tiêm HCG
     if (plan.hcgInjection && plan.hcgInjection.plannedDate) {
       const hcgDate = new Date(plan.hcgInjection.plannedDate);
       events.push({
@@ -153,12 +126,12 @@ const TreatmentPlan: React.FC = () => {
           "Tiêm thuốc HCG để kích thích trưởng thành cuối cùng của trứng",
         medication: plan.hcgInjection.medication,
         dosage: plan.hcgInjection.dosage,
-        instructions: "Tiêm đúng giờ theo chỉ định của bác sĩ",
-        time: "22:00",
+        instructions: plan.hcgInjection.instructions || "Không có hướng dẫn", // Lấy từ API
+        time: plan.hcgInjection.time || "Không có thời gian", // Lấy từ API
       });
     }
 
-    // Egg Retrieval Event
+    // sự kiện chọc hút trứng
     if (plan.eggRetrieval && plan.eggRetrieval.plannedDate) {
       const retrievalDate = new Date(plan.eggRetrieval.plannedDate);
       events.push({
@@ -166,15 +139,13 @@ const TreatmentPlan: React.FC = () => {
         date: retrievalDate.toISOString().split("T")[0],
         type: "procedure",
         title: "Chọc hút trứng",
-        details: "Thủ thuật chọc hút trứng dưới hướng dẫn siêu âm",
-        instructions:
-          plan.eggRetrieval.notes ||
-          "Nhịn ăn uống từ 22:00 ngày hôm trước. Đến bệnh viện lúc 07:00",
-        time: "09:00",
+        details: plan.eggRetrieval.notes || "Không có chi tiết",
+        instructions: plan.eggRetrieval.instructions || "Không có hướng dẫn", // Lấy từ API
+        time: plan.eggRetrieval.time || "Không có thời gian", // Lấy từ API
       });
     }
 
-    // Embryo Transfer Event
+    // sự kiện chuyển phôi
     if (plan.embryoTransfer && plan.embryoTransfer.plannedDate) {
       const transferDate = new Date(plan.embryoTransfer.plannedDate);
       events.push({
@@ -183,13 +154,12 @@ const TreatmentPlan: React.FC = () => {
         type: "procedure",
         title: "Chuyển phôi",
         details: `Chuyển phôi giai đoạn ${plan.embryoTransfer.embryoStage} vào buồng tử cung`,
-        instructions:
-          "Uống đủ nước, không cần nhịn ăn. Nghỉ ngơi sau thủ thuật",
-        time: "10:30",
+        instructions: plan.embryoTransfer.instructions || "Không có hướng dẫn", // Lấy từ API
+        time: plan.embryoTransfer.time || "Không có thời gian", // Lấy từ API
       });
     }
 
-    // Post Transfer Monitoring Events
+    // sự kiện theo dõi sau chuyển phôi
     if (plan.postTransferMonitoring) {
       if (plan.postTransferMonitoring.betaHcgTestDate) {
         const betaDate = new Date(plan.postTransferMonitoring.betaHcgTestDate);
@@ -199,8 +169,8 @@ const TreatmentPlan: React.FC = () => {
           type: "test",
           title: "Xét nghiệm Beta HCG",
           details: "Xét nghiệm xác định kết quả có thai",
-          instructions: "Nhịn ăn 8 tiếng trước khi xét nghiệm",
-          time: "08:00",
+          instructions: plan.postTransferMonitoring.betaHcgTestInstructions, // Lấy từ API
+          time: plan.postTransferMonitoring.betaHcgTestTime, // Lấy từ API
         });
       }
       if (plan.postTransferMonitoring.ultrasoundCheckDate) {
@@ -213,35 +183,16 @@ const TreatmentPlan: React.FC = () => {
           type: "ultrasound",
           title: "Siêu âm kiểm tra thai",
           details: "Siêu âm kiểm tra tình trạng thai nang",
-          instructions: "Uống đủ nước trước khi siêu âm 30 phút",
-          time: "14:30",
+          instructions: plan.postTransferMonitoring.ultrasoundCheckInstructions, // Lấy từ API
+          time: plan.postTransferMonitoring.ultrasoundCheckTime, // Lấy từ API
         });
       }
     }
+
     return events.sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
   };
-
-  // Hiển thị tóm tắt từng kế hoạch điều trị
-  const renderPlanSummary = (plan: ApiTreatmentPlan) => (
-    <div
-      className="plan-card"
-      key={plan._id}
-      onClick={() => setSelectedPlan(plan)}
-    >
-      <h3>Bác sĩ: {plan.doctor?.user?.userName || "Chưa cập nhật"}</h3>
-      <p>
-        Ngày bắt đầu:{" "}
-        {plan.cycleStartDate
-          ? new Date(plan.cycleStartDate).toLocaleDateString("vi-VN")
-          : "?"}
-      </p>
-      <p>Trạng thái: {plan.status}</p>
-      <button className="view-detail-btn">Xem chi tiết</button>
-    </div>
-  );
-
   // Các hàm phụ cho event
   const getEventTypeIcon = (type: string) => {
     switch (type) {
@@ -357,44 +308,12 @@ const TreatmentPlan: React.FC = () => {
     );
   }
 
-  // Nếu chưa chọn kế hoạch, hiển thị danh sách
-  if (!selectedPlan) {
-    return (
-      <div className="treatment-plan-container">
-        <div className="treatment-plan-header">
-          <h1>Kế hoạch điều trị</h1>
-          <p className="subtitle">Danh sách các kế hoạch điều trị của bạn</p>
-          {error && (
-            <div
-              style={{ color: "orange", fontSize: "14px", marginTop: "10px" }}
-            >
-              ⚠️ {error}
-            </div>
-          )}
-        </div>
-        <div className="plan-list">
-          {plans.length === 0 && <div>Chưa có kế hoạch điều trị nào.</div>}
-          {plans.map(renderPlanSummary)}
-        </div>
-      </div>
-    );
-  }
-
-  // Khi đã chọn 1 kế hoạch, hiển thị chi tiết (modal)
   return (
-    <Modal
-      open={!!selectedPlan}
-      onCancel={() => {
-        setSelectedPlan(null);
-        setSelectedDate(null);
-        setActiveView("list");
-      }}
-      footer={null}
-      width={900}
-      title={
-        <div>
-          <span>Chi tiết kế hoạch điều trị</span>
-          <div style={{ fontSize: 14, color: "#888" }}>
+    <div className="treatment-plan-container">
+      <div className="treatment-plan-header">
+        <h1>Kế hoạch điều trị</h1>
+        {selectedPlan ? (
+          <div style={{ fontSize: 14, color: "#666", marginTop: "5px" }}>
             Bác sĩ: {selectedPlan.doctor?.user?.userName || "Chưa cập nhật"} |
             Ngày bắt đầu:{" "}
             {selectedPlan.cycleStartDate
@@ -403,149 +322,61 @@ const TreatmentPlan: React.FC = () => {
                 )
               : "?"}
           </div>
-        </div>
-      }
-    >
-      <div className="view-toggle">
-        <button
-          className={`toggle-btn ${activeView === "list" ? "active" : ""}`}
-          onClick={() => setActiveView("list")}
-        >
-          📋 Danh sách
-        </button>
-        <button
-          className={`toggle-btn ${activeView === "calendar" ? "active" : ""}`}
-          onClick={() => setActiveView("calendar")}
-        >
-          📅 Lịch
-        </button>
+        ) : (
+          <div style={{ fontSize: 14, color: "#666", marginTop: "5px" }}>
+            Đang tải thông tin kế hoạch điều trị...
+          </div>
+        )}
       </div>
-      {activeView === "list" ? (
-        <div className="list-view">
-          <div className="timeline">
-            {selectedPlanEvents.map((event) => (
-              <div
-                key={event.id}
-                className={`timeline-item ${getEventTypeClass(event.type)}`}
-              >
-                <div className="timeline-marker">
-                  <span className="event-icon">
-                    {getEventTypeIcon(event.type)}
-                  </span>
-                </div>
-                <div className="timeline-content">
-                  <div className="event-header">
-                    <h3>{event.title}</h3>
-                    <span className="event-date">{formatDate(event.date)}</span>
-                    {event.time && (
-                      <span className="event-time">{event.time}</span>
-                    )}
+
+      <div className="plan-detail-container">
+        <div className="view-toggle">
+          <button
+            className={`toggle-btn ${activeView === "list" ? "active" : ""}`}
+            onClick={() => setActiveView("list")}
+          >
+            📋 Danh sách
+          </button>
+          <button
+            className={`toggle-btn ${
+              activeView === "calendar" ? "active" : ""
+            }`}
+            onClick={() => setActiveView("calendar")}
+          >
+            📅 Lịch
+          </button>
+        </div>
+
+        {activeView === "list" ? (
+          <div className="list-view">
+            <div className="timeline">
+              {selectedPlanEvents.map((event) => (
+                <div
+                  key={event.id}
+                  className={`timeline-item ${getEventTypeClass(event.type)}`}
+                >
+                  <div className="timeline-marker">
+                    <span className="event-icon">
+                      {getEventTypeIcon(event.type)}
+                    </span>
                   </div>
-                  <p className="event-details">{event.details}</p>
-                  {event.medication && (
-                    <div className="medication-info">
-                      <strong>Thuốc:</strong> {event.medication}
-                      {event.dosage && (
-                        <span> - Liều lượng: {event.dosage}</span>
+                  <div className="timeline-content">
+                    <div className="event-header">
+                      <h3>{event.title}</h3>
+                      <span className="event-date">
+                        {formatDate(event.date)}
+                      </span>
+                      {event.time && (
+                        <span className="event-time">{event.time}</span>
                       )}
                     </div>
-                  )}
-                  {event.instructions && (
-                    <div className="instructions">
-                      <strong>Hướng dẫn:</strong> {event.instructions}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="calendar-view">
-          <div className="calendar-header">
-            <button className="nav-btn" onClick={() => navigateMonth("prev")}>
-              ‹
-            </button>
-            <h2>
-              {currentMonth.toLocaleDateString("vi-VN", {
-                month: "long",
-                year: "numeric",
-              })}
-            </h2>
-            <button className="nav-btn" onClick={() => navigateMonth("next")}>
-              ›
-            </button>
-          </div>
-          <div className="calendar-grid">
-            <div className="calendar-weekdays">
-              {["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map((day) => (
-                <div key={day} className="weekday">
-                  {day}
-                </div>
-              ))}
-            </div>
-            <div className="calendar-days">
-              {getDaysInMonth(currentMonth).map((day, index) => {
-                const events = day ? getEventsForDate(day) : [];
-                return (
-                  <div
-                    key={index}
-                    className={`calendar-day ${day ? "active" : "inactive"} ${
-                      events.length > 0 ? "has-events" : ""
-                    }`}
-                    onClick={() => day && handleDateClick(day)}
-                  >
-                    {day && (
-                      <>
-                        <span className="day-number">{day}</span>
-                        {events.length > 0 && (
-                          <div className="event-indicators">
-                            {events.map((event) => (
-                              <div
-                                key={event.id}
-                                className={`event-dot ${getEventTypeClass(
-                                  event.type
-                                )}`}
-                              ></div>
-                            ))}
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          {selectedDate && selectedDateEvents.length > 0 && (
-            <div className="event-details-panel">
-              <div className="panel-header">
-                <h3>Chi tiết lịch hẹn - {formatDate(selectedDate)}</h3>
-                <button
-                  className="close-btn"
-                  onClick={() => setSelectedDate(null)}
-                >
-                  ×
-                </button>
-              </div>
-              <div className="panel-content">
-                {selectedDateEvents.map((event) => (
-                  <div
-                    key={event.id}
-                    className={`event-card ${getEventTypeClass(event.type)}`}
-                  >
-                    <div className="event-card-header">
-                      <span className="event-icon">
-                        {getEventTypeIcon(event.type)}
-                      </span>
-                      <h4>{event.title}</h4>
-                      {event.time && <span className="time">{event.time}</span>}
-                    </div>
-                    <p>{event.details}</p>
+                    <p className="event-details">{event.details}</p>
                     {event.medication && (
                       <div className="medication-info">
                         <strong>Thuốc:</strong> {event.medication}
-                        {event.dosage && <span> - {event.dosage}</span>}
+                        {event.dosage && (
+                          <span> - Liều lượng: {event.dosage}</span>
+                        )}
                       </div>
                     )}
                     {event.instructions && (
@@ -553,18 +384,124 @@ const TreatmentPlan: React.FC = () => {
                         <strong>Hướng dẫn:</strong> {event.instructions}
                       </div>
                     )}
+                    {event.time && (
+                      <div className="event-time">
+                        <strong>Thời gian:</strong> {event.time}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="calendar-view">
+            <div className="calendar-header">
+              <button className="nav-btn" onClick={() => navigateMonth("prev")}>
+                ‹
+              </button>
+              <h2>
+                {currentMonth.toLocaleDateString("vi-VN", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </h2>
+              <button className="nav-btn" onClick={() => navigateMonth("next")}>
+                ›
+              </button>
+            </div>
+            <div className="calendar-grid">
+              <div className="calendar-weekdays">
+                {["CN", "T2", "T3", "T4", "T5", "T6", "T7"].map((day) => (
+                  <div key={day} className="weekday">
+                    {day}
                   </div>
                 ))}
               </div>
+              <div className="calendar-days">
+                {getDaysInMonth(currentMonth).map((day, index) => {
+                  const events = day ? getEventsForDate(day) : [];
+                  return (
+                    <div
+                      key={index}
+                      className={`calendar-day ${day ? "active" : "inactive"} ${
+                        events.length > 0 ? "has-events" : ""
+                      }`}
+                      onClick={() => day && handleDateClick(day)}
+                    >
+                      {day && (
+                        <>
+                          <span className="day-number">{day}</span>
+                          {events.length > 0 && (
+                            <div className="event-indicators">
+                              {events.map((event) => (
+                                <div
+                                  key={event.id}
+                                  className={`event-dot ${getEventTypeClass(
+                                    event.type
+                                  )}`}
+                                ></div>
+                              ))}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          )}
+            {selectedDate && selectedDateEvents.length > 0 && (
+              <div className="event-details-panel">
+                <div className="panel-header">
+                  <h3>Chi tiết lịch hẹn - {formatDate(selectedDate)}</h3>
+                  <button
+                    className="close-btn"
+                    onClick={() => setSelectedDate(null)}
+                  >
+                    ×
+                  </button>
+                </div>
+                <div className="panel-content">
+                  {selectedDateEvents.map((event) => (
+                    <div
+                      key={event.id}
+                      className={`event-card ${getEventTypeClass(event.type)}`}
+                    >
+                      <div className="event-card-header">
+                        <span className="event-icon">
+                          {getEventTypeIcon(event.type)}
+                        </span>
+                        <h4>{event.title}</h4>
+                        {event.time && (
+                          <span className="time">{event.time}</span>
+                        )}
+                      </div>
+                      <p>{event.details}</p>
+                      {event.medication && (
+                        <div className="medication-info">
+                          <strong>Thuốc:</strong> {event.medication}
+                          {event.dosage && <span> - {event.dosage}</span>}
+                        </div>
+                      )}
+                      {event.instructions && (
+                        <div className="instructions">
+                          <strong>Hướng dẫn:</strong> {event.instructions}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        <div className="notification-message" style={{ marginTop: 24 }}>
+          <div className="notification-icon">🔔</div>
+          <p>Bạn sẽ nhận được nhắc nhở lịch hẹn qua SMS hoặc Email.</p>
         </div>
-      )}
-      <div className="notification-message" style={{ marginTop: 24 }}>
-        <div className="notification-icon">🔔</div>
-        <p>Bạn sẽ nhận được nhắc nhở lịch hẹn qua SMS hoặc Email.</p>
       </div>
-    </Modal>
+    </div>
   );
 };
 

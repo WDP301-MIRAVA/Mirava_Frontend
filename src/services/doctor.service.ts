@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "./MainService";
 import { BASE_URL } from "./config";
 
 // Types
@@ -29,12 +29,16 @@ export interface Doctor {
 
 export const DoctorService = {
   getDoctors: () =>
-    axios.get(`${BASE_URL}/api/doctor`, {
+    axiosInstance.get(`${BASE_URL}/api/doctor`, {
       headers: { "Content-Type": "application/json" },
     }),
-  
+
   getDoctorById: (id: string) =>
-    axios.get(`${BASE_URL}/api/doctor/${id}`, {
+    axiosInstance.get(`${BASE_URL}/api/doctor/${id}`, {
       headers: { "Content-Type": "application/json" },
     }),
+
+  // Lấy danh sách cuộc hẹn của bác sĩ
+  getDoctorAppointments: () =>
+    axiosInstance.get(`${BASE_URL}/api/appointment/doctor/appointments`),
 };
