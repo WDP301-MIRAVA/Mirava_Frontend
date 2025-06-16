@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Chỉ áp dụng reset cho admin-layout container và các phần tử con */
-.admin-layout * {
+/* Chỉ áp dụng reset cho doctor-layout container và các phần tử con */
+.doctor-layout * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-.admin-layout {
+.doctor-layout {
   display: flex;
   min-height: 100vh;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -16,7 +16,7 @@
 }
 
 /* Sidebar Styles */
-.admin-layout .sidebar {
+.doctor-layout .sidebar {
   position: fixed;
   left: 0;
   top: 0;
@@ -31,7 +31,7 @@
   overflow-y: auto;
 }
 
-.admin-layout .sidebar-logo {
+.doctor-layout .sidebar-logo {
   padding: 24px 20px;
   border-bottom: 1px solid #f1f5f9;
   display: flex;
@@ -39,7 +39,7 @@
   gap: 12px;
 }
 
-.admin-layout .logo-icon {
+.doctor-layout .logo-icon {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,13 +49,13 @@
   height: 45px;
 }
 
-.admin-layout .logo-text {
+.doctor-layout .logo-text {
   font-size: 20px;
   font-weight: 700;
   color: #00B4C6;
 }
 
-.admin-layout .user-info {
+.doctor-layout .user-info {
   padding: 20px;
   border-bottom: 1px solid #f1f5f9;
   display: flex;
@@ -63,7 +63,7 @@
   gap: 12px;
 }
 
-.admin-layout .user-avatar {
+.doctor-layout .user-avatar {
   width: 48px;
   height: 48px;
   border-radius: 12px;
@@ -71,43 +71,43 @@
   flex-shrink: 0;
 }
 
-.admin-layout .user-avatar img {
+.doctor-layout .user-avatar img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.admin-layout .user-details {
+.doctor-layout .user-details {
   flex: 1;
 }
 
-.admin-layout .user-name {
+.doctor-layout .user-name {
   font-size: 14px;
   font-weight: 600;
   color: #1e293b;
   margin-bottom: 2px;
 }
 
-.admin-layout .user-email {
+.doctor-layout .user-email {
   font-size: 12px;
   color: #64748b;
 }
 
-.admin-layout .sidebar-nav {
+.doctor-layout .sidebar-nav {
   flex: 1;
   padding: 16px 0;
 }
 
-.admin-layout .nav-list {
+.doctor-layout .nav-list {
   list-style: none;
   padding: 0 12px;
 }
 
-.admin-layout .nav-item {
+.doctor-layout .nav-item {
   margin-bottom: 4px;
 }
 
-.admin-layout .nav-link {
+.doctor-layout .nav-link {
   width: 100%;
   display: flex;
   align-items: center;
@@ -126,18 +126,18 @@
   overflow: hidden;
 }
 
-.admin-layout .nav-link:hover {
+.doctor-layout .nav-link:hover {
   background-color: #f1f5f9;
   color: #334155;
 }
 
-.admin-layout .nav-link.active {
+.doctor-layout .nav-link.active {
   background-color: #e0f8fa;
   color: #00B4C6;
   font-weight: 600;
 }
 
-.admin-layout .nav-link.active::before {
+.doctor-layout .nav-link.active::before {
   content: '';
   position: absolute;
   left: 0;
@@ -147,7 +147,7 @@
   background: #00B4C6;
 }
 
-.admin-layout .nav-icon {
+.doctor-layout .nav-icon {
   font-size: 18px;
   display: flex;
   align-items: center;
@@ -156,16 +156,16 @@
   height: 20px;
 }
 
-.admin-layout .nav-text {
+.doctor-layout .nav-text {
   flex: 1;
 }
 
-.admin-layout .sidebar-footer {
+.doctor-layout .sidebar-footer {
   padding: 16px 12px 24px;
   border-top: 1px solid #f1f5f9;
 }
 
-.admin-layout .logout-btn {
+.doctor-layout .logout-btn {
   width: 100%;
   display: flex;
   align-items: center;
@@ -181,17 +181,17 @@
   transition: all 0.2s ease;
 }
 
-.admin-layout .logout-btn:hover {
+.doctor-layout .logout-btn:hover {
   background-color: #fef2f2;
   color: #dc2626;
 }
 
-.admin-layout .logout-icon {
+.doctor-layout .logout-icon {
   color: inherit;
 }
 
 /* Main Content Styles */
-.admin-layout .main-content {
+.doctor-layout .main-content {
   margin-left: 280px;
   width: calc(100% - 280px);
   min-height: 100vh;
@@ -199,7 +199,7 @@
   flex-direction: column;
 }
 
-.admin-layout .topbar {
+.doctor-layout .topbar {
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
   padding: 12px 32px;
@@ -212,13 +212,13 @@
   z-index: 100;
 }
 
-.admin-layout .breadcrumb {
+.doctor-layout .breadcrumb {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.admin-layout .breadcrumb-item {
+.doctor-layout .breadcrumb-item {
   font-size: 14px;
   color: #64748b;
   display: flex;
@@ -226,17 +226,17 @@
   gap: 8px;
 }
 
-.admin-layout .breadcrumb-separator {
+.doctor-layout .breadcrumb-separator {
   color: #cbd5e1;
 }
 
-.admin-layout .topbar-actions {
+.doctor-layout .topbar-actions {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.admin-layout .notification-btn {
+.doctor-layout .notification-btn {
   position: relative;
   width: 40px;
   height: 40px;
@@ -251,12 +251,12 @@
   transition: all 0.2s ease;
 }
 
-.admin-layout .notification-btn:hover {
+.doctor-layout .notification-btn:hover {
   background: #e2e8f0;
   color: #334155;
 }
 
-.admin-layout .notification-badge {
+.doctor-layout .notification-badge {
   position: absolute;
   top: -2px;
   right: -2px;
@@ -273,70 +273,88 @@
   justify-content: center;
 }
 
-.admin-layout .page-header {
+.doctor-layout .page-header {
   padding: 24px 32px 0;
 }
 
-.admin-layout .page-title {
+.doctor-layout .page-title {
   font-size: 28px;
   font-weight: 700;
   color: #1e293b;
   margin-bottom: 4px;
 }
 
-.admin-layout .page-content {
+.doctor-layout .page-content {
   flex: 1;
   padding: 24px 32px 32px;
 }
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .admin-layout .sidebar {
+  .doctor-layout .sidebar {
     width: 260px;
   }
   
-  .admin-layout .main-content {
+  .doctor-layout .main-content {
     margin-left: 260px;
     width: calc(100% - 260px);
   }
   
-  .admin-layout .page-content {
+  .doctor-layout .page-content {
     padding: 20px 24px 24px;
   }
   
-  .admin-layout .topbar {
+  .doctor-layout .topbar {
     padding: 12px 24px;
   }
   
-  .admin-layout .page-header {
+  .doctor-layout .page-header {
     padding: 20px 24px 0;
   }
 }
 
 @media (max-width: 768px) {
-  .admin-layout .sidebar {
+  .doctor-layout .sidebar {
     transform: translateX(-100%);
     transition: transform 0.3s ease;
   }
   
-  .admin-layout .main-content {
+  .doctor-layout .main-content {
     margin-left: 0;
     width: 100%;
   }
   
-  .admin-layout .topbar {
+  .doctor-layout .topbar {
     padding: 12px 16px;
   }
   
-  .admin-layout .page-title {
+  .doctor-layout .page-title {
     font-size: 24px;
   }
   
-  .admin-layout .page-content {
+  .doctor-layout .page-content {
     padding: 16px;
   }
   
-  .admin-layout .page-header {
+  .doctor-layout .page-header {
     padding: 16px 16px 0;
   }
+}
+
+/* Smooth scrollbar for sidebar */
+.doctor-layout .sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.doctor-layout .sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.doctor-layout .sidebar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.doctor-layout .sidebar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

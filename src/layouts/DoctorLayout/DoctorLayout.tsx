@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Bell, LogOut, ChevronRight } from 'react-feather'; 
-import './AdminLayout.css';
+import './DoctorLayout.css';
 import logo from '../../assets/mirava-logo.png'; 
 
-interface AdminLayoutProps {
+interface DoctorLayoutProps {
   children: React.ReactNode;
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ 
+const DoctorLayout: React.FC<DoctorLayoutProps> = ({ 
   children
 }) => {
   const navigate = useNavigate();
@@ -17,36 +17,36 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   // Xác định active menu dựa trên URL hiện tại
   const getActiveMenuItem = () => {
     const path = location.pathname;
-    if (path === '/admin' || path === '/admin/') return "Dashboard";
-    if (path.includes('/admin/users')) return "Quản lý người dùng";
-    if (path.includes('/admin/doctors')) return "Quản lý bác sĩ";
-    if (path.includes('/admin/appointments')) return "Quản lý lịch hẹn";
-    if (path.includes('/admin/treatments')) return "Quản lý điều trị";
-    if (path.includes('/admin/prescriptions')) return "Quản lý đơn thuốc";
-    if (path.includes('/admin/reports')) return "Báo cáo thống kê";
-    if (path.includes('/admin/settings')) return "Cài đặt hệ thống";
-    if (path.includes('/admin/audit')) return "Nhật ký hệ thống";
-    return "Dashboard";
+    if (path === '/doctor' || path === '/doctor/') return "Trang chủ";
+    if (path.includes('/doctor/profile')) return "Hồ sơ";
+    if (path.includes('/doctor/patients')) return "Bệnh nhân";
+    if (path.includes('/doctor/appointments')) return "Lịch hẹn";
+    if (path.includes('/doctor/treatment-plans')) return "Kế hoạch điều trị";
+    if (path.includes('/doctor/prescriptions')) return "Kê đơn thuốc";
+    if (path.includes('/doctor/medical-records')) return "Hồ sơ y tế";
+    if (path.includes('/doctor/schedule')) return "Lịch làm việc";
+    if (path.includes('/doctor/reports')) return "Báo cáo";
+    return "Trang chủ";
   };
 
   const [activeMenuItem, setActiveMenuItem] = useState(getActiveMenuItem());
 
   const menuItems = [
-    { id: 1, name: "Dashboard", label: "Dashboard", icon: "📊", path: "/admin" },
-    { id: 2, name: "Quản lý người dùng", label: "Quản lý người dùng", icon: "👥", path: "/admin/users" },
-    { id: 3, name: "Quản lý bác sĩ", label: "Quản lý bác sĩ", icon: "👨‍⚕️", path: "/admin/doctors" },
-    { id: 4, name: "Quản lý lịch hẹn", label: "Quản lý lịch hẹn", icon: "📅", path: "/admin/appointments" },
-    { id: 5, name: "Quản lý điều trị", label: "Quản lý điều trị", icon: "🏥", path: "/admin/treatments" },
-    { id: 6, name: "Quản lý đơn thuốc", label: "Quản lý đơn thuốc", icon: "💊", path: "/admin/prescriptions" },
-    { id: 7, name: "Báo cáo thống kê", label: "Báo cáo thống kê", icon: "📈", path: "/admin/reports" },
-    { id: 8, name: "Cài đặt hệ thống", label: "Cài đặt hệ thống", icon: "⚙️", path: "/admin/settings" },
-    { id: 9, name: "Hồ sơ", label: "Hồ sơ", icon: "👤", path: "/admin/profile" }
+    { id: 1, name: "Trang chủ", label: "Trang chủ", icon: "🏠", path: "/doctor" },
+    { id: 2, name: "Hồ sơ", label: "Hồ sơ", icon: "👤", path: "/doctor/profile" },
+    { id: 3, name: "Bệnh nhân", label: "Bệnh nhân", icon: "👥", path: "/doctor/patients" },
+    { id: 4, name: "Lịch hẹn", label: "Lịch hẹn", icon: "📅", path: "/doctor/appointments" },
+    { id: 5, name: "Kế hoạch điều trị", label: "Kế hoạch điều trị", icon: "📋", path: "/doctor/treatment-plans" },
+    { id: 6, name: "Kê đơn thuốc", label: "Kê đơn thuốc", icon: "💊", path: "/doctor/prescriptions" },
+    { id: 7, name: "Hồ sơ y tế", label: "Hồ sơ y tế", icon: "📄", path: "/doctor/medical-records" },
+    { id: 8, name: "Lịch làm việc", label: "Lịch làm việc", icon: "🗓️", path: "/doctor/schedule" },
+    { id: 9, name: "Báo cáo", label: "Báo cáo", icon: "📊", path: "/doctor/reports" }
   ];
 
   // Tạo breadcrumb dựa trên active menu
   const getBreadcrumb = () => {
-    return ["Dashboard", activeMenuItem].filter((item, index, arr) => 
-      item !== "Dashboard" || index === 0 || arr.length === 1
+    return ["Trang chủ", activeMenuItem].filter((item, index, arr) => 
+      item !== "Trang chủ" || index === 0 || arr.length === 1
     );
   };
 
@@ -71,7 +71,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   };
 
   return (
-    <div className="admin-layout">
+    <div className="doctor-layout">
       {/* Sidebar */}
       <div className="sidebar">
         {/* Logo */}
@@ -79,7 +79,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           <div className="logo-icon">
             <img src={logo} alt="Mirava Logo" className="logo-image" />
           </div>
-          <span className="logo-text">Mirava Admin</span>
+          <span className="logo-text">Mirava</span>
         </div>
 
         {/* Navigation Menu */}
@@ -143,4 +143,4 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   );
 };
 
-export default AdminLayout;
+export default DoctorLayout;

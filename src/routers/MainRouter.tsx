@@ -12,7 +12,7 @@ import AdminLayout from "@/layouts/AdminLayout/AdminLayout";
 import CustomerLayout from "@/layouts/CustomerLayout/CustomerLayout";
 import CustomerHome from "@/pages/Customer/Home/Home";
 import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
-import DoctorLayout from "@/layouts/DoctorLayout";
+import DoctorLayout from "@/layouts/DoctorLayout/DoctorLayout";
 import DoctorAppoitment from "../pages/Doctor/ViewAppoitment";
 
 const MainRouter = () => {
@@ -50,6 +50,7 @@ const MainRouter = () => {
           <PrivateRoute allowedRole="Admin" layout={AdminLayout}>
             <Routes>
               <Route index element={<div>Admin Dashboard</div>} />
+              <Route path="/profile" element={<Profile />} />
               {/* <Route path="users" element={<ManageUsers />} /> */}
               {/* <Route path="doctors" element={<ManageDoctors />} /> */}
               {/* Thêm các route khác cho admin ở đây */}
@@ -64,6 +65,7 @@ const MainRouter = () => {
           <PrivateRoute allowedRole="Doctor" layout={DoctorLayout}>
             <Routes>
               <Route index element={<DoctorAppoitment />} />
+              <Route path="/profile" element={<Profile />} />
             </Routes>
           </PrivateRoute>
         }
