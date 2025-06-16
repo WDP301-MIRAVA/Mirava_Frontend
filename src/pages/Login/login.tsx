@@ -1,4 +1,5 @@
-import { Form, Input, Button, Checkbox, message } from "antd";
+import { Form, Input, Button, Checkbox, message, notification } from "antd";
+import { CheckCircleOutlined, ExclamationCircleOutlined, CloseCircleOutlined, WarningOutlined } from '@ant-design/icons';
 import "./login.css";
 import { Link, useNavigate } from "react-router-dom";
 import { userServ } from "../../services/userServie";
@@ -9,88 +10,246 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const onFinish = async (values: { username: string; password: string }) => {
-    try {
-      setLoading(true);
-      const loginData = {
-        email: values.username,
-        password: values.password,
-      };
-
-      // Gọi API login
-      const res = await userServ.postLogin(loginData);
-      console.log("Login response:", res);
-
-      // Kiểm tra response có đủ dữ liệu không
-      if (!res.data.accessToken) {
-        throw new Error("Không nhận được access token");
+  // Hàm hiển thị thông báo thành công
+  const showSuccessNotification = (message: string) => {
+    notification.success({
+      message: 'Thành công',
+      description: message,
+      icon: <CheckCircleOutlined style={{ color: '#52c41a' }} />,
+      placement: 'topRight',
+      duration: 3,
+      style: {
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
       }
+    });
+  };
 
-      // Lưu token vào localStorage
-      localStorage.setItem("accessToken", res.data.accessToken);
-      localStorage.setItem("refreshToken", res.data.refreshToken);
-      const user = decodeToken(res.data.accessToken);
-      message.success("Đăng nhập thành công!");
-      console.log("Decoded user:", user);
-      // Chuyển hướng dựa trên role
+  // Hàm hiển thị thông báo lỗi
+  const showErrorNotification = (title: string, description: string) => {
+    notification.error({
+      message: title,
+      description: description,
+      icon: <CloseCircleOutlined style={{ color: '#ff4d4f' }} />,
+      placement: 'topRight',
+      duration: 4,
+      style: {
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      }
+    });
+  };
+
+  // Hàm hiển thị thông báo cảnh báo
+  const showWarningNotification = (title: string, description: string) => {
+    notification.warning({
+      message: title,
+      description: description,
+      icon: <WarningOutlined style={{ color: '#faad14' }} />,
+      placement: 'topRight',
+      duration: 4,
+      style: {
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      }
+    });
+  };
+
+  // Hàm hiển thị thông báo thông tin
+  const showInfoNotification = (title: string, description: string) => {
+    notification.info({
+      message: title,
+      description: description,
+      icon: <ExclamationCircleOutlined style={{ color: '#1890ff' }} />,
+      placement: 'topRight',
+      duration: 4,
+      style: {
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+      }
+    });
+  };
+
+  const onFinish = async (values: { username: string; password: string }) => {
+  try {
+    setLoading(true);
+    
+    // Kiểm tra input trống
+    if (!values.username || !values.password) {
+      showWarningNotification(
+        'Thông tin không đầy đủ',
+        'Vui lòng nhập đầy đủ email và mật khẩu để đăng nhập!'
+      );
+      return;
+    }
+
+    // Kiểm tra format email cơ bản
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[0-9]{10,11}$/;
+    
+    if (!emailRegex.test(values.username) && !phoneRegex.test(values.username)) {
+      showWarningNotification(
+        'Định dạng không hợp lệ',
+        'Vui lòng nhập đúng định dạng email hoặc số điện thoại!'
+      );
+      return;
+    }
+
+    const loginData = {
+      email: values.username,
+      password: values.password,
+    };
+
+    // Gọi API login
+    console.log("Login data:", loginData);
+    const res = await userServ.postLogin(loginData);
+    console.log("Login response:", res);
+
+    // Kiểm tra response có đủ dữ liệu không
+    if (!res.data.accessToken) {
+      throw new Error("Không nhận được access token từ server");
+    }
+
+    // Lưu token vào localStorage
+    localStorage.setItem("accessToken", res.data.accessToken);
+    localStorage.setItem("refreshToken", res.data.refreshToken);
+    
+    const user = decodeToken(res.data.accessToken);
+    console.log("Decoded user:", user);
+
+    // Kiểm tra user decode thành công
+    if (!user || !user.role) {
+      throw new Error("Không thể xác thực thông tin người dùng");
+    }
+
+    // Lưu thông tin user vào localStorage để useAuth hook sử dụng
+    localStorage.setItem("role", user.role);
+    localStorage.setItem("userInfo", JSON.stringify(user));
+
+    // ✅ THÔNG BÁO ĐĂNG NHẬP THÀNH CÔNG
+    showSuccessNotification(
+      `Chào mừng ${user.name || user.userName || 'bạn'} đã đăng nhập thành công!`
+    );
+    
+    // Chuyển hướng dựa trên role sau 1.5s để user có thể thấy thông báo
+    setTimeout(() => {
       switch (user.role) {
         case "Admin":
           navigate("/admin");
           break;
         case "Doctor":
-          navigate("/doctor"); // Nếu có role doctor
+          navigate("/doctor");
           break;
         case "Customer":
         default:
           navigate("/customer");
           break;
       }
-    } catch (error: unknown) {
-      console.error("Login failed:", error);
+    }, 1500);
 
-      // Xử lý các loại lỗi khác nhau
-      let errorMessage = "Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin!";
+  } catch (error: any) {
+    console.error("Login failed:", error);
 
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "response" in error &&
-        typeof (error as { response?: unknown }).response === "object"
-      ) {
-        const err = error as {
-          response: { status: number; data?: { message?: string } };
-        };
-        // Lỗi từ server
-        switch (err.response.status) {
-          case 401:
-            errorMessage = "Email hoặc mật khẩu không đúng!";
-            break;
-          case 403:
-            errorMessage = "Tài khoản của bạn đã bị khóa!";
-            break;
-          case 404:
-            errorMessage = "Tài khoản không tồn tại!";
-            break;
-          case 500:
-            errorMessage = "Lỗi server, vui lòng thử lại sau!";
-            break;
-          default:
-            errorMessage = err.response.data?.message || errorMessage;
-        }
-      } else if (
-        typeof error === "object" &&
-        error !== null &&
-        "request" in error
-      ) {
-        // Lỗi mạng
-        errorMessage = "Không thể kết nối đến server!";
+    // Xử lý các loại lỗi khác nhau
+    if (error?.response?.status) {
+      const status = error.response.status;
+      const serverMessage = error.response.data?.message;
+
+      switch (status) {
+        case 400:
+          showErrorNotification(
+            'Yêu cầu không hợp lệ',
+            serverMessage || 'Dữ liệu đăng nhập không hợp lệ. Vui lòng kiểm tra lại!'
+          );
+          break;
+        
+        case 401:
+          // ✅ XỬ LÝ CHÍNH XÁC CHO TRƯỜNG HỢP SAI USERNAME/PASSWORD
+          showErrorNotification(
+            'Thông tin đăng nhập sai',
+            'Email hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại!'
+          );
+          break;
+        
+        case 403:
+          showWarningNotification(
+            'Tài khoản bị khóa',
+            'Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên để được hỗ trợ!'
+          );
+          break;
+        
+        case 404:
+          showErrorNotification(
+            'Tài khoản không tồn tại',
+            'Email này chưa được đăng ký. Vui lòng kiểm tra lại hoặc đăng ký tài khoản mới!'
+          );
+          break;
+        
+        case 422:
+          showWarningNotification(
+            'Tài khoản chưa được xác thực',
+            'Tài khoản của bạn chưa được xác thực email. Vui lòng kiểm tra email để kích hoạt tài khoản!'
+          );
+          break;
+        
+        case 429:
+          showWarningNotification(
+            'Quá nhiều lần thử',
+            'Bạn đã thử đăng nhập quá nhiều lần. Vui lòng chờ một lúc rồi thử lại!'
+          );
+          break;
+        
+        case 500:
+          showErrorNotification(
+            'Lỗi hệ thống',
+            'Đã xảy ra lỗi từ phía server. Vui lòng thử lại sau ít phút!'
+          );
+          break;
+        
+        case 502:
+        case 503:
+        case 504:
+          showErrorNotification(
+            'Dịch vụ tạm thời không khả dụng',
+            'Hệ thống đang bảo trì. Vui lòng thử lại sau!'
+          );
+          break;
+        
+        default:
+          showErrorNotification(
+            'Đăng nhập thất bại',
+            serverMessage || 'Đã xảy ra lỗi không xác định. Vui lòng thử lại!'
+          );
       }
-
-      message.error(errorMessage);
-    } finally {
-      setLoading(false);
+    } else if (error?.request) {
+      // Lỗi mạng - không nhận được response từ server
+      showErrorNotification(
+        'Lỗi kết nối',
+        'Không thể kết nối đến server. Vui lòng kiểm tra kết nối internet và thử lại!'
+      );
+    } else if (error?.code === 'ECONNABORTED') {
+      // Timeout
+      showWarningNotification(
+        'Kết nối quá chậm',
+        'Yêu cầu đăng nhập mất quá nhiều thời gian. Vui lòng thử lại!'
+      );
+    } else if (error?.message?.includes('token')) {
+      // Lỗi liên quan đến token
+      showErrorNotification(
+        'Lỗi xác thực',
+        'Không thể xác thực thông tin đăng nhập. Vui lòng thử lại!'
+      );
+    } else {
+      // Lỗi khác
+      showErrorNotification(
+        'Đăng nhập thất bại',
+        error?.message || 'Đã xảy ra lỗi không xác định. Vui lòng thử lại sau!'
+      );
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="login-container">
@@ -122,17 +281,34 @@ const LoginPage = () => {
                   required: true,
                   message: "Vui lòng nhập email hoặc số điện thoại!",
                 },
+                {
+                  validator: (_, value) => {
+                    if (!value) return Promise.resolve();
+                    
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    const phoneRegex = /^[0-9]{10,11}$/;
+                    
+                    if (emailRegex.test(value) || phoneRegex.test(value)) {
+                      return Promise.resolve();
+                    }
+                    
+                    return Promise.reject(new Error('Vui lòng nhập đúng định dạng email hoặc số điện thoại!'));
+                  }
+                }
               ]}
             >
-              <Input />
+              <Input placeholder="Nhập email hoặc số điện thoại" />
             </Form.Item>
 
             <Form.Item
               label="Mật khẩu"
               name="password"
-              rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
+              rules={[
+                { required: true, message: "Vui lòng nhập mật khẩu!" },
+                { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" }
+              ]}
             >
-              <Input.Password />
+              <Input.Password placeholder="Nhập mật khẩu" />
             </Form.Item>
 
             <Form.Item
@@ -148,6 +324,13 @@ const LoginPage = () => {
                 className="forgot-password"
                 href="#"
                 style={{ color: "#24B5CF" }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  showInfoNotification(
+                    'Quên mật khẩu',
+                    'Tính năng này đang được phát triển. Vui lòng liên hệ quản trị viên để được hỗ trợ!'
+                  );
+                }}
               >
                 Quên mật khẩu?
               </a>
@@ -161,7 +344,7 @@ const LoginPage = () => {
                 style={{ backgroundColor: "#24B5CF" }}
                 loading={loading}
               >
-                Đăng nhập
+                {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </Button>
             </Form.Item>
 
