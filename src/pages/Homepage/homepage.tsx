@@ -21,22 +21,46 @@ const HomePage: React.FC = () => {
 
   // lấy 2 bài blog mới nhất`
   useEffect(() => {
-    const fetchBlogs = async () => {
-      try {
-        setBlogLoading(true);
-        const res = await BlogService.getBlogs();
-        if (res.data?.data?.blogs) {
-          setBlogs(res.data.data.blogs.slice(0, 2)); // Lấy 2 bài mới nhất
-        }
-        setBlogError(null);
-      } catch (err) {
-        setBlogError("Không thể tải blog");
-      } finally {
-        setBlogLoading(false);
+  const fetchBlogs = async () => {
+    try {
+      setBlogLoading(true);
+      setBlogError(null);
+      
+      console.log("Starting to fetch blogs..."); // Debug log
+      
+      // Sử dụng method mới để lấy featured blogs
+      const featuredBlogs = await BlogService.getFeaturedBlogs();
+      
+      console.log("Blogs fetched successfully:", featuredBlogs); // Debug log
+      
+      setBlogs(featuredBlogs);
+    } catch (err: any) {
+      console.error("Error fetching blogs:", err);
+      console.error("Error response:", err.response?.data);
+      console.error("Error status:", err.response?.status);
+      
+      let errorMessage = "Không thể tải blog";
+      if (err.response?.status === 404) {
+        errorMessage = "API không tìm thấy";
+      } else if (err.response?.status >= 500) {
+        errorMessage = "Lỗi server";
+      } else if (err.code === 'NETWORK_ERROR') {
+        errorMessage = "Lỗi kết nối mạng";
       }
-    };
-    fetchBlogs();
-  }, []);
+      
+      setBlogError(errorMessage);
+    } finally {
+      setBlogLoading(false);
+    }
+  };
+  
+  fetchBlogs();
+}, []);
+
+  const navigateToBlogDetail = (blogId: string) => {
+    window.location.href = `/blog/${blogId}`;
+  };
+
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentBgIndex((prev) => (prev + 1) % bgImages.length);
@@ -190,40 +214,43 @@ const HomePage: React.FC = () => {
 
       {/* Blog Section */}
       <section className="blog-section">
-        <h2>Blog chia sẻ</h2>
-        <div className="blog-container">
-          {blogLoading ? (
-            <div className="loading-message">Đang tải blog...</div>
-          ) : blogError ? (
-            <div className="error-message">{blogError}</div>
-          ) : blogs.length === 0 ? (
-            <div className="empty-message">Chưa có bài viết nào</div>
-          ) : (
-            blogs.map((blog) => (
-              <div className="blog-card" key={blog._id}>
-                <div
-                  className="blog-img"
-                  style={{
-                    backgroundImage: `url(${
-                      blog.featuredImage ||
-                      "https://via.placeholder.com/400x250"
-                    })`,
-                    backgroundSize: "cover",
-                    backgroundPosition: "center",
-                  }}
-                ></div>
-                <div className="blog-content">
-                  <h3>{blog.title}</h3>
-                  <p>{blog.excerpt}</p>
-                  <a href={`/blog/${blog._id}`} className="view-more">
-                    Xem thêm
-                  </a>
-                </div>
-              </div>
-            ))
-          )}
+  <h2>Blog chia sẻ</h2>
+  <div className="blog-container">
+    {blogLoading ? (
+      <div className="loading-message">Đang tải blog...</div>
+    ) : blogError ? (
+      <div className="error-message">{blogError}</div>
+    ) : blogs.length === 0 ? (
+      <div className="empty-message">Chưa có bài viết nào</div>
+    ) : (
+      blogs.map((blog) => (
+        <div className="blog-card" key={blog._id}>
+          <div
+            className="blog-img"
+            style={{
+              backgroundImage: `url(${
+                blog.featuredImage ||
+                "https://via.placeholder.com/400x250"
+              })`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          ></div>
+          <div className="blog-content">
+            <h3>{blog.title}</h3>
+            <p>{blog.excerpt}</p>
+            <button 
+              className="view-more"
+              onClick={() => navigateToBlogDetail(blog._id)}
+            >
+              Xem thêm
+            </button>
+          </div>
         </div>
-      </section>
+      ))
+    )}
+  </div>
+</section>
 
       {/* Health Safety Section */}
       <section className="health-safety-section">

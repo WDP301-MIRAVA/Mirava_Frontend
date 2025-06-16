@@ -5,6 +5,8 @@ import { userServ } from "../../services/userServie";
 import { useState } from "react";
 import { decodeToken } from "@/utils/Decodejwt";
 import { toast } from "react-hot-toast";
+import Header from "../../components/Header/index";
+import Footer from "../../components/Footer";
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
@@ -233,6 +235,8 @@ const LoginPage = () => {
   };
 
   return (
+    <>
+    <Header />
     <div className="login-container">
       <div className="login-left">
         <img
@@ -343,6 +347,8 @@ const LoginPage = () => {
         </div>
       </div>
     </div>
+    <Footer />
+    </>
   );
 };
 
