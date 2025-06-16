@@ -69,12 +69,16 @@ const ViewAppointment: React.FC = () => {
         const res = await DoctorService.getDoctorAppointments();
         const data = res.data;
         if (data.success && Array.isArray(data.data)) {
-          setAppointments(data.data);
-          setFilteredAppointments(data.data);
+          const sortedAppointments = data.data.sort(
+            (a: Appointment, b: Appointment) =>
+              new Date(a.date).getTime() - new Date(b.date).getTime()
+          );
+          setAppointments(sortedAppointments);
+          setFilteredAppointments(sortedAppointments);
 
           // Nếu có dữ liệu cuộc hẹn, lấy thông tin doctor từ cuộc hẹn đầu tiên
-          if (data.data.length > 0 && data.data[0].doctor) {
-            setDoctorInfo(data.data[0].doctor);
+          if (sortedAppointments.length > 0 && sortedAppointments[0].doctor) {
+            setDoctorInfo(sortedAppointments[0].doctor);
           }
         } else {
           setAppointments([]);

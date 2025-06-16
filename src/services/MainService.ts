@@ -113,7 +113,7 @@ axiosInstance.interceptors.response.use(
 
     // Các lỗi khác
     console.error("Error in response: ", error);
-    return Promise.reject(error.response?.data || error);
+    return Promise.reject(error);
   }
 );
 
