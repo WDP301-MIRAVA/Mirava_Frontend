@@ -14,6 +14,8 @@ import CustomerHome from "@/pages/Customer/Home/Home";
 import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
 import DoctorLayout from "@/layouts/DoctorLayout/DoctorLayout";
 import DoctorAppoitment from "../pages/Doctor/ViewAppoitment";
+import TreatmentPlans from "../pages/Doctor/TreatmentPlans/TreatmentPlans";
+import Schedules from "@/pages/Doctor/Schedules/Schedules";
 
 const MainRouter = () => {
   return (
@@ -66,6 +68,8 @@ const MainRouter = () => {
             <Routes>
               <Route index element={<DoctorAppoitment />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/treatment-plans" element={<TreatmentPlans />} />
+              <Route path="/schedules/:id?" element={<Schedules />} />
             </Routes>
           </PrivateRoute>
         }
