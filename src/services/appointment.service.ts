@@ -1,4 +1,4 @@
-import axios from "axios";
+import axiosInstance from "./MainService";
 import { BASE_URL } from "./config";
 
 export const AppointmentService = {
@@ -13,7 +13,7 @@ export const AppointmentService = {
     date: string;
     note: string;
   }) =>
-    axios.post(`${BASE_URL}/api/appointment`, payload, {
+    axiosInstance.post(`${BASE_URL}/api/appointment`, payload, {
       headers: { "Content-Type": "application/json" },
     }),
 };

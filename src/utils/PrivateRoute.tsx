@@ -1,9 +1,31 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate } from "react-router-dom";
+import { decodeToken } from "./Decodejwt";
 
-const PrivateRoute = () => {
-  const isAuthenticated = localStorage.getItem("accessToken") !== null;
+interface PrivateRouteProps {
+  children: React.ReactNode;
+  allowedRole: string;
+  layout: React.ComponentType<{ children: React.ReactNode }>;
+}
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/home" />;
+const PrivateRoute = ({
+  children,
+  allowedRole,
+  layout: LayoutComponent,
+}: PrivateRouteProps) => {
+  const accessToken = localStorage.getItem("accessToken");
+  const role = decodeToken(accessToken ?? "").role;
+
+  // Kiểm tra xem user đã đăng nhập và có đúng role không
+  if (!accessToken) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (role !== allowedRole) {
+    return <Navigate to="/home" replace />;
+  }
+
+  // Nếu hợp lệ, render layout với children bên trong
+  return <LayoutComponent>{children}</LayoutComponent>;
 };
 
 export default PrivateRoute;

@@ -1,0 +1,537 @@
+.doctor-schedule-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: "Inter", "Roboto", sans-serif;
+  background-color: #f9fafb;
+}
+
+/* Doctor Info Card */
+.doctor-info-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin-bottom: 32px;
+  overflow: hidden;
+  border: none;
+  background-color: white;
+}
+
+.avatar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+.doctor-avatar {
+  border: 4px solid rgba(74, 155, 142, 0.2);
+}
+
+.info-container {
+  padding: 20px 0;
+}
+
+.doctor-name {
+  margin-bottom: 8px !important;
+  color: #14b8a6;
+}
+
+.doctor-degree {
+  color: #4b5563;
+  font-style: italic;
+  margin-bottom: 8px !important;
+}
+
+.doctor-specialty {
+  margin-bottom: 16px !important;
+  font-size: 16px;
+}
+
+.info-divider {
+  margin: 16px 0;
+}
+
+.contact-details {
+  margin-top: 16px;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #4b5563;
+}
+
+.description-divider {
+  margin: 24px 0;
+}
+
+.doctor-description {
+  padding: 0 8px;
+}
+
+/* Schedule Section */
+.schedule-section {
+  margin-top: 40px;
+}
+
+.schedule-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #14b8a6;
+  margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.schedule-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: none;
+  background-color: white;
+  padding: 16px;
+}
+
+.work-days-summary {
+  padding: 16px;
+  background-color: #f0fdfa;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border-left: 4px solid #14b8a6;
+}
+
+.work-days-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.work-day-item {
+  background-color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-left: 3px solid #14b8a6;
+  transition: all 0.2s ease;
+}
+
+.work-day-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Enhanced Calendar Styling */
+.schedule-calendar {
+  margin-top: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Calendar header (month, year) styling */
+.ant-picker-calendar-header {
+  padding: 16px 24px !important;
+  margin: 0 !important;
+  background: linear-gradient(to right, #14b8a6, #0d9488) !important;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+/* Month/Year text */
+.ant-picker-calendar-header .ant-picker-calendar-mode-switch {
+  color: white !important;
+}
+
+.ant-radio-button-wrapper {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: white !important;
+}
+
+.ant-radio-button-wrapper-checked {
+  background: rgba(255, 255, 255, 0.4) !important;
+  border-color: white !important;
+}
+
+.ant-picker-calendar-header .ant-radio-group {
+  margin-right: 8px;
+}
+
+/* Year and month selectors */
+.ant-select-selector {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.ant-select-selection-item {
+  color: white !important;
+  font-weight: 500;
+}
+
+.ant-select-arrow {
+  color: white !important;
+}
+
+/* Calendar body */
+.ant-picker-panel {
+  border: 1px solid #e5e7eb;
+  border-top: none;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+/* Week day headers */
+.ant-picker-calendar table {
+  border-collapse: separate !important;
+  border-spacing: 2px !important;
+}
+
+.ant-picker-calendar th {
+  padding: 12px 0 !important;
+  background-color: #f0fdfa !important;
+  font-weight: 600 !important;
+  color: #0d9488 !important;
+  border-bottom: 1px solid #e5e7eb !important;
+}
+
+/* Calendar cells */
+.ant-picker-cell {
+  padding: 4px 0 !important;
+  border: 1px solid transparent !important;
+  transition: all 0.2s ease;
+}
+
+.ant-picker-cell-in-view {
+  background-color: #ffffff !important;
+}
+
+/* Today's date */
+.ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner {
+  border: 2px solid #14b8a6 !important;
+  border-radius: 4px !important;
+  font-weight: bold !important;
+}
+
+/* Selected date */
+.ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner {
+  background: #14b8a6 !important;
+  color: white !important;
+  border-radius: 4px !important;
+  font-weight: bold !important;
+}
+
+/* Hover effect on dates */
+.ant-picker-cell:hover .ant-picker-cell-inner {
+  background-color: #f0fdfa !important;
+  border-radius: 4px !important;
+}
+
+/* Working days highlight */
+.ant-picker-cell-in-view.working-day .ant-picker-cell-inner {
+  background-color: #d1fae5 !important;
+  border-left: 3px solid #14b8a6 !important;
+}
+
+/* Calendar content (inside cell) */
+.calendar-cell-content {
+  padding: 4px 8px !important;
+  min-height: 60px !important;
+  border-radius: 4px !important;
+}
+
+.ant-picker-calendar-date-content {
+  height: auto !important;
+  min-height: 60px !important;
+  width: 100% !important;
+}
+
+.ant-picker-calendar-date {
+  border-top: 1px solid #f3f4f6 !important;
+  margin: 0 2px !important;
+  padding: 4px !important;
+  height: auto !important;
+  border-radius: 4px !important;
+}
+
+/* Date number */
+.ant-picker-calendar-date-value {
+  font-weight: bold !important;
+  margin-bottom: 4px !important;
+  font-size: 14px !important;
+  color: #374151 !important;
+}
+
+/* Badge in calendar */
+.ant-badge-status-dot {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+.ant-badge-status-text {
+  font-size: 12px !important;
+  color: #4b5563 !important;
+  font-weight: 500 !important;
+}
+
+/* Make badges more visible */
+.ant-badge-status-success .ant-badge-status-dot {
+  background: #10b981 !important;
+  box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Calendar navigation buttons */
+.ant-picker-header-super-prev-btn,
+.ant-picker-header-prev-btn,
+.ant-picker-header-next-btn,
+.ant-picker-header-super-next-btn {
+  color: white !important;
+}
+
+.ant-picker-header-super-prev-btn:hover,
+.ant-picker-header-prev-btn:hover,
+.ant-picker-header-next-btn:hover,
+.ant-picker-header-super-next-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Loading and Error States */
+.schedule-loading,
+.schedule-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  gap: 16px;
+  background-color: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.schedule-loading .ant-spin {
+  margin-bottom: 16px;
+}
+
+.schedule-error {
+  border-left: 5px solid #ef4444;
+}
+
+.schedule-error h4 {
+  color: #ef4444;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .doctor-schedule-container {
+    padding: 16px;
+  }
+
+  .avatar-container {
+    margin-bottom: 16px;
+  }
+
+  .doctor-avatar {
+    width: 140px !important;
+    height: 140px !important;
+  }
+
+  .work-days-list {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  /* Make calendar more mobile friendly */
+  .ant-picker-calendar-date {
+    height: auto !important;
+  }
+
+  .ant-picker-calendar-date-content {
+    min-height: 40px !important;
+  }
+
+  .ant-picker-cell {
+    padding: 2px !important;
+  }
+
+  .ant-picker-calendar-date-value {
+    font-size: 12px !important;
+  }
+
+  .ant-badge-status-text {
+    font-size: 10px !important;
+  }
+
+  /* Adjust header for small screens */
+  .ant-picker-calendar-header {
+    padding: 12px !important;
+    flex-direction: column !important;
+    align-items: center !important;
+  }
+
+  .ant-picker-calendar-header .ant-picker-calendar-year-select {
+    margin-right: 8px !important;
+  }
+
+  .ant-picker-calendar-header .ant-radio-group {
+    margin-top: 8px !important;
+  }
+}
+
+/* Additional styles for better month/year display */
+.ant-picker-calendar-header .ant-picker-calendar-year-select,
+.ant-picker-calendar-header .ant-picker-calendar-month-select {
+  min-width: 80px !important;
+  margin-right: 8px !important;
+}
+.ant-picker-calendar-header
+  .ant-picker-calendar-year-select
+  .ant-select-selector,
+.ant-picker-calendar-header
+  .ant-picker-calendar-month-select
+  .ant-select-selector {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: none !important;
+  border-radius: 8px !important;
+  height: 40px !important;
+  padding: 0 12px !important;
+  display: flex;
+  align-items: center;
+  width: 120px !important;
+}
+
+.ant-select-dropdown {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.ant-select-item-option {
+  padding: 8px 12px !important;
+}
+
+.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background-color: #f0fdfa !important;
+}
+
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: #d1fae5 !important;
+  color: #0d9488 !important;
+  font-weight: 600 !important;
+}
+.time-slot-modal .ant-modal-header {
+  background-color: #14b8a6;
+  border-radius: 12px 12px 0 0;
+  border-bottom: none;
+}
+
+.time-slot-modal .ant-modal-title {
+  color: white;
+  font-weight: 600;
+}
+
+.time-slot-modal .ant-modal-close-x {
+  color: white;
+}
+
+.time-slot-modal .ant-modal-content {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.time-slot-modal .ant-modal-body {
+  padding: 24px;
+}
+
+.time-slot-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Loading state */
+.time-slot-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  gap: 16px;
+}
+
+/* Time slots */
+.time-slots-container {
+  padding: 16px 0;
+}
+
+.time-slot-card {
+  margin-bottom: 8px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.time-slot-card.booked {
+  border-left: 3px solid #f5222d;
+  background-color: #fff1f0;
+}
+
+.time-slot-card.available {
+  border-left: 3px solid #52c41a;
+  background-color: #f6ffed;
+}
+
+.time-slot-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.time-slot-time {
+  font-size: 16px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.status-container {
+  margin-top: 4px;
+}
+
+.patient-info,
+.appointment-id {
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Timeline customization */
+.ant-timeline-item {
+  padding-bottom: 20px;
+}
+
+.booked-icon {
+  background: #f5222d;
+  color: white;
+  border-radius: 50%;
+  font-size: 16px;
+  padding: 3px;
+}
+
+.available-icon {
+  background: #52c41a;
+  color: white;
+  border-radius: 50%;
+  font-size: 16px;
+  padding: 3px;
+}
+
+/* Make calendar cells clickable */
+.ant-picker-cell-in-view {
+  cursor: pointer;
+}
+
+.ant-picker-cell-in-view:hover .ant-picker-cell-inner {
+  background-color: #e6fffb;
+}

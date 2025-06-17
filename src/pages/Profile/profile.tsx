@@ -4,7 +4,7 @@ import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { userServ } from "../../services/userServie";
-import "./home.css";
+import "./profile.css";
 
 const { Title, Text } = Typography;
 
@@ -38,7 +38,7 @@ const Home: React.FC = () => {
         if (payload && payload.id) {
           try {
             const response = await axios.get(
-              `http://localhost:3000/api/user/${payload.id}`,
+              `https://mirava-f0rz.onrender.com/api/user/profile/${payload.id}`,
               {
                 headers: { Authorization: `Bearer ${token}` },
               }
@@ -73,7 +73,7 @@ const Home: React.FC = () => {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
       message.success("Đăng xuất thành công!");
-      navigate("/login");
+      navigate("/");
     } catch (error) {
       console.error("Logout error:", error);
       message.error("Đăng xuất thất bại!");

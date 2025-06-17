@@ -2,6 +2,8 @@ import { Form, Input, Button } from "antd";
 import "./register.css";
 import { Link } from "react-router-dom";
 import { userServ } from "../../services/userServie";
+import Header from "../../components/Header/index";
+import Footer from "../../components/Footer";
 
 import { useNavigate } from "react-router-dom";
 
@@ -18,7 +20,9 @@ const RegisterPage = () => {
   };
 
   return (
-    <div className="register-container">
+    <>
+      <Header />
+      <div className="register-container">
       <div className="register-left">
         <img
           src="https://tuvanluat.vn/maytech_data/uploads/2019/01/Quy-%C4%91%E1%BB%8Bnh-x%E1%BB%AD-ph%E1%BA%A1t-ph%C3%B2ng-kh%C3%A1m-t%C6%B0-nh%C3%A2n.png"
@@ -113,6 +117,8 @@ const RegisterPage = () => {
         </div>
       </div>
     </div>
+      <Footer />
+    </>
   );
 };
 

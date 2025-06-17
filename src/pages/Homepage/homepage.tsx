@@ -1,31 +1,99 @@
-import React, { useState, useEffect } from 'react';
-import './homepage.css';
-import Header from '../../components/Header/index';
-import Footer from '../../components/Footer';
+import React, { useState, useEffect } from "react";
+import "./homepage.css";
+import Header from "../../components/Header/index";
+import Footer from "../../components/Footer";
+import { DoctorService, type Doctor } from "../../services/doctor.service";
+import { BlogService, type Blog } from "../../services/blog.services";
+import heroImg1 from "../../assets/HeroSection/1.png";
+import heroImg2 from "../../assets/HeroSection/2.png";
+import heroImg3 from "../../assets/HeroSection/3.png";
 
-import heroImg1 from '../../assets/HeroSection/1.png';
-import heroImg2 from '../../assets/HeroSection/2.png';
-import heroImg3 from '../../assets/HeroSection/3.png';
-
-const bgImages = [
-  heroImg1,
-  heroImg2,
-  heroImg3,
-];
+const bgImages = [heroImg1, heroImg2, heroImg3];
 
 const HomePage: React.FC = () => {
   const [currentBgIndex, setCurrentBgIndex] = useState(0);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [blogLoading, setBlogLoading] = useState(true);
+  const [blogError, setBlogError] = useState<string | null>(null);
+
+  // lấy 2 bài blog mới nhất`
+  useEffect(() => {
+  const fetchBlogs = async () => {
+    try {
+      setBlogLoading(true);
+      setBlogError(null);
+      
+      console.log("Starting to fetch blogs..."); // Debug log
+      
+      // Sử dụng method mới để lấy featured blogs
+      const featuredBlogs = await BlogService.getFeaturedBlogs();
+      
+      console.log("Blogs fetched successfully:", featuredBlogs); // Debug log
+      
+      setBlogs(featuredBlogs);
+    } catch (err: any) {
+      console.error("Error fetching blogs:", err);
+      console.error("Error response:", err.response?.data);
+      console.error("Error status:", err.response?.status);
+      
+      let errorMessage = "Không thể tải blog";
+      if (err.response?.status === 404) {
+        errorMessage = "API không tìm thấy";
+      } else if (err.response?.status >= 500) {
+        errorMessage = "Lỗi server";
+      } else if (err.code === 'NETWORK_ERROR') {
+        errorMessage = "Lỗi kết nối mạng";
+      }
+      
+      setBlogError(errorMessage);
+    } finally {
+      setBlogLoading(false);
+    }
+  };
+  
+  fetchBlogs();
+}, []);
+
+  const navigateToBlogDetail = (blogId: string) => {
+    window.location.href = `/blog/${blogId}`;
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentBgIndex(prev => (prev + 1) % bgImages.length);
+      setCurrentBgIndex((prev) => (prev + 1) % bgImages.length);
     }, 5000); // đổi ảnh mỗi 5s
 
     return () => clearInterval(interval);
   }, []);
 
-  const navigateToLogin = () => {
-    window.location.href = '/login';
+  useEffect(() => {
+    fetchDoctors();
+  }, []);
+
+  const fetchDoctors = async () => {
+    try {
+      setLoading(true);
+      const response = await DoctorService.getDoctors();
+      // Chỉ lấy 3 bác sĩ đầu tiên để hiển thị
+      setDoctors(response.data.slice(0, 3));
+      setError(null);
+    } catch (err) {
+      console.error("Error fetching doctors:", err);
+      setError("Không thể tải thông tin bác sĩ");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const navigateToAppointment = () => {
+    window.location.href = "/appointment";
+  };
+
+  const navigateToDoctorDetail = (doctorId: string) => {
+    window.location.href = `/detaildoctor/${doctorId}`;
   };
 
   return (
@@ -41,14 +109,22 @@ const HomePage: React.FC = () => {
         <div className="hero-overlay" />
         <div className="hero-content ">
           <h1>Hành trình chạm tới thiên chức làm cha mẹ bắt đầu từ đây</h1>
-          <p>Giải pháp điều trị hiếm muộn IUI / IVF toàn diện, an toàn và đồng hành bởi đội ngũ chuyên gia.</p>
-          <button className="consultation-button" onClick={navigateToLogin}>Đặt lịch tư vấn miễn phí</button>
+          <p>
+            Giải pháp điều trị hiếm muộn IUI / IVF toàn diện, an toàn và đồng
+            hành bởi đội ngũ chuyên gia.
+          </p>
+          <button
+            className="consultation-button"
+            onClick={navigateToAppointment}
+          >
+            Đặt lịch tư vấn miễn phí
+          </button>
         </div>
         <div className="hero-dots">
           {bgImages.map((_, index) => (
             <span
               key={index}
-              className={`dot ${index === currentBgIndex ? 'active' : ''}`}
+              className={`dot ${index === currentBgIndex ? "active" : ""}`}
             ></span>
           ))}
         </div>
@@ -74,24 +150,34 @@ const HomePage: React.FC = () => {
       <section className="doctors-section">
         <h2>Đội ngũ bác sĩ</h2>
         <div className="doctors-container">
-          <div className="doctor-card">
-            <div className="doctor-img doctor-a"></div>
-            <h3>Bác sĩ A</h3>
-            <p>Chuyên môn 1</p>
-            <a href="/bac-si/a" className="view-more">Xem thêm</a>
-          </div>
-          <div className="doctor-card">
-            <div className="doctor-img doctor-b"></div>
-            <h3>Bác sĩ B</h3>
-            <p>Chuyên môn 2</p>
-            <a href="/bac-si/b" className="view-more">Xem thêm</a>
-          </div>
-          <div className="doctor-card">
-            <div className="doctor-img doctor-c"></div>
-            <h3>Bác sĩ C</h3>
-            <p>Chuyên môn 3</p>
-            <a href="/bac-si/c" className="view-more">Xem thêm</a>
-          </div>
+          {loading ? (
+            <div className="loading-message">Đang tải thông tin bác sĩ...</div>
+          ) : error ? (
+            <div className="error-message">{error}</div>
+          ) : (
+            doctors.map((doctor, index) => (
+              <div key={doctor._id} className="doctor-card">
+                <div
+                  className={`doctor-img doctor-${String.fromCharCode(
+                    97 + index
+                  )}`}
+                  style={{
+                    backgroundImage: `url(${doctor.imageUrl})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                  }}
+                ></div>
+                <h3>{doctor.user.userName}</h3>
+                <p>{doctor.specialty}</p>
+                <button
+                  className="view-more"
+                  onClick={() => navigateToDoctorDetail(doctor._id)}
+                >
+                  Xem thêm
+                </button>
+              </div>
+            ))
+          )}
         </div>
       </section>
 
@@ -128,32 +214,54 @@ const HomePage: React.FC = () => {
 
       {/* Blog Section */}
       <section className="blog-section">
-        <h2>Blog chia sẻ</h2>
-        <div className="blog-container">
-          <div className="blog-card">
-            <div className="blog-img"></div>
-            <div className="blog-content">
-              <h3>Tiêu đề</h3>
-              <p>Trích đoạn bài viết...</p>
-              <a href="/blog/1" className="view-more">Xem thêm</a>
-            </div>
-          </div>
-          <div className="blog-card">
-            <div className="blog-img"></div>
-            <div className="blog-content">
-              <h3>Tiêu đề</h3>
-              <p>Trích đoạn bài viết...</p>
-              <a href="/blog/2" className="view-more">Xem thêm</a>
-            </div>
+  <h2>Blog chia sẻ</h2>
+  <div className="blog-container">
+    {blogLoading ? (
+      <div className="loading-message">Đang tải blog...</div>
+    ) : blogError ? (
+      <div className="error-message">{blogError}</div>
+    ) : blogs.length === 0 ? (
+      <div className="empty-message">Chưa có bài viết nào</div>
+    ) : (
+      blogs.map((blog) => (
+        <div className="blog-card" key={blog._id}>
+          <div
+            className="blog-img"
+            style={{
+              backgroundImage: `url(${
+                blog.featuredImage ||
+                "https://via.placeholder.com/400x250"
+              })`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          ></div>
+          <div className="blog-content">
+            <h3>{blog.title}</h3>
+            <p>{blog.excerpt}</p>
+            <button 
+              className="view-more"
+              onClick={() => navigateToBlogDetail(blog._id)}
+            >
+              Xem thêm
+            </button>
           </div>
         </div>
-      </section>
+      ))
+    )}
+  </div>
+</section>
 
       {/* Health Safety Section */}
       <section className="health-safety-section">
         <div className="safety-icon"></div>
         <h3>Cam kết y tế an toàn</h3>
-        <button className="consultation-button-secondary" onClick={navigateToLogin}>Nhận tư vấn từ chuyên gia</button>
+        <button
+          className="consultation-button-secondary"
+          onClick={navigateToAppointment}
+        >
+          Nhận tư vấn từ chuyên gia
+        </button>
       </section>
 
       {/* Footer */}
