@@ -16,6 +16,8 @@ import DoctorLayout from "@/layouts/DoctorLayout/DoctorLayout";
 import DoctorAppoitment from "../pages/Doctor/ViewAppoitment";
 import TreatmentPlans from "../pages/Doctor/TreatmentPlans/TreatmentPlans";
 import Schedules from "@/pages/Doctor/Schedules/Schedules";
+import AppointmentPage from "@/pages/Users/AppointmentPage";
+import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
 
 const MainRouter = () => {
   return (
@@ -29,6 +31,8 @@ const MainRouter = () => {
       <Route path="/searchresult" element={<SearchResult />} />
       <Route path="/detaildoctor/:id" element={<DetailDoctor />} />
       <Route path="/appointment" element={<Appointment />} />
+      <Route path="/user/appointment" element={<AppointmentPage />} />
+      <Route path="/profile" element={<PersonalInfoPage />} />
 
       {/* Customer Protected Routes - Chỉ customer mới truy cập được */}
       <Route
