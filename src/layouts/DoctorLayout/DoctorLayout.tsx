@@ -36,10 +36,10 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({
     { id: 2, name: "Hồ sơ", label: "Hồ sơ", icon: "👤", path: "/doctor/profile" },
     { id: 3, name: "Bệnh nhân", label: "Bệnh nhân", icon: "👥", path: "/doctor/patients" },
     { id: 4, name: "Lịch hẹn", label: "Lịch hẹn", icon: "📅", path: "/doctor/appointments" },
-    { id: 5, name: "Kế hoạch điều trị", label: "Kế hoạch điều trị", icon: "📋", path: "/doctor/treatment-plans" },
+    { id: 5, name: "Kế hoạch điều trị", label: "Tạo kế hoạch điều trị", icon: "📋", path: "/doctor/treatment-plans" },
     { id: 6, name: "Kê đơn thuốc", label: "Kê đơn thuốc", icon: "💊", path: "/doctor/prescriptions" },
     { id: 7, name: "Hồ sơ y tế", label: "Hồ sơ y tế", icon: "📄", path: "/doctor/medical-records" },
-    { id: 8, name: "Lịch làm việc", label: "Lịch làm việc", icon: "🗓️", path: "/doctor/schedule" },
+    { id: 8, name: "Lịch làm việc", label: "Lịch làm việc", icon: "🗓️", path: "/doctor/schedules" },
     { id: 9, name: "Báo cáo", label: "Báo cáo", icon: "📊", path: "/doctor/reports" }
   ];
 
