@@ -3,7 +3,15 @@ import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import "./Header.css";
 import MiravaLogo from "../../assets/mirava-logo.png";
-
+import { decodeToken } from "@/utils/decodeToken";
+import { Avatar, Dropdown, Menu } from "antd";
+import {
+  UserOutlined,
+  LogoutOutlined,
+  CalendarOutlined,
+  InfoCircleOutlined,
+} from "@ant-design/icons";
+import toast from "react-hot-toast";
 // Define the navigation items
 const navigationItems = [
   { name: "Trang chủ", path: "/home" },
@@ -20,7 +28,8 @@ const Header: React.FC = () => {
   const [activeItem, setActiveItem] = useState("/");
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
-
+  const token = localStorage.getItem("accessToken");
+  // const user = decodeToken(token ?? "");
   // Handle scroll effect to change header appearance on scroll
   useEffect(() => {
     const handleScroll = () => {
@@ -44,7 +53,41 @@ const Header: React.FC = () => {
   const handleConsultClick = () => {
     navigate("/register");
   };
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    toast.success("Đăng xuất thành công");
+  };
+  const handleProfileClick = () => {
+    navigate("/profile");
+  };
 
+  const handleScheduleClick = () => {
+    navigate("/user/appointment");
+  };
+
+  const menu = (
+    <Menu>
+      <Menu.Item
+        key="profile"
+        icon={<InfoCircleOutlined />}
+        onClick={handleProfileClick}
+      >
+        Thông tin cá nhân
+      </Menu.Item>
+      <Menu.Item
+        key="schedule"
+        icon={<CalendarOutlined />}
+        onClick={handleScheduleClick}
+      >
+        Xem lịch hẹn
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
+        Đăng xuất
+      </Menu.Item>
+    </Menu>
+  );
   return (
     <header className={`header ${scrolled ? "header-scrolled" : ""}`}>
       <div className="header-content">
@@ -84,18 +127,32 @@ const Header: React.FC = () => {
               </motion.li>
             ))}
           </ul>
-
-          <motion.button
-            className="consult-button"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.6 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleConsultClick}
-          >
-            Đăng ký tư vấn
-          </motion.button>
+          {token ? (
+            <Dropdown overlay={menu} placement="bottomRight" arrow>
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                style={{ cursor: "pointer", display: "inline-block" }}
+              >
+                <Avatar
+                  icon={<UserOutlined />}
+                  style={{ backgroundColor: "#1890ff", marginLeft: 24 }}
+                />
+              </motion.div>
+            </Dropdown>
+          ) : (
+            <motion.button
+              className="consult-button"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleConsultClick}
+            >
+              Đăng ký tư vấn
+            </motion.button>
+          )}
 
           <button className="mobile-menu-button" aria-label="Menu">
             <svg
