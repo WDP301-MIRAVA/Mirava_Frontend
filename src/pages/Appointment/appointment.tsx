@@ -15,6 +15,7 @@ import { AppointmentService } from "@/services/appointment.service";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { DoctorService } from "@/services/doctor.service";
+import type { Doctor } from "@/services/doctor.service";
 import { Service } from "@/services/service";
 import toast from "react-hot-toast";
 
@@ -25,7 +26,7 @@ const { Title, Text } = Typography;
 const Appointment = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-  const [doctors, setDoctors] = useState([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [services, setServices] = useState([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string | null>(null);
   const [workDays, setWorkDays] = useState<string[]>([]);
@@ -155,6 +156,7 @@ const Appointment = () => {
       setSelectedTimeSlot(null);
     } catch (error) {
       toast.error("Có lỗi xảy ra khi đặt lịch.");
+      console.error("Error tạo cuộc hẹn:", error);
     } finally {
       setLoading(false);
     }

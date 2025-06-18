@@ -1,6 +1,7 @@
 import axiosInstance from "./MainService";
 
-const API_URL = "https://mirava-f0rz.onrender.com/api/auth";
+const API_URL =
+  import.meta.env.VITE_API_AUTH_URL || "http://localhost:3000/api/auth";
 
 export interface LoginRequest {
   email: string;
@@ -74,4 +75,17 @@ export const register = async (
     data
   );
   return response.data;
+};
+
+export const loginByPatientCode = async (patientCodeOrPhone: string) => {
+  const response = await fetch(
+    `http://localhost:3000/api/auth/login/patientCode`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ patientCodeOrPhone }),
+    }
+  );
+  const data = await response.json();
+  return { ok: response.ok, data };
 };
