@@ -18,7 +18,7 @@ import TreatmentPlans from "../pages/Doctor/TreatmentPlans/TreatmentPlans";
 import Schedules from "@/pages/Doctor/Schedules/Schedules";
 import AppointmentPage from "@/pages/Users/AppointmentPage";
 import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
-
+import PatientList from "@/pages/Doctor/Patients/PatientList";
 const MainRouter = () => {
   return (
     <Routes>
@@ -74,6 +74,7 @@ const MainRouter = () => {
               <Route path="/profile" element={<Profile />} />
               <Route path="/treatment-plans" element={<TreatmentPlans />} />
               <Route path="/schedules/:id?" element={<Schedules />} />
+              <Route path="/patients" element={<PatientList />} />
             </Routes>
           </PrivateRoute>
         }
