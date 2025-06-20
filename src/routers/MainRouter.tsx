@@ -41,7 +41,7 @@ const MainRouter = () => {
           <PrivateRoute allowedRole="Customer" layout={CustomerLayout}>
             <Routes>
               <Route index element={<CustomerHome />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={<PersonalInfoPage />} />
               {/* Thêm các route khác cho customer ở đây */}
               <Route path="/treatmentplan" element={<TreatmentPlan />} />
             </Routes>
@@ -56,7 +56,7 @@ const MainRouter = () => {
           <PrivateRoute allowedRole="Admin" layout={AdminLayout}>
             <Routes>
               <Route index element={<div>Admin Dashboard</div>} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={<PersonalInfoPage />} />
               {/* <Route path="users" element={<ManageUsers />} /> */}
               {/* <Route path="doctors" element={<ManageDoctors />} /> */}
               {/* Thêm các route khác cho admin ở đây */}
@@ -71,7 +71,7 @@ const MainRouter = () => {
           <PrivateRoute allowedRole="Doctor" layout={DoctorLayout}>
             <Routes>
               <Route index element={<DoctorAppoitment />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={<PersonalInfoPage />} />
               <Route path="/treatment-plans" element={<TreatmentPlans />} />
               <Route path="/schedules/:id?" element={<Schedules />} />
               <Route path="/patients" element={<PatientList />} />

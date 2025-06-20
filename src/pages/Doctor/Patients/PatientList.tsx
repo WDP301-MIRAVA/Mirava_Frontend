@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import './PatientList.css';
-import EditableTreatmentPlan from './EditableTreatmentPlan';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import "./PatientList.css";
+import EditableTreatmentPlan from "./EditableTreatmentPlan";
+import axios from "axios";
 
 interface Patient {
   id: string;
@@ -11,7 +11,7 @@ interface Patient {
   location: string;
   specialty: string;
   gender: string;
-  status: 'confirmed' | 'pending';
+  status: "confirmed" | "pending";
   appointmentDate: string;
   appointmentTime: string;
   note?: string;
@@ -27,68 +27,75 @@ const PatientList: React.FC = () => {
 
   useEffect(() => {
     const fetchPatients = async () => {
-  try {
-    const token = localStorage.getItem('accessToken'); // 👈 lấy token
+      try {
+        const token = localStorage.getItem("accessToken"); // 👈 lấy token
 
-    if (!token) {
-      console.warn('Không tìm thấy accessToken trong localStorage');
-      return;
-    }
+        if (!token) {
+          console.warn("Không tìm thấy accessToken trong localStorage");
+          return;
+        }
 
-    const res = await axios.get('https://mirava-f0rz.onrender.com/api/treatment-plan', {
-      headers: {
-        Authorization: `Bearer ${token}` 
+        const res = await axios.get(
+          "https://mirava-f0rz.onrender.com/api/treatment-plan",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const data = res.data?.data;
+
+        if (Array.isArray(data)) {
+          const transformedPatients: Patient[] = data.map((plan: any) => ({
+            id: plan.patient._id,
+            name: plan.patient.userName || "Không rõ",
+            email: plan.patient.email || "",
+            phone: plan.patient.phone || "",
+            location: plan.patient.location || "Không rõ",
+            specialty: plan.doctor?.specialty || "Không rõ",
+            gender: plan.patient.gender || "Không rõ",
+            status: plan.status === "in_progress" ? "confirmed" : "pending",
+            appointmentDate: new Date(plan.cycleStartDate).toLocaleDateString(
+              "vi-VN",
+              {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              }
+            ),
+            appointmentTime: plan.hcgInjection?.time || "07:00",
+            note: plan.notes || "",
+            doctor: plan.doctor?.user?.userName || "Không rõ",
+            startDate: new Date(plan.cycleStartDate).toLocaleDateString(
+              "vi-VN"
+            ),
+          }));
+
+          setPatients(transformedPatients);
+        }
+      } catch (error: any) {
+        console.error("Lỗi khi gọi API:", error);
+        if (error.response?.status === 401) {
+          alert("Bạn chưa đăng nhập hoặc token hết hạn.");
+        }
+      } finally {
+        setLoading(false);
       }
-    });
-
-    const data = res.data?.data;
-
-    if (Array.isArray(data)) {
-      const transformedPatients: Patient[] = data.map((plan: any) => ({
-        id: plan.patient._id,
-        name: plan.patient.userName || 'Không rõ',
-        email: plan.patient.email || '',
-        phone: plan.patient.phone || '',
-        location: plan.patient.location || 'Không rõ',
-        specialty: plan.doctor?.specialty || 'Không rõ',
-        gender: plan.patient.gender || 'Không rõ',
-        status: plan.status === 'in_progress' ? 'confirmed' : 'pending',
-        appointmentDate: new Date(plan.cycleStartDate).toLocaleDateString('vi-VN', {
-          weekday: 'long',
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }),
-        appointmentTime: plan.hcgInjection?.time || '07:00',
-        note: plan.notes || '',
-        doctor: plan.doctor?.user?.userName || 'Không rõ',
-        startDate: new Date(plan.cycleStartDate).toLocaleDateString('vi-VN')
-      }));
-
-      setPatients(transformedPatients);
-    }
-  } catch (error: any) {
-    console.error('Lỗi khi gọi API:', error);
-    if (error.response?.status === 401) {
-      alert('Bạn chưa đăng nhập hoặc token hết hạn.');
-    }
-  } finally {
-    setLoading(false);
-  }
-};
-
+    };
 
     fetchPatients();
   }, []);
 
   const handlePatientDetail = (patient: Patient) => {
-    localStorage.setItem('patientId', patient.id);
+    localStorage.setItem("patientId", patient.id);
     setSelectedPatient(patient);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
-    localStorage.removeItem('patientId');
+    localStorage.removeItem("patientId");
     setSelectedPatient(null);
     setIsModalOpen(false);
   };
@@ -109,14 +116,20 @@ const PatientList: React.FC = () => {
                 <div className="patient-info">
                   <h3 className="patient-name">{patient.name}</h3>
                   <span className={`status-badge ${patient.status}`}>
-                    {patient.status === 'confirmed' ? 'ĐÃ XÁC NHẬN' : 'CHỜ XÁC NHẬN'}
+                    {patient.status === "confirmed"
+                      ? "ĐÃ XÁC NHẬN"
+                      : "CHỜ XÁC NHẬN"}
                   </span>
                 </div>
                 <div className="appointment-info">
                   <div className="calendar-icon">📅</div>
                   <div className="appointment-details">
-                    <div className="appointment-date">{patient.appointmentDate}</div>
-                    <div className="appointment-time">{patient.appointmentTime}</div>
+                    <div className="appointment-date">
+                      {patient.appointmentDate}
+                    </div>
+                    <div className="appointment-time">
+                      {patient.appointmentTime}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -157,7 +170,10 @@ const PatientList: React.FC = () => {
                 </div>
               )}
 
-              <button className="detail-button" onClick={() => handlePatientDetail(patient)}>
+              <button
+                className="detail-button"
+                onClick={() => handlePatientDetail(patient)}
+              >
                 👁️ Chi tiết bệnh nhân
               </button>
             </div>
@@ -171,7 +187,9 @@ const PatientList: React.FC = () => {
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Kế hoạch điều trị</h2>
-              <button className="close-button" onClick={closeModal}>×</button>
+              <button className="close-button" onClick={closeModal}>
+                ×
+              </button>
             </div>
             <div className="modal-info">
               <p>Bệnh nhân: {selectedPatient.name}</p>

@@ -105,7 +105,6 @@ const PersonalInfoPage: React.FC = () => {
 
   return (
     <>
-      <Header />
       <div style={{ padding: 24, maxWidth: 600, margin: "0 auto" }}>
         <Card>
           <Title level={3}>👤 Thông tin cá nhân</Title>
@@ -194,7 +193,6 @@ const PersonalInfoPage: React.FC = () => {
           </Form>
         </Card>
       </div>
-      <Footer />
     </>
   );
 };
