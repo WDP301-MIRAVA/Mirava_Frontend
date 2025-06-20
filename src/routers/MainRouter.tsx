@@ -14,6 +14,9 @@ import CustomerHome from "@/pages/Customer/Home/Home";
 import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
 import DoctorLayout from "@/layouts/DoctorLayout/DoctorLayout";
 import DoctorAppoitment from "../pages/Doctor/ViewAppoitment";
+import BlogList from "@/pages/BlogList/BlogList";
+import DetailBlog from "@/pages/DetailBlog/DetailBlog";
+
 import TreatmentPlans from "../pages/Doctor/TreatmentPlans/TreatmentPlans";
 import Schedules from "@/pages/Doctor/Schedules/Schedules";
 import AppointmentPage from "@/pages/Users/AppointmentPage";
@@ -31,6 +34,8 @@ const MainRouter = () => {
       <Route path="/searchresult" element={<SearchResult />} />
       <Route path="/detaildoctor/:id" element={<DetailDoctor />} />
       <Route path="/appointment" element={<Appointment />} />
+      <Route path="/bloglist" element={<BlogList/>} />
+      <Route path="/detailblog" element={<DetailBlog />} />
       <Route path="/user/appointment" element={<AppointmentPage />} />
       <Route path="/profile" element={<PersonalInfoPage />} />
 
