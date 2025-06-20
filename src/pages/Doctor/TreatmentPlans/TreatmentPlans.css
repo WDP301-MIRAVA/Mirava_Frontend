@@ -1,0 +1,484 @@
+/* TreatmentPlans.css */
+
+/* Layout container */
+.view-appointment-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f0fdf4;
+  font-family: Arial, sans-serif;
+}
+
+/* Doctor header */
+.doctor-header {
+  display: flex;
+  gap: 24px;
+  background: linear-gradient(to right, #14b8a6, #0f766e);
+  color: white;
+  border-radius: 16px;
+  padding: 24px;
+  align-items: center;
+  position: relative;
+}
+
+.doctor-avatar img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.doctor-info {
+  flex: 1;
+}
+
+.doctor-name {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.doctor-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doctor-description {
+  font-size: 14px;
+  color: #e0f2f1;
+  margin-bottom: 8px;
+}
+
+.work-schedule {
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doctor-logout-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: white;
+  color: #0f766e;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 50vh;
+  color: #4a9b8e;
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #e8f4f1;
+  border-top: 4px solid #4a9b8e;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Selection wrapper */
+.method-selection-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+}
+
+.method-selection-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.method-selection-subtitle {
+  color: #6b7280;
+  margin-bottom: 2rem;
+}
+
+.method-option {
+  border: 2px solid transparent;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.method-option:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.method-iui {
+  background: linear-gradient(to bottom right, #e0f0ff, #f0f6ff);
+  border-color: #bddcff;
+}
+
+.method-iui:hover {
+  border-color: #3390ff;
+}
+
+.method-ivf {
+  background: linear-gradient(to bottom right, #e0fcf9, #e8fef8);
+  border-color: #a7f3d0;
+}
+
+.method-ivf:hover {
+  border-color: #2dd4bf;
+}
+
+.method-circle {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem auto;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  font-size: 18px;
+}
+
+.iui-circle {
+  background: linear-gradient(to right, #3b82f6, #2563eb);
+}
+
+.ivf-circle {
+  background: linear-gradient(to right, #14b8a6, #0d9488);
+}
+
+.method-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.method-description {
+  color: #374151;
+  font-size: 14px;
+  margin-bottom: 1rem;
+}
+
+.method-choose {
+  color: #2563eb;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+}
+
+/* Form styling - updated based on image */
+.treatment-form-container {
+  background-color: #ffffff;
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.08);
+  margin-top: 40px;
+}
+
+.treatment-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.treatment-form-header h2 {
+  font-size: 28px;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 4px;
+}
+
+.treatment-form-header p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.treatment-form-button {
+  padding: 8px 16px;
+  border: 1px solid #14b8a6;
+  color: #14b8a6;
+  background-color: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.treatment-form-button:hover {
+  background-color: #f0fdfa;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 20px;
+  margin-top: 32px;
+}
+
+/* Form fields styling */
+.ant-form-item {
+  margin-bottom: 24px;
+}
+
+.ant-form-item-label {
+  padding-bottom: 8px;
+}
+
+.ant-form-item-label > label {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.ant-form-item-label > label.ant-form-item-required::before {
+  color: #ff4d4f;
+}
+
+/* Input styling */
+.ant-input,
+.ant-input-number,
+.ant-picker,
+.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  width: 100%;
+  padding: 12px 16px;
+  height: auto;
+  border: 1px solid #d1d5db !important;
+  border-radius: 8px !important;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.ant-input:hover,
+.ant-input-number:hover,
+.ant-picker:hover,
+.ant-select:not(.ant-select-customize-input) .ant-select-selector:hover {
+  border-color: #14b8a6 !important;
+}
+
+.ant-input:focus,
+.ant-input-number:focus,
+.ant-picker-focused,
+.ant-select-focused:not(.ant-select-disabled).ant-select:not(
+    .ant-select-customize-input
+  )
+  .ant-select-selector {
+  border-color: #14b8a6 !important;
+  box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.2) !important;
+}
+
+.ant-input-number-input {
+  height: 1.5em;
+}
+
+.ant-select-selection-placeholder {
+  color: #9ca3af !important;
+}
+
+/* Improve textarea */
+.ant-input-textarea textarea.ant-input {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* DatePicker customization */
+.ant-picker {
+  padding: 12px 16px;
+}
+
+.ant-picker-input > input {
+  font-size: 14px;
+}
+
+.ant-picker-suffix {
+  color: #6b7280;
+}
+
+/* Grid layout for form */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+/* Monitoring and reminder items styling */
+.monitoring-item,
+.reminder-item {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 16px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background-color: #f9fafb;
+}
+
+.monitoring-item label,
+.reminder-item label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 14px;
+  color: #374151;
+}
+
+/* Buttons styling */
+.ant-btn {
+  height: auto;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.ant-btn-primary {
+  background: linear-gradient(to right, #14b8a6, #0d9488);
+  border: none;
+  box-shadow: 0 2px 6px rgba(20, 184, 166, 0.4);
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background: linear-gradient(to right, #0d9488, #0f766e);
+}
+
+.ant-btn-dashed {
+  color: #14b8a6;
+  border-color: #14b8a6;
+}
+
+.ant-btn-dashed:hover {
+  color: #0d9488;
+  border-color: #0d9488;
+}
+
+.ant-btn-danger {
+  background: #fff;
+  border-color: #ff4d4f;
+  color: #ff4d4f;
+}
+
+.ant-btn-danger:hover {
+  background: #fff1f0;
+}
+
+/* Action buttons at bottom */
+.button-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 16px;
+  padding-top: 32px;
+  margin-top: 32px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Required asterisk */
+.required-mark {
+  color: #ff4d4f;
+  margin-right: 4px;
+}
+
+/* Form input fields style matching image */
+.ant-input,
+.ant-picker {
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+  height: 45px !important;
+}
+
+.ant-select .ant-select-selector {
+  height: 45px !important;
+  padding: 0 11px !important;
+  display: flex;
+  align-items: center;
+}
+
+.ant-select-single .ant-select-selector .ant-select-selection-item {
+  line-height: 45px !important;
+}
+
+.ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+  padding: 0 11px !important;
+}
+
+.ant-form-item-label > label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+/* Make date picker look like the image */
+.ant-picker-input {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.ant-picker-suffix {
+  margin-left: auto;
+}
+
+/* Field group titles */
+h3.chi-tiet-dieu-tri {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 30px 0 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Fix input heights */
+.ant-form-item-control-input {
+  min-height: auto;
+}
+
+.ant-form-item-control-input-content {
+  display: flex;
+  align-items: center;
+}
+
+/* Make calendar icon aligned properly */
+.ant-picker-input > span.ant-picker-suffix {
+  margin-left: auto;
+  margin-right: 4px;
+}

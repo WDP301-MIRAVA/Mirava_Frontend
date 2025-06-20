@@ -101,6 +101,8 @@ const LoginPage = () => {
       // Lưu thông tin user vào localStorage để useAuth hook sử dụng
       localStorage.setItem("role", user.role);
       localStorage.setItem("userInfo", JSON.stringify(user));
+      localStorage.setItem("patientId", user.id);
+      console.log("User info saved to localStorage:", user);
 
       // ✅ THÔNG BÁO ĐĂNG NHẬP THÀNH CÔNG
       showSuccessNotification(
@@ -236,118 +238,118 @@ const LoginPage = () => {
 
   return (
     <>
-    <Header />
-    <div className="login-container">
-      <div className="login-left">
-        <img
-          src="https://tuvanluat.vn/maytech_data/uploads/2019/01/Quy-%C4%91%E1%BB%8Bnh-x%E1%BB%AD-ph%E1%BA%A1t-ph%C3%B2ng-kh%C3%A1m-t%C6%B0-nh%C3%A2n.png"
-          alt="Illustration"
-          className="illustration"
-        />
-        <p className="tagline">
-          "Đồng hành cùng bạn trong hành trình làm cha mẹ"
-        </p>
-      </div>
-
-      <div className="login-right">
-        <div className="login-box">
+      <Header />
+      <div className="login-container">
+        <div className="login-left">
           <img
-            src="../../assets/mirava-logo.png"
-            alt="Mirava Logo"
-            className="logo"
+            src="https://tuvanluat.vn/maytech_data/uploads/2019/01/Quy-%C4%91%E1%BB%8Bnh-x%E1%BB%AD-ph%E1%BA%A1t-ph%C3%B2ng-kh%C3%A1m-t%C6%B0-nh%C3%A2n.png"
+            alt="Illustration"
+            className="illustration"
           />
-          <h2>Đăng nhập tài khoản</h2>
-          <Form name="login" layout="vertical" onFinish={onFinish}>
-            <Form.Item
-              label="Email hoặc Số điện thoại"
-              name="username"
-              rules={[
-                {
-                  required: true,
-                  message: "Vui lòng nhập email hoặc số điện thoại!",
-                },
-                {
-                  validator: (_, value) => {
-                    if (!value) return Promise.resolve();
+          <p className="tagline">
+            "Đồng hành cùng bạn trong hành trình làm cha mẹ"
+          </p>
+        </div>
 
-                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                    const phoneRegex = /^[0-9]{10,11}$/;
-
-                    if (emailRegex.test(value) || phoneRegex.test(value)) {
-                      return Promise.resolve();
-                    }
-
-                    return Promise.reject(
-                      new Error(
-                        "Vui lòng nhập đúng định dạng email hoặc số điện thoại!"
-                      )
-                    );
+        <div className="login-right">
+          <div className="login-box">
+            <img
+              src="../../assets/mirava-logo.png"
+              alt="Mirava Logo"
+              className="logo"
+            />
+            <h2>Đăng nhập tài khoản</h2>
+            <Form name="login" layout="vertical" onFinish={onFinish}>
+              <Form.Item
+                label="Email hoặc Số điện thoại"
+                name="username"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng nhập email hoặc số điện thoại!",
                   },
-                },
-              ]}
-            >
-              <Input placeholder="Nhập email hoặc số điện thoại" />
-            </Form.Item>
+                  {
+                    validator: (_, value) => {
+                      if (!value) return Promise.resolve();
 
-            <Form.Item
-              label="Mật khẩu"
-              name="password"
-              rules={[
-                { required: true, message: "Vui lòng nhập mật khẩu!" },
-                { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
-              ]}
-            >
-              <Input.Password placeholder="Nhập mật khẩu" />
-            </Form.Item>
+                      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                      const phoneRegex = /^[0-9]{10,11}$/;
 
-            <Form.Item
-              name="remember"
-              valuePropName="checked"
-              className="remember-me"
-            >
-              <Checkbox>Ghi nhớ đăng nhập</Checkbox>
-            </Form.Item>
+                      if (emailRegex.test(value) || phoneRegex.test(value)) {
+                        return Promise.resolve();
+                      }
 
-            <Form.Item>
-              <a
-                className="forgot-password"
-                href="#"
-                style={{ color: "#24B5CF" }}
-                onClick={(e) => {
-                  e.preventDefault();
-                  showInfoNotification(
-                    "Quên mật khẩu",
-                    "Tính năng này đang được phát triển. Vui lòng liên hệ quản trị viên để được hỗ trợ!"
-                  );
-                }}
+                      return Promise.reject(
+                        new Error(
+                          "Vui lòng nhập đúng định dạng email hoặc số điện thoại!"
+                        )
+                      );
+                    },
+                  },
+                ]}
               >
-                Quên mật khẩu?
-              </a>
-            </Form.Item>
+                <Input placeholder="Nhập email hoặc số điện thoại" />
+              </Form.Item>
 
-            <Form.Item>
-              <Button
-                type="primary"
-                htmlType="submit"
-                block
-                style={{ backgroundColor: "#24B5CF" }}
-                loading={loading}
+              <Form.Item
+                label="Mật khẩu"
+                name="password"
+                rules={[
+                  { required: true, message: "Vui lòng nhập mật khẩu!" },
+                  { min: 6, message: "Mật khẩu phải có ít nhất 6 ký tự!" },
+                ]}
               >
-                {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-              </Button>
-            </Form.Item>
+                <Input.Password placeholder="Nhập mật khẩu" />
+              </Form.Item>
 
-            <p className="register-link">
-              Chưa có tài khoản?{" "}
-              <Link to={"/register"} style={{ color: "#24B5CF" }}>
-                Đăng ký ngay
-              </Link>
-            </p>
-          </Form>
+              <Form.Item
+                name="remember"
+                valuePropName="checked"
+                className="remember-me"
+              >
+                <Checkbox>Ghi nhớ đăng nhập</Checkbox>
+              </Form.Item>
+
+              <Form.Item>
+                <a
+                  className="forgot-password"
+                  href="#"
+                  style={{ color: "#24B5CF" }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    showInfoNotification(
+                      "Quên mật khẩu",
+                      "Tính năng này đang được phát triển. Vui lòng liên hệ quản trị viên để được hỗ trợ!"
+                    );
+                  }}
+                >
+                  Quên mật khẩu?
+                </a>
+              </Form.Item>
+
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  block
+                  style={{ backgroundColor: "#24B5CF" }}
+                  loading={loading}
+                >
+                  {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+                </Button>
+              </Form.Item>
+
+              <p className="register-link">
+                Chưa có tài khoản?{" "}
+                <Link to={"/register"} style={{ color: "#24B5CF" }}>
+                  Đăng ký ngay
+                </Link>
+              </p>
+            </Form>
+          </div>
         </div>
       </div>
-    </div>
-    <Footer />
+      <Footer />
     </>
   );
 };

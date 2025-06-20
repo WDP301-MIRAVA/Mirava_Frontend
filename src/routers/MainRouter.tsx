@@ -17,6 +17,11 @@ import DoctorAppoitment from "../pages/Doctor/ViewAppoitment";
 import BlogList from "@/pages/BlogList/BlogList";
 import DetailBlog from "@/pages/DetailBlog/DetailBlog";
 
+import TreatmentPlans from "../pages/Doctor/TreatmentPlans/TreatmentPlans";
+import Schedules from "@/pages/Doctor/Schedules/Schedules";
+import AppointmentPage from "@/pages/Users/AppointmentPage";
+import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
+import PatientList from "@/pages/Doctor/Patients/PatientList";
 const MainRouter = () => {
   return (
     <Routes>
@@ -31,6 +36,9 @@ const MainRouter = () => {
       <Route path="/appointment" element={<Appointment />} />
       <Route path="/bloglist" element={<BlogList/>} />
       <Route path="/detailblog" element={<DetailBlog />} />
+      <Route path="/user/appointment" element={<AppointmentPage />} />
+      <Route path="/profile" element={<PersonalInfoPage />} />
+
       {/* Customer Protected Routes - Chỉ customer mới truy cập được */}
       <Route
         path="/customer/*"
@@ -38,7 +46,7 @@ const MainRouter = () => {
           <PrivateRoute allowedRole="Customer" layout={CustomerLayout}>
             <Routes>
               <Route index element={<CustomerHome />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={<PersonalInfoPage />} />
               {/* Thêm các route khác cho customer ở đây */}
               <Route path="/treatmentplan" element={<TreatmentPlan />} />
             </Routes>
@@ -53,7 +61,7 @@ const MainRouter = () => {
           <PrivateRoute allowedRole="Admin" layout={AdminLayout}>
             <Routes>
               <Route index element={<div>Admin Dashboard</div>} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={<PersonalInfoPage />} />
               {/* <Route path="users" element={<ManageUsers />} /> */}
               {/* <Route path="doctors" element={<ManageDoctors />} /> */}
               {/* Thêm các route khác cho admin ở đây */}
@@ -68,7 +76,10 @@ const MainRouter = () => {
           <PrivateRoute allowedRole="Doctor" layout={DoctorLayout}>
             <Routes>
               <Route index element={<DoctorAppoitment />} />
-              <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={<PersonalInfoPage />} />
+              <Route path="/treatment-plans" element={<TreatmentPlans />} />
+              <Route path="/schedules/:id?" element={<Schedules />} />
+              <Route path="/patients" element={<PatientList />} />
             </Routes>
           </PrivateRoute>
         }

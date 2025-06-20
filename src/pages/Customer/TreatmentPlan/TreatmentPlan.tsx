@@ -41,7 +41,15 @@ const TreatmentPlan: React.FC = () => {
           sessionStorage.getItem("patientId");
         if (!patientId) {
           const urlParams = new URLSearchParams(window.location.search);
-          patientId = urlParams.get("patientId") || "682d873130ae34c185987543"; // Giá trị mặc định
+          patientId = urlParams.get("patientId"); // Giá trị mặc định
+        }
+        console.log("Using patientId from URL:", patientId);
+
+        if (!patientId) {
+          setPlans([]);
+          setError("Không có kế hoạch điều trị vì thiếu patientId");
+          setLoading(false);
+          return;
         }
 
         // Gọi API để lấy kế hoạch điều trị
@@ -312,7 +320,15 @@ const TreatmentPlan: React.FC = () => {
     <div className="treatment-plan-container">
       <div className="treatment-plan-header">
         <h1>Kế hoạch điều trị</h1>
-        {selectedPlan ? (
+        {loading ? (
+          <div style={{ fontSize: 14, color: "#666", marginTop: "5px" }}>
+            Đang tải thông tin kế hoạch điều trị...
+          </div>
+        ) : error ? (
+          <div style={{ fontSize: 14, color: "red", marginTop: "5px" }}>
+            {error}
+          </div>
+        ) : selectedPlan ? (
           <div style={{ fontSize: 14, color: "#666", marginTop: "5px" }}>
             Bác sĩ: {selectedPlan.doctor?.user?.userName || "Chưa cập nhật"} |
             Ngày bắt đầu:{" "}
@@ -324,7 +340,7 @@ const TreatmentPlan: React.FC = () => {
           </div>
         ) : (
           <div style={{ fontSize: 14, color: "#666", marginTop: "5px" }}>
-            Đang tải thông tin kế hoạch điều trị...
+            Không có kế hoạch điều trị
           </div>
         )}
       </div>

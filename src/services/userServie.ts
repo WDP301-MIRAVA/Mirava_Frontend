@@ -29,4 +29,22 @@ export const userServ = {
         },
       }
     ),
+
+  getUserById: (userId: string) => {
+    const accessToken = localStorage.getItem("accessToken");
+
+    return axiosInstance.get(`${BASE_URL}/api/user/profile/${userId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  },
+
+  updateUser: (data: any, userId: string) => {
+    return axiosInstance.put(
+      `${BASE_URL}/api/user/profileUser/${userId}`,
+      data
+    );
+  },
 };
