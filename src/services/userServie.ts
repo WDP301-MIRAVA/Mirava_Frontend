@@ -44,7 +44,13 @@ export const userServ = {
   updateUser: (data: any, userId: string) => {
     return axiosInstance.put(
       `${BASE_URL}/api/user/profileUser/${userId}`,
-      data
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          "Content-Type": "application/json",
+        },
+      }
     );
   },
 };

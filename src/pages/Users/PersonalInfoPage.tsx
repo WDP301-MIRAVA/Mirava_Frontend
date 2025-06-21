@@ -5,13 +5,10 @@ import {
   Button,
   Select,
   Typography,
-  message,
   Card,
   Spin,
   Radio,
 } from "antd";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
 import { decodeToken } from "@/utils/decodeToken";
 import { userServ } from "@/services/userServie";
 import toast from "react-hot-toast";
@@ -70,20 +67,24 @@ const PersonalInfoPage: React.FC = () => {
   };
 
   const onFinish = async (values: any) => {
+    if (values.password && values.password !== values.confirmPassword) {
+      toast.error("Mật khẩu xác nhận không khớp!");
+      return;
+    }
+
     try {
       setLoading(true);
 
-      if (values.password && values.password !== values.confirmPassword) {
-        toast.error("Mật khẩu xác nhận không khớp!");
-        return;
-      }
-
-      const payload = {
-        password: values.password || undefined,
+      const payload: any = {
         phone: values.phone,
         address: values.address,
         gender: values.gender,
       };
+
+      if (values.password) {
+        payload.password = values.password;
+      }
+      console.log("Cập nhật thông tin:", values.password);
 
       await userServ.updateUser(payload, user?._id ?? "");
       toast.success("Cập nhật thông tin thành công!");
