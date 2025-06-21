@@ -94,17 +94,28 @@ const TreatmentPlan: React.FC = () => {
       for (let i = 0; i < plan.ovarianStimulation.durationDays; i++) {
         const eventDate = new Date(stimStartDate);
         eventDate.setDate(stimStartDate.getDate() + i);
+
+        // Lấy dailyDetail nếu có, nếu không lấy mặc định
+        const dailyDetail = plan.ovarianStimulation.dailyDetails?.[i];
         events.push({
           id: `stim-${plan._id}-${i}`,
           date: eventDate.toISOString().split("T")[0],
           type: "medication",
           title: "Tiêm thuốc kích thích buồng trứng",
-          details: `Tiêm thuốc ${plan.ovarianStimulation.medication} để kích thích phát triển nang trứng`,
-          medication: plan.ovarianStimulation.medication,
-          dosage: plan.ovarianStimulation.dailyDosage,
+          details: `Tiêm thuốc ${
+            dailyDetail?.medication || plan.ovarianStimulation.medication
+          } để kích thích phát triển nang trứng`,
+          medication:
+            dailyDetail?.medication || plan.ovarianStimulation.medication,
+          dosage: dailyDetail?.dosage || plan.ovarianStimulation.dailyDosage,
           instructions:
-            plan.ovarianStimulation.instructions || "Không có hướng dẫn", // Lấy từ API
-          time: plan.ovarianStimulation.time || "Không có thời gian", // Lấy từ API
+            dailyDetail?.instructions ||
+            plan.ovarianStimulation.instructions ||
+            "Không có hướng dẫn",
+          time:
+            dailyDetail?.time ||
+            plan.ovarianStimulation.time ||
+            "Không có thời gian",
         });
       }
       plan.ovarianStimulation.monitoringSchedule.forEach((monitoring) => {

@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
-import TreatmentPlan from '@/pages/Customer/TreatmentPlan/TreatmentPlan';
-import EditTreatmentPlanForm from './EditTreatmentPlanForm';
-import axios from 'axios';
-
+import React, { useEffect, useState } from "react";
+import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
+import EditTreatmentPlanForm from "./EditTreatmentPlanForm";
+import axios from "axios";
+import "./EditableTreatmentPlan.css";
 const EditableTreatmentPlan: React.FC = () => {
   const isDoctor = true;
   const [showEditForm, setShowEditForm] = useState(false);
@@ -10,39 +10,44 @@ const EditableTreatmentPlan: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-   const fetchPlanId = async () => {
-  try {
-    const token = localStorage.getItem('accessToken');
-    const patientId = localStorage.getItem('patientId');
+    const fetchPlanId = async () => {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const patientId = localStorage.getItem("patientId");
 
-    if (!token || !patientId) {
-      console.warn('Thiếu token hoặc patientId');
-      setLoading(false);
-      return;
-    }
+        if (!token || !patientId) {
+          console.warn("Thiếu token hoặc patientId");
+          setLoading(false);
+          return;
+        }
 
-    const res = await axios.get('https://mirava-f0rz.onrender.com/api/treatment-plan', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+        const res = await axios.get(
+          "https://mirava-f0rz.onrender.com/api/treatment-plan",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
-    const plan = res.data?.data?.find((item: any) => {
-      const itemPatientId =
-        typeof item.patient === 'string' ? item.patient : item.patient?._id;
-      return itemPatientId === patientId;
-    });
+        const plan = res.data?.data?.find((item: any) => {
+          const itemPatientId =
+            typeof item.patient === "string" ? item.patient : item.patient?._id;
+          return itemPatientId === patientId;
+        });
 
-    if (plan) {
-      setPlanId(plan._id);
-    } else {
-      console.warn('❌ Không tìm thấy kế hoạch điều trị cho bệnh nhân', patientId);
-    }
-  } catch (err) {
-    console.error('Lỗi lấy kế hoạch:', err);
-  } finally {
-    setLoading(false);
-  }
-};
-
+        if (plan) {
+          setPlanId(plan._id);
+        } else {
+          console.warn(
+            "❌ Không tìm thấy kế hoạch điều trị cho bệnh nhân",
+            patientId
+          );
+        }
+      } catch (err) {
+        console.error("Lỗi lấy kế hoạch:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
     fetchPlanId();
   }, []);
@@ -71,8 +76,7 @@ const EditableTreatmentPlan: React.FC = () => {
       {showEditForm && planId && (
         <EditTreatmentPlanForm
           planId={planId}
-          onSuccess={() => {
-            alert('✅ Cập nhật thành công!');
+          onCancel={() => {
             setShowEditForm(false);
           }}
         />
@@ -80,7 +84,9 @@ const EditableTreatmentPlan: React.FC = () => {
 
       {/* ⚠️ Nếu không tìm thấy kế hoạch */}
       {showEditForm && !planId && (
-        <p style={{ color: 'red' }}>❌ Không tìm thấy kế hoạch điều trị cho bệnh nhân này.</p>
+        <p style={{ color: "red" }}>
+          ❌ Không tìm thấy kế hoạch điều trị cho bệnh nhân này.
+        </p>
       )}
     </div>
   );

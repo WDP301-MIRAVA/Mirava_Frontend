@@ -92,12 +92,14 @@ const PatientList: React.FC = () => {
     localStorage.setItem("patientId", patient.id);
     setSelectedPatient(patient);
     setIsModalOpen(true);
+    document.body.classList.add("modal-open"); // dùng để ngăn cuộn trang khi mở modal
   };
 
   const closeModal = () => {
     localStorage.removeItem("patientId");
     setSelectedPatient(null);
     setIsModalOpen(false);
+    document.body.classList.remove("modal-open"); // dùng để cho phép cuộn trang khi đóng modal
   };
 
   return (

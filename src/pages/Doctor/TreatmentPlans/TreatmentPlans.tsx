@@ -51,6 +51,14 @@ interface MonitoringItem {
   day: number;
   type: string;
   notes: string;
+  instructions?: string; // Optional field for additional instructions
+  time?: string; // Optional field for time of the monitoring
+}
+interface DailyDetail {
+  medication: string;
+  dosage: string;
+  instructions?: string; // Optional field for additional instructions
+  time?: string; // Optional field for time of the medication
 }
 
 interface TreatmentPlanData {
@@ -63,6 +71,9 @@ interface TreatmentPlanData {
     medication: string;
     dailyDosage: string;
     monitoringSchedule: MonitoringItem[];
+    dailyDetails: DailyDetail[];
+    instructions?: string; // Optional field for additional instructions
+    time?: string; // Optional field for time of the stimulation
   };
   hcgInjection: {
     plannedDate: string;
@@ -98,6 +109,7 @@ const TreatmentPlans: React.FC = () => {
   const [doctorInfo, setDoctorInfo] = useState<Doctor | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [dailyDetails, setDailyDetails] = useState<any[]>([]);
   const [form] = Form.useForm();
   const [monitoringSchedule, setMonitoringSchedule] = useState<
     MonitoringItem[]
@@ -207,32 +219,56 @@ const TreatmentPlans: React.FC = () => {
           durationDays: Number(values.stimulationDuration),
           medication: values.stimulationMedication,
           dailyDosage: values.stimulationDosage,
+          instructions: values.stimulationInstructions,
+          time: values.stimulationTime,
+          dailyDetails,
           monitoringSchedule: monitoringSchedule.map((item) => ({
             ...item,
             day: Number(item.day) || 1,
+            instructions: item.instructions,
+            time: item.time,
+            notes: item.notes,
+            type: item.type,
             // Nếu có instructions, time thì bổ sung ở đây
           })),
           // Nếu có instructions, time thì bổ sung ở đây
         },
+        dailyDetails: dailyDetails.map((detail) => ({
+          medication: detail.medication,
+          dosage: detail.dosage,
+          instructions: detail.instructions,
+          time: detail.time,
+        })),
+
         hcgInjection: {
           plannedDate: moment(values.hcgDate).format(),
           medication: values.hcgMedication,
           dosage: values.hcgDosage,
+          instructions: values.hcgInstructions,
+          time: values.hcgTime,
           // Nếu có instructions, time thì bổ sung ở đây
         },
         eggRetrieval: {
           plannedDate: moment(values.eggRetrievalDate).format(),
           notes: values.eggRetrievalNotes,
+          instructions: values.eggRetrievalInstructions,
+          time: values.eggRetrievalTime,
           // Nếu có instructions, time thì bổ sung ở đây
         },
         embryoTransfer: {
           plannedDate: moment(values.embryoTransferDate).format(),
           embryoStage: values.embryoStage,
+          instructions: values.embryoTransferInstructions,
+          time: values.embryoTransferTime,
           // Nếu có instructions, time thì bổ sung ở đây
         },
         postTransferMonitoring: {
           betaHcgTestDate: moment(values.betaHcgTestDate).format(),
           ultrasoundCheckDate: moment(values.ultrasoundCheckDate).format(),
+          betaHcgTestInstructions: values.betaHcgTestInstructions,
+          betaHcgTestTime: values.betaHcgTestTime,
+          ultrasoundCheckInstructions: values.ultrasoundCheckInstructions,
+          ultrasoundCheckTime: values.ultrasoundCheckTime,
         },
         reminders: reminders.map((item) => ({
           ...item,
@@ -336,6 +372,18 @@ const TreatmentPlans: React.FC = () => {
       </div>
     );
   }
+
+  const handleDailyDetailChange = (
+    index: number,
+    field: string,
+    value: string
+  ) => {
+    setDailyDetails((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
 
   return (
     <div className="view-appointment-container">
@@ -518,6 +566,71 @@ const TreatmentPlans: React.FC = () => {
                 ]}
               >
                 <Input placeholder="Ví dụ: 150IU" />
+              </Form.Item>
+              <Form.Item
+                shouldUpdate={(prev, curr) =>
+                  prev.stimulationDuration !== curr.stimulationDuration
+                }
+              >
+                {() => {
+                  const duration =
+                    Number(form.getFieldValue("stimulationDuration")) || 0;
+                  return (
+                    <>
+                      {Array.from({ length: duration }).map((_, i) => (
+                        <div
+                          key={i}
+                          style={{ display: "flex", gap: 8, marginBottom: 8 }}
+                        >
+                          <Input
+                            placeholder={`Thuốc ngày ${i + 1}`}
+                            value={dailyDetails[i]?.medication || ""}
+                            onChange={(e) =>
+                              handleDailyDetailChange(
+                                i,
+                                "medication",
+                                e.target.value
+                              )
+                            }
+                            style={{ width: 120 }}
+                          />
+                          <Input
+                            placeholder={`Liều ngày ${i + 1}`}
+                            value={dailyDetails[i]?.dosage || ""}
+                            onChange={(e) =>
+                              handleDailyDetailChange(
+                                i,
+                                "dosage",
+                                e.target.value
+                              )
+                            }
+                            style={{ width: 100 }}
+                          />
+                          <Input
+                            placeholder={`Hướng dẫn ngày ${i + 1}`}
+                            value={dailyDetails[i]?.instructions || ""}
+                            onChange={(e) =>
+                              handleDailyDetailChange(
+                                i,
+                                "instructions",
+                                e.target.value
+                              )
+                            }
+                            style={{ width: 180 }}
+                          />
+                          <Input
+                            placeholder={`Thời gian ngày ${i + 1}`}
+                            value={dailyDetails[i]?.time || ""}
+                            onChange={(e) =>
+                              handleDailyDetailChange(i, "time", e.target.value)
+                            }
+                            style={{ width: 100 }}
+                          />
+                        </div>
+                      ))}
+                    </>
+                  );
+                }}
               </Form.Item>
             </div>
 
