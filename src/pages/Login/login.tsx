@@ -7,6 +7,7 @@ import { decodeToken } from "@/utils/Decodejwt";
 import { toast } from "react-hot-toast";
 import Header from "../../components/Header/index";
 import Footer from "../../components/Footer";
+import logo from '../../assets/mirava-logo.png'; 
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
@@ -253,11 +254,7 @@ const LoginPage = () => {
 
         <div className="login-right">
           <div className="login-box">
-            <img
-              src="../../assets/mirava-logo.png"
-              alt="Mirava Logo"
-              className="logo"
-            />
+            <img src={logo} alt="Mirava Logo" className="logo-image" />
             <h2>Đăng nhập tài khoản</h2>
             <Form name="login" layout="vertical" onFinish={onFinish}>
               <Form.Item

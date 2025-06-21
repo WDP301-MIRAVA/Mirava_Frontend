@@ -88,11 +88,56 @@
   border: 2px solid #e2e8f0;
   border-radius: 8px;
   transition: all 0.2s ease;
+  /* Tăng padding bên trái và phải để tránh mũi tên và border */
+  padding-left: 16px !important;
+  padding-right: 40px !important;
 }
 
 .blogList-categorySelect:focus {
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Đảm bảo text có khoảng cách đủ từ border và mũi tên */
+.blogList-categorySelect span {
+  padding-left: 4px !important;
+  padding-right: 0 !important;
+  margin-right: 8px !important;
+}
+
+/* Styling cho dropdown items */
+.blogList-categoryFilter [data-radix-select-content] {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+/* Styling cho từng item trong dropdown */
+.blogList-categoryFilter [data-radix-select-item] {
+  padding: 8px 16px !important;
+  margin: 2px 4px !important;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.blogList-categoryFilter [data-radix-select-item]:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.blogList-categoryFilter [data-radix-select-item][data-state="checked"] {
+  background: #3b82f6;
+  color: white;
+}
+
+/* Đảm bảo text trong dropdown có padding phù hợp */
+.blogList-categoryFilter [data-radix-select-item] span {
+  padding-left: 4px !important;
 }
 
 .blogList-grid {
