@@ -28,6 +28,18 @@ export interface BlogResponse {
   };
 }
 
+// Interface cho response của getBlogById
+export interface BlogDetailResponse {
+  success: boolean;
+  data: Blog;
+}
+
+export interface BlogListParams {
+  page?: number;
+  limit?: number;
+  category?: string;
+}
+
 // IDs của 2 blog cần hiển thị trên homepage
 const FEATURED_BLOG_IDS = [
   "68357399a30931e1d7dae6d6",
@@ -35,8 +47,25 @@ const FEATURED_BLOG_IDS = [
 ];
 
 export const BlogService = {
-  // Lấy tất cả blog
-  getBlogs: () => axiosInstance.get("/api/blog"),
+  // Lấy tất cả blog với phân trang và lọc
+  getBlogs: (params?: BlogListParams) => {
+    const queryParams = new URLSearchParams();
+    
+    if (params?.page) {
+      queryParams.append('page', params.page.toString());
+    }
+    if (params?.limit) {
+      queryParams.append('limit', params.limit.toString());
+    }
+    if (params?.category && params.category !== 'all') {
+      queryParams.append('category', params.category);
+    }
+    
+    const queryString = queryParams.toString();
+    const url = queryString ? `/api/blog?${queryString}` : "/api/blog";
+    
+    return axiosInstance.get(url);
+  },
   
   // Lấy 2 blog featured cho homepage
   getFeaturedBlogs: async (): Promise<Blog[]> => {
@@ -72,6 +101,40 @@ export const BlogService = {
     }
   },
   
+  // Lấy danh sách blog với phân trang và lọc (method riêng để dễ sử dụng)
+  getBlogList: async (page: number = 1, limit: number = 10, category?: string): Promise<BlogResponse> => {
+    try {
+      const response = await BlogService.getBlogs({ page, limit, category });
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching blog list:", error);
+      throw error;
+    }
+  },
+  
   // Lấy blog theo ID (cho trang chi tiết)
-  getBlogById: (id: string) => axiosInstance.get(`/api/blog/${id}`),
+  getBlogById: async (id: string): Promise<BlogDetailResponse> => {
+    try {
+      const response = await axiosInstance.get(`/api/blog/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error(`Error fetching blog with ID ${id}:`, error);
+      throw error;
+    }
+  },
+  
+  // Lấy danh sách categories từ API
+  getCategories: async (): Promise<string[]> => {
+    try {
+      const response = await axiosInstance.get("/api/blog");
+      if (response.data?.data?.blogs) {
+        const categories = [...new Set(response.data.data.blogs.map((blog: Blog) => blog.category).filter(Boolean))];
+        return categories as string[];
+      }
+      return [];
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+      return [];
+    }
+  }
 };
