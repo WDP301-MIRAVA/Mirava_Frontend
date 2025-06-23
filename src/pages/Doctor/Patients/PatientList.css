@@ -59,15 +59,37 @@
   color: #333;
   margin: 0;
 }
+.status-badge.planned {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-badge.in_progress {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.completed {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-badge.cancelled {
+  background-color: #f8d7da;
+  color: #721c24;
+}
 
 .status-badge {
-  padding: 4px 12px;
+  padding: 4px 15px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   width: fit-content;
+  margin-right: 73px; /* Thêm dòng này */
+  display: inline-block; /* Đảm bảo nằm cùng dòng với tên */
+  vertical-align: middle;
 }
 
 .status-badge.confirmed {

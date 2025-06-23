@@ -178,6 +178,20 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
       <h3>✏️ Cập nhật kế hoạch điều trị</h3>
 
       <div className="edit-treatment-row">
+        <span className="edit-treatment-label">Trạng thái:</span>
+        <select
+          className="edit-treatment-input"
+          value={formData.status || "planned"}
+          onChange={(e) => handleChange("status", e.target.value)}
+        >
+          <option value="planned">Đã lên kế hoạch</option>
+          <option value="in_progress">Đang thực hiện</option>
+          <option value="completed">Hoàn thành</option>
+          <option value="cancelled">Đã hủy</option>
+        </select>
+      </div>
+
+      <div className="edit-treatment-row">
         <span className="edit-treatment-label">📅 Ngày bắt đầu chu kỳ:</span>
         <input
           type="date"

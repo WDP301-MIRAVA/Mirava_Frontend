@@ -47,6 +47,7 @@ interface Appointment {
   date: string;
   note: string;
   status: "pending" | "confirmed";
+  patientCode: string;
 }
 
 const ViewAppointment: React.FC = () => {
@@ -354,6 +355,12 @@ const ViewAppointment: React.FC = () => {
 
                 <div className="card-body">
                   <div className="contact-info">
+                    <div className="info-item">
+                      <span style={{ fontWeight: "bold", marginRight: 6 }}>
+                        🆔
+                      </span>
+                      <span>{appointment.patientCode}</span>
+                    </div>
                     <div className="info-item">
                       <Mail size={16} />
                       <span>{appointment.email}</span>
