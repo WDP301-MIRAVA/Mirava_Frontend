@@ -33,56 +33,48 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
       id: 1,
       name: "Trang chủ",
       label: "Trang chủ",
-      icon: "🏠",
       path: "/customer",
     },
     {
       id: 2,
       name: "Hồ sơ",
       label: "Hồ sơ",
-      icon: "👤",
       path: "/customer/profile",
     },
     {
       id: 3,
       name: "Tiền sử y tế",
       label: "Tiền sử y tế",
-      icon: "📋",
       path: "/customer/medical-history",
     },
     {
       id: 4,
       name: "Kế hoạch điều trị",
       label: "Kế hoạch điều trị",
-      icon: "📅",
       path: "/customer/treatmentplan",
     },
     {
       id: 5,
       name: "Lịch điều trị",
       label: "Lịch điều trị",
-      icon: "🗓️",
       path: "/customer/schedule",
     },
     {
       id: 6,
       name: "Đơn thuốc",
       label: "Đơn thuốc",
-      icon: "💊",
       path: "/customer/prescription",
     },
     {
       id: 7,
       name: "Đánh giá",
       label: "Đánh giá",
-      icon: "⭐",
       path: "/customer/reviews",
     },
     {
       id: 8,
       name: "Liên hệ bác sĩ",
       label: "Liên hệ bác sĩ",
-      icon: "📞",
       path: "/customer/contact",
     },
   ];
@@ -139,7 +131,6 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
                     className={`nav-link ${isActive ? "active" : ""}`}
                     onClick={() => handleMenuClick(item.id, item.label)}
                   >
-                    <span className="nav-icon">{item.icon}</span>
                     <span className="nav-text">{item.label}</span>
                   </button>
                 </li>

@@ -32,15 +32,15 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   const [activeMenuItem, setActiveMenuItem] = useState(getActiveMenuItem());
 
   const menuItems = [
-    { id: 1, name: "Dashboard", label: "Dashboard", icon: "📊", path: "/admin" },
-    { id: 2, name: "Quản lý người dùng", label: "Quản lý người dùng", icon: "👥", path: "/admin/users" },
-    { id: 3, name: "Quản lý bác sĩ", label: "Quản lý bác sĩ", icon: "👨‍⚕️", path: "/admin/doctors" },
-    { id: 4, name: "Quản lý lịch hẹn", label: "Quản lý lịch hẹn", icon: "📅", path: "/admin/appointments" },
-    { id: 5, name: "Quản lý điều trị", label: "Quản lý điều trị", icon: "🏥", path: "/admin/treatments" },
-    { id: 6, name: "Quản lý đơn thuốc", label: "Quản lý đơn thuốc", icon: "💊", path: "/admin/prescriptions" },
-    { id: 7, name: "Báo cáo thống kê", label: "Báo cáo thống kê", icon: "📈", path: "/admin/reports" },
-    { id: 8, name: "Cài đặt hệ thống", label: "Cài đặt hệ thống", icon: "⚙️", path: "/admin/settings" },
-    { id: 9, name: "Hồ sơ", label: "Hồ sơ", icon: "👤", path: "/admin/profile" }
+    { id: 1, name: "Dashboard", label: "Dashboard", path: "/admin" },
+    { id: 2, name: "Quản lý người dùng", label: "Quản lý người dùng", path: "/admin/usermanagement" },
+    { id: 3, name: "Quản lý bác sĩ", label: "Quản lý bác sĩ", path: "/admin/doctors" },
+    { id: 4, name: "Quản lý lịch hẹn", label: "Quản lý lịch hẹn", path: "/admin/doctors" },
+    { id: 5, name: "Quản lý điều trị", label: "Quản lý điều trị", path: "/admin/treatments" },
+    { id: 6, name: "Quản lý đơn thuốc", label: "Quản lý đơn thuốc", path: "/admin/prescriptions" },
+    { id: 7, name: "Báo cáo thống kê", label: "Báo cáo thống kê", path: "/admin/reports" },
+    { id: 8, name: "Cài đặt hệ thống", label: "Cài đặt hệ thống", path: "/admin/settings" },
+    { id: 9, name: "Hồ sơ", label: "Hồ sơ", path: "/admin/profile" }
   ];
 
   // Tạo breadcrumb dựa trên active menu
@@ -79,7 +79,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
           <div className="logo-icon">
             <img src={logo} alt="Mirava Logo" className="logo-image" />
           </div>
-          <span className="logo-text">Mirava Admin</span>
+          <span className="logo-text">Mirava</span>
         </div>
 
         {/* Navigation Menu */}
@@ -94,7 +94,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                     className={`nav-link ${isActive ? 'active' : ''}`}
                     onClick={() => handleMenuClick(item.id, item.label)}
                   >
-                    <span className="nav-icon">{item.icon}</span>
                     <span className="nav-text">{item.label}</span>
                   </button>
                 </li>
