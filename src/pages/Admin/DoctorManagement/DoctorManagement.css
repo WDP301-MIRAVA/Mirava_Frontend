@@ -1,0 +1,661 @@
+.doctor-management {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  padding: 2rem;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  background: white;
+  padding: 1.5rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 180, 198, 0.1);
+  border: 1px solid rgba(0, 180, 198, 0.1);
+}
+
+.title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  background: linear-gradient(135deg, #00B4C6, #0284c7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.add-doctor-btn {
+  background: linear-gradient(135deg, #00B4C6, #0284c7);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 180, 198, 0.3);
+}
+
+.add-doctor-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 180, 198, 0.4);
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
+.search-container {
+  position: relative;
+  flex: 1;
+  min-width: 300px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  z-index: 1;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: white;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #00B4C6;
+  box-shadow: 0 0 0 3px rgba(0, 180, 198, 0.1);
+}
+
+.sort-container {
+  min-width: 250px;
+}
+
+.sort-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: #00B4C6;
+  box-shadow: 0 0 0 3px rgba(0, 180, 198, 0.1);
+}
+
+.table-container {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 180, 198, 0.1);
+  border: 1px solid rgba(0, 180, 198, 0.1);
+  /* Loại bỏ padding để bảng vừa khung */
+  padding: 0;
+}
+
+.doctors-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  /* Đặt table-layout: fixed để kiểm soát độ rộng cột */
+  table-layout: fixed;
+}
+
+/* Thiết lập độ rộng cột cụ thể */
+.doctors-table th:nth-child(1) { width: 18%; } /* Tên Bác Sĩ */
+.doctors-table th:nth-child(2) { width: 18%; } /* Email */
+.doctors-table th:nth-child(3) { width: 12%; } /* Số Điện Thoại */
+.doctors-table th:nth-child(4) { width: 10%; } /* Vai Trò */
+.doctors-table th:nth-child(5) { width: 12%; } /* Chuyên Khoa */
+.doctors-table th:nth-child(6) { width: 15%; } /* Lịch Làm Việc */
+.doctors-table th:nth-child(7) { width: 10%; } /* Trạng Thái */
+.doctors-table th:nth-child(8) { width: 15%; } /* Thao Tác */
+
+.doctors-table th {
+  background: linear-gradient(135deg, #00B4C6, #0284c7);
+  color: white;
+  padding: 1rem 0.75rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  /* Thêm border để phân tách các cột */
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.doctors-table th:last-child {
+  border-right: none;
+}
+
+.doctors-table td {
+  padding: 1rem 0.75rem;
+  border-bottom: 1px solid #f1f5f9;
+  border-right: 1px solid #f0f0f0;
+  vertical-align: middle;
+  /* Đảm bảo text không bị tràn */
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+.doctors-table td:last-child {
+  border-right: none;
+}
+
+.doctors-table tbody tr:hover {
+  background-color: #f8fafc;
+  transition: background-color 0.2s ease;
+}
+
+.doctors-table tbody tr:nth-child(even) {
+  background-color: #fafbfc;
+}
+
+.doctor-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.doctor-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  border: 2px solid #00B4C6;
+  flex-shrink: 0; /* Không cho avatar bị co lại */
+}
+
+.doctor-avatar:hover {
+  transform: scale(1.1);
+}
+
+.doctor-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.doctor-name-link {
+  font-weight: 600;
+  color: #0f172a;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  /* Đảm bảo text không bị tràn */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.doctor-name-link:hover {
+  color: #00B4C6;
+}
+
+.status-badge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.status-badge.active {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.status-badge.blocked {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  padding: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 36px;
+}
+
+.edit-btn {
+  background-color: #fef3c7;
+  color: #d97706;
+  border: 1px solid #fcd34d;
+}
+
+.edit-btn:hover {
+  background-color: #fbbf24;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.delete-btn {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.delete-btn:hover {
+  background-color: #ef4444;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.block-btn {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.block-btn:hover {
+  background-color: #ef4444;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.activate-btn {
+  background-color: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+.activate-btn:hover {
+  background-color: #22c55e;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease;
+}
+
+.modal-header h2 {
+  color: #0f172a;
+}
+
+.add-doctor-button {
+  color: black !important;
+}
+
+.doctor-detail-modal {
+  max-width: 600px;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.modal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+  border-radius: 16px 16px 0 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: black;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.close-btn:hover {
+  opacity: 1;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #00B4C6;
+  box-shadow: 0 0 0 3px rgba(0, 180, 198, 0.1);
+}
+
+.modal-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.cancel-btn {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #e2e8f0;
+  background: white;
+  color: #6b7280;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.cancel-btn:hover {
+  border-color: #d1d5db;
+  background-color: #f9fafb;
+}
+
+.confirm-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #00B4C6, #0284c7);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.confirm-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 180, 198, 0.3);
+}
+
+.confirm-btn.danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.confirmation-modal {
+  max-width: 400px;
+}
+
+.doctor-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.doctor-avatar-large {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  border: 4px solid #00B4C6;
+}
+
+.doctor-avatar-large img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.doctor-info h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  color: #0f172a;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.star-filled {
+  color: #fbbf24;
+  fill: #fbbf24;
+}
+
+.star-empty {
+  color: #d1d5db;
+}
+
+.rating-text {
+  margin-left: 0.5rem;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  text-align: left;
+  width: 100%;
+}
+
+.info-item {
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 4px solid #00B4C6;
+}
+
+.info-item strong {
+  color: #374151;
+  margin-right: 0.5rem;
+}
+
+.description {
+  text-align: left;
+  width: 100%;
+}
+
+.description p {
+  margin: 0.5rem 0 0 0;
+  color: #6b7280;
+  line-height: 1.6;
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 4px solid #00B4C6;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .doctor-management {
+    padding: 1rem;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .controls {
+    flex-direction: column;
+  }
+
+  .search-container,
+  .sort-container {
+    min-width: unset;
+  }
+
+  .doctors-table {
+    font-size: 0.8rem;
+  }
+
+  .doctors-table th,
+  .doctors-table td {
+    padding: 0.5rem 0.25rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .modal {
+    width: 95%;
+    margin: 1rem;
+  }
+
+  .modal-footer {
+    flex-direction: column;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Điều chỉnh độ rộng cột cho mobile */
+  
+}
+
+@media (max-width: 480px) {
+  .table-container {
+    overflow-x: auto;
+  }
+
+  .doctors-table {
+    min-width: 800px;
+  }
+
+  .doctor-name-cell {
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
+  }
+}
+
+/* Thiết lập độ rộng cột cụ thể - PHẦN CẦN SỬA */
+.doctors-table th:nth-child(1) { width: 16%; } /* Tên Bác Sĩ - giảm từ 18% */
+.doctors-table th:nth-child(2) { width: 16%; } /* Email - giảm từ 18% */
+.doctors-table th:nth-child(3) { width: 11%; } /* Số Điện Thoại - giảm từ 12% */
+.doctors-table th:nth-child(4) { width: 9%; }  /* Vai Trò - giảm từ 10% */
+.doctors-table th:nth-child(5) { width: 11%; } /* Chuyên Khoa - giảm từ 12% */
+.doctors-table th:nth-child(6) { width: 14%; } /* Lịch Làm Việc - giảm từ 15% */
+.doctors-table th:nth-child(7) { width: 13%; } /* Trạng Thái - TĂNG từ 10% lên 13% */
+.doctors-table th:nth-child(8) { width: 10%; } /* Thao Tác - giảm từ 15% */
+
+/* Thêm CSS để đảm bảo status badge không bị wrap */
+.status-badge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+  white-space: nowrap; /* Đảm bảo text không xuống dòng */
+  min-width: fit-content; /* Đảm bảo badge có đủ không gian */
+}

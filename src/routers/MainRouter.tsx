@@ -1,5 +1,4 @@
 import { Route, Routes } from "react-router-dom";
-import Profile from "../pages/Profile/profile";
 import LoginPage from "../pages/Login/login";
 import RegisterPage from "../pages/Register/register";
 import Homepage from "../pages/Homepage/homepage";
@@ -22,7 +21,12 @@ import Schedules from "@/pages/Doctor/Schedules/Schedules";
 import AppointmentPage from "@/pages/Users/AppointmentPage";
 import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
 import PatientList from "@/pages/Doctor/Patients/PatientList";
+
+import UserManagement from "@/pages/Admin/UserManagement/UserManagement";
+import DoctorManagement from "@/pages/Admin/DoctorManagement/DoctorManagement";
+
 import ViewAppointment from "../pages/Doctor/ViewAppoitment";
+
 const MainRouter = () => {
   return (
     <Routes>
@@ -63,6 +67,9 @@ const MainRouter = () => {
             <Routes>
               <Route index element={<div>Admin Dashboard</div>} />
               <Route path="/profile" element={<PersonalInfoPage />} />
+              <Route path="/usermanagement" element={<UserManagement />} />
+              <Route path="/doctors" element={<DoctorManagement />} />
+              
               {/* <Route path="users" element={<ManageUsers />} /> */}
               {/* <Route path="doctors" element={<ManageDoctors />} /> */}
               {/* Thêm các route khác cho admin ở đây */}

@@ -32,15 +32,15 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({
   const [activeMenuItem, setActiveMenuItem] = useState(getActiveMenuItem());
 
   const menuItems = [
-    { id: 1, name: "Trang chủ", label: "Trang chủ", icon: "🏠", path: "/doctor" },
-    { id: 2, name: "Hồ sơ", label: "Hồ sơ", icon: "👤", path: "/doctor/profile" },
-    { id: 3, name: "Bệnh nhân", label: "Bệnh nhân", icon: "👥", path: "/doctor/patients" },
-    { id: 4, name: "Lịch hẹn", label: "Lịch hẹn", icon: "📅", path: "/doctor/appointments" },
-    { id: 5, name: "Kế hoạch điều trị", label: "Tạo kế hoạch điều trị", icon: "📋", path: "/doctor/treatment-plans" },
-    { id: 6, name: "Kê đơn thuốc", label: "Kê đơn thuốc", icon: "💊", path: "/doctor/prescriptions" },
-    { id: 7, name: "Hồ sơ y tế", label: "Hồ sơ y tế", icon: "📄", path: "/doctor/medical-records" },
-    { id: 8, name: "Lịch làm việc", label: "Lịch làm việc", icon: "🗓️", path: "/doctor/schedules" },
-    { id: 9, name: "Báo cáo", label: "Báo cáo", icon: "📊", path: "/doctor/reports" }
+    { id: 1, name: "Trang chủ", label: "Trang chủ", path: "/doctor" },
+    { id: 2, name: "Hồ sơ", label: "Hồ sơ", path: "/doctor/profile" },
+    { id: 3, name: "Bệnh nhân", label: "Bệnh nhân", path: "/doctor/patients" },
+    { id: 4, name: "Lịch hẹn", label: "Lịch hẹn", path: "/doctor/appointments" },
+    { id: 5, name: "Kế hoạch điều trị", label: "Tạo kế hoạch điều trị", path: "/doctor/treatment-plans" },
+    { id: 6, name: "Kê đơn thuốc", label: "Kê đơn thuốc", path: "/doctor/prescriptions" },
+    { id: 7, name: "Hồ sơ y tế", label: "Hồ sơ y tế", path: "/doctor/medical-records" },
+    { id: 8, name: "Lịch làm việc", label: "Lịch làm việc", path: "/doctor/schedules" },
+    { id: 9, name: "Báo cáo", label: "Báo cáo", path: "/doctor/reports" }
   ];
 
   // Tạo breadcrumb dựa trên active menu
@@ -94,7 +94,6 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({
                     className={`nav-link ${isActive ? 'active' : ''}`}
                     onClick={() => handleMenuClick(item.id, item.label)}
                   >
-                    <span className="nav-icon">{item.icon}</span>
                     <span className="nav-text">{item.label}</span>
                   </button>
                 </li>
