@@ -15,6 +15,7 @@ interface TreatmentEvent {
   dosage?: string;
   instructions?: string;
   time?: string;
+  highlight?: boolean; // Thêm trường highlight
 }
 
 const TreatmentPlan: React.FC = () => {
@@ -78,6 +79,11 @@ const TreatmentPlan: React.FC = () => {
     fetchPlans();
   }, []);
 
+  const safeToISOString = (dateValue: any) => {
+    const date = new Date(dateValue);
+    return !isNaN(date.getTime()) ? date.toISOString().split("T")[0] : "";
+  };
+
   // Chuyển đổi 1 kế hoạch điều trị sang các event
   const transformApiPlanToEvents = (
     plan: ApiTreatmentPlan
@@ -97,117 +103,174 @@ const TreatmentPlan: React.FC = () => {
 
         // Lấy dailyDetail nếu có, nếu không lấy mặc định
         const dailyDetail = plan.ovarianStimulation.dailyDetails?.[i];
-        events.push({
-          id: `stim-${plan._id}-${i}`,
-          date: eventDate.toISOString().split("T")[0],
-          type: "medication",
-          title: "Tiêm thuốc kích thích buồng trứng",
-          details: `Tiêm thuốc ${
-            dailyDetail?.medication || plan.ovarianStimulation.medication
-          } để kích thích phát triển nang trứng`,
-          medication:
-            dailyDetail?.medication || plan.ovarianStimulation.medication,
-          dosage: dailyDetail?.dosage || plan.ovarianStimulation.dailyDosage,
-          instructions:
-            dailyDetail?.instructions ||
-            plan.ovarianStimulation.instructions ||
-            "Không có hướng dẫn",
-          time:
-            dailyDetail?.time ||
-            plan.ovarianStimulation.time ||
-            "Không có thời gian",
-        });
+        const dateStr = !isNaN(eventDate.getTime())
+          ? eventDate.toISOString().split("T")[0]
+          : "";
+        if (dateStr) {
+          events.push({
+            id: `stim-${plan._id}-${i}`,
+            date: dateStr,
+            type: "medication",
+            title: "Tiêm thuốc kích thích buồng trứng",
+            details: `Tiêm thuốc ${
+              dailyDetail?.medication || plan.ovarianStimulation.medication
+            } để kích thích phát triển nang trứng`,
+            medication:
+              dailyDetail?.medication || plan.ovarianStimulation.medication,
+            dosage: dailyDetail?.dosage || plan.ovarianStimulation.dailyDosage,
+            instructions:
+              dailyDetail?.instructions ||
+              plan.ovarianStimulation.instructions ||
+              "Không có hướng dẫn",
+            time:
+              dailyDetail?.time ||
+              plan.ovarianStimulation.time ||
+              "Không có thời gian",
+            highlight: dailyDetail?.highlight === true,
+          });
+        }
       }
       plan.ovarianStimulation.monitoringSchedule.forEach((monitoring) => {
         const monitoringDate = new Date(cycleStartDate);
         monitoringDate.setDate(monitoringDate.getDate() + monitoring.day - 1);
-        events.push({
-          id: `monitoring-${plan._id}-${monitoring._id}`,
-          date: monitoringDate.toISOString().split("T")[0],
-          type: monitoring.type,
-          title: monitoring.notes || "Theo dõi điều trị",
-          details: monitoring.notes,
-          instructions: monitoring.instructions || "Không có hướng dẫn", // Lấy từ API
-          time: monitoring.time || "Không có thời gian", // Lấy từ API
-        });
+        const dateStr = !isNaN(monitoringDate.getTime())
+          ? monitoringDate.toISOString().split("T")[0]
+          : "";
+        if (dateStr) {
+          events.push({
+            id: `monitoring-${plan._id}-${monitoring._id}`,
+            date: dateStr,
+            type: monitoring.type,
+            title: monitoring.notes || "Theo dõi điều trị",
+            details: monitoring.notes,
+            instructions: monitoring.instructions || "Không có hướng dẫn",
+            time: monitoring.time || "Không có thời gian",
+            highlight: monitoring.highlight === true,
+          });
+        }
       });
     }
 
     // Sự kiện tiêm HCG
     if (plan.hcgInjection && plan.hcgInjection.plannedDate) {
       const hcgDate = new Date(plan.hcgInjection.plannedDate);
-      events.push({
-        id: `hcg-${plan._id}`,
-        date: hcgDate.toISOString().split("T")[0],
-        type: "medication",
-        title: "Tiêm thuốc ngăn rụng trứng sớm",
-        details:
-          "Tiêm thuốc HCG để kích thích trưởng thành cuối cùng của trứng",
-        medication: plan.hcgInjection.medication,
-        dosage: plan.hcgInjection.dosage,
-        instructions: plan.hcgInjection.instructions || "Không có hướng dẫn", // Lấy từ API
-        time: plan.hcgInjection.time || "Không có thời gian", // Lấy từ API
-      });
+      const dateStr = !isNaN(hcgDate.getTime())
+        ? hcgDate.toISOString().split("T")[0]
+        : "";
+      if (dateStr) {
+        events.push({
+          id: `hcg-${plan._id}`,
+          date: dateStr,
+          type: "medication",
+          title: "Tiêm thuốc ngăn rụng trứng sớm",
+          details:
+            "Tiêm thuốc HCG để kích thích trưởng thành cuối cùng của trứng",
+          medication: plan.hcgInjection.medication,
+          dosage: plan.hcgInjection.dosage,
+          instructions: plan.hcgInjection.instructions || "Không có hướng dẫn",
+          time: plan.hcgInjection.time || "Không có thời gian",
+          highlight: plan.hcgInjection.highlight === true,
+        });
+      }
     }
 
     // sự kiện chọc hút trứng
     if (plan.eggRetrieval && plan.eggRetrieval.plannedDate) {
       const retrievalDate = new Date(plan.eggRetrieval.plannedDate);
-      events.push({
-        id: `retrieval-${plan._id}`,
-        date: retrievalDate.toISOString().split("T")[0],
-        type: "procedure",
-        title: "Chọc hút trứng",
-        details: plan.eggRetrieval.notes || "Không có chi tiết",
-        instructions: plan.eggRetrieval.instructions || "Không có hướng dẫn", // Lấy từ API
-        time: plan.eggRetrieval.time || "Không có thời gian", // Lấy từ API
-      });
+      const dateStr = !isNaN(retrievalDate.getTime())
+        ? retrievalDate.toISOString().split("T")[0]
+        : "";
+      if (dateStr) {
+        events.push({
+          id: `retrieval-${plan._id}`,
+          date: dateStr,
+          type: "procedure",
+          title: "Chọc hút trứng",
+          details: plan.eggRetrieval.notes || "Không có chi tiết",
+          instructions: plan.eggRetrieval.instructions || "Không có hướng dẫn",
+          time: plan.eggRetrieval.time || "Không có thời gian",
+          highlight: plan.eggRetrieval.highlight === true,
+        });
+      }
     }
 
     // sự kiện chuyển phôi
     if (plan.embryoTransfer && plan.embryoTransfer.plannedDate) {
       const transferDate = new Date(plan.embryoTransfer.plannedDate);
-      events.push({
-        id: `transfer-${plan._id}`,
-        date: transferDate.toISOString().split("T")[0],
-        type: "procedure",
-        title: "Chuyển phôi",
-        details: `Chuyển phôi giai đoạn ${plan.embryoTransfer.embryoStage} vào buồng tử cung`,
-        instructions: plan.embryoTransfer.instructions || "Không có hướng dẫn", // Lấy từ API
-        time: plan.embryoTransfer.time || "Không có thời gian", // Lấy từ API
-      });
+      const dateStr = !isNaN(transferDate.getTime())
+        ? transferDate.toISOString().split("T")[0]
+        : "";
+      if (dateStr) {
+        events.push({
+          id: `transfer-${plan._id}`,
+          date: dateStr,
+          type: "procedure",
+          title: "Chuyển phôi",
+          details: `Chuyển phôi giai đoạn ${plan.embryoTransfer.embryoStage} vào buồng tử cung`,
+          instructions:
+            plan.embryoTransfer.instructions || "Không có hướng dẫn",
+          time: plan.embryoTransfer.time || "Không có thời gian",
+          highlight: plan.embryoTransfer.highlight === true,
+        });
+      }
     }
 
     // sự kiện theo dõi sau chuyển phôi
     if (plan.postTransferMonitoring) {
       if (plan.postTransferMonitoring.betaHcgTestDate) {
-        const betaDate = new Date(plan.postTransferMonitoring.betaHcgTestDate);
-        events.push({
-          id: `beta-${plan._id}`,
-          date: betaDate.toISOString().split("T")[0],
-          type: "test",
-          title: "Xét nghiệm Beta HCG",
-          details: "Xét nghiệm xác định kết quả có thai",
-          instructions: plan.postTransferMonitoring.betaHcgTestInstructions, // Lấy từ API
-          time: plan.postTransferMonitoring.betaHcgTestTime, // Lấy từ API
-        });
+        let dateValue = plan.postTransferMonitoring.betaHcgTestDate;
+        let highlightValue = false;
+        if (typeof dateValue === "object" && dateValue !== null) {
+          highlightValue = dateValue.highlight === true;
+          dateValue = dateValue.date;
+        }
+        if (dateValue) {
+          const betaDate = new Date(dateValue);
+          const dateStr = !isNaN(betaDate.getTime())
+            ? betaDate.toISOString().split("T")[0]
+            : "";
+          if (dateStr) {
+            events.push({
+              id: `beta-${plan._id}`,
+              date: dateStr,
+              type: "test",
+              title: "Xét nghiệm Beta HCG",
+              details: "Xét nghiệm xác định kết quả có thai",
+              instructions: plan.postTransferMonitoring.betaHcgTestInstructions,
+              time: plan.postTransferMonitoring.betaHcgTestTime,
+              highlight: highlightValue,
+            });
+          }
+        }
       }
       if (plan.postTransferMonitoring.ultrasoundCheckDate) {
-        const ultrasoundDate = new Date(
-          plan.postTransferMonitoring.ultrasoundCheckDate
-        );
-        events.push({
-          id: `ultrasound-check-${plan._id}`,
-          date: ultrasoundDate.toISOString().split("T")[0],
-          type: "ultrasound",
-          title: "Siêu âm kiểm tra thai",
-          details: "Siêu âm kiểm tra tình trạng thai nang",
-          instructions: plan.postTransferMonitoring.ultrasoundCheckInstructions, // Lấy từ API
-          time: plan.postTransferMonitoring.ultrasoundCheckTime, // Lấy từ API
-        });
+        let dateValue = plan.postTransferMonitoring.ultrasoundCheckDate;
+        let highlightValue = false;
+        if (typeof dateValue === "object" && dateValue !== null) {
+          highlightValue = dateValue.highlight === true;
+          dateValue = dateValue.date;
+        }
+        if (dateValue) {
+          const ultrasoundDate = new Date(dateValue);
+          const dateStr = !isNaN(ultrasoundDate.getTime())
+            ? ultrasoundDate.toISOString().split("T")[0]
+            : "";
+          if (dateStr) {
+            events.push({
+              id: `ultrasound-check-${plan._id}`,
+              date: dateStr,
+              type: "ultrasound",
+              title: "Siêu âm kiểm tra thai",
+              details: "Siêu âm kiểm tra tình trạng thai nang",
+              instructions:
+                plan.postTransferMonitoring.ultrasoundCheckInstructions,
+              time: plan.postTransferMonitoring.ultrasoundCheckTime,
+              highlight: highlightValue,
+            });
+          }
+        }
       }
     }
-
     return events.sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
     );
@@ -380,7 +443,9 @@ const TreatmentPlan: React.FC = () => {
               {selectedPlanEvents.map((event) => (
                 <div
                   key={event.id}
-                  className={`timeline-item ${getEventTypeClass(event.type)}`}
+                  className={`timeline-item ${getEventTypeClass(event.type)}${
+                    event.highlight ? " highlight-step" : ""
+                  }`}
                 >
                   <div className="timeline-marker">
                     <span className="event-icon">
@@ -493,7 +558,9 @@ const TreatmentPlan: React.FC = () => {
                   {selectedDateEvents.map((event) => (
                     <div
                       key={event.id}
-                      className={`event-card ${getEventTypeClass(event.type)}`}
+                      className={`event-card ${getEventTypeClass(event.type)}${
+                        event.highlight ? " highlight-step" : ""
+                      }`}
                     >
                       <div className="event-card-header">
                         <span className="event-icon">

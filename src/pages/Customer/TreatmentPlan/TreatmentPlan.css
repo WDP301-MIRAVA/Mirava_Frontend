@@ -627,3 +627,12 @@
   background: linear-gradient(90deg, #0891a5 60%, #00b4c6 100%);
   transform: translateY(-2px) scale(1.04);
 }
+.timeline-item.highlight-step,
+.event-card.highlight-step {
+  background: linear-gradient(90deg, #fffbe6 60%, #ffe58f 100%);
+  border-left: 6px solid #faad14;
+  box-shadow: 0 2px 12px rgba(250, 173, 20, 0.08);
+  font-weight: 600;
+  color: #ad6800;
+  transition: background 0.3s, box-shadow 0.3s;
+}

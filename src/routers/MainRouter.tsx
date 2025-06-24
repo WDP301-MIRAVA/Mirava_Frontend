@@ -21,8 +21,12 @@ import Schedules from "@/pages/Doctor/Schedules/Schedules";
 import AppointmentPage from "@/pages/Users/AppointmentPage";
 import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
 import PatientList from "@/pages/Doctor/Patients/PatientList";
+
 import UserManagement from "@/pages/Admin/UserManagement/UserManagement";
 import DoctorManagement from "@/pages/Admin/DoctorManagement/DoctorManagement";
+
+import ViewAppointment from "../pages/Doctor/ViewAppoitment";
+
 const MainRouter = () => {
   return (
     <Routes>
@@ -35,7 +39,7 @@ const MainRouter = () => {
       <Route path="/searchresult" element={<SearchResult />} />
       <Route path="/detaildoctor/:id" element={<DetailDoctor />} />
       <Route path="/appointment" element={<Appointment />} />
-      <Route path="/bloglist" element={<BlogList/>} />
+      <Route path="/bloglist" element={<BlogList />} />
       <Route path="/blog/:id" element={<DetailBlog />} />
       <Route path="/user/appointment" element={<AppointmentPage />} />
       <Route path="/profile" element={<PersonalInfoPage />} />
@@ -84,6 +88,9 @@ const MainRouter = () => {
               <Route path="/treatment-plans" element={<TreatmentPlans />} />
               <Route path="/schedules/:id?" element={<Schedules />} />
               <Route path="/patients" element={<PatientList />} />
+              <Route path="/patients/:id" element={<PatientList />} />
+              <Route path="/appointments" element={<ViewAppointment />} />
+              {/* Thêm các route khác cho doctor ở đây */}
             </Routes>
           </PrivateRoute>
         }

@@ -18,7 +18,7 @@ import { DoctorService } from "@/services/doctor.service";
 import type { Doctor } from "@/services/doctor.service";
 import { Service } from "@/services/service";
 import toast from "react-hot-toast";
-
+import { Modal } from "antd";
 const { TextArea } = Input;
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -36,6 +36,8 @@ const Appointment = () => {
   const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(
     null
   );
+  const [modalVisible, setModalVisible] = useState(false);
+  const [appointmentInfo, setAppointmentInfo] = useState<any>(null);
   const fetchDoctors = async () => {
     try {
       const response = await DoctorService.getDoctors();
@@ -146,14 +148,24 @@ const Appointment = () => {
         doctorId: selectedDoctorId,
         date: dateWithTime,
       };
-      await AppointmentService.createBooking(payload);
-      toast.success("Đặt lịch thành công!");
-      form.resetFields();
-      setSelectedDoctorId(null);
-      setWorkDays([]);
-      setSelectedDate(null);
-      setAvailableTimeSlots([]);
-      setSelectedTimeSlot(null);
+      // Gọi API và lấy response
+      const response = await AppointmentService.createBooking(payload);
+      if (response.data && response.data.success) {
+        setAppointmentInfo({
+          ...response.data.data,
+          patientCode: response.data.patientCode,
+        });
+        setModalVisible(true);
+        form.resetFields();
+        setSelectedDoctorId(null);
+        setWorkDays([]);
+        setSelectedDate(null);
+        setAvailableTimeSlots([]);
+        setSelectedTimeSlot(null);
+        toast.success("Đặt lịch thành công!");
+      } else {
+        toast.error("Có lỗi xảy ra khi đặt lịch.");
+      }
     } catch (error) {
       toast.error("Có lỗi xảy ra khi đặt lịch.");
       console.error("Error tạo cuộc hẹn:", error);
@@ -345,6 +357,42 @@ const Appointment = () => {
           </Form>
         </Card>
       </div>
+      <Modal
+        open={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={null}
+        title="Thông tin cuộc hẹn"
+      >
+        {appointmentInfo && (
+          <div>
+            <p>
+              <b>Họ tên:</b> {appointmentInfo.fullName}
+            </p>
+            <p>
+              <b>Email:</b> {appointmentInfo.email}
+            </p>
+            <p>
+              <b>Số điện thoại:</b> {appointmentInfo.phone}
+            </p>
+            <p>
+              <b>Bác sĩ:</b> {appointmentInfo.doctor?.user?.userName || "?"}
+            </p>
+            <p>
+              <b>Chuyên khoa:</b> {appointmentInfo.specialty}
+            </p>
+            <p>
+              <b>Ngày giờ:</b>{" "}
+              {new Date(appointmentInfo.date).toLocaleString("vi-VN")}
+            </p>
+            <p>
+              <b>Ghi chú:</b> {appointmentInfo.note || "Không có"}
+            </p>
+            <p style={{ color: "red" }}>
+              <b>Mã bệnh nhân (patientCode):</b> {appointmentInfo.patientCode}
+            </p>
+          </div>
+        )}
+      </Modal>
       <Footer />
     </>
   );

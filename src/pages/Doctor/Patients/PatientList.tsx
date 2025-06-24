@@ -11,7 +11,7 @@ interface Patient {
   location: string;
   specialty: string;
   gender: string;
-  status: "confirmed" | "pending";
+  status: "planned" | "in_progress" | "completed" | "cancelled";
   appointmentDate: string;
   appointmentTime: string;
   note?: string;
@@ -55,7 +55,7 @@ const PatientList: React.FC = () => {
             location: plan.patient.location || "Không rõ",
             specialty: plan.doctor?.specialty || "Không rõ",
             gender: plan.patient.gender || "Không rõ",
-            status: plan.status === "in_progress" ? "confirmed" : "pending",
+            status: plan.status,
             appointmentDate: new Date(plan.cycleStartDate).toLocaleDateString(
               "vi-VN",
               {
@@ -118,9 +118,13 @@ const PatientList: React.FC = () => {
                 <div className="patient-info">
                   <h3 className="patient-name">{patient.name}</h3>
                   <span className={`status-badge ${patient.status}`}>
-                    {patient.status === "confirmed"
-                      ? "ĐÃ XÁC NHẬN"
-                      : "CHỜ XÁC NHẬN"}
+                    {patient.status === "planned"
+                      ? "ĐÃ LÊN KẾ HOẠCH"
+                      : patient.status === "in_progress"
+                      ? "ĐANG THỰC HIỆN"
+                      : patient.status === "completed"
+                      ? "HOÀN THÀNH"
+                      : "ĐÃ HỦY"}
                   </span>
                 </div>
                 <div className="appointment-info">
