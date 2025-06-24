@@ -34,6 +34,13 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
             typeof data.patient === "string" ? data.patient : data.patient?._id,
           doctorId:
             typeof data.doctor === "string" ? data.doctor : data.doctor?._id,
+          hcgInjection: {
+            ...data.hcgInjection,
+            highlight:
+              typeof data.hcgInjection?.highlight === "boolean"
+                ? data.hcgInjection.highlight
+                : false,
+          },
         });
       } catch (err) {
         console.error("Lỗi lấy kế hoạch điều trị:", err);
@@ -108,6 +115,8 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
                 dosage: d.dosage || "",
                 instructions: d.instructions || "",
                 time: d.time || "",
+                highlight:
+                  typeof d.highlight === "boolean" ? d.highlight : false,
               }
             : { medication: "", dosage: "", instructions: "", time: "" };
       }
@@ -120,6 +129,7 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
         notes: item.notes,
         instructions: item.instructions || "",
         time: item.time || "",
+        highlight: typeof item.highlight === "boolean" ? item.highlight : false,
       }));
 
       const payload = {
@@ -136,7 +146,14 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
           time: formData.ovarianStimulation.time || "",
           dailyDetails,
         },
-        hcgInjection: formData.hcgInjection,
+        hcgInjection: {
+          plannedDate: formData.hcgInjection?.plannedDate,
+          medication: formData.hcgInjection?.medication,
+          dosage: formData.hcgInjection?.dosage,
+          instructions: formData.hcgInjection?.instructions,
+          time: formData.hcgInjection?.time,
+          highlight: formData.hcgInjection?.highlight, // KHÔNG ép kiểu !!
+        },
         eggRetrieval: formData.eggRetrieval,
         embryoTransfer: formData.embryoTransfer,
         postTransferMonitoring: formData.postTransferMonitoring,
@@ -212,7 +229,7 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
 
       {formData.ovarianStimulation && (
         <>
-          <h4>🧬 Kích thích buồng trứng</h4>
+          <h4 className="highlight-title">🧬 Kích thích buồng trứng</h4>
           <div className="edit-treatment-row">
             <span className="edit-treatment-label">Ngày bắt đầu:</span>
             <input
@@ -293,6 +310,102 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
               }
             />
           </div>
+          {formData.ovarianStimulation.dailyDetails?.length > 0 && (
+            <>
+              <h5>📋 Chi tiết theo ngày</h5>
+              {formData.ovarianStimulation.dailyDetails.map(
+                (detail: any, index: number) => (
+                  <div key={index} className="edit-treatment-row">
+                    <span className="edit-treatment-label day-label">{`Ngày ${
+                      index + 1
+                    }:`}</span>
+                    <input
+                      className="edit-treatment-input"
+                      placeholder="Thuốc"
+                      value={detail.medication}
+                      onChange={(e) => {
+                        const updated = [
+                          ...formData.ovarianStimulation.dailyDetails,
+                        ];
+                        updated[index].medication = e.target.value;
+                        updateNested(
+                          "ovarianStimulation",
+                          "dailyDetails",
+                          updated
+                        );
+                      }}
+                    />
+                    <input
+                      className="edit-treatment-input"
+                      placeholder="Liều"
+                      value={detail.dosage}
+                      onChange={(e) => {
+                        const updated = [
+                          ...formData.ovarianStimulation.dailyDetails,
+                        ];
+                        updated[index].dosage = e.target.value;
+                        updateNested(
+                          "ovarianStimulation",
+                          "dailyDetails",
+                          updated
+                        );
+                      }}
+                    />
+                    <input
+                      className="edit-treatment-input"
+                      placeholder="Hướng dẫn"
+                      value={detail.instructions}
+                      onChange={(e) => {
+                        const updated = [
+                          ...formData.ovarianStimulation.dailyDetails,
+                        ];
+                        updated[index].instructions = e.target.value;
+                        updateNested(
+                          "ovarianStimulation",
+                          "dailyDetails",
+                          updated
+                        );
+                      }}
+                    />
+                    <input
+                      className="edit-treatment-input"
+                      placeholder="Giờ"
+                      value={detail.time}
+                      onChange={(e) => {
+                        const updated = [
+                          ...formData.ovarianStimulation.dailyDetails,
+                        ];
+                        updated[index].time = e.target.value;
+                        updateNested(
+                          "ovarianStimulation",
+                          "dailyDetails",
+                          updated
+                        );
+                      }}
+                    />
+                    <label style={{ marginLeft: 12 }}>
+                      <input
+                        type="checkbox"
+                        checked={detail.highlight || false}
+                        onChange={(e) => {
+                          const updated = [
+                            ...formData.ovarianStimulation.dailyDetails,
+                          ];
+                          updated[index].highlight = e.target.checked;
+                          updateNested(
+                            "ovarianStimulation",
+                            "dailyDetails",
+                            updated
+                          );
+                        }}
+                      />
+                      Đánh dấu bước này
+                    </label>
+                  </div>
+                )
+              )}
+            </>
+          )}
           <div style={{ margin: "12px 0" }}>
             <b>Lịch theo dõi:</b>
             {formData.ovarianStimulation.monitoringSchedule?.map(
@@ -303,6 +416,7 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
                   style={{ border: "1px solid #eee", margin: 4, padding: 8 }}
                 >
                   <span className="edit-treatment-label">Ngày thứ:</span>
+
                   <input
                     type="number"
                     className="edit-treatment-input"
@@ -322,6 +436,7 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
                       );
                     }}
                   />
+
                   <span className="edit-treatment-label">Loại:</span>
                   <input
                     className="edit-treatment-input"
@@ -398,6 +513,27 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
                       );
                     }}
                   />
+                  <label style={{ marginLeft: 12 }}>
+                    <input
+                      type="checkbox"
+                      checked={item.highlight || false}
+                      onChange={(e) => {
+                        const newSchedule = [
+                          ...formData.ovarianStimulation.monitoringSchedule,
+                        ];
+                        newSchedule[idx] = {
+                          ...newSchedule[idx],
+                          highlight: e.target.checked,
+                        };
+                        updateNested(
+                          "ovarianStimulation",
+                          "monitoringSchedule",
+                          newSchedule
+                        );
+                      }}
+                    />
+                    Đánh dấu bước này
+                  </label>
                 </div>
               )
             )}
@@ -405,72 +541,12 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
         </>
       )}
 
-      {formData.ovarianStimulation.dailyDetails?.length > 0 && (
-        <>
-          <h5>📋 Chi tiết theo ngày</h5>
-          {formData.ovarianStimulation.dailyDetails.map(
-            (detail: any, index: number) => (
-              <div key={index} className="edit-treatment-row">
-                <span className="edit-treatment-label">Ngày {index + 1}:</span>
-                <input
-                  className="edit-treatment-input"
-                  placeholder="Thuốc"
-                  value={detail.medication}
-                  onChange={(e) => {
-                    const updated = [
-                      ...formData.ovarianStimulation.dailyDetails,
-                    ];
-                    updated[index].medication = e.target.value;
-                    updateNested("ovarianStimulation", "dailyDetails", updated);
-                  }}
-                />
-                <input
-                  className="edit-treatment-input"
-                  placeholder="Liều"
-                  value={detail.dosage}
-                  onChange={(e) => {
-                    const updated = [
-                      ...formData.ovarianStimulation.dailyDetails,
-                    ];
-                    updated[index].dosage = e.target.value;
-                    updateNested("ovarianStimulation", "dailyDetails", updated);
-                  }}
-                />
-                <input
-                  className="edit-treatment-input"
-                  placeholder="Hướng dẫn"
-                  value={detail.instructions}
-                  onChange={(e) => {
-                    const updated = [
-                      ...formData.ovarianStimulation.dailyDetails,
-                    ];
-                    updated[index].instructions = e.target.value;
-                    updateNested("ovarianStimulation", "dailyDetails", updated);
-                  }}
-                />
-                <input
-                  className="edit-treatment-input"
-                  placeholder="Giờ"
-                  value={detail.time}
-                  onChange={(e) => {
-                    const updated = [
-                      ...formData.ovarianStimulation.dailyDetails,
-                    ];
-                    updated[index].time = e.target.value;
-                    updateNested("ovarianStimulation", "dailyDetails", updated);
-                  }}
-                />
-              </div>
-            )
-          )}
-        </>
-      )}
-
       {formData.hcgInjection && (
         <>
-          <h4>💉 Tiêm HCG</h4>
+          <h4 className="highlight-title">💉 Tiêm HCG</h4>
           <div className="edit-treatment-row">
             <span className="edit-treatment-label">Ngày tiêm:</span>
+
             <input
               type="datetime-local"
               className="edit-treatment-input"
@@ -479,7 +555,20 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
                 updateNested("hcgInjection", "plannedDate", e.target.value)
               }
             />
+            <div className="edit-treatment-row">
+              <label style={{ marginLeft: 12 }}>
+                <input
+                  type="checkbox"
+                  checked={formData.hcgInjection.highlight === true}
+                  onChange={(e) =>
+                    updateNested("hcgInjection", "highlight", e.target.checked)
+                  }
+                />
+                Đánh dấu bước này
+              </label>
+            </div>
           </div>
+
           <div className="edit-treatment-row">
             <span className="edit-treatment-label">Thuốc:</span>
             <input
@@ -505,7 +594,7 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
 
       {formData.eggRetrieval && (
         <>
-          <h4>🥚 Lấy trứng</h4>
+          <h4 className="highlight-title">🥚 Lấy trứng</h4>
           <div className="edit-treatment-row">
             <span className="edit-treatment-label">Ngày thực hiện:</span>
             <input
@@ -516,6 +605,16 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
                 updateNested("eggRetrieval", "plannedDate", e.target.value)
               }
             />
+            <label style={{ marginLeft: 12 }}>
+              <input
+                type="checkbox"
+                checked={formData.eggRetrieval.highlight || false}
+                onChange={(e) =>
+                  updateNested("eggRetrieval", "highlight", e.target.checked)
+                }
+              />
+              Đánh dấu bước này
+            </label>
           </div>
           <div className="edit-treatment-row">
             <span className="edit-treatment-label">Hướng dẫn:</span>
@@ -532,7 +631,7 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
 
       {formData.embryoTransfer && (
         <>
-          <h4>🧫 Chuyển phôi</h4>
+          <h4 className="highlight-title">🧫 Chuyển phôi</h4>
           <div className="edit-treatment-row">
             <span className="edit-treatment-label">Ngày chuyển:</span>
             <input
@@ -543,6 +642,16 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
                 updateNested("embryoTransfer", "plannedDate", e.target.value)
               }
             />
+            <label style={{ marginLeft: 12 }}>
+              <input
+                type="checkbox"
+                checked={formData.embryoTransfer.highlight || false}
+                onChange={(e) =>
+                  updateNested("embryoTransfer", "highlight", e.target.checked)
+                }
+              />
+              Đánh dấu bước này
+            </label>
           </div>
           <div className="edit-treatment-row">
             <span className="edit-treatment-label">Giai đoạn phôi:</span>
@@ -559,7 +668,7 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
 
       {formData.postTransferMonitoring && (
         <>
-          <h4>🔬 Theo dõi sau chuyển phôi</h4>
+          <h4 className="highlight-title">🔬 Theo dõi sau chuyển phôi</h4>
           <div className="edit-treatment-row">
             <span className="edit-treatment-label">
               Ngày xét nghiệm Beta HCG:
@@ -567,36 +676,117 @@ const EditTreatmentPlanForm: React.FC<Props> = ({ planId, onCancel }) => {
             <input
               type="datetime-local"
               className="edit-treatment-input"
-              value={formData.postTransferMonitoring.betaHcgTestDate?.slice(
-                0,
-                16
-              )}
+              value={
+                typeof formData.postTransferMonitoring.betaHcgTestDate ===
+                "object"
+                  ? formData.postTransferMonitoring.betaHcgTestDate?.date?.slice(
+                      0,
+                      16
+                    ) || ""
+                  : formData.postTransferMonitoring.betaHcgTestDate?.slice(
+                      0,
+                      16
+                    ) || ""
+              }
               onChange={(e) =>
                 updateNested(
                   "postTransferMonitoring",
                   "betaHcgTestDate",
-                  e.target.value
+                  typeof formData.postTransferMonitoring.betaHcgTestDate ===
+                    "object"
+                    ? {
+                        ...formData.postTransferMonitoring.betaHcgTestDate,
+                        date: e.target.value,
+                      }
+                    : { date: e.target.value }
                 )
               }
             />
+            <label style={{ marginLeft: 12 }}>
+              <input
+                type="checkbox"
+                checked={
+                  typeof formData.postTransferMonitoring.betaHcgTestDate ===
+                  "object"
+                    ? formData.postTransferMonitoring.betaHcgTestDate
+                        ?.highlight || false
+                    : false
+                }
+                onChange={(e) =>
+                  updateNested(
+                    "postTransferMonitoring",
+                    "betaHcgTestDate",
+                    typeof formData.postTransferMonitoring.betaHcgTestDate ===
+                      "object"
+                      ? {
+                          ...formData.postTransferMonitoring.betaHcgTestDate,
+                          highlight: e.target.checked,
+                        }
+                      : { highlight: e.target.checked }
+                  )
+                }
+              />
+              Đánh dấu bước này
+            </label>
           </div>
           <div className="edit-treatment-row">
             <span className="edit-treatment-label">Ngày siêu âm kiểm tra:</span>
             <input
               type="datetime-local"
               className="edit-treatment-input"
-              value={formData.postTransferMonitoring.ultrasoundCheckDate?.slice(
-                0,
-                16
-              )}
+              value={
+                typeof formData.postTransferMonitoring.ultrasoundCheckDate ===
+                "object"
+                  ? formData.postTransferMonitoring.ultrasoundCheckDate?.date?.slice(
+                      0,
+                      16
+                    ) || ""
+                  : formData.postTransferMonitoring.ultrasoundCheckDate?.slice(
+                      0,
+                      16
+                    ) || ""
+              }
               onChange={(e) =>
                 updateNested(
                   "postTransferMonitoring",
                   "ultrasoundCheckDate",
-                  e.target.value
+                  typeof formData.postTransferMonitoring.ultrasoundCheckDate ===
+                    "object"
+                    ? {
+                        ...formData.postTransferMonitoring.ultrasoundCheckDate,
+                        date: e.target.value,
+                      }
+                    : { date: e.target.value }
                 )
               }
             />
+            <label style={{ marginLeft: 12 }}>
+              <input
+                type="checkbox"
+                checked={
+                  typeof formData.postTransferMonitoring.ultrasoundCheckDate ===
+                  "object"
+                    ? formData.postTransferMonitoring.ultrasoundCheckDate
+                        ?.highlight || false
+                    : false
+                }
+                onChange={(e) =>
+                  updateNested(
+                    "postTransferMonitoring",
+                    "ultrasoundCheckDate",
+                    typeof formData.postTransferMonitoring
+                      .ultrasoundCheckDate === "object"
+                      ? {
+                          ...formData.postTransferMonitoring
+                            .ultrasoundCheckDate,
+                          highlight: e.target.checked,
+                        }
+                      : { highlight: e.target.checked }
+                  )
+                }
+              />
+              Đánh dấu bước này
+            </label>
           </div>
         </>
       )}

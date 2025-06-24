@@ -33,12 +33,14 @@ export interface MonitoringSchedule {
   notes: string;
   instructions?: string;
   time?: string;
+  highlight?: boolean;
 }
 export interface DailyDetail {
   medication: string;
   dosage: string;
   instructions?: string;
   time?: string;
+  highlight?: boolean;
 }
 export interface OvarianStimulation {
   startDay: number;
@@ -57,6 +59,7 @@ export interface HcgInjection {
   dosage: string;
   instructions?: string;
   time?: string;
+  highlight?: boolean;
 }
 
 export interface EggRetrieval {
@@ -64,6 +67,7 @@ export interface EggRetrieval {
   notes: string;
   instructions?: string;
   time?: string;
+  highlight?: boolean;
 }
 
 export interface EmbryoTransfer {
@@ -71,13 +75,20 @@ export interface EmbryoTransfer {
   embryoStage: string;
   instructions?: string;
   time?: string;
+  highlight?: boolean;
 }
 
 export interface PostTransferMonitoring {
-  betaHcgTestDate: string; // Ngày kiểm tra beta HCG
+  betaHcgTestDate: {
+    date: string;
+    highlight?: boolean;
+  };
   betaHcgTestInstructions?: string; // Hướng dẫn kiểm tra beta HCG
   betaHcgTestTime?: string; // Thời gian kiểm tra beta HCG
-  ultrasoundCheckDate: string; // Ngày kiểm tra siêu âm
+  ultrasoundCheckDate: {
+    date: string;
+    highlight?: boolean;
+  }; // Ngày kiểm tra siêu âm
   ultrasoundCheckInstructions?: string; // Hướng dẫn kiểm tra siêu âm
   ultrasoundCheckTime?: string; // Thời gian kiểm tra siêu âm
 }
@@ -102,6 +113,7 @@ export interface TreatmentPlan {
 
   reminders: Reminder[];
   status: string;
+
   notes: string;
   createdAt: string;
   updatedAt: string;

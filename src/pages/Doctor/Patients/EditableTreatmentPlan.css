@@ -93,3 +93,27 @@
   min-height: 80px;
   resize: vertical;
 }
+.highlight-title {
+  color: #d7263d;
+  background: #fff3f6;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 1.15rem;
+  font-weight: bold;
+  margin: 18px 0 10px 0;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(215, 38, 61, 0.08);
+  display: inline-block;
+}
+.day-label {
+  color: #1976d2;
+  font-weight: 600;
+  font-size: 15px;
+  background: #e3f0fc;
+  border-radius: 6px;
+  padding: 4px 12px;
+  margin-right: 10px;
+  min-width: 80px;
+  display: inline-block;
+  text-align: center;
+}
