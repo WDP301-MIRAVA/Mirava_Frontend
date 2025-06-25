@@ -1,0 +1,196 @@
+.ivf-detail-container {
+  background: #f0f9ff;
+  padding: 2rem;
+}
+
+.ivf-detail-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.ivf-images {
+  flex: 1 1 45%;
+}
+
+.main-image {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.main-image img {
+  width: 90%;
+  height: auto;
+  display: block;
+}
+
+.discount-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: #0070f3;
+  color: white;
+  font-weight: bold;
+  padding: 0.4rem 0.8rem;
+  border-radius: 50px;
+  font-size: 1rem;
+}
+
+.thumbs {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.thumb {
+  border: 2px solid transparent;
+  border-radius: 6px;
+  overflow: hidden;
+  width: 64px;
+  height: 64px;
+  cursor: pointer;
+}
+
+.thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumb.active {
+  border-color: #0070f3;
+}
+
+.ivf-info {
+  flex: 1 1 50%;
+}
+
+.ivf-info h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.price-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #888;
+}
+
+.discounted-price {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: red;
+}
+
+.gift-box {
+  background: #eef6ff;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  color: #0070f3;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.features ul {
+  list-style: none;
+  padding: 0;
+  margin: 1rem 0;
+}
+
+.features li {
+  position: relative;
+  padding-left: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #444;
+}
+
+.features li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #00b894;
+}
+
+.actions {
+  max-width: 500px; /* Hoặc auto nếu bạn dùng layout responsive */
+  margin-top: 2rem;
+  margin-left: 0;
+}
+
+.actions .btn-primary {
+  width: 100%;
+  background: #009c9a;
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 30px;
+  font-weight: bold;
+}
+
+.actions .btn-group {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.actions .btn-secondary {
+  flex: 1;
+  background: #009c9a;
+  color: white;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 30px;
+  font-weight: bold;
+}
+
+.ivf-process {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.ivf-process h2 {
+  text-align: center;
+  font-size: 1.75rem;
+  margin-bottom: 2rem;
+}
+
+.process-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
+.process-step {
+  text-align: center;
+}
+
+.step-circle {
+  width: 48px;
+  height: 48px;
+  background: #0070f3;
+  color: white;
+  font-weight: bold;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+.img-description {
+  width: 50%;
+  display: inline-block;
+  margin-left: auto;
+  margin-right: auto;
+}

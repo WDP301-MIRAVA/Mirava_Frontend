@@ -15,7 +15,7 @@ import DoctorLayout from "@/layouts/DoctorLayout/DoctorLayout";
 import DoctorAppoitment from "../pages/Doctor/ViewAppoitment";
 import BlogList from "@/pages/BlogList/BlogList";
 import DetailBlog from "@/pages/DetailBlog/DetailBlog";
-
+import IUIIVFServices from "@/pages/IVFIUIService/IUIIVFServices";
 import TreatmentPlans from "../pages/Doctor/TreatmentPlans/TreatmentPlans";
 import Schedules from "@/pages/Doctor/Schedules/Schedules";
 import AppointmentPage from "@/pages/Users/AppointmentPage";
@@ -24,8 +24,9 @@ import PatientList from "@/pages/Doctor/Patients/PatientList";
 
 import UserManagement from "@/pages/Admin/UserManagement/UserManagement";
 import DoctorManagement from "@/pages/Admin/DoctorManagement/DoctorManagement";
-
+import CheckoutPage from "@/pages/IVFIUIService/CheckOutPage";
 import ViewAppointment from "../pages/Doctor/ViewAppoitment";
+import DetailServices from "@/pages/IVFIUIService/DetailServices";
 
 const MainRouter = () => {
   return (
@@ -43,6 +44,11 @@ const MainRouter = () => {
       <Route path="/blog/:id" element={<DetailBlog />} />
       <Route path="/user/appointment" element={<AppointmentPage />} />
       <Route path="/profile" element={<PersonalInfoPage />} />
+      <Route path="/iui-ivf-services" element={<IUIIVFServices />} />
+      <Route path="/detail-services/:id" element={<DetailServices />} />
+      <Route path="/checkout/:serviceId" element={<CheckoutPage />} />
+
+      {/* Customer Public Routes - Các route công khai dành cho customer */}
 
       {/* Customer Protected Routes - Chỉ customer mới truy cập được */}
       <Route
