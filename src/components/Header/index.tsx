@@ -16,7 +16,7 @@ import toast from "react-hot-toast";
 const navigationItems = [
   { name: "Trang chủ", path: "/home" },
   { name: "Giới thiệu", path: "/intro" },
-  { name: "Dịch vụ IUI / IVF", path: "/" },
+  { name: "Dịch vụ IUI / IVF", path: "/iui-ivf-services" },
   { name: "Blog", path: "/bloglist" },
   { name: "Đặt lịch khám", path: "/appointment" },
 

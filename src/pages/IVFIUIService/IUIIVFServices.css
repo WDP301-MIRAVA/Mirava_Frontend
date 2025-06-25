@@ -1,0 +1,173 @@
+/* IUIIVFServices.css (updated version for simpler layout and styling like screenshot) */
+
+.min-h-screen {
+  background: linear-gradient(to bottom right, #ebf8ff, #e6fffa);
+  padding-bottom: 4rem;
+}
+
+.text-center {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.text-center h2 {
+  text-align: center;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.text-center p {
+  color: #4b5563;
+  max-width: 800px;
+  margin: 0 auto;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.filter-buttons {
+  display: flex;
+  justify-content: center;
+  margin: 1.5rem 0;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.filter-buttons button {
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  background: white;
+  border: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  color: #4b5563;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.filter-buttons button.active,
+.filter-buttons button:hover {
+  background: #14b8a6;
+  color: white;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  padding: 0 1rem;
+}
+
+.service-card {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s;
+}
+
+.service-card:hover {
+  transform: translateY(-4px);
+}
+
+.card-image {
+  background: linear-gradient(to right, #a7f3d0, #dbeafe);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 1.5rem 1rem;
+  text-align: center;
+}
+
+.card-image .badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: #ef4444;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+.card-image .icon-container .icon {
+  width: 48px;
+  height: 48px;
+  color: #14b8a6;
+  margin: 0 auto 0.5rem auto;
+}
+
+.card-content {
+  padding: 1.25rem;
+}
+
+.card-content h3 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #1f2937;
+}
+
+.card-content p {
+  color: #4b5563;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.card-content ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+.card-content ul li {
+  font-size: 0.9rem;
+  color: #059669;
+  margin-bottom: 0.4rem;
+  position: relative;
+  padding-left: 1.2rem;
+}
+
+.card-content ul li::before {
+  content: "•";
+  position: absolute;
+  left: 0;
+  color: #14b8a6;
+}
+
+.price-info {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.original-price {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  text-decoration: line-through;
+}
+
+.price {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.card-content button {
+  width: 100%;
+  padding: 0.75rem;
+  background: #14b8a6;
+  color: white;
+  font-weight: 600;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.card-content button:hover {
+  background: #0d9488;
+}

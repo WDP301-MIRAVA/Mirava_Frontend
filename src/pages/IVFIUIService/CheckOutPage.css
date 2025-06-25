@@ -1,0 +1,171 @@
+.checkout-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  padding: 2rem;
+  background-color: #f5fbfd;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.checkout-form,
+.order-summary {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 10px;
+  flex: 1;
+  min-width: 300px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.checkout-form h2,
+.order-summary h2 {
+  font-size: 18px;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.checkout-form input,
+.checkout-form textarea {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  margin-bottom: 1rem;
+}
+
+.password-label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.3rem;
+  color: #333;
+}
+
+.order-summary .summary-box {
+  border-top: 1px solid #eee;
+  margin-top: 1rem;
+}
+
+.summary-item,
+.summary-product {
+  display: flex;
+  justify-content: space-between;
+  margin: 1rem 0;
+  font-size: 15px;
+}
+
+.summary-product {
+  flex-direction: column;
+  color: #444;
+}
+
+.price,
+.total {
+  font-weight: bold;
+  color: #e53935;
+  margin-top: 0.5rem;
+}
+
+.payment-info {
+  font-size: 14px;
+  margin-top: 2rem;
+}
+
+.payment-info .note {
+  color: #666;
+  margin-top: 0.5rem;
+}
+.order-submit {
+  margin-top: 2rem;
+}
+
+.place-order-button {
+  background-color: #0c6fc5;
+  color: white;
+  font-weight: bold;
+  padding: 14px 24px;
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.place-order-button:hover {
+  background-color: #095c9f;
+}
+.checkout-form input,
+.checkout-form select,
+.checkout-form textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+  background-color: #fff;
+}
+.appointment-section {
+  margin-top: 1rem;
+}
+
+.label {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+  color: #333;
+}
+
+.required {
+  color: red;
+  margin-left: 4px;
+}
+
+.date-picker {
+  padding: 10px;
+  width: 100%;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+}
+
+.time-slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.time-slot {
+  background-color: #e6f7ff;
+  color: #000;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+.time-slot:hover {
+  background-color: #b3e5fc;
+}
+
+.time-slot.selected {
+  background-color: #009c9a;
+  color: white;
+}
