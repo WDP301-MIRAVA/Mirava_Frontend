@@ -159,13 +159,24 @@ textarea {
   transition: background-color 0.2s ease;
   font-weight: 500;
   margin-bottom: 20px;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .time-slot:hover {
   background-color: #b3e5fc;
 }
 
-.time-slot.selected {
+.time-slot.active {
   background-color: #009c9a;
   color: white;
+}
+.process-step-content {
+  flex: 1;
+  min-width: 280px;
+  max-width: 55%;
+  text-align: left; /* 👈 Căn phải toàn bộ nội dung */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
