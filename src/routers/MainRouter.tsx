@@ -27,6 +27,9 @@ import DoctorManagement from "@/pages/Admin/DoctorManagement/DoctorManagement";
 import CheckoutPage from "@/pages/IVFIUIService/CheckOutPage";
 import ViewAppointment from "../pages/Doctor/ViewAppoitment";
 import DetailServices from "@/pages/IVFIUIService/DetailServices";
+import MedicalRecordManagement from "@/pages/Doctor/MedicalRecordManagement/MedicalRecordManagement";
+import DoctorScheduleManagement from "@/pages/Manager/DoctorScheduleManagement/DoctorScheduleManagement";
+import ManagerDashboard from "@/pages/Manager/ManagerDashboard/ManagerDashboard";
 
 const MainRouter = () => {
   return (
@@ -47,6 +50,11 @@ const MainRouter = () => {
       <Route path="/iui-ivf-services" element={<IUIIVFServices />} />
       <Route path="/detail-services/:id" element={<DetailServices />} />
       <Route path="/checkout/:serviceId" element={<CheckoutPage />} />
+
+
+      <Route path="/doctor-schedule-management" element={<DoctorScheduleManagement />} />
+      <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+
 
       {/* Customer Public Routes - Các route công khai dành cho customer */}
 
@@ -96,6 +104,7 @@ const MainRouter = () => {
               <Route path="/patients" element={<PatientList />} />
               <Route path="/patients/:id" element={<PatientList />} />
               <Route path="/appointments" element={<ViewAppointment />} />
+              <Route path="/medicalrecord" element={<MedicalRecordManagement />} />
               {/* Thêm các route khác cho doctor ở đây */}
             </Routes>
           </PrivateRoute>
