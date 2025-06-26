@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./PatientList.css";
-import EditableTreatmentPlan from "./EditableTreatmentPlan";
 import axios from "axios";
 import ExaminationResults from "./ExaminationResults/ExaminationResults";
 import TestResults from "./TestResults/TestResults";
@@ -26,11 +26,15 @@ interface Patient {
 type ModalType = 'detail' | 'examination' | 'test_result' | 'injection_result' | null;
 
 const PatientList: React.FC = () => {
+  const navigate = useNavigate();
   const [patients, setPatients] = useState<Patient[]>([]);
+<<<<<<< phuong
   const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [modalType, setModalType] = useState<ModalType>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+=======
+>>>>>>> main
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -69,6 +73,7 @@ const PatientList: React.FC = () => {
         const data = res.data?.data;
 
         if (Array.isArray(data)) {
+<<<<<<< phuong
           const transformedPatients: Patient[] = data.map((plan: any) => ({
             id: plan.patient._id,
             name: plan.patient.userName || "Không rõ",
@@ -95,14 +100,48 @@ const PatientList: React.FC = () => {
             ),
             patientCode: generatePatientCode(plan.patient._id),
           }));
+=======
+          const transformedPatients: Patient[] = data.map((plan: unknown) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const planObj = plan as any; // Type assertion for data mapping
+            return {
+              id: planObj.patient._id,
+              name: planObj.patient.userName || "Không rõ",
+              email: planObj.patient.email || "",
+              phone: planObj.patient.phone || "",
+              location: planObj.patient.location || "Không rõ",
+              specialty: planObj.doctor?.specialty || "Không rõ",
+              gender: planObj.patient.gender || "Không rõ",
+              status: planObj.status,
+              appointmentDate: new Date(planObj.cycleStartDate).toLocaleDateString(
+                "vi-VN",
+                {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                }
+              ),
+              appointmentTime: planObj.hcgInjection?.time || "07:00",
+              note: planObj.notes || "",
+              doctor: planObj.doctor?.user?.userName || "Không rõ",
+              startDate: new Date(planObj.cycleStartDate).toLocaleDateString(
+                "vi-VN"
+              ),
+            };
+          });
+>>>>>>> main
 
           setPatients(transformedPatients);
           setFilteredPatients(transformedPatients);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Lỗi khi gọi API:", error);
-        if (error.response?.status === 401) {
-          alert("Bạn chưa đăng nhập hoặc token hết hạn.");
+        if (error && typeof error === 'object' && 'response' in error) {
+          const axiosError = error as { response?: { status?: number } };
+          if (axiosError.response?.status === 401) {
+            alert("Bạn chưa đăng nhập hoặc token hết hạn.");
+          }
         }
       } finally {
         setLoading(false);
@@ -112,6 +151,7 @@ const PatientList: React.FC = () => {
     fetchPatients();
   }, []);
 
+<<<<<<< phuong
   // Search functionality
   useEffect(() => {
     if (!searchTerm.trim()) {
@@ -188,6 +228,15 @@ const PatientList: React.FC = () => {
       default:
         return '';
     }
+=======
+  const handlePatientDetail = (patient: Patient) => {
+    // Lưu thông tin bệnh nhân vào localStorage để sử dụng trong trang IVFTreatmentTracker
+    localStorage.setItem("patientId", patient.id);
+    localStorage.setItem("patientInfo", JSON.stringify(patient));
+    
+    // Điều hướng đến trang IVFTreatmentTracker
+    navigate(`/doctor/patients/treatment/${patient.id}`);
+>>>>>>> main
   };
 
   return (
@@ -323,6 +372,7 @@ const PatientList: React.FC = () => {
           ))}
         </div>
       )}
+<<<<<<< phuong
 
       {/* Modal */}
       {isModalOpen && selectedPatient && (
@@ -341,6 +391,8 @@ const PatientList: React.FC = () => {
           </div>
         </div>
       )}
+=======
+>>>>>>> main
     </div>
   );
 };
