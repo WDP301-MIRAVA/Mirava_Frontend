@@ -18,14 +18,14 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({
   const getActiveMenuItem = () => {
     const path = location.pathname;
     if (path === '/doctor' || path === '/doctor/') return "Trang chủ";
-    if (path.includes('/doctor/profile')) return "Hồ sơ";
     if (path.includes('/doctor/patients')) return "Bệnh nhân";
     if (path.includes('/doctor/appointments')) return "Lịch hẹn";
     if (path.includes('/doctor/treatment-plans')) return "Kế hoạch điều trị";
     if (path.includes('/doctor/prescriptions')) return "Kê đơn thuốc";
-    if (path.includes('/doctor/medical-records')) return "Hồ sơ y tế";
+    if (path.includes('/doctor/medicalrecord')) return "Hồ sơ y tế";
     if (path.includes('/doctor/schedule')) return "Lịch làm việc";
     if (path.includes('/doctor/reports')) return "Báo cáo";
+    if (path.includes('/doctor/profile')) return "Hồ sơ";
     return "Trang chủ";
   };
 
@@ -33,14 +33,14 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({
 
   const menuItems = [
     { id: 1, name: "Trang chủ", label: "Trang chủ", path: "/doctor" },
-    { id: 2, name: "Hồ sơ", label: "Hồ sơ", path: "/doctor/profile" },
     { id: 3, name: "Bệnh nhân", label: "Bệnh nhân", path: "/doctor/patients" },
     { id: 4, name: "Lịch hẹn", label: "Lịch hẹn", path: "/doctor/appointments" },
     { id: 5, name: "Kế hoạch điều trị", label: "Tạo kế hoạch điều trị", path: "/doctor/treatment-plans" },
     { id: 6, name: "Kê đơn thuốc", label: "Kê đơn thuốc", path: "/doctor/prescriptions" },
-    { id: 7, name: "Hồ sơ y tế", label: "Hồ sơ y tế", path: "/doctor/medical-records" },
+    { id: 7, name: "Hồ sơ y tế", label: "Hồ sơ y tế", path: "/doctor/medicalrecord" },
     { id: 8, name: "Lịch làm việc", label: "Lịch làm việc", path: "/doctor/schedules" },
-    { id: 9, name: "Báo cáo", label: "Báo cáo", path: "/doctor/reports" }
+    { id: 9, name: "Báo cáo", label: "Báo cáo", path: "/doctor/reports" },
+    { id: 2, name: "Hồ sơ", label: "Hồ sơ", path: "/doctor/profile" },
   ];
 
   // Tạo breadcrumb dựa trên active menu
