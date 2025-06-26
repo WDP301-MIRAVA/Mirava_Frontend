@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./PatientList.css";
-import EditableTreatmentPlan from "./EditableTreatmentPlan";
 import axios from "axios";
 
 interface Patient {
@@ -20,9 +20,8 @@ interface Patient {
 }
 
 const PatientList: React.FC = () => {
+  const navigate = useNavigate();
   const [patients, setPatients] = useState<Patient[]>([]);
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -47,38 +46,45 @@ const PatientList: React.FC = () => {
         const data = res.data?.data;
 
         if (Array.isArray(data)) {
-          const transformedPatients: Patient[] = data.map((plan: any) => ({
-            id: plan.patient._id,
-            name: plan.patient.userName || "Không rõ",
-            email: plan.patient.email || "",
-            phone: plan.patient.phone || "",
-            location: plan.patient.location || "Không rõ",
-            specialty: plan.doctor?.specialty || "Không rõ",
-            gender: plan.patient.gender || "Không rõ",
-            status: plan.status,
-            appointmentDate: new Date(plan.cycleStartDate).toLocaleDateString(
-              "vi-VN",
-              {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              }
-            ),
-            appointmentTime: plan.hcgInjection?.time || "07:00",
-            note: plan.notes || "",
-            doctor: plan.doctor?.user?.userName || "Không rõ",
-            startDate: new Date(plan.cycleStartDate).toLocaleDateString(
-              "vi-VN"
-            ),
-          }));
+          const transformedPatients: Patient[] = data.map((plan: unknown) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const planObj = plan as any; // Type assertion for data mapping
+            return {
+              id: planObj.patient._id,
+              name: planObj.patient.userName || "Không rõ",
+              email: planObj.patient.email || "",
+              phone: planObj.patient.phone || "",
+              location: planObj.patient.location || "Không rõ",
+              specialty: planObj.doctor?.specialty || "Không rõ",
+              gender: planObj.patient.gender || "Không rõ",
+              status: planObj.status,
+              appointmentDate: new Date(planObj.cycleStartDate).toLocaleDateString(
+                "vi-VN",
+                {
+                  weekday: "long",
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                }
+              ),
+              appointmentTime: planObj.hcgInjection?.time || "07:00",
+              note: planObj.notes || "",
+              doctor: planObj.doctor?.user?.userName || "Không rõ",
+              startDate: new Date(planObj.cycleStartDate).toLocaleDateString(
+                "vi-VN"
+              ),
+            };
+          });
 
           setPatients(transformedPatients);
         }
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error("Lỗi khi gọi API:", error);
-        if (error.response?.status === 401) {
-          alert("Bạn chưa đăng nhập hoặc token hết hạn.");
+        if (error && typeof error === 'object' && 'response' in error) {
+          const axiosError = error as { response?: { status?: number } };
+          if (axiosError.response?.status === 401) {
+            alert("Bạn chưa đăng nhập hoặc token hết hạn.");
+          }
         }
       } finally {
         setLoading(false);
@@ -89,17 +95,12 @@ const PatientList: React.FC = () => {
   }, []);
 
   const handlePatientDetail = (patient: Patient) => {
+    // Lưu thông tin bệnh nhân vào localStorage để sử dụng trong trang IVFTreatmentTracker
     localStorage.setItem("patientId", patient.id);
-    setSelectedPatient(patient);
-    setIsModalOpen(true);
-    document.body.classList.add("modal-open"); // dùng để ngăn cuộn trang khi mở modal
-  };
-
-  const closeModal = () => {
-    localStorage.removeItem("patientId");
-    setSelectedPatient(null);
-    setIsModalOpen(false);
-    document.body.classList.remove("modal-open"); // dùng để cho phép cuộn trang khi đóng modal
+    localStorage.setItem("patientInfo", JSON.stringify(patient));
+    
+    // Điều hướng đến trang IVFTreatmentTracker
+    navigate(`/doctor/patients/treatment/${patient.id}`);
   };
 
   return (
@@ -184,26 +185,6 @@ const PatientList: React.FC = () => {
               </button>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Modal chi tiết bệnh nhân */}
-      {isModalOpen && selectedPatient && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Kế hoạch điều trị</h2>
-              <button className="close-button" onClick={closeModal}>
-                ×
-              </button>
-            </div>
-            <div className="modal-info">
-              <p>Bệnh nhân: {selectedPatient.name}</p>
-            </div>
-            <div className="treatment-plan-in-patientlist">
-              <EditableTreatmentPlan />
-            </div>
-          </div>
         </div>
       )}
     </div>

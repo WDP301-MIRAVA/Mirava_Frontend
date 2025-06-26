@@ -1,0 +1,44 @@
+.payment-confirmation-container {
+  display: flex;
+  gap: 40px;
+  padding: 40px;
+  background-color: #f9fafb;
+  font-family: Arial, sans-serif;
+  flex-wrap: wrap;
+}
+
+.left-panel,
+.right-panel {
+  flex: 1;
+  min-width: 320px;
+  background: white;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.qr-code {
+  width: 100%;
+  max-width: 300px;
+  margin: 20px auto;
+  display: block;
+}
+
+.transfer-info {
+  margin-top: 20px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.transfer-info .highlight {
+  color: #d97706;
+  font-weight: bold;
+  background: #fef3c7;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.user-info p {
+  margin-bottom: 12px;
+  font-size: 15px;
+}

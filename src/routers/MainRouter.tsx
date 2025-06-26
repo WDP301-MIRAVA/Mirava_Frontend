@@ -21,12 +21,14 @@ import Schedules from "@/pages/Doctor/Schedules/Schedules";
 import AppointmentPage from "@/pages/Users/AppointmentPage";
 import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
 import PatientList from "@/pages/Doctor/Patients/PatientList";
+import IVFTreatmentTracker from "@/pages/Doctor/Patients/IVFTreatmentTracker";
 
 import UserManagement from "@/pages/Admin/UserManagement/UserManagement";
 import DoctorManagement from "@/pages/Admin/DoctorManagement/DoctorManagement";
 import CheckoutPage from "@/pages/IVFIUIService/CheckOutPage";
 import ViewAppointment from "../pages/Doctor/ViewAppoitment";
 import DetailServices from "@/pages/IVFIUIService/DetailServices";
+import PaymentConfirmation from "@/pages/IVFIUIService/PaymentConfirmation";
 
 const MainRouter = () => {
   return (
@@ -47,7 +49,7 @@ const MainRouter = () => {
       <Route path="/iui-ivf-services" element={<IUIIVFServices />} />
       <Route path="/detail-services/:id" element={<DetailServices />} />
       <Route path="/checkout/:serviceId" element={<CheckoutPage />} />
-
+      <Route path="/checkout/paymentConfirm" element={<PaymentConfirmation />} />
       {/* Customer Public Routes - Các route công khai dành cho customer */}
 
       {/* Customer Protected Routes - Chỉ customer mới truy cập được */}
@@ -95,6 +97,7 @@ const MainRouter = () => {
               <Route path="/schedules/:id?" element={<Schedules />} />
               <Route path="/patients" element={<PatientList />} />
               <Route path="/patients/:id" element={<PatientList />} />
+              <Route path="/patients/treatment/:patientId" element={<IVFTreatmentTracker />} />
               <Route path="/appointments" element={<ViewAppointment />} />
               {/* Thêm các route khác cho doctor ở đây */}
             </Routes>
