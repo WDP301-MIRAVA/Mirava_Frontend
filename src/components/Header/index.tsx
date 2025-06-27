@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import { useNavigate, Link } from "react-router-dom";
 import "./Header.css";
 import MiravaLogo from "../../assets/mirava-logo.png";
-import { decodeToken } from "@/utils/decodeToken";
 import { Avatar, Dropdown, Menu } from "antd";
 import {
   UserOutlined,
