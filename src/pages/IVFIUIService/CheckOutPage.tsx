@@ -1,127 +1,600 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate  } from 'react-router-dom';
-import './CheckoutPage.css';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import "./CheckoutPage.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import { toast } from "react-hot-toast";
 
 interface Doctor {
+  _id: string;
   user: {
     userName: string;
   };
+  specialty: string;
+  workSchedule: string[];
+  status: string;
 }
 
 interface ServiceDetail {
   _id: string;
   name: string;
   price: number;
-  salePrice: number; // percent
-  shortDescription: string[];
-  doctor: Doctor[];
+  salePrice?: number;
+  shortDescription?: string[];
+  imageUrl: string;
+  doctor?: Doctor[];
+}
+
+interface AvailableDoctor {
+  _id: string;
+  name: string;
+  specialty: string;
+  isAvailable: boolean;
+  timeSlots: string[];
 }
 
 const CheckoutPage: React.FC = () => {
- const { serviceId } = useParams<{ serviceId: string }>();
+  const { serviceId } = useParams<{ serviceId: string }>();
   const [service, setService] = useState<ServiceDetail | null>(null);
-    const navigate = useNavigate();
-    
-   const [formData, setFormData] = useState({
-    fullName: '',
-    phone: '',
-    email: '',
-    address: '',
-    appointmentDate: '',
-    timeSlot: '',
-    doctor: '',
-    notes: '',
-  });
-    const [selectedTime, setSelectedTime] = useState('');
-const handlePlaceOrder = () => {
-  if (!formData.fullName || !formData.phone || !formData.address || !formData.appointmentDate || !formData.timeSlot ) {
-    alert('Vui lòng nhập đầy đủ thông tin');
-    return;
-  }
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
+  const [availableDoctors, setAvailableDoctors] = useState<AvailableDoctor[]>(
+    []
+  );
 
-  navigate('/checkout/paymentConfirm', {
-    state: {
-      userInfo: formData,
-      amount: calculateFinalPrice(service?.price || 0, service?.salePrice || 0),
-      transferContent: 'PHUONGDONG10115',
-      serviceName: service?.name,
-      qrImageUrl: 'data:image/png;base64,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' 
+  const [formData, setFormData] = useState({
+    userName: "",
+    phone: "",
+    email: "",
+    address: "",
+    appointmentDate: "",
+    timeSlot: "",
+    doctorId: "",
+    appointmentNote: "",
+    gender: "Male" as "Male" | "Female",
+    paymentMethod: "Cash",
+  });
+
+  const timeSlots = [
+    "07:00",
+    "08:00",
+    "09:00",
+    "10:00",
+    "11:00",
+    "13:00",
+    "14:00",
+    "15:00",
+    "16:00",
+    "17:00",
+  ];
+
+  useEffect(() => {
+    const fetchService = async () => {
+      try {
+        console.log("🟢 ID lấy từ useParams:", serviceId);
+        const res = await fetch(
+          `https://mirava-f0rz.onrender.com/api/service/${serviceId}`
+        );
+        const data = await res.json();
+        console.log("📦 Dữ liệu API trả về:", data);
+        setService(data);
+      } catch (error) {
+        console.error("Lỗi khi tải dịch vụ:", error);
+        toast.error("Không thể tải thông tin dịch vụ");
+      }
+    };
+
+    if (serviceId) fetchService();
+  }, [serviceId]);
+
+  // Hàm kiểm tra bác sĩ có rảnh trong khung giờ cụ thể không
+  const checkDoctorAvailability = (
+    doctor: Doctor,
+    date: string,
+    time: string
+  ): boolean => {
+    console.log("🔍 Checking doctor availability:", {
+      doctorName: doctor.user.userName,
+      workSchedule: doctor.workSchedule,
+      status: doctor.status,
+      date,
+      time,
+    });
+
+    if (!doctor.workSchedule || doctor.workSchedule.length === 0) {
+      console.log("❌ Doctor has no work schedule");
+      return false;
     }
-  });
-  };
-    useEffect(() => {
-  const fetchService = async () => {
-    console.log("🟢 ID lấy từ useParams:", serviceId);
-    const res = await fetch(`https://mirava-f0rz.onrender.com/api/service/${serviceId}`);
-    const data = await res.json();
-    console.log("📦 Dữ liệu API trả về:", data);
-    setService(data);
+
+    // SỬA LẠI: Chỉ loại trừ những bác sĩ có status là "inactive" hoặc "blocked"
+    if (doctor.status === "inactive" || doctor.status === "blocked") {
+      console.log("❌ Doctor not available, status:", doctor.status);
+      return false;
+    }
+
+    // Phần còn lại giữ nguyên...
+    const appointmentDate = new Date(date);
+    const dayOfWeek = appointmentDate.getDay();
+
+    const dayNames = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const dayName = dayNames[dayOfWeek];
+
+    console.log("📅 Day info:", {
+      dayOfWeek,
+      dayName,
+      appointmentDate: appointmentDate.toISOString(),
+    });
+
+    const workingDay = doctor.workSchedule.find((schedule) => {
+      console.log("🔍 Checking schedule:", schedule);
+      const lowerSchedule = schedule.toLowerCase();
+      const lowerDayName = dayName.toLowerCase();
+      const includes = lowerSchedule.includes(lowerDayName);
+      console.log(
+        `🔍 Does "${lowerSchedule}" include "${lowerDayName}"?`,
+        includes
+      );
+      return includes;
+    });
+
+    console.log("🗓️ Working day found:", workingDay);
+
+    if (!workingDay) {
+      console.log("❌ Doctor doesn't work on this day");
+      return false;
+    }
+
+    const timeMatch = workingDay.match(/(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})/);
+    if (!timeMatch) {
+      console.log("❌ Time format not matched, workingDay:", workingDay);
+      return false;
+    }
+
+    const startHour = parseInt(timeMatch[1]);
+    const startMinute = parseInt(timeMatch[2]);
+    const endHour = parseInt(timeMatch[3]);
+    const endMinute = parseInt(timeMatch[4]);
+
+    const [appointmentHour, appointmentMinute] = time.split(":").map(Number);
+
+    const startTime = startHour * 60 + startMinute;
+    const endTime = endHour * 60 + endMinute;
+    const appointmentTime = appointmentHour * 60 + appointmentMinute;
+
+    const isInRange = appointmentTime >= startTime && appointmentTime < endTime;
+
+    console.log("⏰ Time comparison:", {
+      workingHours: `${startHour}:${startMinute
+        .toString()
+        .padStart(2, "0")}-${endHour}:${endMinute.toString().padStart(2, "0")}`,
+      appointmentTimeFormatted: `${appointmentHour}:${appointmentMinute
+        .toString()
+        .padStart(2, "0")}`,
+      startTime,
+      endTime,
+      appointmentTime,
+      isInRange,
+    });
+
+    return isInRange;
   };
 
-  if (serviceId) fetchService();
-}, [serviceId]);
+  // Hàm tìm bác sĩ có sẵn khi thay đổi ngày/giờ
+  const findAvailableDoctors = async (date: string, time: string) => {
+    console.log("🔍 Finding available doctors for:", { date, time });
+
+    if (!date || !time || !service?.doctor) {
+      console.log("❌ Missing required data:", {
+        date,
+        time,
+        doctorsCount: service?.doctor?.length,
+      });
+      return;
+    }
+
+    console.log("👨‍⚕️ Total doctors in service:", service.doctor.length);
+    console.log(
+      "👨‍⚕️ All doctors:",
+      service.doctor.map((d) => ({
+        name: d.user.userName,
+        workSchedule: d.workSchedule,
+        status: d.status,
+      }))
+    );
+
+    setLoadingDoctors(true);
+    try {
+      // Thay đổi URL API từ appointment sang treatment-registration
+      const apiUrl = `https://mirava-f0rz.onrender.com/api/treatment-registration/check-availability?date=${date}&time=${time}`;
+      console.log("🌐 API call:", apiUrl);
+
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      let bookedDoctors: string[] = [];
+      if (response.ok) {
+        const bookingData = await response.json();
+        bookedDoctors = bookingData.bookedDoctors || [];
+        console.log("📅 Booked doctors from API:", bookedDoctors);
+      } else {
+        console.log(
+          "⚠️ API response not ok:",
+          response.status,
+          response.statusText
+        );
+        // Không có API endpoint hoặc lỗi - tiếp tục với danh sách trống
+      }
+
+      // Lọc bác sĩ có sẵn
+      const available = service.doctor
+        .map((doctor) => {
+          const isWorkingTime = checkDoctorAvailability(doctor, date, time);
+          const isBooked = bookedDoctors.includes(doctor._id);
+
+          console.log(`👨‍⚕️ Doctor ${doctor.user.userName}:`, {
+            isWorkingTime,
+            isBooked,
+            isAvailable: isWorkingTime && !isBooked,
+          });
+
+          return {
+            _id: doctor._id,
+            name: doctor.user.userName,
+            specialty: doctor.specialty,
+            isAvailable: isWorkingTime && !isBooked,
+            timeSlots: isWorkingTime ? [time] : [],
+          };
+        })
+        .filter((doctor) => doctor.isAvailable);
+
+      console.log("✅ Available doctors:", available);
+      setAvailableDoctors(available);
+
+      // Reset doctor selection nếu bác sĩ đã chọn không còn available
+      if (
+        formData.doctorId &&
+        !available.find((d) => d._id === formData.doctorId)
+      ) {
+        setFormData((prev) => ({ ...prev, doctorId: "" }));
+      }
+    } catch (error) {
+      console.error("❌ Error checking doctor availability:", error);
+      toast.error("Không thể kiểm tra lịch bác sĩ");
+    } finally {
+      setLoadingDoctors(false);
+    }
+  };
+
+  // Xử lý khi thay đổi ngày
+  const handleDateChange = (date: string) => {
+    setFormData((prev) => ({ ...prev, appointmentDate: date, doctorId: "" }));
+    if (date && formData.timeSlot) {
+      findAvailableDoctors(date, formData.timeSlot);
+    } else {
+      setAvailableDoctors([]);
+    }
+  };
+
+  // Xử lý khi thay đổi giờ
+  const handleTimeSlotChange = (time: string) => {
+    setFormData((prev) => ({ ...prev, timeSlot: time, doctorId: "" }));
+    if (formData.appointmentDate && time) {
+      findAvailableDoctors(formData.appointmentDate, time);
+    } else {
+      setAvailableDoctors([]);
+    }
+  };
 
   const formatPrice = (price: number) =>
-    new Intl.NumberFormat('vi-VN').format(price) + ' đ';
+    new Intl.NumberFormat("vi-VN").format(price) + " đ";
 
-  const calculateFinalPrice = (price: number, salePercent: number) =>
+  const calculateFinalPrice = (price: number, salePercent: number = 0) =>
     Math.round(price * (1 - salePercent / 100));
+
+  const handlePlaceOrder = async () => {
+    // Validate form
+    if (
+      !formData.userName ||
+      !formData.phone ||
+      !formData.address ||
+      !formData.email
+    ) {
+      toast.error("Vui lòng nhập đầy đủ thông tin bắt buộc!");
+      return;
+    }
+
+    // Validate appointment info if doctor is selected
+    if (
+      formData.doctorId &&
+      (!formData.appointmentDate || !formData.timeSlot)
+    ) {
+      toast.error("Vui lòng chọn đầy đủ ngày giờ khám khi chọn bác sĩ!");
+      return;
+    }
+
+    if (!service) {
+      toast.error("Không tìm thấy thông tin dịch vụ!");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Prepare order data
+      const orderData = {
+        items: [
+          {
+            service: service._id,
+            quantity: 1,
+          },
+        ],
+        paymentMethod: formData.paymentMethod,
+        note: formData.appointmentNote || `Đặt dịch vụ: ${service.name}`,
+        // User info
+        userName: formData.userName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        gender: formData.gender,
+        // Appointment info (if doctor selected)
+        ...(formData.doctorId && {
+          doctorId: formData.doctorId,
+          appointmentDate: new Date(
+            `${formData.appointmentDate}T${formData.timeSlot}:00.000Z`
+          ).toISOString(),
+          appointmentNote: formData.appointmentNote,
+        }),
+      };
+
+      console.log("📦 Dữ liệu gửi đi:", orderData);
+
+      const response = await fetch(
+        "https://mirava-f0rz.onrender.com/api/treatment-registration/",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(orderData),
+        }
+      );
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success("Đặt hàng thành công!");
+        console.log("✅ Kết quả:", result);
+
+        // Navigate to success page or show order details
+        navigate("/payment-confirmation", {
+          state: {
+            orderData: result.data,
+            userInfo: formData,
+            service: service,
+          },
+        });
+      } else {
+        throw new Error(result.message || "Đặt hàng thất bại");
+      }
+    } catch (error: any) {
+      console.error("❌ Lỗi đặt hàng:", error);
+      toast.error(
+        error.message || "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!service) {
+    return (
+      <div>
+        <Header />
+        <div className="loading-container">
+          <p>Đang tải thông tin dịch vụ...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div>
       <Header />
       <div className="checkout-container">
-        <form className="checkout-form">
+        <form className="checkout-form" onSubmit={(e) => e.preventDefault()}>
           <h2>Thông tin thanh toán</h2>
 
-          <label className="label">Họ và Tên <span className="required">*</span></label>
-<input type="text" required onChange={(e) => setFormData({ ...formData, fullName: e.target.value })} />
+          <label className="label">
+            Họ và Tên <span className="required">*</span>
+          </label>
+          <input
+            type="text"
+            required
+            value={formData.userName}
+            onChange={(e) =>
+              setFormData({ ...formData, userName: e.target.value })
+            }
+          />
 
-          <label className="label">Số Điện Thoại <span className="required">*</span></label>
-<input type="tel" required onChange={(e) => setFormData({ ...formData, phone: e.target.value })} />
+          <label className="label">
+            Số Điện Thoại <span className="required">*</span>
+          </label>
+          <input
+            type="tel"
+            required
+            value={formData.phone}
+            onChange={(e) =>
+              setFormData({ ...formData, phone: e.target.value })
+            }
+          />
 
-          <label className="label">Email <span className="required">*</span></label>
-<input type="email" onChange={(e) => setFormData({ ...formData, email: e.target.value })} />
+          <label className="label">
+            Email <span className="required">*</span>
+          </label>
+          <input
+            type="email"
+            required
+            value={formData.email}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
+          />
 
-          <label className="label">Địa Chỉ <span className="required">*</span></label>
-<input type="text" required onChange={(e) => setFormData({ ...formData, address: e.target.value })} />
+          <label className="label">
+            Địa Chỉ <span className="required">*</span>
+          </label>
+          <input
+            type="text"
+            required
+            value={formData.address}
+            onChange={(e) =>
+              setFormData({ ...formData, address: e.target.value })
+            }
+          />
+
+          <label className="label">Giới tính</label>
+          <select
+            value={formData.gender}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                gender: e.target.value as "Male" | "Female",
+              })
+            }
+          >
+            <option value="Male">Nam</option>
+            <option value="Female">Nữ</option>
+          </select>
 
           <div className="appointment-section">
-            <label className="label">Ngày khám <span className="required">*</span></label>
-<input type="date" className="date-picker" required onChange={(e) => setFormData({ ...formData, appointmentDate: e.target.value })} />
+            <h3>Thông tin đặt lịch (Tùy chọn)</h3>
 
-            <p className="label">Chọn khung giờ:</p>
+            <label className="label">Ngày khám</label>
+            <input
+              type="date"
+              className="date-picker"
+              min={new Date().toISOString().split("T")[0]}
+              value={formData.appointmentDate}
+              onChange={(e) => handleDateChange(e.target.value)}
+            />
+
+            <label className="label">Chọn khung giờ:</label>
             <div className="time-slots">
-  {['07:00', '09:00', '11:00', '13:00', '15:00', '17:00'].map((time, idx) => (
-    <button
-      key={idx}
-      type="button"
-      className={`time-slot ${selectedTime === time ? 'active' : ''}`}
-      onClick={() => {
-        setSelectedTime(time);
-        setFormData({ ...formData, timeSlot: time });
-      }}
-    >
-      {time}
-    </button>
-  ))}
-</div>
+              {timeSlots.map((time) => (
+                <button
+                  key={time}
+                  type="button"
+                  className={`time-slot ${
+                    formData.timeSlot === time ? "active" : ""
+                  }`}
+                  onClick={() => handleTimeSlotChange(time)}
+                >
+                  {time}
+                </button>
+              ))}
+            </div>
+
+            {/* Hiển thị bác sĩ có sẵn */}
+            {formData.appointmentDate && formData.timeSlot && (
+              <div className="available-doctors">
+                <label className="label">
+                  Bác sĩ có sẵn vào {formData.appointmentDate} lúc{" "}
+                  {formData.timeSlot}:
+                </label>
+
+                {loadingDoctors ? (
+                  <div className="loading-doctors">
+                    <p>Đang kiểm tra lịch bác sĩ...</p>
+                  </div>
+                ) : availableDoctors.length > 0 ? (
+                  <div className="doctor-list">
+                    <div className="doctor-option">
+                      <input
+                        type="radio"
+                        id="no-doctor"
+                        name="doctor"
+                        value=""
+                        checked={formData.doctorId === ""}
+                        onChange={() =>
+                          setFormData((prev) => ({ ...prev, doctorId: "" }))
+                        }
+                      />
+                      <label htmlFor="no-doctor">
+                        Không chọn bác sĩ cụ thể
+                      </label>
+                    </div>
+                    {availableDoctors.map((doctor) => (
+                      <div key={doctor._id} className="doctor-option">
+                        <input
+                          type="radio"
+                          id={doctor._id}
+                          name="doctor"
+                          value={doctor._id}
+                          checked={formData.doctorId === doctor._id}
+                          onChange={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              doctorId: doctor._id,
+                            }))
+                          }
+                        />
+                        <label htmlFor={doctor._id}>
+                          <strong>{doctor.name}</strong> - {doctor.specialty}
+                          <span className="availability-badge">
+                            Có thể đặt lịch
+                          </span>
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="no-doctors">
+                    <p>Không có bác sĩ nào rảnh vào thời gian này.</p>
+                    <p>
+                      Vui lòng chọn thời gian khác hoặc để trống để chúng tôi
+                      sắp xếp.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
-          <label className="label">Chọn Bác sĩ</label>
-          <select required>
-            <option value="">Chọn bác sĩ điều trị</option>
-            {service?.doctor?.map((doc, idx) => (
-              <option key={idx} value={doc.user.userName}>
-                {doc.user.userName}
-              </option>
-            ))}
+          <label className="label">Phương thức thanh toán</label>
+          <select
+            value={formData.paymentMethod}
+            onChange={(e) =>
+              setFormData({ ...formData, paymentMethod: e.target.value })
+            }
+          >
+            <option value="Cash">Tiền mặt</option>
+            <option value="Credit Card">Thẻ tín dụng</option>
+            <option value="Bank Transfer">Chuyển khoản</option>
+            <option value="Online">Thanh toán online</option>
           </select>
 
           <h2>Ghi Chú</h2>
-<textarea onChange={(e) => setFormData({ ...formData, notes: e.target.value })} />
+          <textarea
+            value={formData.appointmentNote}
+            onChange={(e) =>
+              setFormData({ ...formData, appointmentNote: e.target.value })
+            }
+            placeholder="Nhập ghi chú nếu có..."
+          />
         </form>
 
         <div className="order-summary">
@@ -132,34 +605,34 @@ const handlePlaceOrder = () => {
               <span>Tạm tính</span>
             </div>
 
-            {service ? (
-              <div className="summary-product">
-                <p>{service.name} × 1</p>
-                {service.shortDescription?.map((d, i) => (
-                  <small key={i}>{d}</small>
-                ))}
-                <span className="price">
-                  {formatPrice(calculateFinalPrice(service.price, service.salePrice))}
-                </span>
-              </div>
-            ) : ( 
-              <p>Đang tải dữ liệu đơn hàng...</p>
-            )}
+            <div className="summary-product">
+              <p>{service.name} × 1</p>
+              {service.shortDescription?.map((d, i) => (
+                <small key={i}>{d}</small>
+              ))}
+              <span className="price">
+                {formatPrice(
+                  calculateFinalPrice(service.price, service.salePrice)
+                )}
+              </span>
+            </div>
 
-            {service && (
-              <>
-                <div className="summary-item">
-                  <strong>Tạm tính</strong>
-                  <span>{formatPrice(calculateFinalPrice(service.price, service.salePrice))}</span>
-                </div>
-                <div className="summary-item">
-                  <strong>Tổng</strong>
-                  <span className="total">
-                    {formatPrice(calculateFinalPrice(service.price, service.salePrice))}
-                  </span>
-                </div>
-              </>
-            )}
+            <div className="summary-item">
+              <strong>Tạm tính</strong>
+              <span>
+                {formatPrice(
+                  calculateFinalPrice(service.price, service.salePrice)
+                )}
+              </span>
+            </div>
+            <div className="summary-item">
+              <strong>Tổng</strong>
+              <span className="total">
+                {formatPrice(
+                  calculateFinalPrice(service.price, service.salePrice)
+                )}
+              </span>
+            </div>
           </div>
 
           <div className="payment-info">
@@ -167,16 +640,25 @@ const handlePlaceOrder = () => {
               <strong>Chuyển khoản ngân hàng (Quét mã QR)</strong> VietinBank
             </p>
             <p className="note">
-              Chuyển khoản vào tài khoản Vietinbank của chúng tôi. Đơn hàng sẽ được xác nhận ngay sau khi chuyển khoản.
+              Chuyển khoản vào tài khoản Vietinbank của chúng tôi. Đơn hàng sẽ
+              được xác nhận ngay sau khi chuyển khoản.
             </p>
           </div>
 
           <div className="order-submit">
             <label className="checkbox">
               <input type="checkbox" required />
-              <strong>Tôi đã đọc và đồng ý với điều khoản và điều kiện của website *</strong>
+              <strong>
+                Tôi đã đọc và đồng ý với điều khoản và điều kiện của website *
+              </strong>
             </label>
-            <button className="place-order-button" onClick={handlePlaceOrder}>ĐẶT HÀNG</button>
+            <button
+              className="place-order-button"
+              onClick={handlePlaceOrder}
+              disabled={loading}
+            >
+              {loading ? "Đang xử lý..." : "ĐẶT HÀNG"}
+            </button>
           </div>
         </div>
       </div>

@@ -28,6 +28,7 @@ const Header: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
+  
   // const user = decodeToken(token ?? "");
   // Handle scroll effect to change header appearance on scroll
   useEffect(() => {
