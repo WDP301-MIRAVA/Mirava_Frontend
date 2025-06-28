@@ -6,14 +6,20 @@
 }
 
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: 100%;
+  width: 100%;
+  padding: 0 16px; /* Giảm padding ngang nếu cần */
+  box-sizing: border-box;
 }
 
 /* Header Styles */
 .header {
-  margin-bottom: 32px;
-  text-align: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 .header-title {
@@ -21,6 +27,11 @@
   font-weight: 700;
   color: #1f2937;
   margin-bottom: 8px;
+}
+.header-top {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: flex-start;
 }
 
 .header-subtitle {
@@ -48,6 +59,24 @@
 .step-count-number {
   font-weight: 600;
   color: #1f2937;
+}
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  color: black;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  text-decoration: none;
+  z-index: 10;
+  position: relative;
 }
 
 .add-visit-btn {
@@ -95,12 +124,13 @@
 
 /* Table Styles */
 .table-container {
-  overflow-x: auto;
+  width: 100%;
+  overflow-x: visible;
 }
 
 .treatment-table {
-  width: 100%;
-  border-collapse: collapse;
+  width: 100%; /* Đảm bảo bảng chiếm toàn bộ chiều rộng container */
+  table-layout: auto; /* Cho phép các cột tự điều chỉnh kích thước */
 }
 
 .table-header {
@@ -547,4 +577,31 @@
   .notes-cell {
     max-width: 150px;
   }
+}
+.patient-info {
+  margin: 1.5rem 0;
+  padding: 1rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  align-items: center;
+}
+
+.patient-name {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.patient-code {
+  font-size: 1rem;
+  margin: 0;
+  color: black;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  display: inline-block;
+  backdrop-filter: blur(5px);
 }

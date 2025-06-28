@@ -17,74 +17,64 @@ interface Patient {
   note?: string;
   doctor: string;
   startDate: string;
+  patientCode?: string;
+  treatmentEvents?: any[];
 }
+
+type ModalType = 'detail' | 'examination' | 'test_result' | 'injection_result' | null;
 
 const PatientList: React.FC = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = useState<Patient[]>([]);
+  const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [modalType, setModalType] = useState<ModalType>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const generatePatientCode = (patientId: string): string => {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    const lastFourDigits = patientId.slice(-4).padStart(4, "0");
+    return `PAT${year}${month}${day}${lastFourDigits}`;
+  };
 
   useEffect(() => {
     const fetchPatients = async () => {
       try {
-        const token = localStorage.getItem("accessToken"); // 👈 lấy token
+        const token = localStorage.getItem("accessToken");
+        if (!token) return;
 
-        if (!token) {
-          console.warn("Không tìm thấy accessToken trong localStorage");
-          return;
-        }
-
-        const res = await axios.get(
-          "https://mirava-f0rz.onrender.com/api/treatment-plan",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const res = await axios.get("https://mirava-f0rz.onrender.com/api/treatment-plan", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const data = res.data?.data;
-
         if (Array.isArray(data)) {
-          const transformedPatients: Patient[] = data.map((plan: unknown) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const planObj = plan as any; // Type assertion for data mapping
-            return {
-              id: planObj.patient._id,
-              name: planObj.patient.userName || "Không rõ",
-              email: planObj.patient.email || "",
-              phone: planObj.patient.phone || "",
-              location: planObj.patient.location || "Không rõ",
-              specialty: planObj.doctor?.specialty || "Không rõ",
-              gender: planObj.patient.gender || "Không rõ",
-              status: planObj.status,
-              appointmentDate: new Date(
-                planObj.cycleStartDate
-              ).toLocaleDateString("vi-VN", {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              }),
-              appointmentTime: planObj.hcgInjection?.time || "07:00",
-              note: planObj.notes || "",
-              doctor: planObj.doctor?.user?.userName || "Không rõ",
-              startDate: new Date(planObj.cycleStartDate).toLocaleDateString(
-                "vi-VN"
-              ),
-            };
-          });
-
+          const transformedPatients: Patient[] = data.map((plan: any) => ({
+            id: plan.patient._id,
+            name: plan.patient.userName || "Không rõ",
+            email: plan.patient.email || "",
+            phone: plan.patient.phone || "",
+            location: plan.patient.location || "Không rõ",
+            specialty: plan.doctor?.specialty || "Không rõ",
+            gender: plan.patient.gender || "Không rõ",
+            status: plan.status,
+            appointmentDate: new Date(plan.cycleStartDate).toLocaleDateString("vi-VN"),
+            appointmentTime: plan.hcgInjection?.time || "07:00",
+            note: plan.notes || "",
+            doctor: plan.doctor?.user?.userName || "Không rõ",
+            startDate: new Date(plan.cycleStartDate).toLocaleDateString("vi-VN"),
+            patientCode: generatePatientCode(plan.patient._id),
+            treatmentEvents: plan.treatmentEvents || [],
+          }));
           setPatients(transformedPatients);
         }
-      } catch (error: unknown) {
+      } catch (error) {
         console.error("Lỗi khi gọi API:", error);
-        if (error && typeof error === "object" && "response" in error) {
-          const axiosError = error as { response?: { status?: number } };
-          if (axiosError.response?.status === 401) {
-            alert("Bạn chưa đăng nhập hoặc token hết hạn.");
-          }
-        }
       } finally {
         setLoading(false);
       }
@@ -93,26 +83,88 @@ const PatientList: React.FC = () => {
     fetchPatients();
   }, []);
 
-  const handlePatientDetail = (patient: Patient) => {
-    // Lưu thông tin bệnh nhân vào localStorage để sử dụng trong trang IVFTreatmentTracker
-    localStorage.setItem("patientId", patient.id);
-    localStorage.setItem("patientInfo", JSON.stringify(patient));
+  useEffect(() => {
+    if (!searchTerm.trim()) setFilteredPatients(patients);
+    else {
+      const filtered = patients.filter((patient) =>
+        patient.patientCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        patient.email.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredPatients(filtered);
+    }
+  }, [searchTerm, patients]);
 
-    // Điều hướng đến trang IVFTreatmentTracker
-    navigate(`/doctor/patients/treatment/${patient.id}`);
+  const handleModalOpen = (patient: Patient, type: ModalType) => {
+    if (type === "detail") {
+      navigate("/doctor/patients/ivf-tracker", {
+        state: {
+          patientId: patient.id,
+          patientName: patient.name,
+          patientCode: patient.patientCode,
+          treatmentEvents: patient.treatmentEvents || [],
+        },
+      });
+      return;
+    }
+    localStorage.setItem("patientId", patient.id);
+    setSelectedPatient(patient);
+    setModalType(type);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    localStorage.removeItem("patientId");
+    setSelectedPatient(null);
+    setModalType(null);
+    setIsModalOpen(false);
+  };
+
+  const renderModalContent = () => {
+    if (!selectedPatient) return null;
+    switch (modalType) {
+      case "examination":
+        return <div>Kết quả khám</div>;
+      case "test_result":
+        return <div>Kết quả xét nghiệm</div>;
+      case "injection_result":
+        return <div>Kết quả tiêm thuốc</div>;
+      default:
+        return null;
+    }
+  };
+
+  const getModalTitle = () => {
+    switch (modalType) {
+      case "examination":
+        return "Kết quả khám";
+      case "test_result":
+        return "Kết quả xét nghiệm";
+      case "injection_result":
+        return "Kết quả tiêm thuốc";
+      default:
+        return "";
+    }
   };
 
   return (
     <div className="patient-list-container">
       <div className="patient-list-header">
-        <h2>Danh sách bệnh nhân ({patients.length})</h2>
+        <h2>Danh sách bệnh nhân ({filteredPatients.length})</h2>
+        <input
+          type="text"
+          placeholder="Tìm theo tên, mã bệnh nhân hoặc email..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+        />
       </div>
 
       {loading ? (
         <p>⏳ Đang tải danh sách...</p>
       ) : (
         <div className="patient-cards-grid">
-          {patients.map((patient) => (
+          {filteredPatients.map((patient) => (
             <div key={patient.id} className="patient-card">
               <div className="patient-header">
                 <div className="patient-info">
@@ -127,63 +179,49 @@ const PatientList: React.FC = () => {
                       : "ĐÃ HỦY"}
                   </span>
                 </div>
-                <div className="appointment-info">
-                  <div className="calendar-icon">📅</div>
-                  <div className="appointment-details">
-                    <div className="appointment-date">
-                      {patient.appointmentDate}
-                    </div>
-                    <div className="appointment-time">
-                      {patient.appointmentTime}
-                    </div>
-                  </div>
-                </div>
               </div>
 
               <div className="patient-contact">
-                <div className="contact-item">
-                  <span className="contact-icon">✉️</span>
-                  <span className="contact-text">{patient.email}</span>
-                </div>
-                <div className="contact-item">
-                  <span className="contact-icon">📞</span>
-                  <span className="contact-text">{patient.phone}</span>
-                </div>
-                <div className="contact-item">
-                  <span className="contact-icon">📍</span>
-                  <span className="contact-text">{patient.location}</span>
-                </div>
+                <div>📧 {patient.email}</div>
+                <div>📞 {patient.phone}</div>
+                <div>📍 {patient.location}</div>
               </div>
 
               <div className="patient-details">
-                <div className="detail-row">
-                  <span className="detail-label">Chuyên khoa:</span>
-                  <span className="detail-value">{patient.specialty}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="detail-label">Giới tính:</span>
-                  <span className="detail-value">{patient.gender}</span>
-                </div>
+                <div><b>Chuyên khoa:</b> {patient.specialty}</div>
+                <div><b>Giới tính:</b> {patient.gender}</div>
+                <div><b>Mã BN:</b> {patient.patientCode}</div>
               </div>
 
-              {patient.note && (
-                <div className="patient-note">
-                  <div className="note-icon">📝</div>
-                  <div className="note-content">
-                    <span className="note-label">Ghi chú:</span>
-                    <span className="note-text">{patient.note}</span>
-                  </div>
-                </div>
-              )}
-
-              <button
-                className="detail-button"
-                onClick={() => handlePatientDetail(patient)}
-              >
-                👁️ Chi tiết bệnh nhân
-              </button>
+              <div className="pl-action-buttons">
+                <button onClick={() => handleModalOpen(patient, "detail")}>
+                  📋 Kế hoạch điều trị
+                </button>
+                <button onClick={() => handleModalOpen(patient, "examination")}>
+                  👨‍⚕️ Tiền sử
+                </button>
+                <button onClick={() => handleModalOpen(patient, "test_result")}>
+                  🧪 Xét nghiệm
+                </button>
+                <button onClick={() => handleModalOpen(patient, "injection_result")}>
+                  💉 Tiêm thuốc
+                </button>
+              </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal hiển thị nội dung */}
+      {isModalOpen && (
+        <div className="pl-modal-overlay" onClick={closeModal}>
+          <div className="pl-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="pl-modal-header">
+              <h2>{getModalTitle()}</h2>
+              <button onClick={closeModal}>✖</button>
+            </div>
+            <div className="pl-modal-body">{renderModalContent()}</div>
+          </div>
         </div>
       )}
     </div>
