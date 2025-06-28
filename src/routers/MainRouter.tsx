@@ -32,6 +32,8 @@ import MedicalRecordManagement from "@/pages/Doctor/MedicalRecordManagement/Medi
 import DoctorScheduleManagement from "@/pages/Manager/DoctorScheduleManagement/DoctorScheduleManagement";
 import ManagerDashboard from "@/pages/Manager/ManagerDashboard/ManagerDashboard";
 import PaymentConfirmation from "@/pages/IVFIUIService/PaymentConfirmation";
+import MedicalHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
+import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 
 const MainRouter = () => {
   return (
@@ -75,6 +77,8 @@ const MainRouter = () => {
               <Route path="/profile" element={<PersonalInfoPage />} />
               {/* Thêm các route khác cho customer ở đây */}
               <Route path="/treatmentplan" element={<TreatmentPlan />} />
+              <Route path="/medical-history" element={<MedicalHistory />} />
+              <Route path="/schedule" element={<TreatmentSchedule />} />
             </Routes>
           </PrivateRoute>
         }
