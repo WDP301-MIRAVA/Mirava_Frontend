@@ -21,7 +21,7 @@ interface Patient {
   treatmentEvents?: any[];
 }
 
-type ModalType = 'detail' | 'examination' | 'test_result' | 'injection_result' | null;
+type ModalType = "detail" | "examination" | "test_result" | "injection_result" | null;
 
 const PatientList: React.FC = () => {
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ const PatientList: React.FC = () => {
 
         const data = res.data?.data;
         if (Array.isArray(data)) {
-          const transformedPatients: Patient[] = data.map((plan: any) => ({
+          const transformed: Patient[] = data.map((plan: any) => ({
             id: plan.patient._id,
             name: plan.patient.userName || "Không rõ",
             email: plan.patient.email || "",
@@ -71,10 +71,10 @@ const PatientList: React.FC = () => {
             patientCode: generatePatientCode(plan.patient._id),
             treatmentEvents: plan.treatmentEvents || [],
           }));
-          setPatients(transformedPatients);
+          setPatients(transformed);
         }
-      } catch (error) {
-        console.error("Lỗi khi gọi API:", error);
+      } catch (err) {
+        console.error("Lỗi khi fetch:", err);
       } finally {
         setLoading(false);
       }
@@ -86,10 +86,10 @@ const PatientList: React.FC = () => {
   useEffect(() => {
     if (!searchTerm.trim()) setFilteredPatients(patients);
     else {
-      const filtered = patients.filter((patient) =>
-        patient.patientCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        patient.email.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = patients.filter((p) =>
+        p.patientCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.email.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredPatients(filtered);
     }
@@ -121,7 +121,6 @@ const PatientList: React.FC = () => {
   };
 
   const renderModalContent = () => {
-    if (!selectedPatient) return null;
     switch (modalType) {
       case "examination":
         return <div>Kết quả khám</div>;
@@ -148,28 +147,33 @@ const PatientList: React.FC = () => {
   };
 
   return (
-    <div className="patient-list-container">
-      <div className="patient-list-header">
+    <div className="pl-container">
+      <div className="pl-header">
         <h2>Danh sách bệnh nhân ({filteredPatients.length})</h2>
-        <input
-          type="text"
-          placeholder="Tìm theo tên, mã bệnh nhân hoặc email..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
+        <div className="pl-search-container">
+          <div className="pl-search-input-wrapper">
+            <input
+              type="text"
+              className="pl-search-input"
+              placeholder="Tìm theo tên, mã bệnh nhân hoặc email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+        </div>
       </div>
 
       {loading ? (
         <p>⏳ Đang tải danh sách...</p>
       ) : (
-        <div className="patient-cards-grid">
+        <div className="pl-cards-grid">
           {filteredPatients.map((patient) => (
-            <div key={patient.id} className="patient-card">
-              <div className="patient-header">
-                <div className="patient-info">
-                  <h3 className="patient-name">{patient.name}</h3>
-                  <span className={`status-badge ${patient.status}`}>
+            <div key={patient.id} className="pl-card">
+              <div className="pl-card-header">
+                <div className="pl-patient-info">
+                  <span className="pl-patient-code">{patient.patientCode}</span>
+                  <h3 className="pl-patient-name">{patient.name}</h3>
+                  <span className={`pl-status-badge pl-${patient.status}`}>
                     {patient.status === "planned"
                       ? "ĐÃ LÊN KẾ HOẠCH"
                       : patient.status === "in_progress"
@@ -181,29 +185,43 @@ const PatientList: React.FC = () => {
                 </div>
               </div>
 
-              <div className="patient-contact">
-                <div>📧 {patient.email}</div>
-                <div>📞 {patient.phone}</div>
-                <div>📍 {patient.location}</div>
+              <div className="pl-patient-contact">
+                <div className="pl-contact-item">
+                  <span className="pl-contact-icon">📧</span>
+                  <span className="pl-contact-text">{patient.email}</span>
+                </div>
+                <div className="pl-contact-item">
+                  <span className="pl-contact-icon">📞</span>
+                  <span className="pl-contact-text">{patient.phone}</span>
+                </div>
+                <div className="pl-contact-item">
+                  <span className="pl-contact-icon">📍</span>
+                  <span className="pl-contact-text">{patient.location}</span>
+                </div>
               </div>
 
-              <div className="patient-details">
-                <div><b>Chuyên khoa:</b> {patient.specialty}</div>
-                <div><b>Giới tính:</b> {patient.gender}</div>
-                <div><b>Mã BN:</b> {patient.patientCode}</div>
+              <div className="pl-patient-details">
+                <div className="pl-detail-row">
+                  <span className="pl-detail-label">Chuyên khoa:</span>
+                  <span className="pl-detail-value">{patient.specialty}</span>
+                </div>
+                <div className="pl-detail-row">
+                  <span className="pl-detail-label">Giới tính:</span>
+                  <span className="pl-detail-value">{patient.gender}</span>
+                </div>
               </div>
 
               <div className="pl-action-buttons">
-                <button onClick={() => handleModalOpen(patient, "detail")}>
+                <button className="pl-action-button pl-detail-btn" onClick={() => handleModalOpen(patient, "detail")}>
                   📋 Kế hoạch điều trị
                 </button>
-                <button onClick={() => handleModalOpen(patient, "examination")}>
+                <button className="pl-action-button pl-examination-btn" onClick={() => handleModalOpen(patient, "examination")}>
                   👨‍⚕️ Tiền sử
                 </button>
-                <button onClick={() => handleModalOpen(patient, "test_result")}>
+                <button className="pl-action-button pl-test-btn" onClick={() => handleModalOpen(patient, "test_result")}>
                   🧪 Xét nghiệm
                 </button>
-                <button onClick={() => handleModalOpen(patient, "injection_result")}>
+                <button className="pl-action-button pl-injection-btn" onClick={() => handleModalOpen(patient, "injection_result")}>
                   💉 Tiêm thuốc
                 </button>
               </div>
@@ -212,13 +230,12 @@ const PatientList: React.FC = () => {
         </div>
       )}
 
-      {/* Modal hiển thị nội dung */}
       {isModalOpen && (
         <div className="pl-modal-overlay" onClick={closeModal}>
           <div className="pl-modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="pl-modal-header">
               <h2>{getModalTitle()}</h2>
-              <button onClick={closeModal}>✖</button>
+              <button className="pl-close-button" onClick={closeModal}>✖</button>
             </div>
             <div className="pl-modal-body">{renderModalContent()}</div>
           </div>
