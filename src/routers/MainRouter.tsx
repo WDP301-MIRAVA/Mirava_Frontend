@@ -31,6 +31,11 @@ import DetailServices from "@/pages/IVFIUIService/DetailServices";
 import MedicalRecordManagement from "@/pages/Doctor/MedicalRecordManagement/MedicalRecordManagement";
 import DoctorScheduleManagement from "@/pages/Manager/DoctorScheduleManagement/DoctorScheduleManagement";
 import ManagerDashboard from "@/pages/Manager/ManagerDashboard/ManagerDashboard";
+
+import PaymentConfirmation from "@/pages/IVFIUIService/PaymentConfirmation";
+import MedicalHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
+import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
+
 const MainRouter = () => {
   return (
     <Routes>
@@ -51,10 +56,16 @@ const MainRouter = () => {
       <Route path="/detail-services/:id" element={<DetailServices />} />
       <Route path="/checkout/:serviceId" element={<CheckoutPage />} />
 
-
-      <Route path="/doctor-schedule-management" element={<DoctorScheduleManagement />} />
+      <Route
+        path="/doctor-schedule-management"
+        element={<DoctorScheduleManagement />}
+      />
       <Route path="/manager-dashboard" element={<ManagerDashboard />} />
 
+
+      <Route
+        path="/checkout/paymentConfirm"
+        element={<PaymentConfirmation />}
 
       {/* Customer Public Routes - Các route công khai dành cho customer */}
 
@@ -68,6 +79,8 @@ const MainRouter = () => {
               <Route path="/profile" element={<PersonalInfoPage />} />
               {/* Thêm các route khác cho customer ở đây */}
               <Route path="/treatmentplan" element={<TreatmentPlan />} />
+              <Route path="/medical-history" element={<MedicalHistory />} />
+              <Route path="/schedule" element={<TreatmentSchedule />} />
             </Routes>
           </PrivateRoute>
         }
@@ -83,7 +96,7 @@ const MainRouter = () => {
               <Route path="/profile" element={<PersonalInfoPage />} />
               <Route path="/usermanagement" element={<UserManagement />} />
               <Route path="/doctors" element={<DoctorManagement />} />
-              
+
               {/* <Route path="users" element={<ManageUsers />} /> */}
               {/* <Route path="doctors" element={<ManageDoctors />} /> */}
               {/* Thêm các route khác cho admin ở đây */}
@@ -103,9 +116,14 @@ const MainRouter = () => {
               <Route path="/schedules/:id?" element={<Schedules />} />
               <Route path="/patients" element={<PatientList />} />
               <Route path="/patients/:id" element={<PatientList />} />
+
               <Route path='/patients/ivf-tracker' element={<IVFTreatmentTracker />} />
+
               <Route path="/appointments" element={<ViewAppointment />} />
-              <Route path="/medicalrecord" element={<MedicalRecordManagement />} />
+              <Route
+                path="/medicalrecord"
+                element={<MedicalRecordManagement />}
+              />
               {/* Thêm các route khác cho doctor ở đây */}
             </Routes>
           </PrivateRoute>
