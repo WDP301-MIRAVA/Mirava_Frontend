@@ -1,8 +1,9 @@
+// IVFTreatmentTracker.tsx
 import React, { useState, useEffect } from 'react';
-import { Calendar, User, FileText, Edit3, Check, Clock, Plus } from 'lucide-react';
+import { Calendar, User, FileText, Edit3, Check, Clock, Plus, ArrowLeft } from 'lucide-react';
 import './IVFTreatmentTracker.css';
+import { useLocation, useNavigate } from 'react-router-dom';
 
-// Types
 interface TreatmentStep {
   id: string;
   name: string;
@@ -12,6 +13,7 @@ interface TreatmentStep {
   performedBy?: string;
   status: 'pending' | 'completed' | 'in-progress';
   category: string;
+  stage?: string;
 }
 
 interface FormData {
@@ -22,101 +24,16 @@ interface FormData {
 }
 
 const IVFTreatmentTracker: React.FC = () => {
-  const [treatmentSteps, setTreatmentSteps] = useState<TreatmentStep[]>([
-    {
-      id: '1',
-      name: 'Khám tư vấn ban đầu',
-      category: 'Tư vấn',
-      status: 'completed',
-      date: '2025-05-15',
-      doctorNote: 'Tư vấn phác đồ điều trị, hướng dẫn sử dụng thuốc kích trứng',
-      specialMetrics: { 'Lần khám': 'Ban đầu', 'Phác đồ': 'IVF Protocol 1' },
-      performedBy: 'BS. Chuyên khoa HSTSS'
-    },
-    {
-      id: '2',
-      name: 'Khám theo dõi ngày 1 chu kỳ',
-      category: 'Tư vấn',
-      status: 'completed',
-      date: '2025-05-20',
-      doctorNote: 'Bắt đầu chu kỳ kích trứng, siêu âm baseline',
-      specialMetrics: { 'Ngày chu kỳ': 1, 'Nang cơ bản': '2-3mm', 'Liều thuốc': 'Gonal-F 225IU' },
-      performedBy: 'BS. Chuyên khoa HSTSS'
-    },
-    {
-      id: '3',
-      name: 'Khám theo dõi ngày 5 chu kỳ',
-      category: 'Tư vấn',
-      status: 'completed',
-      date: '2025-05-24',
-      doctorNote: 'Theo dõi phản ứng kích trứng, điều chỉnh liều thuốc',
-      specialMetrics: { 'Ngày chu kỳ': 5, 'Nang lớn nhất': '8-10mm', 'Điều chỉnh liều': 'Giảm xuống 150IU' },
-      performedBy: 'BS. Chuyên khoa HSTSS'
-    },
-    {
-      id: '4',
-      name: 'Khám theo dõi ngày 8 chu kỳ',
-      category: 'Tư vấn',
-      status: 'completed',
-      date: '2025-05-27',
-      doctorNote: 'Nang phát triển tốt, chuẩn bị tiêm thuốc kích thích rụng trứng',
-      specialMetrics: { 'Ngày chu kỳ': 8, 'Nang lớn nhất': '14-16mm', 'Số nang >12mm': 8 },
-      performedBy: 'BS. Chuyên khoa HSTSS'
-    },
-    {
-      id: '5',
-      name: 'Khám theo dõi ngày 10 chu kỳ',
-      category: 'Tư vấn',
-      status: 'completed',
-      date: '2025-05-29',
-      doctorNote: 'Nang chín, lên lịch chọc hút noãn sau 36h tiêm HCG',
-      specialMetrics: { 'Ngày chu kỳ': 10, 'Nang lớn nhất': '18-20mm', 'HCG': 'Ovitrelle 250mcg' },
-      performedBy: 'BS. Chuyên khoa HSTSS'
-    },
-    {
-      id: '6',
-      name: 'Siêu âm noãn',
-      category: 'Kiểm tra',
-      status: 'completed',
-      date: '2025-06-05',
-      doctorNote: 'Nang trái 16mm, nang phải 14mm',
-      specialMetrics: { 'Nang trái (mm)': 16, 'Nang phải (mm)': 14 },
-      performedBy: 'BS. Nguyễn Văn A'
-    },
-    {
-      id: '7',
-      name: 'Chọc hút noãn',
-      category: 'Thủ thuật',
-      status: 'completed',
-      date: '2025-06-15',
-      doctorNote: 'Thu được 10 noãn chất lượng tốt',
-      specialMetrics: { 'Số noãn thu được': 10, 'Chất lượng': 'Tốt' },
-      performedBy: 'BS. Trần Thị B'
-    },
-    {
-      id: '8',
-      name: 'Thụ tinh IVF',
-      category: 'Lab',
-      status: 'in-progress',
-      date: '2025-06-16',
-      doctorNote: 'Đang tiến hành thụ tinh',
-      specialMetrics: { 'Tinh trùng sau lọc': '15M/ml' },
-      performedBy: 'KTV. Lab'
-    },
-    {
-      id: '9',
-      name: 'Nuôi cấy phôi',
-      category: 'Lab',
-      status: 'pending'
-    },
-    {
-      id: '10',
-      name: 'Chuyển phôi',
-      category: 'Thủ thuật',
-      status: 'pending'
-    }
-  ]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const patientInfo = location.state as {
+    patientId: string;
+    patientName: string;
+    patientCode: string;
+    treatmentEvents?: TreatmentStep[];
+  } | null;
 
+  const [treatmentSteps, setTreatmentSteps] = useState<TreatmentStep[]>([]);
   const [activeForm, setActiveForm] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     date: new Date().toISOString().split('T')[0],
@@ -124,17 +41,41 @@ const IVFTreatmentTracker: React.FC = () => {
     doctorNote: '',
     specialMetrics: {}
   });
-
   const [drafts, setDrafts] = useState<{ [key: string]: FormData }>({});
 
-  // Auto-save draft
+  useEffect(() => {
+    if (patientInfo?.treatmentEvents) {
+      console.log("📦 Nhận thông tin bệnh nhân:", patientInfo);
+      interface RawTreatmentEvent {
+        _id?: string;
+        title?: string;
+        scheduledDates?: string[];
+        description?: string;
+        status?: string;
+        type?: string;
+        stage?: string;
+      }
+
+      const mappedSteps: TreatmentStep[] = patientInfo.treatmentEvents.map((event: RawTreatmentEvent, index: number) => ({
+        id: event._id || `${index}`,
+        name: event.title || "Không rõ",
+        date: event.scheduledDates?.[0] || "",
+        doctorNote: event.description || "",
+        specialMetrics: {},
+        performedBy: "",
+        status: event.status === 'completed' ? 'completed' : event.status === 'in-progress' ? 'in-progress' : 'pending',
+        category: mapEventTypeToCategory(event.type || ""),
+        stage: event.stage || ""
+      }));
+      setTreatmentSteps(mappedSteps);
+      console.log("📦 Bước điều trị đã được ánh xạ:", mappedSteps);
+    }
+  }, [patientInfo]);
+
   useEffect(() => {
     if (activeForm) {
       const timer = setTimeout(() => {
-        setDrafts(prev => ({
-          ...prev,
-          [activeForm]: formData
-        }));
+        setDrafts(prev => ({ ...prev, [activeForm]: formData }));
       }, 1000);
       return () => clearTimeout(timer);
     }
@@ -143,6 +84,8 @@ const IVFTreatmentTracker: React.FC = () => {
   const openForm = (stepId: string) => {
     const step = treatmentSteps.find(s => s.id === stepId);
     if (step) {
+          console.log("📦 Mở form cho bước:", step);
+
       setFormData({
         date: step.date || new Date().toISOString().split('T')[0],
         performedBy: step.performedBy || '',
@@ -150,12 +93,9 @@ const IVFTreatmentTracker: React.FC = () => {
         specialMetrics: step.specialMetrics || {}
       });
     }
-    
-    // Load draft if exists
     if (drafts[stepId]) {
       setFormData(drafts[stepId]);
     }
-    
     setActiveForm(stepId);
   };
 
@@ -169,6 +109,21 @@ const IVFTreatmentTracker: React.FC = () => {
     });
   };
 
+  const saveStep = () => {
+    if (!activeForm) return;
+    setTreatmentSteps(prev => prev.map(step =>
+      step.id === activeForm
+        ? { ...step, ...formData, status: 'completed' as const }
+        : step
+    ));
+    setDrafts(prev => {
+      const newDrafts = { ...prev };
+      delete newDrafts[activeForm];
+      return newDrafts;
+    });
+    closeForm();
+  };
+
   const addNewVisit = () => {
     const newVisit: TreatmentStep = {
       id: Date.now().toString(),
@@ -176,119 +131,109 @@ const IVFTreatmentTracker: React.FC = () => {
       category: 'Tư vấn',
       status: 'pending'
     };
-    
     setTreatmentSteps(prev => {
-      // Find the last consultation visit index
       const lastConsultationIndex = prev.findIndex(step => !step.category.includes('Tư vấn'));
-      if (lastConsultationIndex === -1) {
-        // If no non-consultation steps, add at the end of consultations
-        return [...prev, newVisit];
-      } else {
-        // Insert before the first non-consultation step
-        const newSteps = [...prev];
-        newSteps.splice(lastConsultationIndex, 0, newVisit);
-        return newSteps;
-      }
+      if (lastConsultationIndex === -1) return [...prev, newVisit];
+      const newSteps = [...prev];
+      newSteps.splice(lastConsultationIndex, 0, newVisit);
+      return newSteps;
     });
-    
-    // Immediately open form for the new visit
     setTimeout(() => openForm(newVisit.id), 100);
   };
 
-  const saveStep = () => {
-    if (!activeForm) return;
-
-    setTreatmentSteps(prev => prev.map(step => 
-      step.id === activeForm 
-        ? {
-            ...step,
-            ...formData,
-            status: 'completed' as const
-          }
-        : step
-    ));
-
-    // Remove draft after saving
-    setDrafts(prev => {
-      const newDrafts = { ...prev };
-      delete newDrafts[activeForm];
-      return newDrafts;
-    });
-
-    closeForm();
+  const handleBackToPatientList = () => {
+    navigate('/doctor/patients');
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed':
-        return <Check className="status-icon completed" />;
-      case 'in-progress':
-        return <Clock className="status-icon in-progress" />;
-      default:
-        return <div className="status-icon pending" />;
+      case 'completed': return <Check className="status-icon completed" />;
+      case 'in-progress': return <Clock className="status-icon in-progress" />;
+      default: return <div className="status-icon pending" />;
     }
   };
 
+  const mapEventTypeToCategory = (type: string): string => {
+    switch (type) {
+      case 'Khám': return 'Tư vấn';
+      case 'Siêu âm': return 'Kiểm tra';
+      case 'Xét nghiệm': return 'Kiểm tra';
+      case 'Thủ thuật': return 'Thủ thuật';
+      case 'Lab': return 'Lab';
+      default: return 'Tư vấn';
+    }
+  };
   const getCategoryClass = (category: string) => {
-    switch (category) {
-      case 'Tư vấn':
-        return 'category-consultation';
-      case 'Kiểm tra':
-        return 'category-check';
-      case 'Thủ thuật':
-        return 'category-procedure';
-      case 'Lab':
-        return 'category-lab';
-      default:
-        return 'category-consultation';
+  switch (category) {
+    case 'Tư vấn':
+      return 'category-consultation';
+    case 'Kiểm tra':
+      return 'category-check';
+    case 'Thủ thuật':
+      return 'category-procedure';
+    case 'Lab':
+      return 'category-lab';
+    default:
+      return 'category-default';
+  } 
+};
+const getMetricFields = (stepName: string): string[] => {
+  switch (stepName) {
+    case 'Khám tư vấn ban đầu':
+      return ['Lần khám', 'Phác đồ', 'Cân nặng (kg)', 'Huyết áp'];
+    case 'Khám theo dõi ngày 1 chu kỳ':
+      return ['Ngày chu kỳ', 'Nang cơ bản', 'Liều thuốc', 'E2 (pg/ml)'];
+    case 'Khám theo dõi ngày 5 chu kỳ':
+      return ['Ngày chu kỳ', 'Nang lớn nhất', 'Điều chỉnh liều', 'E2 (pg/ml)'];
+    case 'Khám theo dõi ngày 8 chu kỳ':
+      return ['Ngày chu kỳ', 'Nang lớn nhất', 'Số nang >12mm', 'E2 (pg/ml)'];
+    case 'Khám theo dõi ngày 10 chu kỳ':
+      return ['Ngày chu kỳ', 'Nang lớn nhất', 'HCG', 'Lịch chọc hút'];
+    case 'Siêu âm noãn':
+      return ['Nang trái (mm)', 'Nang phải (mm)', 'Nội mạc tử cung (mm)'];
+    case 'Chọc hút noãn':
+      return ['Số noãn thu được', 'Chất lượng'];
+    case 'Thụ tinh IVF':
+      return ['Tinh trùng sau lọc', 'Tỷ lệ thụ tinh (%)'];
+    case 'Nuôi cấy phôi':
+      return ['Số phôi ngày 3', 'Số phôi ngày 5', 'Chất lượng phôi'];
+    case 'Chuyển phôi':
+      return ['Số phôi chuyển', 'Vị trí chuyển', 'Độ dày nội mạc (mm)'];
+      case 'Khám với bác sĩ hỗ trợ sinh sản': // 👈 thêm dòng này
+      return ['Lần khám', 'Phác đồ', 'Cân nặng (kg)', 'Huyết áp'];
+    default:
+      return [];
+  }
+};
+const updateSpecialMetric = (key: string, value: string) => {
+  setFormData(prev => ({
+    ...prev,
+    specialMetrics: {
+      ...prev.specialMetrics,
+      [key]: value
     }
-  };
-
-  const updateSpecialMetric = (key: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      specialMetrics: {
-        ...prev.specialMetrics,
-        [key]: value
-      }
-    }));
-  };
-
-  const getMetricFields = (stepName: string) => {
-    switch (stepName) {
-      case 'Khám tư vấn ban đầu':
-        return ['Lần khám', 'Phác đồ', 'Cân nặng (kg)', 'Huyết áp'];
-      case 'Khám theo dõi ngày 1 chu kỳ':
-        return ['Ngày chu kỳ', 'Nang cơ bản', 'Liều thuốc', 'E2 (pg/ml)'];
-      case 'Khám theo dõi ngày 5 chu kỳ':
-        return ['Ngày chu kỳ', 'Nang lớn nhất', 'Điều chỉnh liều', 'E2 (pg/ml)'];
-      case 'Khám theo dõi ngày 8 chu kỳ':
-        return ['Ngày chu kỳ', 'Nang lớn nhất', 'Số nang >12mm', 'E2 (pg/ml)'];
-      case 'Khám theo dõi ngày 10 chu kỳ':
-        return ['Ngày chu kỳ', 'Nang lớn nhất', 'HCG', 'Lịch chọc hút'];
-      case 'Siêu âm noãn':
-        return ['Nang trái (mm)', 'Nang phải (mm)', 'Nội mạc tử cung (mm)'];
-      case 'Chọc hút noãn':
-        return ['Số noãn thu được', 'Chất lượng'];
-      case 'Thụ tinh IVF':
-        return ['Tinh trùng sau lọc', 'Tỷ lệ thụ tinh (%)'];
-      case 'Nuôi cấy phôi':
-        return ['Số phôi ngày 3', 'Số phôi ngày 5', 'Chất lượng phôi'];
-      case 'Chuyển phôi':
-        return ['Số phôi chuyển', 'Vị trí chuyển', 'Độ dày nội mạc (mm)'];
-      default:
-        return [];
-    }
-  };
+  }));
+};
 
   return (
-    <div className="ivf-tracker">
+    <div className="ivf-tracker"> 
       <div className="container">
         {/* Header */}
         <div className="header">
-          <h1 className="header-title">
-            Hệ thống Quản lý Điều trị IVF
-          </h1>
+           <div className="header-top">
+            <button onClick={handleBackToPatientList} className="back-btn">
+              <ArrowLeft className="w-4 h-4" />
+              Quay lại danh sách bệnh nhân
+            </button>
+          </div>
+          
+          {patientInfo && (
+            <div className="patient-info">
+              <h2 className="patient-name">{patientInfo.patientName}</h2>
+              <p className="patient-code">Mã bệnh nhân: {patientInfo.patientCode}</p>
+            </div>
+          )}
+       
           <p className="header-subtitle">Theo dõi và ghi chép từng bước điều trị một cách chi tiết</p>
         </div>
 
@@ -318,6 +263,7 @@ const IVFTreatmentTracker: React.FC = () => {
                 <tr>
                   <th>Trạng thái</th>
                   <th>Bước điều trị</th>
+                  <th>Mô tả</th>
                   <th>Ngày thực hiện</th>
                   <th>Người thực hiện</th>
                   <th>Ghi chú</th>
@@ -329,6 +275,9 @@ const IVFTreatmentTracker: React.FC = () => {
                   <tr key={step.id} className={`table-row ${step.status}`}>
                     <td className="table-cell">
                       {getStatusIcon(step.status)}
+                    </td>
+                     <td className="table-cell">
+                          {step.stage}
                     </td>
                     <td className="table-cell" >
                       <div className="step-info">
@@ -407,7 +356,7 @@ const IVFTreatmentTracker: React.FC = () => {
                   />
                 </div>
 
-                {/* Performed By */}
+              
                 <div className="form-group">
                   <label className="form-label">
                     Người thực hiện

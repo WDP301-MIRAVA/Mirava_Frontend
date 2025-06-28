@@ -21,6 +21,7 @@ interface Patient {
   doctor: string;
   startDate: string;
   patientCode?: string;
+  treatmentEvents?: any[];
 }
 
 type ModalType = 'detail' | 'examination' | 'test_result' | 'injection_result' | null;
@@ -28,26 +29,19 @@ type ModalType = 'detail' | 'examination' | 'test_result' | 'injection_result' |
 const PatientList: React.FC = () => {
   const navigate = useNavigate();
   const [patients, setPatients] = useState<Patient[]>([]);
-<<<<<<< phuong
   const [filteredPatients, setFilteredPatients] = useState<Patient[]>([]);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   const [modalType, setModalType] = useState<ModalType>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-=======
->>>>>>> main
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Generate patient code function
   const generatePatientCode = (patientId: string): string => {
     const currentDate = new Date();
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const day = String(currentDate.getDate()).padStart(2, '0');
-    
-    // Tạo 4 số cuối từ patientId
     const lastFourDigits = patientId.slice(-4).padStart(4, '0');
-    
     return `PAT${year}${month}${day}${lastFourDigits}`;
   };
 
@@ -55,25 +49,15 @@ const PatientList: React.FC = () => {
     const fetchPatients = async () => {
       try {
         const token = localStorage.getItem("accessToken");
+        if (!token) return;
 
-        if (!token) {
-          console.warn("Không tìm thấy accessToken trong localStorage");
-          return;
-        }
-
-        const res = await axios.get(
-          "https://mirava-f0rz.onrender.com/api/treatment-plan",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const res = await axios.get("https://mirava-f0rz.onrender.com/api/treatment-plan", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const data = res.data?.data;
-
+        console.log("Fetched data:", data);
         if (Array.isArray(data)) {
-<<<<<<< phuong
           const transformedPatients: Patient[] = data.map((plan: any) => ({
             id: plan.patient._id,
             name: plan.patient.userName || "Không rõ",
@@ -83,66 +67,20 @@ const PatientList: React.FC = () => {
             specialty: plan.doctor?.specialty || "Không rõ",
             gender: plan.patient.gender || "Không rõ",
             status: plan.status,
-            appointmentDate: new Date(plan.cycleStartDate).toLocaleDateString(
-              "vi-VN",
-              {
-                weekday: "long",
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              }
-            ),
+            appointmentDate: new Date(plan.cycleStartDate).toLocaleDateString("vi-VN"),
             appointmentTime: plan.hcgInjection?.time || "07:00",
             note: plan.notes || "",
             doctor: plan.doctor?.user?.userName || "Không rõ",
-            startDate: new Date(plan.cycleStartDate).toLocaleDateString(
-              "vi-VN"
-            ),
+            startDate: new Date(plan.cycleStartDate).toLocaleDateString("vi-VN"),
             patientCode: generatePatientCode(plan.patient._id),
+            treatmentEvents: plan.treatmentEvents || [],
           }));
-=======
-          const transformedPatients: Patient[] = data.map((plan: unknown) => {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            const planObj = plan as any; // Type assertion for data mapping
-            return {
-              id: planObj.patient._id,
-              name: planObj.patient.userName || "Không rõ",
-              email: planObj.patient.email || "",
-              phone: planObj.patient.phone || "",
-              location: planObj.patient.location || "Không rõ",
-              specialty: planObj.doctor?.specialty || "Không rõ",
-              gender: planObj.patient.gender || "Không rõ",
-              status: planObj.status,
-              appointmentDate: new Date(planObj.cycleStartDate).toLocaleDateString(
-                "vi-VN",
-                {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                }
-              ),
-              appointmentTime: planObj.hcgInjection?.time || "07:00",
-              note: planObj.notes || "",
-              doctor: planObj.doctor?.user?.userName || "Không rõ",
-              startDate: new Date(planObj.cycleStartDate).toLocaleDateString(
-                "vi-VN"
-              ),
-            };
-          });
->>>>>>> main
 
           setPatients(transformedPatients);
           setFilteredPatients(transformedPatients);
         }
-      } catch (error: unknown) {
+      } catch (error) {
         console.error("Lỗi khi gọi API:", error);
-        if (error && typeof error === 'object' && 'response' in error) {
-          const axiosError = error as { response?: { status?: number } };
-          if (axiosError.response?.status === 401) {
-            alert("Bạn chưa đăng nhập hoặc token hết hạn.");
-          }
-        }
       } finally {
         setLoading(false);
       }
@@ -151,12 +89,9 @@ const PatientList: React.FC = () => {
     fetchPatients();
   }, []);
 
-<<<<<<< phuong
-  // Search functionality
   useEffect(() => {
-    if (!searchTerm.trim()) {
-      setFilteredPatients(patients);
-    } else {
+    if (!searchTerm.trim()) setFilteredPatients(patients);
+    else {
       const filtered = patients.filter(patient =>
         patient.patientCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -167,11 +102,21 @@ const PatientList: React.FC = () => {
   }, [searchTerm, patients]);
 
   const handleModalOpen = (patient: Patient, type: ModalType) => {
+    if (type === 'detail') {
+      navigate('/doctor/patients/ivf-tracker', {
+        state: {
+          patientId: patient.id,
+          patientName: patient.name,
+          patientCode: patient.patientCode,
+          treatmentEvents: patient.treatmentEvents || []
+        }
+      });
+      return;
+    }
     localStorage.setItem("patientId", patient.id);
     setSelectedPatient(patient);
     setModalType(type);
     setIsModalOpen(true);
-    document.body.classList.add("pl-modal-open");
   };
 
   const closeModal = () => {
@@ -179,65 +124,26 @@ const PatientList: React.FC = () => {
     setSelectedPatient(null);
     setModalType(null);
     setIsModalOpen(false);
-    document.body.classList.remove("pl-modal-open");
   };
 
   const renderModalContent = () => {
     if (!selectedPatient) return null;
-
     switch (modalType) {
-      case 'detail':
-        return (
-          <div className="pl-treatment-plan">
-            <EditableTreatmentPlan />
-          </div>
-        );
-      case 'examination':
-        return (
-          <div className="pl-examination-result">
-           <ExaminationResults/>
-          </div>
-        );
-      case 'test_result':
-        return (
-          <div className="pl-test-result">
-            <TestResults/>
-          </div>
-        );
-      case 'injection_result':
-        return (
-          <div className="pl-injection-result">
-            <MedicationResults/>
-          </div>
-        );
-      default:
-        return null;
+      case 'examination': return <ExaminationResults/>;
+      case 'test_result': return <TestResults/>;
+      case 'injection_result': return <MedicationResults/>;
+      default: return null;
     }
   };
 
   const getModalTitle = () => {
     switch (modalType) {
-      case 'detail':
-        return 'Kế hoạch điều trị';
-      case 'examination':
-        return 'Kết quả khám';
-      case 'test_result':
-        return 'Kết quả xét nghiệm';
-      case 'injection_result':
-        return 'Kết quả tiêm thuốc';
-      default:
-        return '';
+      case 'examination': return 'Kết quả khám';
+      case 'test_result': return 'Kết quả xét nghiệm';
+      case 'injection_result': return 'Kết quả tiêm thuốc';
+      default: return '';
     }
-=======
-  const handlePatientDetail = (patient: Patient) => {
-    // Lưu thông tin bệnh nhân vào localStorage để sử dụng trong trang IVFTreatmentTracker
-    localStorage.setItem("patientId", patient.id);
-    localStorage.setItem("patientInfo", JSON.stringify(patient));
-    
-    // Điều hướng đến trang IVFTreatmentTracker
-    navigate(`/doctor/patients/treatment/${patient.id}`);
->>>>>>> main
-  };
+  };  
 
   return (
     <div className="pl-container">
@@ -344,14 +250,14 @@ const PatientList: React.FC = () => {
                   onClick={() => handleModalOpen(patient, 'detail')}
                   title="Chi tiết bệnh nhân"
                 >
-                  Chi tiết bệnh nhân
+                  Kế Hoạch Điều Trị
                 </button>
                 <button
                   className="pl-action-button pl-examination-btn"
                   onClick={() => handleModalOpen(patient, 'examination')}
                   title="Kết quả khám"
                 >
-                  Kết quả khám
+                  Tiền Sử Bệnh Nhân
                 </button>
                 <button
                   className="pl-action-button pl-test-btn"
@@ -372,7 +278,6 @@ const PatientList: React.FC = () => {
           ))}
         </div>
       )}
-<<<<<<< phuong
 
       {/* Modal */}
       {isModalOpen && selectedPatient && (
@@ -391,8 +296,6 @@ const PatientList: React.FC = () => {
           </div>
         </div>
       )}
-=======
->>>>>>> main
     </div>
   );
 };
