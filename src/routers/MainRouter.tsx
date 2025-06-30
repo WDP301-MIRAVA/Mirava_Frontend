@@ -32,7 +32,8 @@ import MedicalRecordManagement from "@/pages/Doctor/MedicalRecordManagement/Medi
 import DoctorScheduleManagement from "@/pages/Manager/DoctorScheduleManagement/DoctorScheduleManagement";
 import ManagerDashboard from "@/pages/Manager/ManagerDashboard/ManagerDashboard";
 import PaymentConfirmation from "@/pages/IVFIUIService/PaymentConfirmation";
-
+import PaymentSuccess from "@/pages/Payment/PaymentSuccess";
+import PaymentFailed from "@/pages/Payment/PaymentFailed";
 const MainRouter = () => {
   return (
     <Routes>
@@ -49,6 +50,9 @@ const MainRouter = () => {
       <Route path="/blog/:id" element={<DetailBlog />} />
       <Route path="/user/appointment" element={<AppointmentPage />} />
       <Route path="/profile" element={<PersonalInfoPage />} />
+      <Route path="/checkout/success" element={<PaymentSuccess />} />
+      <Route path="/checkout/failed" element={<PaymentFailed />} />
+
       <Route path="/iui-ivf-services" element={<IUIIVFServices />} />
       <Route path="/detail-services/:id" element={<DetailServices />} />
       <Route path="/checkout/:serviceId" element={<CheckoutPage />} />

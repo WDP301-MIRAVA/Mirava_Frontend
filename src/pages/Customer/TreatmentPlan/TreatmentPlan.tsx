@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from "react";
 import "./TreatmentPlan.css";
-import {
-  TreatmentPlanService,
-  type TreatmentPlan as ApiTreatmentPlan,
-} from "../../../services/treatmentPlan.service";
-
-interface TreatmentEvent {
+import { type TreatmentPlan as ApiTreatmentPlan } from "../../../services/treatmentPlan.service";
+import { FileText } from "lucide-react";
+import axios from "axios";
+interface TreatmentStep {
   id: string;
-  date: string;
-  type: string;
-  title: string;
-  details: string;
-  medication?: string;
-  dosage?: string;
-  instructions?: string;
-  time?: string;
-  highlight?: boolean; // Thêm trường highlight
+  name: string;
+  date?: string;
+  doctorNote?: string;
+  performedBy?: string;
+  status: "pending" | "completed" | "in-progress";
+  category: string;
+  stage?: string;
+  executionDate?: string;
+  description?: string;
+  type?: string;
+  scheduledDates?: string[];
+  medicalRecords?: string[]; // Thêm trường này nếu backend trả về
 }
 
 const TreatmentPlan: React.FC = () => {
@@ -28,24 +29,26 @@ const TreatmentPlan: React.FC = () => {
   const [activeView, setActiveView] = useState<"list" | "calendar">("list");
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [treatmentSteps, setTreatmentSteps] = useState<TreatmentStep[]>([]);
 
-  // Lấy danh sách kế hoạch điều trị
+  // Medical Records
+  const [recordDetail, setRecordDetail] = useState<any>(null);
+  const [recordModalOpen, setRecordModalOpen] = useState(false);
+  const [loadingRecord, setLoadingRecord] = useState(false);
+
   useEffect(() => {
     const fetchPlans = async () => {
       try {
         setLoading(true);
         setError(null);
 
-        // Lấy patientId từ localStorage, sessionStorage hoặc URL
         let patientId =
           localStorage.getItem("patientId") ||
           sessionStorage.getItem("patientId");
         if (!patientId) {
           const urlParams = new URLSearchParams(window.location.search);
-          patientId = urlParams.get("patientId"); // Giá trị mặc định
+          patientId = urlParams.get("patientId");
         }
-        console.log("Using patientId from URL:", patientId);
-
         if (!patientId) {
           setPlans([]);
           setError("Không có kế hoạch điều trị vì thiếu patientId");
@@ -53,15 +56,52 @@ const TreatmentPlan: React.FC = () => {
           return;
         }
 
-        // Gọi API để lấy kế hoạch điều trị
-        const response = await TreatmentPlanService.getTreatmentPlanByPatientId(
-          patientId
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get(
+          `https://mirava-f0rz.onrender.com/api/treatment-plan/patient/${patientId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
         );
 
         if (response?.data?.data && Array.isArray(response.data.data)) {
           setPlans(response.data.data);
           if (response.data.data.length > 0) {
             setSelectedPlan(response.data.data[0]);
+            const plan = response.data.data[0];
+            if (plan.treatmentEvents && Array.isArray(plan.treatmentEvents)) {
+              const steps: TreatmentStep[] = plan.treatmentEvents.map(
+                (event: any, idx: number) => ({
+                  id: `${idx + 1}`,
+                  name: event.title,
+                  category: event.type || "Tư vấn",
+                  status:
+                    event.status === "completed"
+                      ? "completed"
+                      : event.status === "in_progress"
+                      ? "in-progress"
+                      : "pending",
+                  stage: event.stage,
+                  description: event.description,
+                  type: event.type,
+                  scheduledDates: event.scheduledDates,
+                  executionDate: event.executionDate
+                    ? new Date(event.executionDate).toISOString().split("T")[0]
+                    : undefined,
+                  date:
+                    event.scheduledDates && event.scheduledDates.length > 0
+                      ? new Date(event.scheduledDates[0])
+                          .toISOString()
+                          .split("T")[0]
+                      : undefined,
+                  performedBy: event.performedBy || "",
+                  medicalRecords: event.medicalRecords || [], // lấy id hồ sơ y tế nếu có
+                })
+              );
+              setTreatmentSteps(steps);
+            }
           }
         } else {
           setPlans([]);
@@ -78,243 +118,6 @@ const TreatmentPlan: React.FC = () => {
 
     fetchPlans();
   }, []);
-
-  const safeToISOString = (dateValue: any) => {
-    const date = new Date(dateValue);
-    return !isNaN(date.getTime()) ? date.toISOString().split("T")[0] : "";
-  };
-
-  // Chuyển đổi 1 kế hoạch điều trị sang các event
-  const transformApiPlanToEvents = (
-    plan: ApiTreatmentPlan
-  ): TreatmentEvent[] => {
-    const events: TreatmentEvent[] = [];
-    const cycleStartDate = new Date(plan.cycleStartDate);
-
-    // sự kiện kích thích buồng trứng
-    if (plan.ovarianStimulation) {
-      const stimStartDate = new Date(cycleStartDate);
-      stimStartDate.setDate(
-        stimStartDate.getDate() + plan.ovarianStimulation.startDay - 1
-      );
-      for (let i = 0; i < plan.ovarianStimulation.durationDays; i++) {
-        const eventDate = new Date(stimStartDate);
-        eventDate.setDate(stimStartDate.getDate() + i);
-
-        // Lấy dailyDetail nếu có, nếu không lấy mặc định
-        const dailyDetail = plan.ovarianStimulation.dailyDetails?.[i];
-        const dateStr = !isNaN(eventDate.getTime())
-          ? eventDate.toISOString().split("T")[0]
-          : "";
-        if (dateStr) {
-          events.push({
-            id: `stim-${plan._id}-${i}`,
-            date: dateStr,
-            type: "medication",
-            title: "Tiêm thuốc kích thích buồng trứng",
-            details: `Tiêm thuốc ${
-              dailyDetail?.medication || plan.ovarianStimulation.medication
-            } để kích thích phát triển nang trứng`,
-            medication:
-              dailyDetail?.medication || plan.ovarianStimulation.medication,
-            dosage: dailyDetail?.dosage || plan.ovarianStimulation.dailyDosage,
-            instructions:
-              dailyDetail?.instructions ||
-              plan.ovarianStimulation.instructions ||
-              "Không có hướng dẫn",
-            time:
-              dailyDetail?.time ||
-              plan.ovarianStimulation.time ||
-              "Không có thời gian",
-            highlight: dailyDetail?.highlight === true,
-          });
-        }
-      }
-      plan.ovarianStimulation.monitoringSchedule.forEach((monitoring) => {
-        const monitoringDate = new Date(cycleStartDate);
-        monitoringDate.setDate(monitoringDate.getDate() + monitoring.day - 1);
-        const dateStr = !isNaN(monitoringDate.getTime())
-          ? monitoringDate.toISOString().split("T")[0]
-          : "";
-        if (dateStr) {
-          events.push({
-            id: `monitoring-${plan._id}-${monitoring._id}`,
-            date: dateStr,
-            type: monitoring.type,
-            title: monitoring.notes || "Theo dõi điều trị",
-            details: monitoring.notes,
-            instructions: monitoring.instructions || "Không có hướng dẫn",
-            time: monitoring.time || "Không có thời gian",
-            highlight: monitoring.highlight === true,
-          });
-        }
-      });
-    }
-
-    // Sự kiện tiêm HCG
-    if (plan.hcgInjection && plan.hcgInjection.plannedDate) {
-      const hcgDate = new Date(plan.hcgInjection.plannedDate);
-      const dateStr = !isNaN(hcgDate.getTime())
-        ? hcgDate.toISOString().split("T")[0]
-        : "";
-      if (dateStr) {
-        events.push({
-          id: `hcg-${plan._id}`,
-          date: dateStr,
-          type: "medication",
-          title: "Tiêm thuốc ngăn rụng trứng sớm",
-          details:
-            "Tiêm thuốc HCG để kích thích trưởng thành cuối cùng của trứng",
-          medication: plan.hcgInjection.medication,
-          dosage: plan.hcgInjection.dosage,
-          instructions: plan.hcgInjection.instructions || "Không có hướng dẫn",
-          time: plan.hcgInjection.time || "Không có thời gian",
-          highlight: plan.hcgInjection.highlight === true,
-        });
-      }
-    }
-
-    // sự kiện chọc hút trứng
-    if (plan.eggRetrieval && plan.eggRetrieval.plannedDate) {
-      const retrievalDate = new Date(plan.eggRetrieval.plannedDate);
-      const dateStr = !isNaN(retrievalDate.getTime())
-        ? retrievalDate.toISOString().split("T")[0]
-        : "";
-      if (dateStr) {
-        events.push({
-          id: `retrieval-${plan._id}`,
-          date: dateStr,
-          type: "procedure",
-          title: "Chọc hút trứng",
-          details: plan.eggRetrieval.notes || "Không có chi tiết",
-          instructions: plan.eggRetrieval.instructions || "Không có hướng dẫn",
-          time: plan.eggRetrieval.time || "Không có thời gian",
-          highlight: plan.eggRetrieval.highlight === true,
-        });
-      }
-    }
-
-    // sự kiện chuyển phôi
-    if (plan.embryoTransfer && plan.embryoTransfer.plannedDate) {
-      const transferDate = new Date(plan.embryoTransfer.plannedDate);
-      const dateStr = !isNaN(transferDate.getTime())
-        ? transferDate.toISOString().split("T")[0]
-        : "";
-      if (dateStr) {
-        events.push({
-          id: `transfer-${plan._id}`,
-          date: dateStr,
-          type: "procedure",
-          title: "Chuyển phôi",
-          details: `Chuyển phôi giai đoạn ${plan.embryoTransfer.embryoStage} vào buồng tử cung`,
-          instructions:
-            plan.embryoTransfer.instructions || "Không có hướng dẫn",
-          time: plan.embryoTransfer.time || "Không có thời gian",
-          highlight: plan.embryoTransfer.highlight === true,
-        });
-      }
-    }
-
-    // sự kiện theo dõi sau chuyển phôi
-    if (plan.postTransferMonitoring) {
-      if (plan.postTransferMonitoring.betaHcgTestDate) {
-        let dateValue = plan.postTransferMonitoring.betaHcgTestDate;
-        let highlightValue = false;
-        if (typeof dateValue === "object" && dateValue !== null) {
-          highlightValue = dateValue.highlight === true;
-          dateValue = dateValue.date;
-        }
-        if (dateValue) {
-          const betaDate = new Date(dateValue);
-          const dateStr = !isNaN(betaDate.getTime())
-            ? betaDate.toISOString().split("T")[0]
-            : "";
-          if (dateStr) {
-            events.push({
-              id: `beta-${plan._id}`,
-              date: dateStr,
-              type: "test",
-              title: "Xét nghiệm Beta HCG",
-              details: "Xét nghiệm xác định kết quả có thai",
-              instructions: plan.postTransferMonitoring.betaHcgTestInstructions,
-              time: plan.postTransferMonitoring.betaHcgTestTime,
-              highlight: highlightValue,
-            });
-          }
-        }
-      }
-      if (plan.postTransferMonitoring.ultrasoundCheckDate) {
-        let dateValue = plan.postTransferMonitoring.ultrasoundCheckDate;
-        let highlightValue = false;
-        if (typeof dateValue === "object" && dateValue !== null) {
-          highlightValue = dateValue.highlight === true;
-          dateValue = dateValue.date;
-        }
-        if (dateValue) {
-          const ultrasoundDate = new Date(dateValue);
-          const dateStr = !isNaN(ultrasoundDate.getTime())
-            ? ultrasoundDate.toISOString().split("T")[0]
-            : "";
-          if (dateStr) {
-            events.push({
-              id: `ultrasound-check-${plan._id}`,
-              date: dateStr,
-              type: "ultrasound",
-              title: "Siêu âm kiểm tra thai",
-              details: "Siêu âm kiểm tra tình trạng thai nang",
-              instructions:
-                plan.postTransferMonitoring.ultrasoundCheckInstructions,
-              time: plan.postTransferMonitoring.ultrasoundCheckTime,
-              highlight: highlightValue,
-            });
-          }
-        }
-      }
-    }
-    return events.sort(
-      (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
-  };
-  // Các hàm phụ cho event
-  const getEventTypeIcon = (type: string) => {
-    switch (type) {
-      case "medication":
-        return "💉";
-      case "test":
-        return "🔬";
-      case "ultrasound":
-        return "📷";
-      case "procedure":
-        return "🏥";
-      default:
-        return "📅";
-    }
-  };
-
-  const getEventTypeClass = (type: string) => {
-    switch (type) {
-      case "medication":
-        return "event-medication";
-      case "test":
-        return "event-test";
-      case "ultrasound":
-        return "event-ultrasound";
-      case "procedure":
-        return "event-procedure";
-      default:
-        return "event-default";
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("vi-VN", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   // Calendar helpers
   const getDaysInMonth = (date: Date) => {
@@ -335,18 +138,15 @@ const TreatmentPlan: React.FC = () => {
     return days;
   };
 
-  // Khi chọn 1 kế hoạch, lấy event của kế hoạch đó
-  const selectedPlanEvents = selectedPlan
-    ? transformApiPlanToEvents(selectedPlan)
-    : [];
-
   // Lấy event theo ngày cho calendar
   const getEventsForDate = (day: number) => {
     if (!selectedPlan) return [];
     const dateString = `${currentMonth.getFullYear()}-${String(
       currentMonth.getMonth() + 1
     ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    return selectedPlanEvents.filter((event) => event.date === dateString);
+    return treatmentSteps.filter(
+      (step) => step.executionDate === dateString || step.date === dateString
+    );
   };
 
   const navigateMonth = (direction: "prev" | "next") => {
@@ -372,10 +172,108 @@ const TreatmentPlan: React.FC = () => {
   };
 
   const selectedDateEvents = selectedDate
-    ? selectedPlanEvents.filter((event) => event.date === selectedDate)
+    ? treatmentSteps.filter(
+        (step) =>
+          step.executionDate === selectedDate || step.date === selectedDate
+      )
     : [];
 
-  // Loading state
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("vi-VN", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  // Hàm lấy chi tiết hồ sơ y tế
+  const handleViewMedicalRecord = async (recordId: string) => {
+    setLoadingRecord(true);
+    try {
+      const res = await axios.get(
+        `https://mirava-f0rz.onrender.com/api/medicalRecord/${recordId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      if (res.data.success) {
+        setRecordDetail(res.data.data);
+        setRecordModalOpen(true);
+      } else {
+        alert("Không thể tải chi tiết hồ sơ y tế");
+      }
+    } catch (err) {
+      console.error("Error fetching medical record:", err);
+      setRecordDetail(null);
+      alert("Không thể tải chi tiết hồ sơ y tế");
+    }
+    setLoadingRecord(false);
+  };
+
+  // Modal hiển thị chi tiết hồ sơ y tế
+  const renderMedicalRecordModal = () =>
+    recordModalOpen && (
+      <div className="modal-overlay">
+        <div className="modal">
+          <h3>Chi tiết hồ sơ y tế</h3>
+          {loadingRecord ? (
+            <div>Đang tải...</div>
+          ) : recordDetail ? (
+            <div>
+              <div>
+                <b>Ngày:</b>{" "}
+                {recordDetail.date
+                  ? new Date(recordDetail.date).toLocaleDateString("vi-VN")
+                  : "-"}
+              </div>
+              <div>
+                <b>Loại:</b> {recordDetail.type || "-"}
+              </div>
+              <div>
+                <b>Tiêu đề:</b> {recordDetail.title || "-"}
+              </div>
+              <div>
+                <b>Kết luận:</b> {recordDetail.conclusion || "-"}
+              </div>
+              <div>
+                <b>Ghi chú:</b> {recordDetail.notes || "-"}
+              </div>
+              {recordDetail.attachments &&
+                recordDetail.attachments.length > 0 && (
+                  <div>
+                    <b>File đính kèm:</b>
+                    <ul>
+                      {recordDetail.attachments.map(
+                        (url: string, idx: number) => (
+                          <li key={idx}>
+                            <a
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Xem file {idx + 1}
+                            </a>
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  </div>
+                )}
+            </div>
+          ) : (
+            <div>Không có dữ liệu</div>
+          )}
+          <button onClick={() => setRecordModalOpen(false)}>Đóng</button>
+        </div>
+      </div>
+    );
+
   if (loading) {
     return (
       <div className="treatment-plan-container">
@@ -439,51 +337,79 @@ const TreatmentPlan: React.FC = () => {
 
         {activeView === "list" ? (
           <div className="list-view">
-            <div className="timeline">
-              {selectedPlanEvents.map((event) => (
-                <div
-                  key={event.id}
-                  className={`timeline-item ${getEventTypeClass(event.type)}${
-                    event.highlight ? " highlight-step" : ""
-                  }`}
-                >
-                  <div className="timeline-marker">
-                    <span className="event-icon">
-                      {getEventTypeIcon(event.type)}
-                    </span>
-                  </div>
-                  <div className="timeline-content">
-                    <div className="event-header">
-                      <h3>{event.title}</h3>
-                      <span className="event-date">
-                        {formatDate(event.date)}
-                      </span>
-                      {event.time && (
-                        <span className="event-time">{event.time}</span>
-                      )}
-                    </div>
-                    <p className="event-details">{event.details}</p>
-                    {event.medication && (
-                      <div className="medication-info">
-                        <strong>Thuốc:</strong> {event.medication}
-                        {event.dosage && (
-                          <span> - Liều lượng: {event.dosage}</span>
-                        )}
-                      </div>
-                    )}
-                    {event.instructions && (
-                      <div className="instructions">
-                        <strong>Hướng dẫn:</strong> {event.instructions}
-                      </div>
-                    )}
-                    {event.time && (
-                      <div className="event-time">
-                        <strong>Thời gian:</strong> {event.time}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
+            <div className="main-card">
+              <div className="card-header">
+                <h2 className="card-header-title">
+                  <FileText className="w-6 h-6" />
+                  Tiến trình điều trị
+                </h2>
+              </div>
+              <div className="table-container">
+                <table className="treatment-table">
+                  <thead>
+                    <tr>
+                      <th>STT</th>
+                      <th>Bước điều trị</th>
+                      <th>Giai đoạn</th>
+                      <th>Loại</th>
+                      <th>Trạng thái</th>
+                      <th>Ngày dự kiến</th>
+                      <th>Ngày thực hiện</th>
+                      <th>Người thực hiện</th>
+                      <th>Ghi chú</th>
+                      <th>Kết quả</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {treatmentSteps.map((step, idx) => (
+                      <tr key={step.id} className={`table-row ${step.status}`}>
+                        <td>{idx + 1}</td>
+                        <td>{step.name}</td>
+                        <td>{step.stage}</td>
+                        <td>{step.type}</td>
+                        <td>
+                          {step.status === "completed"
+                            ? "✅ Đã hoàn thành"
+                            : step.status === "in-progress"
+                            ? "🕒 Đang thực hiện"
+                            : "⏳ Chưa thực hiện"}
+                        </td>
+                        <td>
+                          {step.scheduledDates && step.scheduledDates.length > 0
+                            ? new Date(
+                                step.scheduledDates[0]
+                              ).toLocaleDateString("vi-VN")
+                            : ""}
+                        </td>
+                        <td>
+                          {step.executionDate
+                            ? new Date(step.executionDate).toLocaleDateString(
+                                "vi-VN"
+                              )
+                            : ""}
+                        </td>
+                        <td>{step.performedBy || "-"}</td>
+                        <td>{step.description || "-"}</td>
+                        <td>
+                          {step.medicalRecords &&
+                          step.medicalRecords.length > 0 ? (
+                            <button
+                              className="view-record-btn"
+                              onClick={() =>
+                                handleViewMedicalRecord(step.medicalRecords[0])
+                              }
+                            >
+                              Xem kết quả
+                            </button>
+                          ) : (
+                            <span style={{ color: "#aaa" }}>-</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         ) : (
@@ -529,9 +455,7 @@ const TreatmentPlan: React.FC = () => {
                               {events.map((event) => (
                                 <div
                                   key={event.id}
-                                  className={`event-dot ${getEventTypeClass(
-                                    event.type
-                                  )}`}
+                                  className={`event-dot event-${event.status}`}
                                 ></div>
                               ))}
                             </div>
@@ -555,34 +479,65 @@ const TreatmentPlan: React.FC = () => {
                   </button>
                 </div>
                 <div className="panel-content">
-                  {selectedDateEvents.map((event) => (
+                  {selectedDateEvents.map((step) => (
                     <div
-                      key={event.id}
-                      className={`event-card ${getEventTypeClass(event.type)}${
-                        event.highlight ? " highlight-step" : ""
-                      }`}
+                      key={step.id}
+                      className={`event-card event-${step.status}`}
                     >
                       <div className="event-card-header">
-                        <span className="event-icon">
-                          {getEventTypeIcon(event.type)}
-                        </span>
-                        <h4>{event.title}</h4>
-                        {event.time && (
-                          <span className="time">{event.time}</span>
+                        <span className="event-title">{step.name}</span>
+                        <span className="event-type">{step.type}</span>
+                      </div>
+                      <div>
+                        <strong>Giai đoạn:</strong> {step.stage}
+                      </div>
+                      <div>
+                        <strong>Trạng thái:</strong>{" "}
+                        {step.status === "completed"
+                          ? "Đã hoàn thành"
+                          : step.status === "in-progress"
+                          ? "Đang thực hiện"
+                          : "Chưa thực hiện"}
+                      </div>
+                      <div>
+                        <strong>Ngày dự kiến:</strong>{" "}
+                        {step.scheduledDates && step.scheduledDates.length > 0
+                          ? new Date(step.scheduledDates[0]).toLocaleDateString(
+                              "vi-VN"
+                            )
+                          : ""}
+                      </div>
+                      <div>
+                        <strong>Ngày thực hiện:</strong>{" "}
+                        {step.executionDate
+                          ? new Date(step.executionDate).toLocaleDateString(
+                              "vi-VN"
+                            )
+                          : ""}
+                      </div>
+                      <div>
+                        <strong>Người thực hiện:</strong>{" "}
+                        {step.performedBy || "-"}
+                      </div>
+                      <div>
+                        <strong>Ghi chú:</strong> {step.doctorNote || "-"}
+                      </div>
+                      <div>
+                        <strong>Kết quả:</strong>{" "}
+                        {step.medicalRecords &&
+                        step.medicalRecords.length > 0 ? (
+                          <button
+                            className="view-record-btn"
+                            onClick={() =>
+                              handleViewMedicalRecord(step.medicalRecords[0])
+                            }
+                          >
+                            Xem kết quả
+                          </button>
+                        ) : (
+                          <span style={{ color: "#aaa" }}>-</span>
                         )}
                       </div>
-                      <p>{event.details}</p>
-                      {event.medication && (
-                        <div className="medication-info">
-                          <strong>Thuốc:</strong> {event.medication}
-                          {event.dosage && <span> - {event.dosage}</span>}
-                        </div>
-                      )}
-                      {event.instructions && (
-                        <div className="instructions">
-                          <strong>Hướng dẫn:</strong> {event.instructions}
-                        </div>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -595,6 +550,7 @@ const TreatmentPlan: React.FC = () => {
           <p>Bạn sẽ nhận được nhắc nhở lịch hẹn qua SMS hoặc Email.</p>
         </div>
       </div>
+      {renderMedicalRecordModal()}
     </div>
   );
 };
