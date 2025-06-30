@@ -377,10 +377,6 @@ const ViewAppointment: React.FC = () => {
 
                   <div className="appointment-details">
                     <div className="detail-row">
-                      <span className="label">Chuyên khoa:</span>
-                      <span className="value">{appointment.specialty}</span>
-                    </div>
-                    <div className="detail-row">
                       <span className="label">Giới tính:</span>
                       <span className="value">
                         {appointment.gender === "Male" ? "Nam" : "Nữ"}

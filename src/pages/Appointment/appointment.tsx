@@ -221,37 +221,17 @@ const Appointment = () => {
               <Input placeholder="Nhập địa chỉ" />
             </Form.Item>
 
-            <Form.Item
-              name="specialty"
-              label="Chuyên khoa"
-              rules={[{ required: true }]}
-            >
-              <Select
-                placeholder="Chọn chuyên khoa"
-                onChange={(value) => {
-                  setSelectedSpecialty(value);
-                  setSelectedDoctorId(null); // reset chọn bác sĩ khi đổi chuyên khoa
-                }}
-                value={selectedSpecialty}
-              >
-                {specialties.map((specialty) => (
-                  <Option key={specialty} value={specialty}>
-                    {specialty}
-                  </Option>
-                ))}
-              </Select>
-            </Form.Item>
             <Form.Item label="Chọn bác sĩ" required>
               <Select
-                placeholder="Chọn bác sĩ"
+                placeholder="Chọn bác sĩ (hoặc bỏ trống để hệ thống tự chọn)"
                 value={selectedDoctorId}
                 onChange={(value) => handleDoctorSelect(value)}
                 style={{ width: "100%" }}
                 optionFilterProp="children"
                 showSearch
-                disabled={!selectedSpecialty}
+                allowClear
               >
-                {filteredDoctors.map((doc: any) => (
+                {doctors.map((doc: any) => (
                   <Select.Option key={doc._id} value={doc._id}>
                     {doc?.user?.userName}
                   </Select.Option>
@@ -349,7 +329,7 @@ const Appointment = () => {
                 loading={loading}
                 block
                 className="btn-submit"
-                disabled={!selectedDoctorId || !selectedTimeSlot}
+                disabled={!selectedTimeSlot}
               >
                 Đặt lịch khám
               </Button>
