@@ -15,7 +15,6 @@ import axios from "axios";
 import "./IVFTreatmentTracker.css";
 import MedicalRecordForm from "../MedicalRecordForm";
 // Types
-
 interface TreatmentStep {
   id: string;
   _id?: string; // Thêm _id nếu cần
@@ -32,7 +31,6 @@ interface TreatmentStep {
   type?: string;
   scheduledDates?: string[];
   medicalRecords?: any[];
-
 }
 
 interface MedicalRecord {
@@ -105,7 +103,6 @@ const IVFTreatmentTracker: React.FC = () => {
   const [treatmentSteps, setTreatmentSteps] = useState<TreatmentStep[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
   const [activeForm, setActiveForm] = useState<string | null>(null);
   const [formData, setFormData] = useState<FormData>({
     date: new Date().toISOString().split("T")[0],
@@ -366,35 +363,7 @@ const IVFTreatmentTracker: React.FC = () => {
     }
   };
 
-  useEffect(() => {
-    if (patientInfo?.treatmentEvents) {
-      console.log("📦 Nhận thông tin bệnh nhân:", patientInfo);
-      interface RawTreatmentEvent {
-        _id?: string;
-        title?: string;
-        scheduledDates?: string[];
-        description?: string;
-        status?: string;
-        type?: string;
-        stage?: string;
-      }
-
-      const mappedSteps: TreatmentStep[] = patientInfo.treatmentEvents.map((event: RawTreatmentEvent, index: number) => ({
-        id: event._id || `${index}`,
-        name: event.title || "Không rõ",
-        date: event.scheduledDates?.[0] || "",
-        doctorNote: event.description || "",
-        specialMetrics: {},
-        performedBy: "",
-        status: event.status === 'completed' ? 'completed' : event.status === 'in-progress' ? 'in-progress' : 'pending',
-        category: mapEventTypeToCategory(event.type || ""),
-        stage: event.stage || ""
-      }));
-      setTreatmentSteps(mappedSteps);
-      console.log("📦 Bước điều trị đã được ánh xạ:", mappedSteps);
-    }
-  }, [patientInfo]);
-
+  // Auto-save draft
   useEffect(() => {
     console.log("💾 Auto-saving draft for form:", activeForm);
     if (activeForm) {
@@ -403,7 +372,6 @@ const IVFTreatmentTracker: React.FC = () => {
           ...prev,
           [activeForm]: formData,
         }));
-
       }, 1000);
       return () => clearTimeout(timer);
     }
@@ -412,8 +380,6 @@ const IVFTreatmentTracker: React.FC = () => {
   const openForm = (stepId: string) => {
     const step = treatmentSteps.find((s) => s.id === stepId);
     if (step) {
-          console.log("📦 Mở form cho bước:", step);
-
       setFormData({
         date: step.executionDate || new Date().toISOString().split("T")[0],
         executionDate:
@@ -599,7 +565,6 @@ const IVFTreatmentTracker: React.FC = () => {
     } finally {
       setUpdating(false);
     }
-
   };
 
   const addNewVisit = () => {
@@ -703,10 +668,8 @@ const IVFTreatmentTracker: React.FC = () => {
         return ["Số phôi chuyển", "Vị trí chuyển", "Độ dày nội mạc (mm)"];
       default:
         return [];
-
     }
-  }));
-};
+  };
 
   // const renderDynamicFields = () => {
   //   // Render các field động dựa trên loại bước điều trị
@@ -876,7 +839,7 @@ const IVFTreatmentTracker: React.FC = () => {
   };
 
   return (
-    <div className="ivf-tracker"> 
+    <div className="ivf-tracker">
       <div className="container">
         {/* Header with patient info */}
         <div className="header">
@@ -910,7 +873,6 @@ const IVFTreatmentTracker: React.FC = () => {
               </div>
             </div>
           </div>
-
         </div>
 
         {/* Controls */}
@@ -952,7 +914,6 @@ const IVFTreatmentTracker: React.FC = () => {
                   <th>Trạng thái</th>
                   <th>Bước điều trị</th>
                   <th>Giai đoạn</th>
-
                   <th>Ngày thực hiện</th>
                   <th>Người thực hiện</th>
                   <th>Ghi chú</th>
@@ -966,7 +927,6 @@ const IVFTreatmentTracker: React.FC = () => {
                       {getStatusIcon(step.status, step.id)}
                     </td>
                     <td className="table-cell">
-
                       <div className="step-info">
                         <span className="step-name">{step.name}</span>
                         <span
@@ -1244,7 +1204,6 @@ const IVFTreatmentTracker: React.FC = () => {
                   )}
                 </div>
                 {/* Performed By */}
-
                 <div className="form-group">
                   <label className="form-label">Người thực hiện</label>
                   <input
