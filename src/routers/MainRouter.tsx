@@ -23,18 +23,40 @@
   import PatientList from "@/pages/Doctor/Patients/PatientList";
   import IVFTreatmentTracker from "@/pages/Doctor/Patients/IVFTreatmentTracker";
 
-  import UserManagement from "@/pages/Admin/UserManagement/UserManagement";
-  import DoctorManagement from "@/pages/Admin/DoctorManagement/DoctorManagement";
-  import CheckoutPage from "@/pages/IVFIUIService/CheckOutPage";
-  import ViewAppointment from "../pages/Doctor/ViewAppoitment";
-  import DetailServices from "@/pages/IVFIUIService/DetailServices";
-  import MedicalRecordManagement from "@/pages/Doctor/MedicalRecordManagement/MedicalRecordManagement";
-  import DoctorScheduleManagement from "@/pages/Manager/DoctorScheduleManagement/DoctorScheduleManagement";
-  import ManagerDashboard from "@/pages/Manager/ManagerDashboard/ManagerDashboard";
+import UserManagement from "@/pages/Admin/UserManagement/UserManagement";
+import DoctorManagement from "@/pages/Admin/DoctorManagement/DoctorManagement";
+import CheckoutPage from "@/pages/IVFIUIService/CheckOutPage";
+import ViewAppointment from "../pages/Doctor/ViewAppoitment";
+import DetailServices from "@/pages/IVFIUIService/DetailServices";
+import MedicalRecordManagement from "@/pages/Doctor/MedicalRecordManagement/MedicalRecordManagement";
+import DoctorScheduleManagement from "@/pages/Manager/DoctorScheduleManagement/DoctorScheduleManagement";
+import ManagerDashboard from "@/pages/Manager/ManagerDashboard/ManagerDashboard";
+import PaymentConfirmation from "@/pages/IVFIUIService/PaymentConfirmation";
+import PaymentSuccess from "@/pages/Payment/PaymentSuccess";
+import PaymentFailed from "@/pages/Payment/PaymentFailed";
+const MainRouter = () => {
+  return (
+    <Routes>
+      {/* Public Routes - Các route công khai, ai cũng truy cập được */}
+      <Route path="/" element={<Homepage />} />
+      <Route path="/home" element={<Homepage />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/intro" element={<Intropage />} />
+      <Route path="/searchresult" element={<SearchResult />} />
+      <Route path="/detaildoctor/:id" element={<DetailDoctor />} />
+      <Route path="/appointment" element={<Appointment />} />
+      <Route path="/bloglist" element={<BlogList />} />
+      <Route path="/blog/:id" element={<DetailBlog />} />
+      <Route path="/user/appointment" element={<AppointmentPage />} />
+      <Route path="/profile" element={<PersonalInfoPage />} />
+      <Route path="/checkout/success" element={<PaymentSuccess />} />
+      <Route path="/checkout/failed" element={<PaymentFailed />} />
 
-  import PaymentConfirmation from "@/pages/IVFIUIService/PaymentConfirmation";
-  import MedicalHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
-  import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
+      <Route path="/iui-ivf-services" element={<IUIIVFServices />} />
+      <Route path="/detail-services/:id" element={<DetailServices />} />
+      <Route path="/checkout/:serviceId" element={<CheckoutPage />} />
+
 
   const MainRouter = () => {
     return (

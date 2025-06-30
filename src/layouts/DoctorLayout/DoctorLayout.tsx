@@ -1,31 +1,29 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Bell, LogOut, ChevronRight } from 'react-feather'; 
-import './DoctorLayout.css';
-import logo from '../../assets/mirava-logo.png'; 
-
+import React, { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { Bell, LogOut, ChevronRight } from "react-feather";
+import "./DoctorLayout.css";
+import logo from "../../assets/mirava-logo.png";
+import { userServ } from "@/services/userServie";
 interface DoctorLayoutProps {
   children: React.ReactNode;
 }
 
-const DoctorLayout: React.FC<DoctorLayoutProps> = ({ 
-  children
-}) => {
+const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Xác định active menu dựa trên URL hiện tại
   const getActiveMenuItem = () => {
     const path = location.pathname;
-    if (path === '/doctor' || path === '/doctor/') return "Trang chủ";
-    if (path.includes('/doctor/patients')) return "Bệnh nhân";
-    if (path.includes('/doctor/appointments')) return "Lịch hẹn";
-    if (path.includes('/doctor/treatment-plans')) return "Kế hoạch điều trị";
-    if (path.includes('/doctor/prescriptions')) return "Kê đơn thuốc";
-    if (path.includes('/doctor/medicalrecord')) return "Hồ sơ y tế";
-    if (path.includes('/doctor/schedule')) return "Lịch làm việc";
-    if (path.includes('/doctor/reports')) return "Báo cáo";
-    if (path.includes('/doctor/profile')) return "Hồ sơ";
+    if (path === "/doctor" || path === "/doctor/") return "Trang chủ";
+    if (path.includes("/doctor/patients")) return "Bệnh nhân";
+    if (path.includes("/doctor/appointments")) return "Lịch hẹn";
+    if (path.includes("/doctor/treatment-plans")) return "Kế hoạch điều trị";
+    if (path.includes("/doctor/prescriptions")) return "Kê đơn thuốc";
+    if (path.includes("/doctor/medicalrecord")) return "Hồ sơ y tế";
+    if (path.includes("/doctor/schedule")) return "Lịch làm việc";
+    if (path.includes("/doctor/reports")) return "Báo cáo";
+    if (path.includes("/doctor/profile")) return "Hồ sơ";
     return "Trang chủ";
   };
 
@@ -34,26 +32,45 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({
   const menuItems = [
     { id: 1, name: "Trang chủ", label: "Trang chủ", path: "/doctor" },
     { id: 3, name: "Bệnh nhân", label: "Bệnh nhân", path: "/doctor/patients" },
-    { id: 4, name: "Lịch hẹn", label: "Lịch hẹn", path: "/doctor/appointments" },
-    { id: 5, name: "Kế hoạch điều trị", label: "Tạo kế hoạch điều trị", path: "/doctor/treatment-plans" },
-    { id: 6, name: "Kê đơn thuốc", label: "Kê đơn thuốc", path: "/doctor/prescriptions" },
-    { id: 7, name: "Hồ sơ y tế", label: "Hồ sơ y tế", path: "/doctor/medicalrecord" },
-    { id: 8, name: "Lịch làm việc", label: "Lịch làm việc", path: "/doctor/schedules" },
-    { id: 9, name: "Báo cáo", label: "Báo cáo", path: "/doctor/reports" },
+    {
+      id: 4,
+      name: "Lịch hẹn",
+      label: "Lịch hẹn",
+      path: "/doctor/appointments",
+    },
+    {
+      id: 5,
+      name: "Kế hoạch điều trị",
+      label: "Tạo kế hoạch điều trị",
+      path: "/doctor/treatment-plans",
+    },
+    {
+      id: 7,
+      name: "Hồ sơ y tế",
+      label: "Hồ sơ y tế",
+      path: "/doctor/medicalrecord",
+    },
+    {
+      id: 8,
+      name: "Lịch làm việc",
+      label: "Lịch làm việc",
+      path: "/doctor/schedules",
+    },
     { id: 2, name: "Hồ sơ", label: "Hồ sơ", path: "/doctor/profile" },
   ];
 
   // Tạo breadcrumb dựa trên active menu
   const getBreadcrumb = () => {
-    return ["Trang chủ", activeMenuItem].filter((item, index, arr) => 
-      item !== "Trang chủ" || index === 0 || arr.length === 1
+    return ["Trang chủ", activeMenuItem].filter(
+      (item, index, arr) =>
+        item !== "Trang chủ" || index === 0 || arr.length === 1
     );
   };
 
   const breadcrumb = getBreadcrumb();
 
   const handleMenuClick = (itemId: number, itemLabel: string) => {
-    const selectedItem = menuItems.find(item => item.id === itemId);
+    const selectedItem = menuItems.find((item) => item.id === itemId);
     if (selectedItem) {
       setActiveMenuItem(itemLabel);
       navigate(selectedItem.path);
@@ -61,11 +78,28 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({
   };
 
   const handleLogout = () => {
-    // Xóa thông tin đăng nhập
+    // Gọi API logout
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      userServ
+        .postLogout(localStorage.getItem("refreshToken") || "", accessToken)
+        .then(() => {
+          console.log("Đăng xuất thành công");
+        })
+        .catch((error) => {
+          console.error("Lỗi khi đăng xuất:", error);
+        });
+    }
+    // Xóa thông tin đăng nhập khỏi localStorage
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("accessToken");
     localStorage.removeItem("role");
     localStorage.removeItem("userInfo");
-    
+    // Xóa thông tin đăng nhập khỏi sessionStorage
+    sessionStorage.removeItem("refreshToken");
+    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("role");
+    sessionStorage.removeItem("userInfo");
     // Chuyển về trang home
     navigate("/home");
   };
@@ -87,11 +121,11 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({
           <ul className="nav-list">
             {menuItems.map((item) => {
               const isActive = activeMenuItem === item.label;
-              
+
               return (
                 <li key={item.id} className="nav-item">
                   <button
-                    className={`nav-link ${isActive ? 'active' : ''}`}
+                    className={`nav-link ${isActive ? "active" : ""}`}
                     onClick={() => handleMenuClick(item.id, item.label)}
                   >
                     <span className="nav-text">{item.label}</span>
@@ -134,9 +168,7 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({
         </div>
 
         {/* Page Content */}
-        <div className="page-content">
-          {children}
-        </div>
+        <div className="page-content">{children}</div>
       </div>
     </div>
   );

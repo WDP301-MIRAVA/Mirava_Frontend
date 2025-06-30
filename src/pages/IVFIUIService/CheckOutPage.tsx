@@ -68,7 +68,7 @@ const CheckoutPage: React.FC = () => {
     "16:00",
     "17:00",
   ];
-
+  // api để lấy thông tin dịch vụ
   useEffect(() => {
     const fetchService = async () => {
       try {
@@ -210,7 +210,7 @@ const CheckoutPage: React.FC = () => {
         status: d.status,
       }))
     );
-
+    // api để lấy thông tin bác sĩ có sẵn
     setLoadingDoctors(true);
     try {
       // Thay đổi URL API từ appointment sang treatment-registration
@@ -305,6 +305,7 @@ const CheckoutPage: React.FC = () => {
     Math.round(price * (1 - salePercent / 100));
 
   const handlePlaceOrder = async () => {
+    console.log("📋 Dữ liệu người dùng:", formData);
     // Validate form
     if (
       !formData.userName ||
@@ -316,15 +317,6 @@ const CheckoutPage: React.FC = () => {
       return;
     }
 
-    // Validate appointment info if doctor is selected
-    if (
-      formData.doctorId &&
-      (!formData.appointmentDate || !formData.timeSlot)
-    ) {
-      toast.error("Vui lòng chọn đầy đủ ngày giờ khám khi chọn bác sĩ!");
-      return;
-    }
-
     if (!service) {
       toast.error("Không tìm thấy thông tin dịch vụ!");
       return;
@@ -333,67 +325,115 @@ const CheckoutPage: React.FC = () => {
     try {
       setLoading(true);
 
-      // Prepare order data
+      // Bước 1: Tạo đơn hàng
       const orderData = {
         items: [
           {
-            service: service._id,
+            serviceId: service._id,
             quantity: 1,
           },
         ],
         paymentMethod: formData.paymentMethod,
         note: formData.appointmentNote || `Đặt dịch vụ: ${service.name}`,
-        // User info
-        userName: formData.userName,
-        email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
-        gender: formData.gender,
-        // Appointment info (if doctor selected)
-        ...(formData.doctorId && {
-          doctorId: formData.doctorId,
-          appointmentDate: new Date(
-            `${formData.appointmentDate}T${formData.timeSlot}:00.000Z`
-          ).toISOString(),
-          appointmentNote: formData.appointmentNote,
-        }),
+        customerInfo: {
+          userName: formData.userName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          gender: formData.gender,
+        },
+        appointmentDate: formData.appointmentDate,
+        timeSlot: formData.timeSlot,
+        doctorId: formData.doctorId,
       };
 
-      console.log("📦 Dữ liệu gửi đi:", orderData);
-
-      const response = await fetch(
-        "https://mirava-f0rz.onrender.com/api/treatment-registration/",
+      console.log("📦 Tạo đơn hàng:", orderData);
+      // Gửi yêu cầu tạo đơn hàng
+      const orderResponse = await fetch(
+        "http://localhost:3000/api/orders/guest",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(orderData),
         }
       );
+      console.log("📦 Đáp ứng từ API tạo đơn hàng:", orderResponse);
+      const orderResult = await orderResponse.json();
 
-      const result = await response.json();
-
-      if (response.ok) {
-        toast.success("Đặt hàng thành công!");
-        console.log("✅ Kết quả:", result);
-
-        // Navigate to success page or show order details
-        navigate("/payment-confirmation", {
-          state: {
-            orderData: result.data,
-            userInfo: formData,
-            service: service,
-          },
-        });
-      } else {
-        throw new Error(result.message || "Đặt hàng thất bại");
+      if (!orderResponse.ok || !orderResult.success) {
+        throw new Error(orderResult.message || "Tạo đơn hàng thất bại");
       }
-    } catch (error: any) {
-      console.error("❌ Lỗi đặt hàng:", error);
-      toast.error(
-        error.message || "Có lỗi xảy ra khi đặt hàng. Vui lòng thử lại!"
+
+      console.log("✅ Đơn hàng đã tạo:", orderResult.data);
+
+      // Bước 2: Xác nhận thanh toán (giả lập thanh toán thành công)
+      const paymentResponse = await fetch(
+        `http://localhost:3000/api/orders/${orderResult.data.order.id}/confirm-payment`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            paymentStatus: "success",
+            paymentMethod: formData.paymentMethod,
+          }),
+        }
       );
+
+      const paymentResult = await paymentResponse.json();
+
+      if (!paymentResponse.ok || !paymentResult.success) {
+        throw new Error(
+          paymentResult.message || "Xác nhận thanh toán thất bại"
+        );
+      }
+
+      console.log("✅ Thanh toán thành công");
+
+      // Bước 3: Đặt lịch hẹn (nếu có chọn bác sĩ)
+      let appointmentData = null;
+      if (formData.doctorId && formData.appointmentDate && formData.timeSlot) {
+        const appointmentRequest = {
+          orderId: orderResult.data.order.id,
+          doctorId: formData.doctorId,
+          appointmentDate: formData.appointmentDate,
+          timeSlot: formData.timeSlot,
+          note: formData.appointmentNote,
+        };
+
+        const appointmentResponse = await fetch(
+          "http://localhost:3000/api/appointments/from-order",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(appointmentRequest),
+          }
+        );
+
+        const appointmentResult = await appointmentResponse.json();
+
+        if (appointmentResponse.ok && appointmentResult.success) {
+          appointmentData = appointmentResult.data;
+          console.log("✅ Đặt lịch hẹn thành công");
+        } else {
+          console.warn("⚠️ Đặt lịch hẹn thất bại:", appointmentResult.message);
+          toast.warning("Đặt hàng thành công nhưng đặt lịch hẹn gặp sự cố");
+        }
+      }
+
+      toast.success("Đặt hàng thành công!");
+
+      // Navigate to success page
+      navigate("/payment-confirmation", {
+        state: {
+          orderData: orderResult.data,
+          appointmentData,
+          userInfo: formData,
+          service: service,
+        },
+      });
+    } catch (error: any) {
+      console.error("❌ Lỗi:", error);
+      toast.error(error.message || "Có lỗi xảy ra. Vui lòng thử lại!");
     } finally {
       setLoading(false);
     }
@@ -582,9 +622,7 @@ const CheckoutPage: React.FC = () => {
             }
           >
             <option value="Cash">Tiền mặt</option>
-            <option value="Credit Card">Thẻ tín dụng</option>
-            <option value="Bank Transfer">Chuyển khoản</option>
-            <option value="Online">Thanh toán online</option>
+            <option value="VNPay">Chuyển khoản</option>
           </select>
 
           <h2>Ghi Chú</h2>

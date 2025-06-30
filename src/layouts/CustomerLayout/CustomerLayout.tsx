@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Bell, LogOut, ChevronRight } from "react-feather";
 import "./CustomerLayout.css";
 import logo from "../../assets/mirava-logo.png";
+import { userServ } from "@/services/userServie";
 
 interface CustomerLayoutProps {
   children: React.ReactNode;
@@ -98,11 +99,28 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
   };
 
   const handleLogout = () => {
-    // Xóa thông tin đăng nhập
+    // Gọi API logout
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      userServ
+        .postLogout(localStorage.getItem("refreshToken") || "", accessToken)
+        .then(() => {
+          console.log("Đăng xuất thành công");
+        })
+        .catch((error) => {
+          console.error("Lỗi khi đăng xuất:", error);
+        });
+    }
+    // Xóa thông tin đăng nhập khỏi localStorage
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("accessToken");
     localStorage.removeItem("role");
     localStorage.removeItem("userInfo");
-
+    // Xóa thông tin đăng nhập khỏi sessionStorage
+    sessionStorage.removeItem("refreshToken");
+    sessionStorage.removeItem("accessToken");
+    sessionStorage.removeItem("role");
+    sessionStorage.removeItem("userInfo");
     // Chuyển về trang home
     navigate("/home");
   };
