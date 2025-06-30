@@ -1,0 +1,19 @@
+.medical-card {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  background-color: #ffffff;
+}
+
+.ant-form-item-label > label {
+  font-weight: 600;
+  color: #333;
+}
+
+.ant-checkbox-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
