@@ -79,7 +79,7 @@ export const register = async (
 
 export const loginByPatientCode = async (patientCodeOrPhone: string) => {
   const response = await fetch(
-    `http://localhost:3000/api/auth/login/patientCode`,
+    `https://mirava-f0rz.onrender.com/api/auth/login/patientCode`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

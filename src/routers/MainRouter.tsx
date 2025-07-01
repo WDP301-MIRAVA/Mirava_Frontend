@@ -34,6 +34,8 @@ import ManagerDashboard from "@/pages/Manager/ManagerDashboard/ManagerDashboard"
 import PaymentConfirmation from "@/pages/IVFIUIService/PaymentConfirmation";
 import PaymentSuccess from "@/pages/Payment/PaymentSuccess";
 import PaymentFailed from "@/pages/Payment/PaymentFailed";
+import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
+import ContactPatient from "@/pages/Doctor/Patients/ContactPatient/ContactPatient";
 import MedicalHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
 import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 const MainRouter = () => {
@@ -81,7 +83,7 @@ const MainRouter = () => {
               <Route path="/profile" element={<PersonalInfoPage />} />
               {/* Thêm các route khác cho customer ở đây */}
               <Route path="/treatmentplan" element={<TreatmentPlan />} />
-              <Route path="/medical-history" element={<MedicalHistory />} />
+              <Route path="/contact" element={<ContactDoctor />} />
               <Route path="/schedule" element={<TreatmentSchedule />} />
             </Routes>
           </PrivateRoute>
@@ -129,6 +131,7 @@ const MainRouter = () => {
                 path="/medicalrecord"
                 element={<MedicalRecordManagement />}
               />
+              <Route path="contact" element={<ContactPatient />} />
               {/* Thêm các route khác cho doctor ở đây */}
             </Routes>
           </PrivateRoute>

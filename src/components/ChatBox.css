@@ -1,0 +1,225 @@
+/* Avatar và Avatar Placeholder */
+.chatbox-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #00b4c6;
+  flex-shrink: 0;
+}
+
+.chatbox-avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(
+    135deg,
+    #e0f7ff,
+    #f0f9ff
+  ); /* Gradient background */
+  border: 2px solid #00b4c6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 180, 198, 0.15); /* Thêm shadow */
+  transition: all 0.3s ease;
+}
+
+.chatbox-avatar-placeholder:hover {
+  background: linear-gradient(135deg, #bfdbfe, #dbeafe);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 180, 198, 0.25);
+}
+
+/* Làm icon User rõ hơn */
+.chatbox-avatar-placeholder svg {
+  color: #00b4c6 !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+  stroke-width: 2; /* Làm đậm stroke */
+}
+
+/* Header styling */
+.chatbox-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f8fafc, #ffffff);
+  border-bottom: 1px solid #e5e7eb;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.chatbox-header span {
+  font-weight: 600;
+  color: #1f2937;
+  flex: 1;
+  font-size: 1rem;
+}
+
+.chatbox-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatbox-close:hover {
+  background: #f3f4f6;
+  color: #374151;
+  transform: scale(1.1);
+}
+
+/* Main chatbox container */
+.chatbox-messenger {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 380px;
+  height: 500px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+
+/* Messages area */
+.chatbox-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  background: #f9fafb;
+}
+
+.chatbox-message-row {
+  margin-bottom: 12px;
+  display: flex;
+}
+
+.chatbox-message-row.self {
+  justify-content: flex-end;
+}
+
+.chatbox-message-bubble {
+  max-width: 70%;
+  padding: 12px 16px;
+  border-radius: 18px;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  position: relative;
+}
+
+.chatbox-message-row.self .chatbox-message-bubble {
+  background: linear-gradient(135deg, #00b4c6, #0284c7);
+  color: white;
+}
+
+.chatbox-message-time {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* Input area */
+.chatbox-input-area {
+  display: flex;
+  padding: 16px;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  gap: 12px;
+}
+
+.chatbox-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  border-radius: 24px;
+  outline: none;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.chatbox-input:focus {
+  border-color: #00b4c6;
+  box-shadow: 0 0 0 3px rgba(0, 180, 198, 0.1);
+}
+
+.chatbox-send-btn {
+  background: linear-gradient(135deg, #00b4c6, #0284c7);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 24px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.chatbox-send-btn:hover {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 180, 198, 0.3);
+}
+
+.chatbox-send-btn:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .chatbox-messenger {
+    bottom: 10px;
+    right: 10px;
+    left: 10px;
+    width: auto;
+    height: 400px;
+  }
+
+  .chatbox-avatar-placeholder {
+    width: 36px;
+    height: 36px;
+  }
+
+  .chatbox-avatar-placeholder svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Scrollbar styling */
+.chatbox-messages::-webkit-scrollbar {
+  width: 4px;
+}
+
+.chatbox-messages::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.chatbox-messages::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.chatbox-messages::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
