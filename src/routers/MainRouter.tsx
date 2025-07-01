@@ -36,6 +36,8 @@ import PaymentSuccess from "@/pages/Payment/PaymentSuccess";
 import PaymentFailed from "@/pages/Payment/PaymentFailed";
 import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
 import ContactPatient from "@/pages/Doctor/Patients/ContactPatient/ContactPatient";
+import MedicalHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
+import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 const MainRouter = () => {
   return (
     <Routes>
@@ -82,6 +84,7 @@ const MainRouter = () => {
               {/* Thêm các route khác cho customer ở đây */}
               <Route path="/treatmentplan" element={<TreatmentPlan />} />
               <Route path="/contact" element={<ContactDoctor />} />
+              <Route path="/schedule" element={<TreatmentSchedule />} />
             </Routes>
           </PrivateRoute>
         }
@@ -117,10 +120,12 @@ const MainRouter = () => {
               <Route path="/schedules/:id?" element={<Schedules />} />
               <Route path="/patients" element={<PatientList />} />
               <Route path="/patients/:id" element={<PatientList />} />
+
               <Route
-                path="/patients/treatment/:patientId"
+                path="/patients/ivf-tracker"
                 element={<IVFTreatmentTracker />}
               />
+
               <Route path="/appointments" element={<ViewAppointment />} />
               <Route
                 path="/medicalrecord"
