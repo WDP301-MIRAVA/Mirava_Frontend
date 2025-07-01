@@ -7,7 +7,7 @@ import { decodeToken } from "@/utils/Decodejwt";
 import { toast } from "react-hot-toast";
 import Header from "../../components/Header/index";
 import Footer from "../../components/Footer";
-import logo from '../../assets/mirava-logo.png'; 
+import logo from "../../assets/mirava-logo.png";
 
 const LoginPage = () => {
   const [loading, setLoading] = useState(false);
@@ -120,6 +120,9 @@ const LoginPage = () => {
             break;
           case "Doctor":
             navigate("/doctor");
+            break;
+          case "Manager":
+            navigate("/manager");
             break;
           case "Customer":
           default:
