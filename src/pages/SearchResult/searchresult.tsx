@@ -42,7 +42,7 @@ const SearchResult: React.FC = () => {
       const tokenPayload = JSON.parse(atob(data.accessToken.split(".")[1]));
       localStorage.setItem("role", tokenPayload.role);
       localStorage.setItem("userInfo", JSON.stringify(tokenPayload));
-
+      localStorage.setItem("patientId", tokenPayload.id);
       if (tokenPayload.role === "Customer") {
         navigate("/customer");
         return;

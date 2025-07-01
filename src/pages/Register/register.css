@@ -12,6 +12,7 @@
   flex: 1;
   min-height: calc(100vh - 200px); /* Adjust based on header/footer height */
   background-color: #f8f9fa;
+  margin-bottom: 2px;
 }
 
 /* Left side with illustration */
@@ -27,7 +28,7 @@
 }
 
 .register-left::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 0;
@@ -118,7 +119,7 @@ h2 {
 /* Hover states */
 .register-box .ant-input:hover,
 .register-box .ant-input-password:hover {
-  border-color: #24B5CF !important;
+  border-color: #24b5cf !important;
   background-color: #fff !important;
 }
 
@@ -127,7 +128,7 @@ h2 {
 .register-box .ant-input-password:focus,
 .register-box .ant-input-focused,
 .register-box .ant-input-password-focused {
-  border-color: #24B5CF !important;
+  border-color: #24b5cf !important;
   box-shadow: 0 0 0 3px rgba(36, 181, 207, 0.1) !important;
   background-color: #fff !important;
   outline: none !important;
@@ -175,7 +176,7 @@ h2 {
 
 /* Register button */
 .register-button {
-  background-color: #24B5CF !important;
+  background-color: #24b5cf !important;
   border: none !important;
   border-radius: 8px !important;
   height: 48px !important;
@@ -186,7 +187,7 @@ h2 {
 }
 
 .register-button:hover {
-  background: linear-gradient(135deg, #1a9bb8 0%, #24B5CF 100%) !important;
+  background: linear-gradient(135deg, #1a9bb8 0%, #24b5cf 100%) !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 6px 20px rgba(36, 181, 207, 0.4) !important;
 }
@@ -205,7 +206,7 @@ h2 {
 }
 
 .login-link-text {
-  color: #24B5CF !important;
+  color: #24b5cf !important;
   font-weight: 600;
   text-decoration: none;
   transition: color 0.3s ease;
@@ -240,31 +241,31 @@ h2 {
     flex-direction: column;
     min-height: auto;
   }
-  
+
   .register-left {
     padding: 24px;
     min-height: 250px;
   }
-  
+
   .illustration {
     max-height: 200px;
   }
-  
+
   .tagline {
     font-size: 16px;
     margin-top: 16px;
   }
-  
+
   .register-right {
     padding: 24px 16px;
   }
-  
+
   .register-box {
     padding: 24px;
     box-shadow: none;
     border: none;
   }
-  
+
   h2 {
     font-size: 24px;
     margin-bottom: 24px;
@@ -277,15 +278,15 @@ h2 {
     padding: 16px;
     min-height: 200px;
   }
-  
+
   .register-box {
     padding: 20px 16px;
   }
-  
+
   h2 {
     font-size: 22px;
   }
-  
+
   .ant-input,
   .ant-input-password {
     font-size: 16px; /* Prevent zoom on iOS */
@@ -301,13 +302,13 @@ h2 {
 }
 
 .register-box .ant-input-affix-wrapper:hover {
-  border-color: #24B5CF !important;
+  border-color: #24b5cf !important;
   background-color: #fff !important;
 }
 
 .register-box .ant-input-affix-wrapper:focus,
 .register-box .ant-input-affix-wrapper-focused {
-  border-color: #24B5CF !important;
+  border-color: #24b5cf !important;
   box-shadow: 0 0 0 3px rgba(36, 181, 207, 0.1) !important;
   background-color: #fff !important;
 }

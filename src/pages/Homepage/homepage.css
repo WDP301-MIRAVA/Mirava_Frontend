@@ -169,6 +169,7 @@ h3 {
 }
 
 .doctors-section h2 {
+  text-align: center;
   margin-bottom: 30px;
   font-size: 24px;
 }
@@ -249,6 +250,7 @@ h3 {
 }
 
 .treatment-process-section h2 {
+  text-align: center;
   margin-bottom: 40px;
   font-size: 24px;
 }
@@ -324,6 +326,7 @@ h3 {
 }
 
 .blog-section h2 {
+  text-align: center;
   margin-bottom: 30px;
   font-size: 24px;
 }
