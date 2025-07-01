@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import './IUIIVFServices.css';
-import { useNavigate } from 'react-router-dom';
-import { Baby } from 'lucide-react';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import React, { useEffect, useState } from "react";
+import "./IUIIVFServices.css";
+import { useNavigate } from "react-router-dom";
+import { Baby } from "lucide-react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 interface ServicePackage {
   id: string;
@@ -17,7 +17,9 @@ interface ServicePackage {
 }
 
 const IUIIVFServices: React.FC = () => {
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'iui' | 'ivf'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<
+    "all" | "iui" | "ivf"
+  >("all");
   const [servicePackages, setServicePackages] = useState<ServicePackage[]>([]);
   const navigate = useNavigate();
 
@@ -28,18 +30,27 @@ const IUIIVFServices: React.FC = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const res = await fetch('https://mirava-f0rz.onrender.com/api/service');
+        const res = await fetch("https://mirava-f0rz.onrender.com/api/service");
         const data = await res.json();
 
         const enrichedData = await Promise.all(
           data.map(async (item: any) => {
-            const detailRes = await fetch(`https://mirava-f0rz.onrender.com/api/service/${item._id}`);
+            const detailRes = await fetch(
+              `https://mirava-f0rz.onrender.com/api/service/${item._id}`
+            );
             const detailData = await detailRes.json();
 
             const originalPrice = item.price;
             const discountPrice = detailData.salePrice || originalPrice;
-            console.log('Original Price:', originalPrice, 'Discount Price:', discountPrice);
-            const discount = Math.round(originalPrice * (1 - discountPrice / 100));
+            console.log(
+              "Original Price:",
+              originalPrice,
+              "Discount Price:",
+              discountPrice
+            );
+            const discount = Math.round(
+              originalPrice * (1 - discountPrice / 100)
+            );
 
             return {
               id: item._id,
@@ -48,30 +59,32 @@ const IUIIVFServices: React.FC = () => {
               discountPrice,
               discount,
               image: item.imageUrl,
-              description: item.shortDescription || '',
-              features: [] // bạn có thể cập nhật thêm nếu có trong API
+              description: item.shortDescription || "",
+              features: [], // bạn có thể cập nhật thêm nếu có trong API
             };
           })
         );
 
         setServicePackages(enrichedData);
       } catch (error) {
-        console.error('Failed to fetch services:', error);
+        console.error("Failed to fetch services:", error);
       }
     };
 
     fetchServices();
   }, []);
 
-  const filteredServices = servicePackages.filter(service => {
-    if (selectedCategory === 'all') return true;
-    if (selectedCategory === 'iui') return service.name.toLowerCase().includes('iui');
-    if (selectedCategory === 'ivf') return service.name.toLowerCase().includes('ivf');
+  const filteredServices = servicePackages.filter((service) => {
+    if (selectedCategory === "all") return true;
+    if (selectedCategory === "iui")
+      return service.name.toLowerCase().includes("iui");
+    if (selectedCategory === "ivf")
+      return service.name.toLowerCase().includes("ivf");
     return true;
   });
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN').format(price) + ' đ';
+    return new Intl.NumberFormat("vi-VN").format(price) + " đ";
   };
 
   return (
@@ -82,23 +95,33 @@ const IUIIVFServices: React.FC = () => {
           <div className="text-center">
             <h2>Dịch vụ IUI / IVF chuyên nghiệp</h2>
             <p>
-              Trung tâm Hiếm muộn MIRAVA tự hào là đơn vị tiên phong xây dựng và ứng dụng thành công mô hình điều trị DFT 1:1 nâng tỷ lệ đậu thai thành công tối 86%.
+              Trung tâm Hiếm muộn MIRAVA tự hào là đơn vị tiên phong xây dựng và
+              ứng dụng thành công mô hình điều trị DFT 1:1 nâng tỷ lệ đậu thai
+              thành công tối 86%.
             </p>
           </div>
 
           <div className="filter-buttons">
             <button
-              onClick={() => setSelectedCategory('all')}
-              className={selectedCategory === 'all' ? 'active' : ''}
-            >Tất cả</button>
+              onClick={() => setSelectedCategory("all")}
+              className={selectedCategory === "all" ? "active" : ""}
+            >
+              Tất cả
+            </button>
             <button
-              onClick={() => setSelectedCategory('iui')}
-              className={selectedCategory === 'iui' ? 'active' : ''}
-            >Dịch vụ IUI</button>
+              onClick={() => setSelectedCategory("iui")}
+              className={selectedCategory === "iui" ? "active" : ""}
+            >
+              Dịch vụ IUI
+            </button>
             <button
-              onClick={() => setSelectedCategory('ivf')}
-              className={selectedCategory === 'ivf' ? 'active' : ''}
-            >Dịch vụ IVF</button>
+              onClick={() => setSelectedCategory("ivf")}
+              className={selectedCategory === "ivf" ? "active" : ""}
+            >
+              Dịch vụ IVF
+            </button>
+            <button>Gói khám IUI</button>
+            <button>Gói khám IVF</button>
           </div>
 
           <div className="card-grid">
@@ -120,10 +143,14 @@ const IUIIVFServices: React.FC = () => {
                     ))}
                   </ul>
                   <div className="price-info">
-                    <p className="original-price">{formatPrice(service.originalPrice)}</p>
+                    <p className="original-price">
+                      {formatPrice(service.originalPrice)}
+                    </p>
                     <p className="price">{formatPrice(service.discount)}</p>
                   </div>
-                  <button onClick={() => handleBookConsultation(service.id)}>Đặt lịch tư vấn</button>
+                  <button onClick={() => handleBookConsultation(service.id)}>
+                    Đặt lịch tư vấn
+                  </button>
                 </div>
               </div>
             ))}

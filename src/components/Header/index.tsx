@@ -17,7 +17,7 @@ const navigationItems = [
   { name: "Giới thiệu", path: "/intro" },
   { name: "Dịch vụ IUI / IVF", path: "/iui-ivf-services" },
   { name: "Blog", path: "/bloglist" },
-  { name: "Đặt lịch khám", path: "/appointment" },
+  { name: "Đặt lịch tư vấn", path: "/appointment" },
 
   { name: "Tra cứu kết quả", path: "/searchresult" },
 ];
@@ -28,7 +28,7 @@ const Header: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
-  
+
   // const user = decodeToken(token ?? "");
   // Handle scroll effect to change header appearance on scroll
   useEffect(() => {
@@ -150,7 +150,7 @@ const Header: React.FC = () => {
               whileTap={{ scale: 0.95 }}
               onClick={handleConsultClick}
             >
-              Đăng ký tư vấn
+              Đăng ký tài khoản
             </motion.button>
           )}
 

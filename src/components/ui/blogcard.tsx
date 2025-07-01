@@ -1,8 +1,8 @@
-import React from 'react';
+import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, User, ArrowRight } from 'lucide-react';
+import { Calendar, User, ArrowRight } from "lucide-react";
 
 interface Blog {
   id: number;
@@ -24,9 +24,9 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
       <CardHeader className="pb-4">
         <div className="flex flex-wrap gap-2 mb-3">
           {blog.tags.slice(0, 2).map((tag, index) => (
-            <Badge 
-              key={index} 
-              variant="secondary" 
+            <Badge
+              key={index}
+              variant="secondary"
               className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100"
             >
               {tag}
@@ -42,12 +42,12 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
           {blog.title}
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent className="flex-1 flex flex-col">
         <p className="text-gray-600 text-sm line-clamp-3 mb-4 flex-1">
           {blog.excerpt}
         </p>
-        
+
         <div className="space-y-3 mt-auto">
           <div className="flex items-center gap-4 text-sm text-gray-500">
             <div className="flex items-center gap-1">
@@ -59,9 +59,9 @@ const BlogCard: React.FC<BlogCardProps> = ({ blog }) => {
               <span>{blog.publishDate}</span>
             </div>
           </div>
-          
-          <Button 
-            variant="outline" 
+
+          <Button
+            variant="outline"
             className="w-full group hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-all duration-200"
           >
             Xem thêm

@@ -42,7 +42,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
       label: "Hồ sơ Bệnh nhân",
       path: "/customer/profile",
     },
-    
+
     {
       id: 3,
       name: "Kế hoạch điều trị",
@@ -55,7 +55,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
       label: "Lịch điều trị",
       path: "/customer/schedule",
     },
-   
+
     {
       id: 5,
       name: "Đánh giá",
@@ -106,6 +106,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("role");
     localStorage.removeItem("userInfo");
+    localStorage.removeItem("patientId");
     // Xóa thông tin đăng nhập khỏi sessionStorage
     sessionStorage.removeItem("refreshToken");
     sessionStorage.removeItem("accessToken");

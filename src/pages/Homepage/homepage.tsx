@@ -243,7 +243,7 @@ const HomePage: React.FC = () => {
                     className="view-more"
                     onClick={() => navigateToBlogDetail(blog._id)}
                   >
-                    Xem thêm
+                    Xem chi tiết
                   </button>
                 </div>
               </div>

@@ -307,18 +307,8 @@ const CheckoutPage: React.FC = () => {
     Math.round(price * (1 - salePercent / 100));
 
   const handlePlaceOrder = async () => {
-    console.log("📋 Dữ liệu người dùng:", formData);
-    // Validate form
-    if (
-      !formData.userName ||
-      !formData.phone ||
-      !formData.address ||
-      !formData.email
-    ) {
-      toast.error("Vui lòng nhập đầy đủ thông tin bắt buộc!");
-      return;
-    }
-
+    // validate thông tin thanh toán
+    if (!validatePaymentInfo()) return;
     if (!service) {
       toast.error("Không tìm thấy thông tin dịch vụ!");
       return;
@@ -422,6 +412,41 @@ const CheckoutPage: React.FC = () => {
       </div>
     );
   }
+
+  // Hàm validate thông tin thanh toán
+  const validatePaymentInfo = () => {
+    if (!formData.userName.trim()) {
+      toast.error("Vui lòng nhập họ và tên!");
+      return false;
+    }
+    const phoneRegex = /^[0-9]{10,11}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error("Số điện thoại không hợp lệ!");
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Email không hợp lệ!");
+      return false;
+    }
+    if (!formData.address.trim()) {
+      toast.error("Vui lòng nhập địa chỉ!");
+      return false;
+    }
+    if (!formData.paymentMethod) {
+      toast.error("Vui lòng chọn phương thức thanh toán!");
+      return false;
+    }
+    // Nếu chọn đặt lịch thì kiểm tra ngày và giờ
+    if (
+      (formData.appointmentDate && !formData.timeSlot) ||
+      (!formData.appointmentDate && formData.timeSlot)
+    ) {
+      toast.error("Vui lòng chọn đầy đủ ngày và khung giờ khám!");
+      return false;
+    }
+    return true;
+  };
 
   return (
     <div>

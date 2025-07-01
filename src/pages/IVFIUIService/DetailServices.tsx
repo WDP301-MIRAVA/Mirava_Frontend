@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import './DetailServices.css';
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import "./DetailServices.css";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 interface ContentBlock {
   title: string;
   description: string;
   imageUrl: string;
   eligibilityCriteria: string[];
+  imageImportant?: string;
   summary: string;
 }
 
@@ -34,12 +35,16 @@ const DetailServices: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
-  const [selectedService, setSelectedService] = useState<ServicePackage | null>(null);
+  const [selectedService, setSelectedService] = useState<ServicePackage | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchDetail = async () => {
       try {
-        const res = await fetch(`https://mirava-f0rz.onrender.com/api/service/${id}`);
+        const res = await fetch(
+          `https://mirava-f0rz.onrender.com/api/service/${id}`
+        );
         const data = await res.json();
 
         const originalPrice = data.price;
@@ -53,15 +58,15 @@ const DetailServices: React.FC = () => {
           discountPrice,
           discount,
           image: data.imageUrl,
-          description: data.description || '',
+          description: data.description || "",
           shortDescription: data.shortDescription || [],
           content: data.content || [],
-          doctor: data.doctor || []
+          doctor: data.doctor || [],
         };
 
         setSelectedService(mappedData);
       } catch (error) {
-        console.error('Failed to fetch service detail:', error);
+        console.error("Failed to fetch service detail:", error);
       }
     };
 
@@ -69,7 +74,7 @@ const DetailServices: React.FC = () => {
   }, [id]);
 
   const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('vi-VN').format(price) + ' đ';
+    return new Intl.NumberFormat("vi-VN").format(price) + " đ";
   };
 
   const handleBuyNow = () => {
@@ -77,11 +82,7 @@ const DetailServices: React.FC = () => {
   };
 
   const handleAddToCart = () => {
-    console.log('Added to cart:', id);
-  };
-
-  const handleDeposit = () => {
-    console.log('Deposit for:', id);
+    console.log("Added to cart:", id);
   };
 
   if (!selectedService) {
@@ -98,7 +99,7 @@ const DetailServices: React.FC = () => {
 
   const galleryImages = [
     selectedService.image,
-    ...(selectedService.content?.map(c => c.imageUrl).filter(Boolean) || [])
+    ...(selectedService.content?.map((c) => c.imageUrl).filter(Boolean) || []),
   ];
 
   return (
@@ -110,13 +111,15 @@ const DetailServices: React.FC = () => {
             <div className="ivf-images">
               <div className="main-image">
                 <img src={galleryImages[selectedImage]} alt="Gói dịch vụ" />
-                <div className="discount-badge">-{selectedService.discount}%</div>
+                <div className="discount-badge">
+                  -{selectedService.discount}%
+                </div>
               </div>
               <div className="thumbs">
                 {galleryImages.map((img, idx) => (
                   <div
                     key={idx}
-                    className={`thumb ${selectedImage === idx ? 'active' : ''}`}
+                    className={`thumb ${selectedImage === idx ? "active" : ""}`}
                     onClick={() => setSelectedImage(idx)}
                   >
                     <img src={img} alt={`Hình ${idx + 1}`} />
@@ -128,8 +131,12 @@ const DetailServices: React.FC = () => {
             <div className="ivf-info">
               <h1>{selectedService.name}</h1>
               <div className="price-group">
-                <span className="original-price">{formatPrice(selectedService.originalPrice)}</span>
-                <span className="discounted-price">{formatPrice(selectedService.discountPrice)}</span>
+                <span className="original-price">
+                  {formatPrice(selectedService.originalPrice)}
+                </span>
+                <span className="discounted-price">
+                  {formatPrice(selectedService.discountPrice)}
+                </span>
               </div>
               <div className="gift-box">
                 🎁 <span>TẶNG THÊM</span>
@@ -143,9 +150,6 @@ const DetailServices: React.FC = () => {
                 </ul>
               </div>
               <div className="actions">
-                <button className="btn-primary" onClick={handleDeposit}>
-                  ĐẶT CỌC NGAY &gt;&gt;
-                </button>
                 <div className="btn-group">
                   <button className="btn-secondary" onClick={handleAddToCart}>
                     🛒 THÊM VÀO GIỎ HÀNG
@@ -159,32 +163,39 @@ const DetailServices: React.FC = () => {
           </div>
 
           {/* Content Blocks */}
-       {selectedService.content.map((block, idx) => (
-  <div key={idx} className="ivf-process">
-    <h2>{block.title}</h2>
-    <div className="process-steps">
-      <div className="process-step">
-        <img className="img-description" src={block.imageUrl} alt={block.title} />
-        <div className="process-step-content">
-          <p>{block.description}</p>
-          {block.eligibilityCriteria?.length > 0 && (
-            <>
-              <h4>Đối tượng áp dụng:</h4>
-              <ul>
-                {block.eligibilityCriteria.map((crit, i) => (
-                  <li key={i}>{crit}</li>
-                ))}
-              </ul>
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  </div>
-))}
-
-
-      
+          {selectedService.content.map((block, idx) => (
+            <div key={idx} className="ivf-process">
+              <h2>{block.title}</h2>
+              <div className="process-steps">
+                <div className="process-step">
+                  <img
+                    className="img-description"
+                    src={block.imageUrl}
+                    alt={block.title}
+                  />
+                  <div className="process-step-content">
+                    <p>{block.description}</p>
+                    {block.eligibilityCriteria?.length > 0 && (
+                      <>
+                        <h4>Đối tượng áp dụng:</h4>
+                        <ul>
+                          {block.eligibilityCriteria.map((crit, i) => (
+                            <li key={i}>{crit}</li>
+                          ))}
+                        </ul>
+                      </>
+                    )}
+                    <img
+                      className="img-important"
+                      src={block.imageImportant || ""}
+                      alt={""}
+                    />
+                    <p>{block.summary}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
       <Footer />
