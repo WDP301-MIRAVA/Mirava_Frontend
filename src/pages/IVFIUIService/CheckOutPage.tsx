@@ -240,7 +240,9 @@ const CheckoutPage: React.FC = () => {
 
       // Lọc bác sĩ có sẵn
       const available = service.doctor
+
         .map((doctor) => {
+          console.log("🧪 Doctor raw object:", doctor);
           const isWorkingTime = checkDoctorAvailability(doctor, date, time);
           const isBooked = bookedDoctors.includes(doctor._id);
           console.log(`👨‍⚕️ Doctor ${doctor.user.userName}:`, {
@@ -267,6 +269,7 @@ const CheckoutPage: React.FC = () => {
         formData.doctorId &&
         !available.find((d) => d._id === formData.doctorId)
       ) {
+        toast("Bác sĩ bạn đã chọn hiện không còn rảnh. Vui lòng chọn lại.");
         setFormData((prev) => ({ ...prev, doctorId: "" }));
       }
     } catch (error) {
@@ -279,7 +282,7 @@ const CheckoutPage: React.FC = () => {
 
   // Xử lý khi thay đổi ngày
   const handleDateChange = (date: string) => {
-    setFormData((prev) => ({ ...prev, appointmentDate: date, doctorId: "" }));
+    setFormData((prev) => ({ ...prev, appointmentDate: date }));
     if (date && formData.timeSlot) {
       findAvailableDoctors(date, formData.timeSlot);
     } else {
@@ -289,7 +292,7 @@ const CheckoutPage: React.FC = () => {
 
   // Xử lý khi thay đổi giờ
   const handleTimeSlotChange = (time: string) => {
-    setFormData((prev) => ({ ...prev, timeSlot: time, doctorId: "" }));
+    setFormData((prev) => ({ ...prev, timeSlot: time }));
     if (formData.appointmentDate && time) {
       findAvailableDoctors(formData.appointmentDate, time);
     } else {
@@ -345,7 +348,9 @@ const CheckoutPage: React.FC = () => {
         timeSlot: formData.timeSlot,
         doctorId: formData.doctorId,
       };
-
+      if (formData.doctorId) {
+        orderData.doctorId = formData.doctorId;
+      }
       console.log("📦 Tạo đơn hàng:", orderData);
       // Gửi yêu cầu tạo đơn hàng
       const orderResponse = await fetch(
@@ -388,44 +393,12 @@ const CheckoutPage: React.FC = () => {
 
       console.log("✅ Thanh toán thành công");
 
-      // Bước 3: Đặt lịch hẹn (nếu có chọn bác sĩ)
-      let appointmentData = null;
-      if (formData.doctorId && formData.appointmentDate && formData.timeSlot) {
-        const appointmentRequest = {
-          orderId: orderResult.data.order.id,
-          doctorId: formData.doctorId,
-          appointmentDate: formData.appointmentDate,
-          timeSlot: formData.timeSlot,
-          note: formData.appointmentNote,
-        };
-
-        const appointmentResponse = await fetch(
-          "https://mirava-f0rz.onrender.com/api/appointments/from-order",
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(appointmentRequest),
-          }
-        );
-
-        const appointmentResult = await appointmentResponse.json();
-
-        if (appointmentResponse.ok && appointmentResult.success) {
-          appointmentData = appointmentResult.data;
-          console.log("✅ Đặt lịch hẹn thành công");
-        } else {
-          console.warn("⚠️ Đặt lịch hẹn thất bại:", appointmentResult.message);
-          toast.warning("Đặt hàng thành công nhưng đặt lịch hẹn gặp sự cố");
-        }
-      }
-
       toast.success("Đặt hàng thành công!");
 
       // Navigate to success page
       navigate("/payment-confirmation", {
         state: {
           orderData: orderResult.data,
-          appointmentData,
           userInfo: formData,
           service: service,
         },
@@ -568,8 +541,11 @@ const CheckoutPage: React.FC = () => {
                         name="doctor"
                         value=""
                         checked={formData.doctorId === ""}
-                        onChange={() =>
-                          setFormData((prev) => ({ ...prev, doctorId: "" }))
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            doctorId: e.target.value,
+                          }))
                         }
                       />
                       <label htmlFor="no-doctor">
@@ -577,27 +553,27 @@ const CheckoutPage: React.FC = () => {
                       </label>
                     </div>
                     {availableDoctors.map((doctor) => (
-                      <div key={doctor._id} className="doctor-option">
+                      <label key={doctor._id} className="doctor-option">
                         <input
                           type="radio"
-                          id={doctor._id}
                           name="doctor"
                           value={doctor._id}
                           checked={formData.doctorId === doctor._id}
-                          onChange={() =>
+                          onChange={(e) =>
                             setFormData((prev) => ({
                               ...prev,
-                              doctorId: doctor._id,
+                              doctorId: e.target.value,
                             }))
                           }
                         />
-                        <label htmlFor={doctor._id}>
-                          <strong>{doctor.name}</strong> - {doctor.specialty}
+                        <div className="doctor-info">
+                          <strong>{doctor.name}</strong> -{" "}
+                          {doctor.specialty || "Chưa cập nhật"}
                           <span className="availability-badge">
                             Có thể đặt lịch
                           </span>
-                        </label>
-                      </div>
+                        </div>
+                      </label>
                     ))}
                   </div>
                 ) : (

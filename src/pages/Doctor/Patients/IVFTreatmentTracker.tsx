@@ -14,6 +14,20 @@ import { message } from "antd";
 import axios from "axios";
 import "./IVFTreatmentTracker.css";
 import MedicalRecordForm from "../MedicalRecordForm";
+
+// Hàm tính ngày mốc IVF
+// function getIVFEventDates(cycleStartDate: string): string[] {
+//   if (!cycleStartDate) return [];
+//   const base = new Date(cycleStartDate);
+//   // Ngày 1, 5, 8, 10 của chu kỳ (tính từ ngày bắt đầu)
+//   const offsets = [0, 4, 7, 9];
+//   return offsets.map((offset) => {
+//     const d = new Date(base);
+//     d.setDate(base.getDate() + offset);
+//     return d.toISOString().slice(0, 10);
+//   });
+// }
+
 // Types
 interface TreatmentStep {
   id: string;
@@ -47,9 +61,7 @@ interface FormData {
   performedBy: string;
   doctorNote: string;
   specialMetrics: { [key: string]: string | number };
-
   status?: "pending" | "in-progress" | "completed"; // Thêm status vào FormData
-
   stage?: string;
   title?: string;
   description?: string;
