@@ -108,7 +108,7 @@ const PersonalInfoPage: React.FC = () => {
     <>
       <div style={{ padding: 24, maxWidth: 600, margin: "0 auto" }}>
         <Card>
-          <Title level={3}>👤 Thông tin cá nhân</Title>
+          <Title level={3}>Thông tin cá nhân</Title>
           <Form layout="vertical" form={form} onFinish={onFinish}>
             <Form.Item
               label="Họ và tên"

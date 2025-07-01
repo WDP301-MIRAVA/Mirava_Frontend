@@ -82,7 +82,7 @@
   gap: 10px;
   font-size: 1.3rem;
   font-weight: 700;
-  color: #0284c7;
+  color: black;
   margin-bottom: 12px;
 }
 
@@ -108,7 +108,7 @@
 }
 
 .treatment-table th {
-  background: linear-gradient(90deg, #e0f7fa 0%, #f0fdfc 100%);
+  background: var(--primary-blue);
   font-weight: 700;
   font-size: 0.97rem;
   border-bottom: 2px solid #e0f2fe;
@@ -623,5 +623,160 @@
     flex-direction: column;
     gap: 8px;
     padding: 12px 12px 0 12px;
+  }
+}
+
+/* Medical Record Modal Styles */
+.modal {
+  animation: modalFadeIn 0.3s ease-out;
+  box-shadow: 0 8px 32px rgba(0, 180, 198, 0.15);
+}
+
+.modal h3 {
+  background: linear-gradient(135deg, #00b4c6 0%, #0ea5e9 100%);
+  color: #fff;
+  margin: 0;
+  padding: 20px 24px;
+  border-radius: 12px 12px 0 0;
+  font-size: 1.3rem;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 180, 198, 0.1);
+}
+
+.modal > div:nth-child(2) {
+  padding: 24px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: #f8fafb;
+}
+
+.modal > div:nth-child(2) > div {
+  background: #fff;
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  border-left: 4px solid #00b4c6;
+  box-shadow: 0 2px 6px rgba(0, 180, 198, 0.06);
+  transition: transform 0.2s ease;
+}
+
+.modal > div:nth-child(2) > div:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 180, 198, 0.1);
+}
+
+.modal > div:nth-child(2) > div:last-child {
+  margin-bottom: 0;
+}
+
+.modal b {
+  color: #00b4c6;
+  font-weight: 600;
+  display: inline-block;
+  min-width: 90px;
+  margin-right: 8px;
+}
+
+.modal > div:nth-child(2) > div > div {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+
+.modal > div:nth-child(2) > div > div:last-child {
+  margin-bottom: 0;
+}
+
+.modal > div:nth-child(2) > div > div:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* File attachments styling */
+.modal ul {
+  margin: 8px 0 0 0;
+  padding-left: 0;
+  list-style: none;
+}
+
+.modal li {
+  background: #e0f7fa;
+  border-radius: 6px;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  border-left: 3px solid #00b4c6;
+}
+
+.modal a {
+  color: #00b4c6;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.modal a:hover {
+  color: #0284c7;
+  text-decoration: underline;
+}
+
+/* Loading and empty states */
+.modal > div:nth-child(2) > div:first-child {
+  text-align: center;
+  color: #64748b;
+  font-style: italic;
+  padding: 40px 20px;
+  background: #f0fdfc;
+  border: 2px dashed #00b4c6;
+  border-radius: 8px;
+}
+
+/* Close button styling */
+.modal > button {
+  background: linear-gradient(135deg, #00b4c6 0%, #0ea5e9 100%);
+  color: #fff;
+  border: none;
+  border-radius: 0 0 12px 12px;
+  padding: 16px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  box-shadow: 0 -2px 8px rgba(0, 180, 198, 0.1);
+}
+
+.modal > button:hover {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  transform: translateY(-1px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .modal {
+    margin: 20px;
+    max-width: calc(100vw - 40px);
+  }
+  
+  .modal h3 {
+    font-size: 1.1rem;
+    padding: 16px 20px;
+  }
+  
+  .modal > div:nth-child(2) {
+    padding: 16px;
+  }
+  
+  .modal > div:nth-child(2) > div {
+    padding: 12px 16px;
+  }
+  
+  .modal > button {
+    padding: 14px 20px;
   }
 }
