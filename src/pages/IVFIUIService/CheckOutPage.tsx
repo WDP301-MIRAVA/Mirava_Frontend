@@ -243,7 +243,6 @@ const CheckoutPage: React.FC = () => {
         .map((doctor) => {
           const isWorkingTime = checkDoctorAvailability(doctor, date, time);
           const isBooked = bookedDoctors.includes(doctor._id);
-
           console.log(`👨‍⚕️ Doctor ${doctor.user.userName}:`, {
             isWorkingTime,
             isBooked,
@@ -350,7 +349,7 @@ const CheckoutPage: React.FC = () => {
       console.log("📦 Tạo đơn hàng:", orderData);
       // Gửi yêu cầu tạo đơn hàng
       const orderResponse = await fetch(
-        "http://localhost:3000/api/orders/guest",
+        "https://mirava-f0rz.onrender.com/api/orders/guest",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -368,7 +367,7 @@ const CheckoutPage: React.FC = () => {
 
       // Bước 2: Xác nhận thanh toán (giả lập thanh toán thành công)
       const paymentResponse = await fetch(
-        `http://localhost:3000/api/orders/${orderResult.data.order.id}/confirm-payment`,
+        `https://mirava-f0rz.onrender.com/api/orders/${orderResult.data.order.id}/confirm-payment`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -401,7 +400,7 @@ const CheckoutPage: React.FC = () => {
         };
 
         const appointmentResponse = await fetch(
-          "http://localhost:3000/api/appointments/from-order",
+          "https://mirava-f0rz.onrender.com/api/appointments/from-order",
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },

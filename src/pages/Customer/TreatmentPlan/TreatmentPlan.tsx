@@ -3,6 +3,7 @@ import "./TreatmentPlan.css";
 import { type TreatmentPlan as ApiTreatmentPlan } from "../../../services/treatmentPlan.service";
 import { FileText } from "lucide-react";
 import axios from "axios";
+
 interface TreatmentStep {
   id: string;
   name: string;

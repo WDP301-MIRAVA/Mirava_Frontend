@@ -22,6 +22,7 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
     if (path.includes("/doctor/prescriptions")) return "Kê đơn thuốc";
     if (path.includes("/doctor/medicalrecord")) return "Hồ sơ y tế";
     if (path.includes("/doctor/schedule")) return "Lịch làm việc";
+    if (path.includes("/doctor/contact")) return "Liên hệ";
     if (path.includes("/doctor/reports")) return "Báo cáo";
     if (path.includes("/doctor/profile")) return "Hồ sơ";
     return "Trang chủ";
@@ -56,6 +57,13 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
       label: "Lịch làm việc",
       path: "/doctor/schedules",
     },
+    {
+      id: 9,
+      name: "Liên hệ",
+      label: "Liên hệ",
+      path: "/doctor/contact",
+    },
+
     { id: 2, name: "Hồ sơ", label: "Hồ sơ", path: "/doctor/profile" },
   ];
 

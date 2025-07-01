@@ -34,7 +34,7 @@ const PaymentSuccess: React.FC = () => {
       try {
         const token = localStorage.getItem("accessToken");
         const response = await fetch(
-          `http://localhost:3000/api/vnpay/payment-status/${orderId}`,
+          `https://mirava-f0rz.onrender.com/api/vnpay/payment-status/${orderId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

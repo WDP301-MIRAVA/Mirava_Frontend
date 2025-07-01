@@ -1,0 +1,279 @@
+.contact-patient-page {
+  padding: 24px;
+  background: #f8fafb;
+  min-height: 100vh;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+}
+
+.contact-patient-page h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+/* Patient List Container */
+.patient-list {
+  max-width: 800px;
+  margin: 0 auto 24px auto;
+  display: grid;
+  gap: 16px;
+}
+
+/* Individual Patient Item */
+.patient-item {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.patient-item:hover {
+  border-color: #00b4c6;
+  box-shadow: 0 4px 12px rgba(0, 180, 198, 0.15);
+  transform: translateY(-2px);
+}
+
+.patient-item:hover::before {
+  opacity: 1;
+}
+
+.patient-item::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #00b4c6, #0284c7);
+  border-radius: 12px 12px 0 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* Patient Avatar */
+.patient-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #00b4c6;
+  flex-shrink: 0;
+}
+
+/* Patient Info - Căn trái */
+.patient-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left; /* Căn trái */
+  align-items: flex-start; /* Căn trái */
+}
+
+.patient-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  text-align: left; /* Căn trái */
+}
+
+.patient-code {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  text-align: left; /* Căn trái */
+}
+
+/* Chat Button */
+.message-icon-btn {
+  background: linear-gradient(135deg, #00b4c6, #0284c7);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 180, 198, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+}
+
+.message-icon-btn:hover {
+  background: linear-gradient(135deg, #0284c7, #0369a1);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 180, 198, 0.3);
+}
+
+.message-icon-btn:active {
+  transform: translateY(0) scale(1);
+}
+
+.message-icon-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 180, 198, 0.3);
+}
+
+/* Empty State */
+.patient-list p {
+  text-align: center;
+  color: #6b7280;
+  font-size: 1.1rem;
+  padding: 40px 20px;
+  background: white;
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  margin: 0;
+}
+
+/* Loading State */
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  background: white;
+  border-radius: 12px;
+  margin: 20px auto;
+  max-width: 400px;
+}
+
+.loading p {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Error State */
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  margin: 20px auto;
+  max-width: 500px;
+}
+
+.error p {
+  color: #dc2626;
+  font-size: 1rem;
+  margin: 0;
+  text-align: center;
+}
+
+/* Animation for smooth transitions */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.patient-item {
+  animation: fadeInUp 0.3s ease forwards;
+}
+
+.patient-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.patient-item:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.patient-item:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.patient-item:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.patient-item:nth-child(5) {
+  animation-delay: 0.5s;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .contact-patient-page {
+    padding: 16px;
+  }
+
+  .contact-patient-page h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .patient-item {
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .patient-avatar {
+    width: 45px;
+    height: 45px;
+  }
+
+  .patient-name {
+    font-size: 1rem;
+  }
+
+  .message-icon-btn {
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+  }
+
+  .message-icon-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+@media (max-width: 480px) {
+  .patient-item {
+    flex-direction: column;
+    text-align: center;
+    padding: 20px;
+    gap: 16px;
+  }
+
+  /* Trên mobile vẫn căn giữa cho đẹp */
+  .patient-info {
+    align-items: center;
+    text-align: center;
+  }
+
+  .patient-name,
+  .patient-code {
+    text-align: center;
+  }
+
+  .message-icon-btn {
+    width: 100%;
+    max-width: 200px;
+    height: 44px;
+    border-radius: 8px;
+    margin-top: 8px;
+  }
+
+  .patient-list {
+    gap: 12px;
+  }
+}

@@ -371,12 +371,328 @@ textarea {
   color: white;
 }
 
+/* Available Doctors Section */
 .available-doctors {
-  margin-top: 20px;
-  padding: 15px;
-  background: white;
+  margin-top: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.available-doctors:hover {
+  border-color: #00b4c6;
+  box-shadow: 0 8px 25px rgba(0, 180, 198, 0.15);
+}
+
+.available-doctors .label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1a202c;
+  margin-bottom: 16px;
+  display: block;
+  text-align: center;
+  padding: 12px;
+  background: linear-gradient(135deg, #00b4c6, #0284c7);
+  color: white;
   border-radius: 8px;
-  border: 1px solid #d9d9d9;
+  box-shadow: 0 2px 4px rgba(0, 180, 198, 0.2);
+}
+
+/* Loading State */
+.loading-doctors {
+  text-align: center;
+  padding: 40px 20px;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 2px dashed #cbd5e0;
+}
+
+.loading-doctors p {
+  color: #4a5568;
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Doctor List */
+.doctor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+/* Doctor Option */
+.doctor-option {
+  position: relative;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 16px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.doctor-option:hover {
+  border-color: #00b4c6;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 180, 198, 0.15);
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+}
+
+.doctor-option input[type="radio"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #00b4c6;
+  cursor: pointer;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.doctor-option input[type="radio"]:checked + label {
+  color: #00b4c6;
+  font-weight: 600;
+}
+
+.doctor-option input[type="radio"]:checked {
+  transform: scale(1.1);
+}
+
+.doctor-option label {
+  cursor: pointer;
+  margin: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 1rem;
+  color: #2d3748;
+  line-height: 1.4;
+  transition: all 0.2s ease;
+}
+
+.doctor-option label strong {
+  font-size: 1.1rem;
+  color: #1a202c;
+  display: block;
+}
+
+/* Availability Badge */
+.availability-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #48bb78, #38a169);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(72, 187, 120, 0.3);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.02);
+    opacity: 0.9;
+  }
+}
+
+/* No Doctor Option Styling */
+.doctor-option:first-child {
+  background: linear-gradient(135deg, #fef5e7 0%, #ffffff 100%);
+  border-color: #f6ad55;
+}
+
+.doctor-option:first-child:hover {
+  border-color: #ed8936;
+  background: linear-gradient(135deg, #fed7aa 0%, #fef5e7 100%);
+}
+
+.doctor-option:first-child label {
+  color: #c05621;
+  font-weight: 600;
+}
+
+/* No Doctors Available */
+.no-doctors {
+  text-align: center;
+  padding: 40px 20px;
+  background: linear-gradient(135deg, #fef2f2 0%, #ffffff 100%);
+  border: 2px dashed #fca5a5;
+  border-radius: 12px;
+  margin-top: 16px;
+}
+
+.no-doctors p {
+  color: #dc2626;
+  font-size: 1rem;
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.no-doctors p:first-child {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.no-doctors p:last-child {
+  color: #7f1d1d;
+  font-style: italic;
+}
+
+/* Selected State Animation */
+.doctor-option input[type="radio"]:checked ~ * {
+  animation: selectedPulse 0.3s ease-out;
+}
+
+@keyframes selectedPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .available-doctors {
+    margin: 16px 0;
+    padding: 16px;
+  }
+
+  .available-doctors .label {
+    font-size: 1rem;
+    padding: 10px;
+    text-align: left;
+  }
+
+  .doctor-option {
+    padding: 12px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .doctor-option input[type="radio"] {
+    align-self: flex-start;
+  }
+
+  .doctor-option label {
+    width: 100%;
+  }
+
+  .availability-badge {
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+}
+
+@media (max-width: 480px) {
+  .available-doctors {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .doctor-option {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .doctor-option label {
+    font-size: 0.9rem;
+  }
+
+  .doctor-option label strong {
+    font-size: 1rem;
+  }
+
+  .availability-badge {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+  }
+
+  .loading-doctors,
+  .no-doctors {
+    padding: 24px 16px;
+  }
+}
+
+/* Focus States for Accessibility */
+.doctor-option input[type="radio"]:focus {
+  outline: 3px solid rgba(0, 180, 198, 0.3);
+  outline-offset: 2px;
+}
+
+.doctor-option:focus-within {
+  border-color: #00b4c6;
+  box-shadow: 0 0 0 3px rgba(0, 180, 198, 0.1);
+}
+
+/* Enhanced Visual Effects */
+.doctor-option::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #00b4c6, #0284c7);
+  border-radius: 10px 10px 0 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.doctor-option:hover::before,
+.doctor-option input[type="radio"]:checked + label::before {
+  opacity: 1;
+}
+
+/* Loading Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.doctor-option {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.doctor-option:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.doctor-option:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.doctor-option:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.doctor-option:nth-child(4) {
+  animation-delay: 0.4s;
 }
 
 .loading-doctors {
