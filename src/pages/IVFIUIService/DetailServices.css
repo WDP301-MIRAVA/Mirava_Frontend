@@ -141,6 +141,21 @@
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
+  width: 100%; /* đảm bảo full chiều ngang khối .actions */
+}
+.actions .btn-group button {
+  flex: 1;
+  padding: 1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 40px;
+  background: #009c9a;
+  color: white;
+  text-align: center;
+  white-space: nowrap; /* ✅ Không cho xuống dòng */
+  overflow: hidden; /* ✅ Tránh vỡ layout */
+  text-overflow: ellipsis;
+  min-width: 0; /* ✅ Để flex hoạt động đúng */
 }
 
 .actions .btn-secondary {
