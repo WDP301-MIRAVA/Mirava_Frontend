@@ -18,17 +18,17 @@
   text-align: left;
   background: #f8fafc;
   border-radius: 14px;
-  padding: 24px 24px 18px 24px;
+  padding: 4.5rem 2rem !important;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  overflow: hidden; /* ✅ ngăn tràn */
 }
 .header-top {
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
-  gap: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
   width: 100%;
-  /* Đảm bảo các phần tử con không bị tràn ra ngoài */
-  box-sizing: border-box;
 }
 .back-btn {
   background: none;
@@ -49,6 +49,7 @@
 .patient-info {
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {
@@ -67,27 +68,28 @@
 
 .header-title {
   font-size: 1.5rem;
-  padding-right: 440px;
   font-weight: 700;
   color: #1f2937;
-  margin-bottom: 10px;
-  margin-top: 0;
+  margin: 0 auto 10px auto;
   text-align: center;
-  width: 100%;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
-  padding-right: 120px;
+  width: 100%;
+  padding: 0 16px; /* Giữ padding nhỏ để không bị tràn */
+  box-sizing: border-box;
+  word-wrap: break-word;
 }
+
 .patient-details {
   display: flex;
-  flex-wrap: wrap;
-  gap: 18px 32px;
+  flex-wrap: nowrap; /* ✅ Không cho xuống dòng */
   align-items: center;
-  padding-right: 301px;
+  gap: 24px; /* ✅ Khoảng cách ngang giữa các span */
   font-size: 1rem;
   color: #374151;
-  margin-bottom: 0;
+  white-space: nowrap; /* ✅ Ngăn ngắt dòng trong mỗi span */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 16px; /* ✅ Không nên dùng 301px */
 }
 
 .header-subtitle {

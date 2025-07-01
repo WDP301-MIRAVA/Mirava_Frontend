@@ -38,42 +38,32 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     },
     {
       id: 2,
-      name: "Hồ sơ",
-      label: "Hồ sơ",
+      name: "Hồ sơ Bệnh nhân",
+      label: "Hồ sơ Bệnh nhân",
       path: "/customer/profile",
     },
+    
     {
       id: 3,
-      name: "Tiền sử y tế",
-      label: "Tiền sử y tế",
-      path: "/customer/medical-history",
-    },
-    {
-      id: 4,
       name: "Kế hoạch điều trị",
       label: "Kế hoạch điều trị",
       path: "/customer/treatmentplan",
     },
     {
-      id: 5,
+      id: 4,
       name: "Lịch điều trị",
       label: "Lịch điều trị",
       path: "/customer/schedule",
     },
+   
     {
-      id: 6,
-      name: "Đơn thuốc",
-      label: "Đơn thuốc",
-      path: "/customer/prescription",
-    },
-    {
-      id: 7,
+      id: 5,
       name: "Đánh giá",
       label: "Đánh giá",
       path: "/customer/reviews",
     },
     {
-      id: 8,
+      id: 6,
       name: "Liên hệ bác sĩ",
       label: "Liên hệ bác sĩ",
       path: "/customer/contact",
