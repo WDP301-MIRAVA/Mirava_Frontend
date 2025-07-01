@@ -37,7 +37,10 @@ import PaymentFailed from "@/pages/Payment/PaymentFailed";
 import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
 import ContactPatient from "@/pages/Doctor/Patients/ContactPatient/ContactPatient";
 import MedicalHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
+import OrderManagement from "@/pages/Manager/OrderManagement/OrderManagement";
 import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
+
+import ManagerLayout from "@/layouts/ManagerLayout/ManagerLayout";
 const MainRouter = () => {
   return (
     <Routes>
@@ -133,6 +136,23 @@ const MainRouter = () => {
               />
               <Route path="contact" element={<ContactPatient />} />
               {/* Thêm các route khác cho doctor ở đây */}
+            </Routes>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/manager/*"
+        element={
+          <PrivateRoute allowedRole="Manager" layout={ManagerLayout}>
+            <Routes>
+              <Route index element={<div>Manager Dashboard</div>} />
+              <Route path="/profile" element={<PersonalInfoPage />} />
+              <Route
+                path="/doctor-schedule-management"
+                element={<DoctorScheduleManagement />}
+              />
+              {/* Thêm các route khác cho manager ở đây */}
+              <Route path="orders" element={<OrderManagement />} />
             </Routes>
           </PrivateRoute>
         }

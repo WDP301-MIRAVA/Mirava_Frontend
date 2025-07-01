@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 
 interface User {
   id: string;
@@ -23,7 +23,7 @@ export const useAuth = () => {
           id: parsedUserInfo?.id || "unknown",
           name: parsedUserInfo?.name || "User",
           email: parsedUserInfo?.email || "",
-          role: role
+          role: role,
         });
       } catch (error) {
         console.error("Error parsing user info:", error);
@@ -41,13 +41,13 @@ export const useAuth = () => {
     localStorage.setItem("accessToken", token);
     localStorage.setItem("role", userRole);
     localStorage.setItem("userInfo", JSON.stringify(userInfo));
-    
+
     const typedUserInfo = userInfo as User;
     setUser({
       id: typedUserInfo.id,
       name: typedUserInfo.name,
       email: typedUserInfo.email,
-      role: userRole
+      role: userRole,
     });
   };
 
@@ -61,15 +61,17 @@ export const useAuth = () => {
   const isAuthenticated = !!user;
   const isAdmin = user?.role === "admin";
   const isCustomer = user?.role === "customer";
+  const isManager = user?.role === "manager";
 
   return {
     user,
     isAuthenticated,
     isAdmin,
     isCustomer,
+    isManager,
     isLoading,
     login,
     logout,
-    checkAuthStatus
+    checkAuthStatus,
   };
 };
