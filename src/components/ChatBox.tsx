@@ -4,7 +4,7 @@ import axios from "axios";
 import { User } from "lucide-react";
 import "./ChatBox.css";
 
-const SOCKET_URL = "http://localhost:3000"; // Đổi thành domain backend khi deploy
+const SOCKET_URL = "https://mirava-f0rz.onrender.com"; // Đổi thành domain backend khi deploy
 
 let socket: Socket;
 
