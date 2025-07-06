@@ -1,14 +1,12 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { decodeToken } from "./Decodejwt";
 
 interface PrivateRouteProps {
-  children: React.ReactNode;
   allowedRole: string;
   layout: React.ComponentType<{ children: React.ReactNode }>;
 }
 
 const PrivateRoute = ({
-  children,
   allowedRole,
   layout: LayoutComponent,
 }: PrivateRouteProps) => {
@@ -25,7 +23,11 @@ const PrivateRoute = ({
   }
 
   // Nếu hợp lệ, render layout với children bên trong
-  return <LayoutComponent>{children}</LayoutComponent>;
+  return (
+    <LayoutComponent>
+      <Outlet />
+    </LayoutComponent>
+  );
 };
 
 export default PrivateRoute;
