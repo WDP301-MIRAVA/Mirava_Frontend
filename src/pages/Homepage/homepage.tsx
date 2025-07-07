@@ -19,7 +19,7 @@ const HomePage: React.FC = () => {
   const [blogLoading, setBlogLoading] = useState(true);
   const [blogError, setBlogError] = useState<string | null>(null);
 
-  // lấy 2 bài blog mới nhất`
+  // lấy 2 bài blog mới nhất
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
@@ -107,7 +107,7 @@ const HomePage: React.FC = () => {
         style={{ backgroundImage: `url(${bgImages[currentBgIndex]})` }}
       >
         <div className="hero-overlay" />
-        <div className="hero-content ">
+        <div className="hero-content">
           <h1>Hành trình chạm tới thiên chức làm cha mẹ bắt đầu từ đây</h1>
           <p>
             Giải pháp điều trị hiếm muộn IUI / IVF toàn diện, an toàn và đồng
@@ -170,7 +170,7 @@ const HomePage: React.FC = () => {
                 <h3>{doctor.user.userName}</h3>
                 <p>{doctor.specialty}</p>
                 <button
-                  className="view-more"
+                  className="doctor-view-more"
                   onClick={() => navigateToDoctorDetail(doctor._id)}
                 >
                   Xem thêm
@@ -240,7 +240,7 @@ const HomePage: React.FC = () => {
                   <h3>{blog.title}</h3>
                   <p>{blog.excerpt}</p>
                   <button
-                    className="view-more"
+                    className="blog-view-more"
                     onClick={() => navigateToBlogDetail(blog._id)}
                   >
                     Xem chi tiết

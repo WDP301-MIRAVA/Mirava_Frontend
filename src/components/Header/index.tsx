@@ -11,14 +11,15 @@ import {
   InfoCircleOutlined,
 } from "@ant-design/icons";
 import toast from "react-hot-toast";
+
 // Define the navigation items
 const navigationItems = [
   { name: "Trang chủ", path: "/home" },
   { name: "Giới thiệu", path: "/intro" },
   { name: "Dịch vụ IUI / IVF", path: "/iui-ivf-services" },
+  { name: "Xét Nghiệm", path: "/test-services" },
   { name: "Blog", path: "/bloglist" },
   { name: "Đặt lịch tư vấn", path: "/appointment" },
-
   { name: "Tra cứu kết quả", path: "/searchresult" },
 ];
 
@@ -29,7 +30,6 @@ const Header: React.FC = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
 
-  // const user = decodeToken(token ?? "");
   // Handle scroll effect to change header appearance on scroll
   useEffect(() => {
     const handleScroll = () => {
@@ -53,11 +53,13 @@ const Header: React.FC = () => {
   const handleConsultClick = () => {
     navigate("/register");
   };
+
   const handleLogout = () => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     toast.success("Đăng xuất thành công");
   };
+
   const handleProfileClick = () => {
     navigate("/profile");
   };
@@ -88,11 +90,12 @@ const Header: React.FC = () => {
       </Menu.Item>
     </Menu>
   );
+
   return (
-    <header className={`header ${scrolled ? "header-scrolled" : ""}`}>
-      <div className="header-content">
+    <header className={`mirava-header ${scrolled ? "mirava-header-scrolled" : ""}`}>
+      <div className="mirava-header-content">
         <motion.div
-          className="logo-container"
+          className="mirava-logo-container"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -101,24 +104,24 @@ const Header: React.FC = () => {
             <img
               src={MiravaLogo}
               alt="Mirava Healthcare Logo"
-              className="logo"
+              className="mirava-logo"
             />
           </Link>
         </motion.div>
 
-        <nav className="nav-container">
-          <ul className="nav-menu">
+        <nav className="mirava-nav-container">
+          <ul className="mirava-nav-menu">
             {navigationItems.map((item, index) => (
               <motion.li
                 key={item.path}
-                className="nav-item"
+                className="mirava-nav-item"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
                 <Link
                   to={item.path}
-                  className={`nav-link ${
+                  className={`mirava-nav-link ${
                     activeItem === item.path ? "active" : ""
                   }`}
                 >
@@ -142,7 +145,7 @@ const Header: React.FC = () => {
             </Dropdown>
           ) : (
             <motion.button
-              className="consult-button"
+              className="mirava-consult-button"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.6 }}
@@ -154,7 +157,7 @@ const Header: React.FC = () => {
             </motion.button>
           )}
 
-          <button className="mobile-menu-button" aria-label="Menu">
+          <button className="mirava-mobile-menu-button" aria-label="Menu">
             <svg
               width="24"
               height="24"

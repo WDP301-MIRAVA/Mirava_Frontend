@@ -31,7 +31,10 @@ import AppointmentPage from "@/pages/Users/AppointmentPage";
 import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
 import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
-import MedicalHistory from "@/pages/Doctor/MedicalHistory/MedicalHistory";
+
+import ReproductiveHealthTesting from "@/pages/ReproductiveHealthTesting/ReproductiveHealthTesting";
+
+import MedicalHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
 import OrderHistory from "@/pages/Customer/Orders/OrderHistory";
 
 // Admin pages
@@ -52,6 +55,10 @@ import ContactPatient from "@/pages/Doctor/Patients/ContactPatient/ContactPatien
 import OrderManagement from "@/pages/Manager/OrderManagement/OrderManagement";
 import ManagerDashboard from "@/pages/Manager/ManagerDashboard/ManagerDashboard";
 import DoctorScheduleManagement from "@/pages/Manager/DoctorScheduleManagement/DoctorScheduleManagement";
+
+import CreateFeedback from "@/pages/Customer/Feedback/CreateFeedback/CreateFeedback";
+import ListFeedback from "@/pages/Customer/Feedback/ListFeedback/ListFeedback";
+import FeedbackManagement from "@/pages/Admin/Feedback/FeedbackManagement/FeedbackManagement";
 
 const MainRouter = () => {
   return (
@@ -74,6 +81,13 @@ const MainRouter = () => {
       <Route path="/iui-ivf-services" element={<IUIIVFServices />} />
       <Route path="/detail-services/:id" element={<DetailServices />} />
       <Route path="/checkout/:serviceId" element={<CheckoutPage />} />
+      <Route path="/test-services" element={<ReproductiveHealthTesting />} />
+      <Route
+        path="/doctor-schedule-management"
+        element={<DoctorScheduleManagement />}
+      />
+      <Route path="/manager-dashboard" element={<ManagerDashboard />} />
+
       <Route
         path="/checkout/paymentConfirm"
         element={<PaymentConfirmation />}
@@ -82,6 +96,7 @@ const MainRouter = () => {
       {/* 👤 Customer Protected Routes */}
       <Route
         element={
+          
           <PrivateRoute allowedRole="Customer" layout={CustomerLayout} />
         }
       >
@@ -92,16 +107,20 @@ const MainRouter = () => {
         <Route path="/customer/schedule" element={<TreatmentSchedule />} />
 
         <Route path="/customer/orders" element={<OrderHistory />} />
+        <Route path="/customer/feedback" element={<CreateFeedback />} />
+        <Route path="/customer/list-feedback" element={<ListFeedback />} />s
       </Route>
 
       {/* 🛠 Admin Protected Routes */}
       <Route
+        path="/admin/*"
         element={<PrivateRoute allowedRole="Admin" layout={AdminLayout} />}
       >
         <Route path="/admin" element={<div>Admin Dashboard</div>} />
         <Route path="/admin/profile" element={<PersonalInfoPage />} />
         <Route path="/admin/usermanagement" element={<UserManagement />} />
         <Route path="/admin/doctors" element={<DoctorManagement />} />
+         <Route path="/admin/feedback" element={<FeedbackManagement />} />
       </Route>
 
       {/* 🩺 Doctor Protected Routes */}
