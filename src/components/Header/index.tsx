@@ -17,6 +17,7 @@ const navigationItems = [
   { name: "Trang chủ", path: "/home" },
   { name: "Giới thiệu", path: "/intro" },
   { name: "Dịch vụ IUI / IVF", path: "/iui-ivf-services" },
+  { name: "Xét Nghiệm", path: "/test-services" },
   { name: "Blog", path: "/bloglist" },
   { name: "Đặt lịch tư vấn", path: "/appointment" },
   { name: "Tra cứu kết quả", path: "/searchresult" },
