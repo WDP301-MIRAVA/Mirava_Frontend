@@ -3,6 +3,7 @@ import "./TreatmentPlan.css";
 import { type TreatmentPlan as ApiTreatmentPlan } from "../../../services/treatmentPlan.service";
 import { FileText } from "lucide-react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 interface TreatmentStep {
   id: string;
@@ -36,6 +37,16 @@ const TreatmentPlan: React.FC = () => {
   const [recordDetail, setRecordDetail] = useState<any>(null);
   const [recordModalOpen, setRecordModalOpen] = useState(false);
   const [loadingRecord, setLoadingRecord] = useState(false);
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      // Hiển thị thông báo, có thể thay bằng toast UI
+      toast(e.detail.message);
+      // console.log(e.detail.message);
+    };
+    window.addEventListener("mirava-notification", handler);
+    return () => window.removeEventListener("mirava-notification", handler);
+  }, []);
 
   useEffect(() => {
     const fetchPlans = async () => {
@@ -275,6 +286,67 @@ const TreatmentPlan: React.FC = () => {
       </div>
     );
 
+  const useUpcomingReminders = (treatmentSteps: TreatmentStep[]) => {
+    const remindedRef = React.useRef<{ [key: string]: boolean }>({});
+    const [stepIndex, setStepIndex] = React.useState(0);
+
+    useEffect(() => {
+      if (!treatmentSteps || treatmentSteps.length === 0) return;
+
+      const interval = setInterval(() => {
+        // Lọc các bước có scheduledDates trong tương lai hoặc hôm nay và chưa completed
+        const now = new Date();
+        const upcomingSteps = treatmentSteps.filter(
+          (step) =>
+            step.scheduledDates &&
+            step.scheduledDates.length > 0 &&
+            new Date(step.scheduledDates[0]).getTime() >=
+              new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate()
+              ).getTime() &&
+            step.status !== "completed"
+        );
+
+        if (upcomingSteps.length === 0) return;
+
+        // Lấy step theo chỉ số stepIndex, lặp lại nếu hết
+        const idx = stepIndex % upcomingSteps.length;
+        const step = upcomingSteps[idx];
+
+        // Tạo id duy nhất cho thông báo
+        const notifyId = `${step.id}-${step.scheduledDates[0]}`;
+
+        // Đảm bảo không thông báo trùng trong 1 vòng lặp
+        if (!remindedRef.current[notifyId]) {
+          window.dispatchEvent(
+            new CustomEvent("mirava-notification", {
+              detail: {
+                id: `${notifyId}-${Date.now()}`,
+                message: `Nhắc nhở: Sắp đến lịch "${
+                  step.name || step.title
+                }" vào ngày ${new Date(
+                  step.scheduledDates[0]
+                ).toLocaleDateString("vi-VN")}`,
+                read: false,
+                time: new Date().toLocaleTimeString("vi-VN"),
+              },
+            })
+          );
+          remindedRef.current[notifyId] = true;
+        }
+
+        setStepIndex((prev) => prev + 1);
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }, [treatmentSteps, stepIndex]);
+  };
+
+  // ...trong component TreatmentPlan...
+  useUpcomingReminders(treatmentSteps);
+
   if (loading) {
     return (
       <div className="treatment-plan-container">
@@ -354,7 +426,7 @@ const TreatmentPlan: React.FC = () => {
                       <th>Giai đoạn</th>
                       <th>Loại</th>
                       <th>Trạng thái</th>
-                      <th>Ngày dự kiến</th>
+                      <th>Ngày hẹn khám</th>
                       <th>Ngày thực hiện</th>
                       <th>Người thực hiện</th>
                       <th>Ghi chú</th>
@@ -501,7 +573,7 @@ const TreatmentPlan: React.FC = () => {
                           : "Chưa thực hiện"}
                       </div>
                       <div>
-                        <strong>Ngày dự kiến:</strong>{" "}
+                        <strong>Ngày hẹn khám:</strong>{" "}
                         {step.scheduledDates && step.scheduledDates.length > 0
                           ? new Date(step.scheduledDates[0]).toLocaleDateString(
                               "vi-VN"

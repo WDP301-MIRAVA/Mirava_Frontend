@@ -307,7 +307,6 @@ const CheckoutPage: React.FC = () => {
     Math.round(price * (1 - salePercent / 100));
 
   const handlePlaceOrder = async () => {
-    // validate thông tin thanh toán
     if (!validatePaymentInfo()) return;
     if (!service) {
       toast.error("Không tìm thấy thông tin dịch vụ!");
@@ -317,14 +316,8 @@ const CheckoutPage: React.FC = () => {
     try {
       setLoading(true);
 
-      // Bước 1: Tạo đơn hàng
       const orderData = {
-        items: [
-          {
-            serviceId: service._id,
-            quantity: 1,
-          },
-        ],
+        items: [{ serviceId: service._id, quantity: 1 }],
         paymentMethod: formData.paymentMethod,
         note: formData.appointmentNote || `Đặt dịch vụ: ${service.name}`,
         customerInfo: {
@@ -338,12 +331,8 @@ const CheckoutPage: React.FC = () => {
         timeSlot: formData.timeSlot,
         doctorId: formData.doctorId,
       };
-      if (formData.doctorId) {
-        orderData.doctorId = formData.doctorId;
-      }
-      console.log("📦 Tạo đơn hàng:", orderData);
-      // Gửi yêu cầu tạo đơn hàng
-      const orderResponse = await fetch(
+
+      const res = await fetch(
         "https://mirava-f0rz.onrender.com/api/orders/guest",
         {
           method: "POST",
@@ -351,44 +340,26 @@ const CheckoutPage: React.FC = () => {
           body: JSON.stringify(orderData),
         }
       );
-      console.log("📦 Đáp ứng từ API tạo đơn hàng:", orderResponse);
-      const orderResult = await orderResponse.json();
 
-      if (!orderResponse.ok || !orderResult.success) {
-        throw new Error(orderResult.message || "Tạo đơn hàng thất bại");
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.message || "Có lỗi xảy ra. Vui lòng thử lại!");
       }
 
-      console.log("✅ Đơn hàng đã tạo:", orderResult.data);
+      const { order, vnpUrl } = result.data;
 
-      // Bước 2: Xác nhận thanh toán (giả lập thanh toán thành công)
-      const paymentResponse = await fetch(
-        `https://mirava-f0rz.onrender.com/api/orders/${orderResult.data.order.id}/confirm-payment`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            paymentStatus: "success",
-            paymentMethod: formData.paymentMethod,
-          }),
-        }
-      );
-
-      const paymentResult = await paymentResponse.json();
-
-      if (!paymentResponse.ok || !paymentResult.success) {
-        throw new Error(
-          paymentResult.message || "Xác nhận thanh toán thất bại"
-        );
+      // 🔁 Nếu chọn VNPay → chuyển hướng đến VNPay URL
+      if (formData.paymentMethod === "VNPay" && vnpUrl) {
+        toast.success("Chuyển đến cổng thanh toán...");
+        window.location.href = vnpUrl;
+        return;
       }
 
-      console.log("✅ Thanh toán thành công");
-
+      // ✅ Với thanh toán thường (cash)
       toast.success("Đặt hàng thành công!");
-
-      // Navigate to success page
       navigate("/payment-confirmation", {
         state: {
-          orderData: orderResult.data,
+          orderData: result.data,
           userInfo: formData,
           service: service,
         },

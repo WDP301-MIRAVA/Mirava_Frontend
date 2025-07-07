@@ -432,14 +432,14 @@ const IVFTreatmentTracker: React.FC = () => {
   const saveFormData = async () => {
     if (!activeForm || !treatmentPlan) return;
     setFormError(null);
-    // Validate ngày dự kiến và ngày thực hiện
+    // Validate ngày hẹn khám và ngày thực hiện
     const execDate = formData.executionDate
       ? new Date(formData.executionDate)
       : null;
     if (formData.scheduledDates && execDate) {
       for (const d of formData.scheduledDates) {
         if (d && new Date(d) >= execDate) {
-          setFormError("Ngày dự kiến phải trước ngày thực hiện!");
+          setFormError("Ngày hẹn khám phải trước ngày thực hiện!");
           return;
         }
       }
@@ -1187,7 +1187,7 @@ const IVFTreatmentTracker: React.FC = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Ngày dự kiến</label>
+                  <label className="form-label">Ngày hẹn khám</label>
                   <input
                     type="datetime-local"
                     value={

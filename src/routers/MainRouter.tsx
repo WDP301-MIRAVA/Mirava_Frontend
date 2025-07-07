@@ -7,43 +7,65 @@ import SearchResult from "../pages/SearchResult/searchresult";
 import Appointment from "@/pages/Appointment/appointment";
 import DetailDoctor from "@/pages/DetailDoctor/detailDoctorPage";
 import PrivateRoute from "../utils/PrivateRoute";
+
+// Layouts
 import AdminLayout from "@/layouts/AdminLayout/AdminLayout";
 import CustomerLayout from "@/layouts/CustomerLayout/CustomerLayout";
-import CustomerHome from "@/pages/Customer/Home/Home";
-import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
 import DoctorLayout from "@/layouts/DoctorLayout/DoctorLayout";
-import DoctorAppoitment from "../pages/Doctor/ViewAppoitment";
+import ManagerLayout from "@/layouts/ManagerLayout/ManagerLayout";
+
+// Public pages
 import BlogList from "@/pages/BlogList/BlogList";
 import DetailBlog from "@/pages/DetailBlog/DetailBlog";
 import IUIIVFServices from "@/pages/IVFIUIService/IUIIVFServices";
-import TreatmentPlans from "../pages/Doctor/TreatmentPlans/TreatmentPlans";
-import Schedules from "@/pages/Doctor/Schedules/Schedules";
-import AppointmentPage from "@/pages/Users/AppointmentPage";
-import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
-import PatientList from "@/pages/Doctor/Patients/PatientList";
-import IVFTreatmentTracker from "@/pages/Doctor/Patients/IVFTreatmentTracker";
-
-import UserManagement from "@/pages/Admin/UserManagement/UserManagement";
-import DoctorManagement from "@/pages/Admin/DoctorManagement/DoctorManagement";
 import CheckoutPage from "@/pages/IVFIUIService/CheckOutPage";
-import ViewAppointment from "../pages/Doctor/ViewAppoitment";
-import DetailServices from "@/pages/IVFIUIService/DetailServices";
-import MedicalRecordManagement from "@/pages/Doctor/MedicalRecordManagement/MedicalRecordManagement";
-import DoctorScheduleManagement from "@/pages/Manager/DoctorScheduleManagement/DoctorScheduleManagement";
-import ManagerDashboard from "@/pages/Manager/ManagerDashboard/ManagerDashboard";
 import PaymentConfirmation from "@/pages/IVFIUIService/PaymentConfirmation";
 import PaymentSuccess from "@/pages/Payment/PaymentSuccess";
 import PaymentFailed from "@/pages/Payment/PaymentFailed";
+import DetailServices from "@/pages/IVFIUIService/DetailServices";
+
+// Customer pages
+import CustomerHome from "@/pages/Customer/Home/Home";
+import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
+import AppointmentPage from "@/pages/Users/AppointmentPage";
+import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
+import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
-import ContactPatient from "@/pages/Doctor/Patients/ContactPatient/ContactPatient";
-import OrderManagement from "@/pages/Manager/OrderManagement/OrderManagement";
+
 import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 import ReproductiveHealthTesting from "@/pages/ReproductiveHealthTesting/ReproductiveHealthTesting";
 import ManagerLayout from "@/layouts/ManagerLayout/ManagerLayout";
+
+import MedicalHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
+import OrderHistory from "@/pages/Customer/Orders/OrderHistory";
+
+// Admin pages
+import UserManagement from "@/pages/Admin/UserManagement/UserManagement";
+import DoctorManagement from "@/pages/Admin/DoctorManagement/DoctorManagement";
+
+// Doctor pages
+import DoctorAppoitment from "@/pages/Doctor/ViewAppoitment";
+import TreatmentPlans from "@/pages/Doctor/TreatmentPlans/TreatmentPlans";
+import Schedules from "@/pages/Doctor/Schedules/Schedules";
+import PatientList from "@/pages/Doctor/Patients/PatientList";
+import IVFTreatmentTracker from "@/pages/Doctor/Patients/IVFTreatmentTracker";
+import ViewAppointment from "@/pages/Doctor/ViewAppoitment";
+import MedicalRecordManagement from "@/pages/Doctor/MedicalRecordManagement/MedicalRecordManagement";
+import ContactPatient from "@/pages/Doctor/Patients/ContactPatient/ContactPatient";
+
+// Manager pages
+import OrderManagement from "@/pages/Manager/OrderManagement/OrderManagement";
+import ManagerDashboard from "@/pages/Manager/ManagerDashboard/ManagerDashboard";
+import DoctorScheduleManagement from "@/pages/Manager/DoctorScheduleManagement/DoctorScheduleManagement";
+
+import CreateFeedback from "@/pages/Customer/Feedback/CreateFeedback/CreateFeedback";
+import ListFeedback from "@/pages/Customer/Feedback/ListFeedback/ListFeedback";
+import FeedbackManagement from "@/pages/Admin/Feedback/FeedbackManagement/FeedbackManagement";
+
 const MainRouter = () => {
   return (
     <Routes>
-      {/* Public Routes - Các route công khai, ai cũng truy cập được */}
+      {/* 🌐 Public Routes */}
       <Route path="/" element={<Homepage />} />
       <Route path="/home" element={<Homepage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -58,7 +80,6 @@ const MainRouter = () => {
       <Route path="/profile" element={<PersonalInfoPage />} />
       <Route path="/checkout/success" element={<PaymentSuccess />} />
       <Route path="/checkout/failed" element={<PaymentFailed />} />
-
       <Route path="/iui-ivf-services" element={<IUIIVFServices />} />
       <Route path="/detail-services/:id" element={<DetailServices />} />
       <Route path="/checkout/:serviceId" element={<CheckoutPage />} />
@@ -73,90 +94,73 @@ const MainRouter = () => {
         path="/checkout/paymentConfirm"
         element={<PaymentConfirmation />}
       />
-      {/* Customer Public Routes - Các route công khai dành cho customer */}
 
-      {/* Customer Protected Routes - Chỉ customer mới truy cập được */}
+      {/* 👤 Customer Protected Routes */}
       <Route
-        path="/customer/*"
         element={
-          <PrivateRoute allowedRole="Customer" layout={CustomerLayout}>
-            <Routes>
-              <Route index element={<CustomerHome />} />
-              <Route path="/profile" element={<PersonalInfoPage />} />
-              {/* Thêm các route khác cho customer ở đây */}
-              <Route path="/treatmentplan" element={<TreatmentPlan />} />
-              <Route path="/contact" element={<ContactDoctor />} />
-              <Route path="/schedule" element={<TreatmentSchedule />} />
-            </Routes>
-          </PrivateRoute>
+          
+          <PrivateRoute allowedRole="Customer" layout={CustomerLayout} />
         }
-      />
+      >
+        <Route path="/customer" element={<CustomerHome />} />
+        <Route path="/customer/profile" element={<PersonalInfoPage />} />
+        <Route path="/customer/treatmentplan" element={<TreatmentPlan />} />
+        <Route path="/customer/contact" element={<ContactDoctor />} />
+        <Route path="/customer/schedule" element={<TreatmentSchedule />} />
+        <Route path="/customer/medical-history" element={<MedicalHistory />} />
+        <Route path="/customer/orders" element={<OrderHistory />} />
+        <Route path="/customer/feedback" element={<CreateFeedback />} />
+        <Route path="/customer/list-feedback" element={<ListFeedback />} />s
+      </Route>
 
-      {/* Admin Protected Routes - Chỉ admin mới truy cập được */}
+      {/* 🛠 Admin Protected Routes */}
       <Route
         path="/admin/*"
-        element={
-          <PrivateRoute allowedRole="Admin" layout={AdminLayout}>
-            <Routes>
-              <Route index element={<div>Admin Dashboard</div>} />
-              <Route path="/profile" element={<PersonalInfoPage />} />
-              <Route path="/usermanagement" element={<UserManagement />} />
-              <Route path="/doctors" element={<DoctorManagement />} />
+        element={<PrivateRoute allowedRole="Admin" layout={AdminLayout} />}
+      >
+        <Route path="/admin" element={<div>Admin Dashboard</div>} />
+        <Route path="/admin/profile" element={<PersonalInfoPage />} />
+        <Route path="/admin/usermanagement" element={<UserManagement />} />
+        <Route path="/admin/doctors" element={<DoctorManagement />} />
+         <Route path="/admin/feedback" element={<FeedbackManagement />} />
+      </Route>
 
-              {/* <Route path="users" element={<ManageUsers />} /> */}
-              {/* <Route path="doctors" element={<ManageDoctors />} /> */}
-              {/* Thêm các route khác cho admin ở đây */}
-            </Routes>
-          </PrivateRoute>
-        }
-      />
-
+      {/* 🩺 Doctor Protected Routes */}
       <Route
-        path="/doctor/*"
-        element={
-          <PrivateRoute allowedRole="Doctor" layout={DoctorLayout}>
-            <Routes>
-              <Route index element={<DoctorAppoitment />} />
-              <Route path="/profile" element={<PersonalInfoPage />} />
-              <Route path="/treatment-plans" element={<TreatmentPlans />} />
-              <Route path="/schedules/:id?" element={<Schedules />} />
-              <Route path="/patients" element={<PatientList />} />
-              <Route path="/patients/:id" element={<PatientList />} />
+        element={<PrivateRoute allowedRole="Doctor" layout={DoctorLayout} />}
+      >
+        <Route path="/doctor" element={<DoctorAppoitment />} />
+        <Route path="/doctor/profile" element={<PersonalInfoPage />} />
+        <Route path="/doctor/treatment-plans" element={<TreatmentPlans />} />
+        <Route path="/doctor/schedules/:id?" element={<Schedules />} />
+        <Route path="/doctor/patients" element={<PatientList />} />
+        <Route path="/doctor/patients/:id" element={<PatientList />} />
+        <Route
+          path="/doctor/patients/ivf-tracker"
+          element={<IVFTreatmentTracker />}
+        />
+        <Route path="/doctor/appointments" element={<ViewAppointment />} />
+        <Route
+          path="/doctor/medicalrecord"
+          element={<MedicalRecordManagement />}
+        />
+        <Route path="/doctor/contact" element={<ContactPatient />} />
+      </Route>
 
-              <Route
-                path="/patients/ivf-tracker"
-                element={<IVFTreatmentTracker />}
-              />
-
-              <Route path="/appointments" element={<ViewAppointment />} />
-              <Route
-                path="/medicalrecord"
-                element={<MedicalRecordManagement />}
-              />
-              <Route path="contact" element={<ContactPatient />} />
-              {/* Thêm các route khác cho doctor ở đây */}
-            </Routes>
-          </PrivateRoute>
-        }
-      />
+      {/* 🧑‍💼 Manager Protected Routes */}
       <Route
-        path="/manager/*"
-        element={
-          <PrivateRoute allowedRole="Manager" layout={ManagerLayout}>
-            <Routes>
-              <Route index element={<div>Manager Dashboard</div>} />
-              <Route path="/profile" element={<PersonalInfoPage />} />
-              <Route
-                path="/doctor-schedule-management"
-                element={<DoctorScheduleManagement />}
-              />
-              {/* Thêm các route khác cho manager ở đây */}
-              <Route path="orders" element={<OrderManagement />} />
-            </Routes>
-          </PrivateRoute>
-        }
-      />
+        element={<PrivateRoute allowedRole="Manager" layout={ManagerLayout} />}
+      >
+        <Route path="/manager" element={<ManagerDashboard />} />
+        <Route path="/manager/profile" element={<PersonalInfoPage />} />
+        <Route
+          path="/manager/doctor-schedule-management"
+          element={<DoctorScheduleManagement />}
+        />
+        <Route path="/manager/orders" element={<OrderManagement />} />
+      </Route>
 
+      {/* Not Found */}
       <Route path="*" element={<Homepage />} />
     </Routes>
   );

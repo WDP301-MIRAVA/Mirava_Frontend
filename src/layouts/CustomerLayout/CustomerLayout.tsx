@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Bell, LogOut, ChevronRight } from "react-feather";
 import "./CustomerLayout.css";
 import logo from "../../assets/mirava-logo.png";
 import { userServ } from "@/services/userServie";
+import { Outlet } from "react-router-dom";
 
 interface CustomerLayoutProps {
   children: React.ReactNode;
@@ -12,6 +13,29 @@ interface CustomerLayoutProps {
 const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Notification state
+  const [notifications, setNotifications] = useState<
+    { id: string; message: string; read: boolean; time: string }[]
+  >([]);
+  const [showNotificationDropdown, setShowNotificationDropdown] =
+    useState(false);
+
+  // Lắng nghe sự kiện thông báo từ các trang con
+  useEffect(() => {
+    const handler = (e: any) => {
+      setNotifications((prev) => [e.detail, ...prev]);
+    };
+    window.addEventListener("mirava-notification", handler);
+    return () => window.removeEventListener("mirava-notification", handler);
+  }, []);
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const handleOpenNotifications = () => {
+    setShowNotificationDropdown((open) => !open);
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
 
   // Xác định active menu dựa trên URL hiện tại
   const getActiveMenuItem = () => {
@@ -22,8 +46,9 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     if (path.includes("/customer/treatmentplan")) return "Kế hoạch điều trị";
     if (path.includes("/customer/schedule")) return "Lịch điều trị";
     if (path.includes("/customer/prescription")) return "Đơn thuốc";
-    if (path.includes("/customer/reviews")) return "Đánh giá";
+    if (path.includes("/customer/list-feedback")) return "Đánh giá";
     if (path.includes("/customer/contact")) return "Liên hệ bác sĩ";
+    if (path.includes("/customer/orders")) return "Đơn hàng";
     return "Trang chủ";
   };
 
@@ -60,13 +85,26 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
       id: 5,
       name: "Đánh giá",
       label: "Đánh giá",
-      path: "/customer/reviews",
+      path: "/customer/list-feedback",
     },
     {
       id: 6,
       name: "Liên hệ bác sĩ",
       label: "Liên hệ bác sĩ",
       path: "/customer/contact",
+    },
+
+    {
+      id: 7,
+      name: "Đơn hàng",
+      label: "Đơn hàng",
+      path: "/customer/orders",
+    },
+    {
+      id: 8,
+      name: "Tiền sư y tế",
+      label: "Tiền sử y tế",
+      path: "/customer/medical-history",
     },
   ];
 
@@ -171,16 +209,72 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
               </span>
             ))}
           </div>
-          <div className="topbar-actions">
-            <button className="notification-btn">
+          <div className="topbar-actions" style={{ position: "relative" }}>
+            <button
+              className="notification-btn"
+              onClick={handleOpenNotifications}
+            >
               <Bell size={20} />
-              <span className="notification-badge">3</span>
+              {unreadCount > 0 && (
+                <span className="notification-badge">{unreadCount}</span>
+              )}
             </button>
+            {showNotificationDropdown && (
+              <div
+                style={{
+                  position: "absolute",
+                  right: 0,
+                  top: 36,
+                  width: 320,
+                  background: "white",
+                  boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+                  borderRadius: 8,
+                  zIndex: 100,
+                  maxHeight: 350,
+                  overflowY: "auto",
+                }}
+              >
+                <div
+                  style={{
+                    padding: "12px 16px",
+                    borderBottom: "1px solid #eee",
+                    fontWeight: 600,
+                  }}
+                >
+                  Thông báo nhắc nhở
+                </div>
+                {notifications.length === 0 ? (
+                  <div style={{ padding: 16, color: "#888" }}>
+                    Không có thông báo mới
+                  </div>
+                ) : (
+                  notifications.map((n) => (
+                    <div
+                      key={n.id}
+                      style={{
+                        padding: "12px 16px",
+                        borderBottom: "1px solid #f3f4f6",
+                        background: n.read ? "#fff" : "#f0f9ff",
+                        fontSize: 15,
+                      }}
+                    >
+                      <div style={{ marginBottom: 4 }}>{n.message}</div>
+                      <div style={{ fontSize: 12, color: "#888" }}>
+                        {n.time}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Page Content */}
-        <div className="page-content">{children}</div>
+        <div className="page-content">
+          {" "}
+          <Outlet />
+        </div>
       </div>
     </div>
   );

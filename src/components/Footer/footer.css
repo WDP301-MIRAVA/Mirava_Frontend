@@ -1,4 +1,5 @@
-.footer {
+/* Footer.css */
+.mirava-footer {
   background-color: #B2EAEF;
   color: #1b1b1b;
   padding: 40px 20px 20px;
@@ -6,7 +7,7 @@
   box-shadow: inset 0px 8px 12px rgba(0, 0, 0, 0.1);
 }
 
-.footer-container {
+.mirava-footer__container {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -17,7 +18,7 @@
   padding-bottom: 30px;
 }
 
-.footer-column {
+.mirava-footer__column {
   flex: 1;
   min-width: 260px;
   display: flex;
@@ -25,32 +26,32 @@
   justify-content: center;
 }
 
-.logo-section {
+.mirava-footer__logo-section {
   align-items: center;
   text-align: center;
 }
 
-.footer-logo {
+.mirava-footer__logo {
   height: 105px;
   margin-bottom: 5px;
   width: fit-content;
 }
 
-.slogan {
+.mirava-footer__slogan {
   font-weight: 500;
   font-size: 15px;
   color: #1f4042;
   margin-top: 0px;
 }
 
-.contact-section-footer h3 {
+.mirava-footer__contact-title {
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 15px;
   text-align: center;
 }
 
-.contact-section-footer-footer p {
+.mirava-footer__contact-item {
   margin: 6px 0;
   font-size: 15px;
   display: flex;
@@ -58,20 +59,24 @@
   justify-content: start;
 }
 
-.icon {
+.mirava-footer__icon {
   color: #e43f5a;
   margin-right: 8px;
   min-width: 20px;
 }
 
-.map-section iframe {
+.mirava-footer__map {
   border-radius: 4px;
   width: 100%;
 }
 
-.footer-bottom {
+.mirava-footer__bottom {
   text-align: center;
   padding-top: 15px;
+}
+
+.mirava-footer__copyright {
   font-size: 14px;
   color: #444;
+  margin: 0;
 }
