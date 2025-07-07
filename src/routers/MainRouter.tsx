@@ -41,6 +41,9 @@ import OrderManagement from "@/pages/Manager/OrderManagement/OrderManagement";
 import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 
 import ManagerLayout from "@/layouts/ManagerLayout/ManagerLayout";
+import CreateFeedback from "@/pages/Customer/Feedback/CreateFeedback/CreateFeedback";
+import ListFeedback from "@/pages/Customer/Feedback/ListFeedback/ListFeedback";
+import FeedbackManagement from "@/pages/Admin/Feedback/FeedbackManagement/FeedbackManagement";
 const MainRouter = () => {
   return (
     <Routes>
@@ -88,6 +91,8 @@ const MainRouter = () => {
               <Route path="/treatmentplan" element={<TreatmentPlan />} />
               <Route path="/contact" element={<ContactDoctor />} />
               <Route path="/schedule" element={<TreatmentSchedule />} />
+              <Route path="/feedback" element={<CreateFeedback />} />
+              <Route path="/list-feedback" element={<ListFeedback />} />
             </Routes>
           </PrivateRoute>
         }
@@ -103,6 +108,7 @@ const MainRouter = () => {
               <Route path="/profile" element={<PersonalInfoPage />} />
               <Route path="/usermanagement" element={<UserManagement />} />
               <Route path="/doctors" element={<DoctorManagement />} />
+              <Route path="/admin-feedback" element={<FeedbackManagement />} />
 
               {/* <Route path="users" element={<ManageUsers />} /> */}
               {/* <Route path="doctors" element={<ManageDoctors />} /> */}

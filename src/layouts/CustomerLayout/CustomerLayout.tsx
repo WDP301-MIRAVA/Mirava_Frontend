@@ -22,7 +22,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     if (path.includes("/customer/treatmentplan")) return "Kế hoạch điều trị";
     if (path.includes("/customer/schedule")) return "Lịch điều trị";
     if (path.includes("/customer/prescription")) return "Đơn thuốc";
-    if (path.includes("/customer/reviews")) return "Đánh giá";
+    if (path.includes("/customer/list-feedback")) return "Đánh giá";
     if (path.includes("/customer/contact")) return "Liên hệ bác sĩ";
     return "Trang chủ";
   };
@@ -60,7 +60,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
       id: 5,
       name: "Đánh giá",
       label: "Đánh giá",
-      path: "/customer/reviews",
+      path: "/customer/list-feedback",
     },
     {
       id: 6,
