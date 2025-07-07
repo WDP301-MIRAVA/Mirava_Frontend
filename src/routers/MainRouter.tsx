@@ -36,10 +36,9 @@ import PaymentSuccess from "@/pages/Payment/PaymentSuccess";
 import PaymentFailed from "@/pages/Payment/PaymentFailed";
 import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
 import ContactPatient from "@/pages/Doctor/Patients/ContactPatient/ContactPatient";
-import MedicalHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
 import OrderManagement from "@/pages/Manager/OrderManagement/OrderManagement";
 import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
-
+import ReproductiveHealthTesting from "@/pages/ReproductiveHealthTesting/ReproductiveHealthTesting";
 import ManagerLayout from "@/layouts/ManagerLayout/ManagerLayout";
 const MainRouter = () => {
   return (
@@ -63,7 +62,7 @@ const MainRouter = () => {
       <Route path="/iui-ivf-services" element={<IUIIVFServices />} />
       <Route path="/detail-services/:id" element={<DetailServices />} />
       <Route path="/checkout/:serviceId" element={<CheckoutPage />} />
-
+      <Route path="/test-services" element={<ReproductiveHealthTesting />} />
       <Route
         path="/doctor-schedule-management"
         element={<DoctorScheduleManagement />}
