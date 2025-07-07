@@ -32,9 +32,7 @@ import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
 import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
 
-import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 import ReproductiveHealthTesting from "@/pages/ReproductiveHealthTesting/ReproductiveHealthTesting";
-import ManagerLayout from "@/layouts/ManagerLayout/ManagerLayout";
 
 import MedicalHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
 import OrderHistory from "@/pages/Customer/Orders/OrderHistory";
@@ -107,7 +105,7 @@ const MainRouter = () => {
         <Route path="/customer/treatmentplan" element={<TreatmentPlan />} />
         <Route path="/customer/contact" element={<ContactDoctor />} />
         <Route path="/customer/schedule" element={<TreatmentSchedule />} />
-        <Route path="/customer/medical-history" element={<MedicalHistory />} />
+
         <Route path="/customer/orders" element={<OrderHistory />} />
         <Route path="/customer/feedback" element={<CreateFeedback />} />
         <Route path="/customer/list-feedback" element={<ListFeedback />} />s
@@ -135,6 +133,7 @@ const MainRouter = () => {
         <Route path="/doctor/schedules/:id?" element={<Schedules />} />
         <Route path="/doctor/patients" element={<PatientList />} />
         <Route path="/doctor/patients/:id" element={<PatientList />} />
+        <Route path="/doctor/medical-history" element={<MedicalHistory />} />
         <Route
           path="/doctor/patients/ivf-tracker"
           element={<IVFTreatmentTracker />}
