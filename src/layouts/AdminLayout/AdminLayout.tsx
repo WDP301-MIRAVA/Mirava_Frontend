@@ -22,7 +22,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     if (path.includes("/admin/treatments")) return "Quản lý điều trị";
     if (path.includes("/admin/prescriptions")) return "Quản lý đơn thuốc";
     if (path.includes("/admin/reports")) return "Báo cáo thống kê";
-    if (path.includes("/admin/settings")) return "Cài đặt hệ thống";
+    if (path.includes("/admin/admin-feedback")) return "Quản lý đánh giá";
     if (path.includes("/admin/audit")) return "Nhật ký hệ thống";
     return "Dashboard";
   };
@@ -69,9 +69,9 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     },
     {
       id: 8,
-      name: "Cài đặt hệ thống",
-      label: "Cài đặt hệ thống",
-      path: "/admin/settings",
+      name: "Quản lý đánh giá",
+      label: "Quản lý đánh giá",
+      path: "/admin/admin-feedback",
     },
     { id: 9, name: "Hồ sơ", label: "Hồ sơ", path: "/admin/profile" },
   ];

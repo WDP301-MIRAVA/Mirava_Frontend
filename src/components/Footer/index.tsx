@@ -1,3 +1,4 @@
+// Footer.tsx
 import React from 'react';
 import './Footer.css';
 import { motion } from 'framer-motion';
@@ -6,32 +7,41 @@ import MiravaLogo from '../../assets/mirava-logo.png';
 
 const Footer: React.FC = () => {
   return (
-    <footer className="footer">
-      <div className="footer-container">
+    <footer className="mirava-footer">
+      <div className="mirava-footer__container">
         <motion.div
-          className="footer-column logo-section"
+          className="mirava-footer__column mirava-footer__logo-section"
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
         >
-          <img src={MiravaLogo} alt="Mirava Logo" className="footer-logo" />
-          <p className="slogan">ĐỒNG HÀNH CÙNG HÀNH TRÌNH<br />LÀM CHA MẸ</p>
+          <img src={MiravaLogo} alt="Mirava Logo" className="mirava-footer__logo" />
+          <p className="mirava-footer__slogan">ĐỒNG HÀNH CÙNG HÀNH TRÌNH<br />LÀM CHA MẸ</p>
         </motion.div>
 
         <motion.div
-          className="footer-column contact-section-footer"
+          className="mirava-footer__column mirava-footer__contact-section"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
-          <h3>LIÊN HỆ</h3>
-          <p><FaMapMarkerAlt className="icon" /> 7 Đ. D1, Long Thạnh Mỹ, Thủ Đức, Hồ Chí Minh</p>
-          <p><FaPhone className="icon" /> 0909 1234 56</p>
-          <p><FaEnvelope className="icon" /> support@mirava.vn</p>
+          <h3 className="mirava-footer__contact-title">LIÊN HỆ</h3>
+          <p className="mirava-footer__contact-item">
+            <FaMapMarkerAlt className="mirava-footer__icon" /> 
+            7 Đ. D1, Long Thạnh Mỹ, Thủ Đức, Hồ Chí Minh
+          </p>
+          <p className="mirava-footer__contact-item">
+            <FaPhone className="mirava-footer__icon" /> 
+            0909 1234 56
+          </p>
+          <p className="mirava-footer__contact-item">
+            <FaEnvelope className="mirava-footer__icon" /> 
+            support@mirava.vn
+          </p>
         </motion.div>
 
         <motion.div
-          className="footer-column map-section"
+          className="mirava-footer__column mirava-footer__map-section"
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.4 }}
@@ -45,11 +55,12 @@ const Footer: React.FC = () => {
             allowFullScreen
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
+            className="mirava-footer__map"
           ></iframe>
         </motion.div>
       </div>
-      <div className="footer-bottom">
-        <p>Copyright: © 2025 MIRAVA</p>
+      <div className="mirava-footer__bottom">
+        <p className="mirava-footer__copyright">Copyright: © 2025 MIRAVA</p>
       </div>
     </footer>
   );

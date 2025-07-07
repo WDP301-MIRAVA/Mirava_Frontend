@@ -53,6 +53,10 @@ import OrderManagement from "@/pages/Manager/OrderManagement/OrderManagement";
 import ManagerDashboard from "@/pages/Manager/ManagerDashboard/ManagerDashboard";
 import DoctorScheduleManagement from "@/pages/Manager/DoctorScheduleManagement/DoctorScheduleManagement";
 
+import CreateFeedback from "@/pages/Customer/Feedback/CreateFeedback/CreateFeedback";
+import ListFeedback from "@/pages/Customer/Feedback/ListFeedback/ListFeedback";
+import FeedbackManagement from "@/pages/Admin/Feedback/FeedbackManagement/FeedbackManagement";
+
 const MainRouter = () => {
   return (
     <Routes>
@@ -82,6 +86,7 @@ const MainRouter = () => {
       {/* 👤 Customer Protected Routes */}
       <Route
         element={
+          
           <PrivateRoute allowedRole="Customer" layout={CustomerLayout} />
         }
       >
@@ -92,16 +97,20 @@ const MainRouter = () => {
         <Route path="/customer/schedule" element={<TreatmentSchedule />} />
         <Route path="/customer/medical-history" element={<MedicalHistory />} />
         <Route path="/customer/orders" element={<OrderHistory />} />
+        <Route path="/customer/feedback" element={<CreateFeedback />} />
+        <Route path="/customer/list-feedback" element={<ListFeedback />} />s
       </Route>
 
       {/* 🛠 Admin Protected Routes */}
       <Route
+        path="/admin/*"
         element={<PrivateRoute allowedRole="Admin" layout={AdminLayout} />}
       >
         <Route path="/admin" element={<div>Admin Dashboard</div>} />
         <Route path="/admin/profile" element={<PersonalInfoPage />} />
         <Route path="/admin/usermanagement" element={<UserManagement />} />
         <Route path="/admin/doctors" element={<DoctorManagement />} />
+         <Route path="/admin/feedback" element={<FeedbackManagement />} />
       </Route>
 
       {/* 🩺 Doctor Protected Routes */}

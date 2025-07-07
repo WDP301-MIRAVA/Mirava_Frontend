@@ -185,7 +185,7 @@ const DetailDoctorPage: React.FC = () => {
         </div>
 
         {/* Rating Section */}
-        <div className="section">
+        {/* <div className="section">
           <h2 className="section-title">Đánh giá</h2>
           <div className="rating-container">
             <div className="stars-container">
@@ -198,7 +198,7 @@ const DetailDoctorPage: React.FC = () => {
               <p className="no-reviews">Chưa có đánh giá nào</p>
             )}
           </div>
-        </div>
+        </div> */}
 
         {/* Action Buttons */}
         <div className="action-buttons">

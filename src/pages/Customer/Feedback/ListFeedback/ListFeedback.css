@@ -1,0 +1,552 @@
+/* ListFeedback Component Styles - Prefixed with 'lf-' to avoid conflicts */
+.lf-feedback-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f8fcfd 0%, #e3f4f6 100%);
+  min-height: 100vh;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
+}
+
+.lf-feedback-header {
+  text-align: center;
+  margin-bottom: 3rem;
+  padding: 2rem 0;
+}
+
+/* New styles for header with create button */
+.lf-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.lf-header-text {
+  flex: 1;
+  text-align: left;
+}
+
+.lf-create-btn {
+  background: linear-gradient(135deg, #00B4C6 0%, #4dd0e1 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 180, 198, 0.2);
+  white-space: nowrap;
+}
+
+.lf-create-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 180, 198, 0.3);
+  background: linear-gradient(135deg, #009bb3 0%, #26c6da 100%);
+}
+
+.lf-create-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(0, 180, 198, 0.2);
+}
+
+.lf-page-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #2c5f68;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 2px 4px rgba(0, 180, 198, 0.1);
+  margin-top: 0;
+}
+
+.lf-page-subtitle {
+  font-size: 1.1rem;
+  color: #6b7280;
+  font-weight: 400;
+  margin: 0;
+}
+
+.lf-controls-section {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 180, 198, 0.08);
+  border: 1px solid rgba(0, 180, 198, 0.1);
+}
+
+.lf-search-container {
+  flex: 1;
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.lf-search-input {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: 2px solid #e5f3f4;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: #fafcfc;
+  transition: all 0.3s ease;
+  color: #374151;
+  box-sizing: border-box;
+}
+
+.lf-search-input:focus {
+  outline: none;
+  border-color: #00B4C6;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(0, 180, 198, 0.1);
+  transform: translateY(-1px);
+}
+
+.lf-search-input::placeholder {
+  color: #9ca3af;
+}
+
+.lf-sort-container {
+  min-width: 200px;
+}
+
+.lf-sort-select {
+  width: 100%;
+  padding: 1rem 1.5rem;
+  border: 2px solid #e5f3f4;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: #fafcfc;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 1rem center;
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  padding-right: 3rem;
+  box-sizing: border-box;
+  line-height: 1.5;
+  height: auto;
+  min-height: 3.25rem;
+}
+
+.lf-sort-select:focus {
+  outline: none;
+  border-color: #00B4C6;
+  background-color: white;
+  box-shadow: 0 0 0 3px rgba(0, 180, 198, 0.1);
+  transform: translateY(-1px);
+}
+
+.lf-feedback-list {
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.lf-feedback-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.lf-feedback-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.75rem;
+  box-shadow: 0 4px 20px rgba(0, 180, 198, 0.08);
+  border: 1px solid rgba(0, 180, 198, 0.1);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.lf-feedback-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #00B4C6, #4dd0e1);
+}
+
+.lf-feedback-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 32px rgba(0, 180, 198, 0.15);
+  border-color: rgba(0, 180, 198, 0.2);
+}
+
+.lf-feedback-header-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.lf-doctor-info,
+.lf-patient-info,
+.lf-date-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.lf-doctor-icon,
+.lf-patient-icon,
+.lf-date-icon,
+.lf-comment-icon {
+  font-size: 1.2rem;
+  filter: brightness(0.9);
+}
+
+.lf-doctor-name {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2c5f68;
+}
+
+.lf-patient-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #374151;
+}
+
+.lf-date-text {
+  font-size: 0.95rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.lf-rating-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lf-stars-container {
+  display: flex;
+  gap: 0.1rem;
+}
+
+.lf-star {
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.lf-star-filled {
+  filter: hue-rotate(0deg) brightness(1);
+}
+
+.lf-star-empty {
+  filter: grayscale(1) brightness(0.7);
+}
+
+.lf-rating-text {
+  font-size: 0.9rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-left: 0.25rem;
+}
+
+.lf-comment-section {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid #e5f3f4;
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.lf-comment-section .lf-comment-icon {
+  align-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.lf-comment-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #4b5563;
+  font-style: italic;
+  margin: 0;
+  background: #f8fcfd;
+  padding: 1rem;
+  border-radius: 8px;
+  border-left: 3px solid #00B4C6;
+  flex: 1;
+}
+
+.lf-no-results {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 180, 198, 0.08);
+  border: 1px solid rgba(0, 180, 198, 0.1);
+}
+
+.lf-no-results-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.6;
+}
+
+.lf-no-results-text {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.lf-no-results-subtext {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .lf-feedback-container {
+    padding: 1rem;
+  }
+  
+  .lf-page-title {
+    font-size: 2rem;
+  }
+  
+  .lf-header-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .lf-header-text {
+    text-align: center;
+  }
+  
+  .lf-create-btn {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  .lf-controls-section {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .lf-search-container,
+  .lf-sort-container {
+    min-width: unset;
+    width: 100%;
+  }
+  
+  .lf-feedback-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .lf-feedback-header-card {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .lf-rating-section {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .lf-feedback-card {
+    padding: 1.25rem;
+  }
+  
+  .lf-doctor-info,
+  .lf-patient-info,
+  .lf-date-info {
+    flex-wrap: wrap;
+  }
+  
+  .lf-comment-section {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .lf-comment-text {
+    margin-left: 0;
+  }
+}
+
+/* Smooth animations */
+@keyframes lf-fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.lf-feedback-card {
+  animation: lf-fadeInUp 0.5s ease-out;
+}
+
+.lf-feedback-card:nth-child(even) {
+  animation-delay: 0.1s;
+}
+
+/* Custom scrollbar for this component only */
+.lf-feedback-container ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lf-feedback-container ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.lf-feedback-container ::-webkit-scrollbar-thumb {
+  background: #00B4C6;
+  border-radius: 4px;
+}
+
+.lf-feedback-container ::-webkit-scrollbar-thumb:hover {
+  background: #009bb3;
+}
+
+/* Pagination styles */
+.lf-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.lf-pagination-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid #e5f3f4;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+  min-width: 40px;
+  text-align: center;
+}
+
+.lf-pagination-btn:hover:not(:disabled) {
+  border-color: #00B4C6;
+  background: #f8fcfd;
+  transform: translateY(-1px);
+}
+
+.lf-pagination-btn.active {
+  background: #00B4C6;
+  color: white;
+  border-color: #00B4C6;
+}
+
+.lf-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.lf-pagination-dots {
+  color: #6b7280;
+  font-weight: 500;
+  padding: 0 0.5rem;
+}
+
+/* Loading and error states */
+.lf-loading {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 180, 198, 0.08);
+  border: 1px solid rgba(0, 180, 198, 0.1);
+}
+
+.lf-loading-spinner {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  animation: lf-spin 2s linear infinite;
+}
+
+@keyframes lf-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.lf-error-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 180, 198, 0.08);
+  border: 1px solid rgba(0, 180, 198, 0.1);
+}
+
+.lf-error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.lf-error-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 1rem;
+}
+
+.lf-error-message {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+}
+
+.lf-retry-btn {
+  background: linear-gradient(135deg, #00B4C6 0%, #4dd0e1 100%);
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 180, 198, 0.2);
+}
+
+.lf-retry-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 180, 198, 0.3);
+  background: linear-gradient(135deg, #009bb3 0%, #26c6da 100%);
+}
+
+.lf-retry-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 3px 10px rgba(0, 180, 198, 0.2);
+}
