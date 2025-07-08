@@ -88,193 +88,34 @@ const CheckoutPage: React.FC = () => {
     if (serviceId) fetchService();
   }, [serviceId]);
 
-  // Hàm kiểm tra bác sĩ có rảnh trong khung giờ cụ thể không
-  const checkDoctorAvailability = (
-    doctor: Doctor,
-    date: string,
-    time: string
-  ): boolean => {
-    console.log("🔍 Checking doctor availability:", {
-      doctorName: doctor.user.userName,
-      workSchedule: doctor.workSchedule,
-      status: doctor.status,
-      date,
-      time,
-    });
-
-    if (!doctor.workSchedule || doctor.workSchedule.length === 0) {
-      console.log("❌ Doctor has no work schedule");
-      return false;
-    }
-
-    // SỬA LẠI: Chỉ loại trừ những bác sĩ có status là "inactive" hoặc "blocked"
-    if (doctor.status === "inactive" || doctor.status === "blocked") {
-      console.log("❌ Doctor not available, status:", doctor.status);
-      return false;
-    }
-
-    // Phần còn lại giữ nguyên...
-    const appointmentDate = new Date(date);
-    const dayOfWeek = appointmentDate.getDay();
-
-    const dayNames = [
-      "Sunday",
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-    ];
-    const dayName = dayNames[dayOfWeek];
-
-    console.log("📅 Day info:", {
-      dayOfWeek,
-      dayName,
-      appointmentDate: appointmentDate.toISOString(),
-    });
-
-    const workingDay = doctor.workSchedule.find((schedule) => {
-      console.log("🔍 Checking schedule:", schedule);
-      const lowerSchedule = schedule.toLowerCase();
-      const lowerDayName = dayName.toLowerCase();
-      const includes = lowerSchedule.includes(lowerDayName);
-      console.log(
-        `🔍 Does "${lowerSchedule}" include "${lowerDayName}"?`,
-        includes
-      );
-      return includes;
-    });
-
-    console.log("🗓️ Working day found:", workingDay);
-
-    if (!workingDay) {
-      console.log("❌ Doctor doesn't work on this day");
-      return false;
-    }
-
-    const timeMatch = workingDay.match(/(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})/);
-    if (!timeMatch) {
-      console.log("❌ Time format not matched, workingDay:", workingDay);
-      return false;
-    }
-
-    const startHour = parseInt(timeMatch[1]);
-    const startMinute = parseInt(timeMatch[2]);
-    const endHour = parseInt(timeMatch[3]);
-    const endMinute = parseInt(timeMatch[4]);
-
-    const [appointmentHour, appointmentMinute] = time.split(":").map(Number);
-
-    const startTime = startHour * 60 + startMinute;
-    const endTime = endHour * 60 + endMinute;
-    const appointmentTime = appointmentHour * 60 + appointmentMinute;
-
-    const isInRange = appointmentTime >= startTime && appointmentTime < endTime;
-
-    console.log("⏰ Time comparison:", {
-      workingHours: `${startHour}:${startMinute
-        .toString()
-        .padStart(2, "0")}-${endHour}:${endMinute.toString().padStart(2, "0")}`,
-      appointmentTimeFormatted: `${appointmentHour}:${appointmentMinute
-        .toString()
-        .padStart(2, "0")}`,
-      startTime,
-      endTime,
-      appointmentTime,
-      isInRange,
-    });
-
-    return isInRange;
-  };
-
   // Hàm tìm bác sĩ có sẵn khi thay đổi ngày/giờ
   const findAvailableDoctors = async (date: string, time: string) => {
-    console.log("🔍 Finding available doctors for:", { date, time });
-
-    if (!date || !time || !service?.doctor) {
-      console.log("❌ Missing required data:", {
-        date,
-        time,
-        doctorsCount: service?.doctor?.length,
-      });
+    if (!service?._id || !date || !time) {
+      setAvailableDoctors([]);
       return;
     }
-
-    console.log("👨‍⚕️ Total doctors in service:", service.doctor.length);
-    console.log(
-      "👨‍⚕️ All doctors:",
-      service.doctor.map((d) => ({
-        name: d.user.userName,
-        workSchedule: d.workSchedule,
-        status: d.status,
-      }))
-    );
-    // api để lấy thông tin bác sĩ có sẵn
     setLoadingDoctors(true);
     try {
-      // Thay đổi URL API từ appointment sang treatment-registration
-      const apiUrl = `https://mirava-f0rz.onrender.com/api/treatment-registration/check-availability?date=${date}&time=${time}`;
-      console.log("🌐 API call:", apiUrl);
-
-      const response = await fetch(apiUrl, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      let bookedDoctors: string[] = [];
-      if (response.ok) {
-        const bookingData = await response.json();
-        bookedDoctors = bookingData.bookedDoctors || [];
-        console.log("📅 Booked doctors from API:", bookedDoctors);
-      } else {
-        console.log(
-          "⚠️ API response not ok:",
-          response.status,
-          response.statusText
+      const res = await fetch(
+        `https://mirava-f0rz.onrender.com/api/treatment-registration/available-doctors?serviceId=${service._id}&date=${date}&time=${time}`
+      );
+      const data = await res.json();
+      if (data.success) {
+        setAvailableDoctors(
+          data.data.map((doc: any) => ({
+            _id: doc._id,
+            name: doc.user.userName,
+            specialty: doc.specialty,
+            isAvailable: true,
+            timeSlots: [time],
+          }))
         );
-        // Không có API endpoint hoặc lỗi - tiếp tục với danh sách trống
+        console.log("🟢 Bác sĩ có sẵn:", data);
+      } else {
+        setAvailableDoctors([]);
       }
-
-      // Lọc bác sĩ có sẵn
-      const available = service.doctor
-
-        .map((doctor) => {
-          console.log("🧪 Doctor raw object:", doctor);
-          const isWorkingTime = checkDoctorAvailability(doctor, date, time);
-          const isBooked = bookedDoctors.includes(doctor._id);
-          console.log(`👨‍⚕️ Doctor ${doctor.user.userName}:`, {
-            isWorkingTime,
-            isBooked,
-            isAvailable: isWorkingTime && !isBooked,
-          });
-
-          return {
-            _id: doctor._id,
-            name: doctor.user.userName,
-            specialty: doctor.specialty,
-            isAvailable: isWorkingTime && !isBooked,
-            timeSlots: isWorkingTime ? [time] : [],
-          };
-        })
-        .filter((doctor) => doctor.isAvailable);
-
-      console.log("✅ Available doctors:", available);
-      setAvailableDoctors(available);
-
-      // Reset doctor selection nếu bác sĩ đã chọn không còn available
-      if (
-        formData.doctorId &&
-        !available.find((d) => d._id === formData.doctorId)
-      ) {
-        toast("Bác sĩ bạn đã chọn hiện không còn rảnh. Vui lòng chọn lại.");
-        setFormData((prev) => ({ ...prev, doctorId: "" }));
-      }
-    } catch (error) {
-      console.error("❌ Error checking doctor availability:", error);
-      toast.error("Không thể kiểm tra lịch bác sĩ");
+    } catch {
+      setAvailableDoctors([]);
     } finally {
       setLoadingDoctors(false);
     }

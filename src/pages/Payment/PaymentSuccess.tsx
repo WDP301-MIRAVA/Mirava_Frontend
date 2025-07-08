@@ -102,7 +102,7 @@ const PaymentSuccess: React.FC = () => {
             Tiếp tục mua sắm
           </button>
           <button
-            onClick={() => navigate("/my-orders")}
+            onClick={() => navigate("/searchresult")}
             className="btn-order-success btn-secondary"
           >
             Xem đơn hàng
