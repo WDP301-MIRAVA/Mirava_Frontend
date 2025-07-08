@@ -86,7 +86,6 @@ const MainRouter = () => {
       {/* 👤 Customer Protected Routes */}
       <Route
         element={
-          
           <PrivateRoute allowedRole="Customer" layout={CustomerLayout} />
         }
       >
@@ -103,14 +102,13 @@ const MainRouter = () => {
 
       {/* 🛠 Admin Protected Routes */}
       <Route
-        path="/admin/*"
         element={<PrivateRoute allowedRole="Admin" layout={AdminLayout} />}
       >
         <Route path="/admin" element={<div>Admin Dashboard</div>} />
         <Route path="/admin/profile" element={<PersonalInfoPage />} />
         <Route path="/admin/usermanagement" element={<UserManagement />} />
         <Route path="/admin/doctors" element={<DoctorManagement />} />
-         <Route path="/admin/feedback" element={<FeedbackManagement />} />
+        <Route path="/admin/feedback" element={<FeedbackManagement />} />
       </Route>
 
       {/* 🩺 Doctor Protected Routes */}

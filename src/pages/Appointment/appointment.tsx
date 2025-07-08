@@ -20,8 +20,7 @@ import { Service } from "@/services/service";
 import toast from "react-hot-toast";
 import { Modal } from "antd";
 const { TextArea } = Input;
-const { Option } = Select;
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const Appointment = () => {
   const [form] = Form.useForm();
@@ -33,9 +32,7 @@ const Appointment = () => {
   const [selectedDate, setSelectedDate] = useState<dayjs.Dayjs | null>(null);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<string | null>(null);
-  const [selectedSpecialty, setSelectedSpecialty] = useState<string | null>(
-    null
-  );
+
   const [modalVisible, setModalVisible] = useState(false);
   const [appointmentInfo, setAppointmentInfo] = useState<any>(null);
   const fetchDoctors = async () => {
@@ -173,18 +170,6 @@ const Appointment = () => {
       setLoading(false);
     }
   };
-
-  // Lấy tất cả các chuyên khoa duy nhất từ danh sách bác sĩ
-  const specialties = Array.from(
-    new Set(
-      doctors.flatMap((doc: any) => (doc.specialty ? [doc.specialty] : []))
-    )
-  );
-
-  // Lọc bác sĩ theo chuyên khoa đã chọn
-  const filteredDoctors = selectedSpecialty
-    ? doctors.filter((doc: any) => doc.specialty === selectedSpecialty)
-    : doctors;
 
   return (
     <>
@@ -358,7 +343,7 @@ const Appointment = () => {
               <b>Bác sĩ:</b> {appointmentInfo.doctor?.user?.userName || "?"}
             </p>
             <p>
-              <b>Chuyên khoa:</b> {appointmentInfo.specialty}
+              <b>Chuyên khoa:</b> {appointmentInfo.doctor?.specialty}
             </p>
             <p>
               <b>Ngày giờ:</b>{" "}
