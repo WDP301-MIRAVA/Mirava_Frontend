@@ -35,6 +35,7 @@ const Appointment = () => {
 
   const [modalVisible, setModalVisible] = useState(false);
   const [appointmentInfo, setAppointmentInfo] = useState<any>(null);
+
   const fetchDoctors = async () => {
     try {
       const response = await DoctorService.getDoctors();
@@ -81,44 +82,32 @@ const Appointment = () => {
     return !workDays.includes(dayOfWeek);
   };
 
-  const getAvailableTimeSlots = (date: dayjs.Dayjs, doctorId: string) => {
-    const doctor = doctors.find((d) => d._id === doctorId);
-    if (!doctor || !doctor.workSchedule) return [];
-
-    const dayOfWeek = date.format("dddd");
-    const schedule = doctor.workSchedule.find((s: string) =>
-      s.startsWith(dayOfWeek)
-    );
-    if (!schedule) return [];
-
-    const timeParts = schedule.split(" ").slice(1);
-    const timeSlots: string[] = [];
-
-    timeParts.forEach((part: string) => {
-      const [start, end] = part.split("-");
-      let current = dayjs(
-        `${date.format("YYYY-MM-DD")} ${start}`,
-        "YYYY-MM-DD HH:mm"
+  const getAvailableTimeSlots = async (date: dayjs.Dayjs, doctorId: string) => {
+    if (!doctorId || !date) return [];
+    try {
+      const res = await AppointmentService.getAvailableTimeSlots(
+        doctorId,
+        date.format("YYYY-MM-DD")
       );
-      const endTime = dayjs(
-        `${date.format("YYYY-MM-DD")} ${end}`,
-        "YYYY-MM-DD HH:mm"
-      );
-
-      while (current <= endTime) {
-        timeSlots.push(current.format("HH:mm"));
-        current = current.add(30, "minute");
+      if (res.success && Array.isArray(res.availableSlots)) {
+        return res.availableSlots.map((slot: any) => slot.startTime);
       }
-    });
-
-    return timeSlots;
+      toast.error(res.message || "Không lấy được khung giờ trống!");
+      return [];
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          "Không thể kết nối tới máy chủ để lấy khung giờ trống!"
+      );
+      return [];
+    }
   };
 
-  const handleDateChange = (date: dayjs.Dayjs | null) => {
+  const handleDateChange = async (date: dayjs.Dayjs | null) => {
     setSelectedDate(date);
     setSelectedTimeSlot(null);
     if (date && selectedDoctorId) {
-      const slots = getAvailableTimeSlots(date, selectedDoctorId);
+      const slots = await getAvailableTimeSlots(date, selectedDoctorId);
       setAvailableTimeSlots(slots);
     } else {
       setAvailableTimeSlots([]);
