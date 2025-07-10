@@ -34,7 +34,7 @@ import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
 
 import ReproductiveHealthTesting from "@/pages/ReproductiveHealthTesting/ReproductiveHealthTesting";
 
-import MedicalHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
+import MedicalHistory from "@/pages/Doctor/MedicalHistory/MedicalHistory";
 import OrderHistory from "@/pages/Customer/Orders/OrderHistory";
 
 // Admin pages
@@ -104,7 +104,6 @@ const MainRouter = () => {
         <Route path="/customer/treatmentplan" element={<TreatmentPlan />} />
         <Route path="/customer/contact" element={<ContactDoctor />} />
         <Route path="/customer/schedule" element={<TreatmentSchedule />} />
-
         <Route path="/customer/orders" element={<OrderHistory />} />
         <Route path="/customer/feedback" element={<CreateFeedback />} />
         <Route path="/customer/list-feedback" element={<ListFeedback />} />s
