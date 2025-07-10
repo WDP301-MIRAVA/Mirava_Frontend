@@ -15,23 +15,10 @@ import axios from "axios";
 import "./IVFTreatmentTracker.css";
 import MedicalRecordForm from "../MedicalRecordForm";
 
-// Hàm tính ngày mốc IVF
-// function getIVFEventDates(cycleStartDate: string): string[] {
-//   if (!cycleStartDate) return [];
-//   const base = new Date(cycleStartDate);
-//   // Ngày 1, 5, 8, 10 của chu kỳ (tính từ ngày bắt đầu)
-//   const offsets = [0, 4, 7, 9];
-//   return offsets.map((offset) => {
-//     const d = new Date(base);
-//     d.setDate(base.getDate() + offset);
-//     return d.toISOString().slice(0, 10);
-//   });
-// }
-
 // Types
 interface TreatmentStep {
   id: string;
-  _id?: string; // Thêm _id nếu cần
+  _id?: string;
   name: string;
   date?: string;
   doctorNote?: string;
@@ -56,12 +43,13 @@ interface MedicalRecord {
   attachments: string[];
   notes: string;
 }
+
 interface FormData {
   date: string;
   performedBy: string;
   doctorNote: string;
   specialMetrics: { [key: string]: string | number };
-  status?: "pending" | "in-progress" | "completed"; // Thêm status vào FormData
+  status?: "pending" | "in-progress" | "completed";
   stage?: string;
   title?: string;
   description?: string;
@@ -73,6 +61,7 @@ interface FormData {
   medicalRecords?: MedicalRecord[];
   medicalNotes?: string;
 }
+
 interface TreatmentPlan {
   _id: string;
   patient: {
@@ -131,7 +120,41 @@ const IVFTreatmentTracker: React.FC = () => {
   }>({ open: false, step: null, medicalRecord: null });
   const [formError, setFormError] = useState<string | null>(null);
 
+  // ✅ State mới cho cập nhật ngày bắt đầu chu kỳ
+  const [editingCycleStart, setEditingCycleStart] = useState(false);
+  const [newCycleStartDate, setNewCycleStartDate] = useState<string>("");
+
   const BASE_URL = "https://mirava-f0rz.onrender.com";
+
+  // ✅ Hàm cập nhật ngày bắt đầu chu kỳ
+  const handleUpdateCycleStartDate = async () => {
+    if (!treatmentPlan || !newCycleStartDate) {
+      message.error("Vui lòng chọn ngày bắt đầu chu kỳ");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("accessToken");
+      const res = await axios.patch(
+        `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/cycle-start-date`,
+        { cycleStartDate: newCycleStartDate },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data.success) {
+        message.success("Cập nhật ngày bắt đầu chu kỳ thành công!");
+        setTreatmentPlan((prev) =>
+          prev ? { ...prev, cycleStartDate: newCycleStartDate } : prev
+        );
+        setEditingCycleStart(false);
+      } else {
+        message.error(res.data.message || "Cập nhật thất bại");
+      }
+    } catch (err: any) {
+      console.error("Error updating cycle start date:", err);
+      message.error("Có lỗi khi cập nhật ngày bắt đầu chu kỳ");
+    }
+  };
 
   // Fetch treatment plan data
   useEffect(() => {
@@ -403,7 +426,7 @@ const IVFTreatmentTracker: React.FC = () => {
         description: step.description || "",
         specialMetrics: Object.entries(step.specialMetrics || {}).reduce(
           (acc, [key, value]) => {
-            acc[key] = String(value); // Convert all values to strings
+            acc[key] = String(value);
             return acc;
           },
           {} as { [key: string]: string }
@@ -411,7 +434,6 @@ const IVFTreatmentTracker: React.FC = () => {
       });
     }
 
-    // Load draft if exists
     if (drafts[stepId]) {
       setFormData(drafts[stepId]);
     }
@@ -432,7 +454,6 @@ const IVFTreatmentTracker: React.FC = () => {
   const saveFormData = async () => {
     if (!activeForm || !treatmentPlan) return;
     setFormError(null);
-    // Validate ngày hẹn khám và ngày thực hiện
     const execDate = formData.executionDate
       ? new Date(formData.executionDate)
       : null;
@@ -455,12 +476,6 @@ const IVFTreatmentTracker: React.FC = () => {
         return;
       }
 
-      // Log để debug
-      console.log("🔍 Current formData:", formData);
-      console.log("📋 Step index:", stepIndex);
-      console.log("🏥 Treatment step:", treatmentSteps[stepIndex]);
-
-      // Chuẩn bị dữ liệu cập nhật với đầy đủ thông tin
       const updateData = {
         stage: formData.stage || treatmentSteps[stepIndex].stage || "",
         title: formData.title || treatmentSteps[stepIndex].name || "",
@@ -478,19 +493,11 @@ const IVFTreatmentTracker: React.FC = () => {
         performedBy:
           formData.performedBy || treatmentPlan.doctor?.user?.userName || "",
         medicalRecords: formData.medicalRecords || [],
-        // Thêm các trường mới
         medicalNotes: formData.medicalNotes || "",
         doctorNote: formData.doctorNote || "",
         specialMetrics: formData.specialMetrics || {},
       };
 
-      console.log("📤 Sending update data:", updateData);
-      console.log(
-        "🌐 API URL:",
-        `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/events/${stepIndex}`
-      );
-
-      // Sử dụng PUT để cập nhật toàn bộ event
       const response = await axios.put(
         `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/events/${stepIndex}`,
         updateData,
@@ -502,14 +509,10 @@ const IVFTreatmentTracker: React.FC = () => {
         }
       );
 
-      console.log("📥 API Response:", response.data);
-
       if (response.data.success) {
-        // Cập nhật UI với dữ liệu trả về từ server
         const updatedTreatmentPlan = response.data.data.treatmentPlan;
         setTreatmentPlan(updatedTreatmentPlan);
 
-        // Cập nhật treatment steps
         const updatedSteps = treatmentSteps.map((step, idx) =>
           idx === stepIndex
             ? {
@@ -538,7 +541,6 @@ const IVFTreatmentTracker: React.FC = () => {
 
         message.success("Cập nhật kế hoạch điều trị thành công!");
 
-        // Remove draft after saving
         setDrafts((prev) => {
           const newDrafts = { ...prev };
           delete newDrafts[activeForm];
@@ -588,7 +590,6 @@ const IVFTreatmentTracker: React.FC = () => {
     };
 
     setTreatmentSteps((prev) => {
-      // Find the last consultation visit index
       const lastConsultationIndex = prev.findIndex(
         (step) => !step.category.includes("Tư vấn")
       );
@@ -601,7 +602,6 @@ const IVFTreatmentTracker: React.FC = () => {
       }
     });
 
-    // Immediately open form for the new visit
     setTimeout(() => openForm(newVisit.id), 100);
   };
 
@@ -626,6 +626,7 @@ const IVFTreatmentTracker: React.FC = () => {
       </button>
     );
   };
+
   const getCategoryClass = (category: string) => {
     switch (category) {
       case "Tư vấn":
@@ -683,35 +684,6 @@ const IVFTreatmentTracker: React.FC = () => {
     }
   };
 
-  // const renderDynamicFields = () => {
-  //   // Render các field động dựa trên loại bước điều trị
-  //   const currentStep = treatmentSteps.find((step) => step.id === activeForm);
-  //   if (!currentStep) return null;
-
-  //   const metricFields = getMetricFields(currentStep.name);
-
-  //   if (metricFields.length === 0) return null;
-
-  //   return (
-  //     <div className="dynamic-fields">
-  //       <label>Chỉ số đặc biệt:</label>
-  //       <div className="metrics-grid">
-  //         {metricFields.map((field) => (
-  //           <div key={field} className="metric-item">
-  //             <label className="metric-label">{field}</label>
-  //             <input
-  //               type="text"
-  //               value={formData.specialMetrics?.[field] || ""}
-  //               onChange={(e) => updateSpecialMetric(field, e.target.value)}
-  //               className="metric-input"
-  //             />
-  //           </div>
-  //         ))}
-  //       </div>
-  //     </div>
-  //   );
-  // };
-
   const handleBackToPatientList = () => {
     navigate("/doctor/patients");
   };
@@ -760,7 +732,6 @@ const IVFTreatmentTracker: React.FC = () => {
     const stepIndex = treatmentSteps.findIndex((s) => s.id === stepId);
     if (stepIndex === -1) return;
 
-    // Xác định trạng thái tiếp theo
     const current = treatmentSteps[stepIndex].status;
     let next: "pending" | "in-progress" | "completed";
     if (current === "pending") next = "in-progress";
@@ -771,15 +742,10 @@ const IVFTreatmentTracker: React.FC = () => {
       setUpdating(true);
       const token = localStorage.getItem("accessToken");
 
-      // Debug log
-      console.log("Updating event at index:", stepIndex);
-      console.log("Treatment plan ID:", treatmentPlan._id);
-
-      // Sử dụng stepIndex thay vì eventToUpdate._id
       const response = await axios.patch(
         `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/events/${stepIndex}/status`,
         {
-          status: next, // Chỉ gửi status
+          status: next,
         },
         {
           headers: {
@@ -790,11 +756,9 @@ const IVFTreatmentTracker: React.FC = () => {
       );
 
       if (response.data.success) {
-        // Cập nhật UI với dữ liệu trả về từ server
         const updatedTreatmentPlan = response.data.data.treatmentPlan;
         setTreatmentPlan(updatedTreatmentPlan);
 
-        // Cập nhật treatment steps
         const updatedSteps = treatmentSteps.map((step, idx) =>
           idx === stepIndex
             ? {
@@ -867,12 +831,97 @@ const IVFTreatmentTracker: React.FC = () => {
               <div className="patient-details">
                 <span>Mã BN: {treatmentPlan?.patient?.patientCode}</span>
                 <span>SĐT: {treatmentPlan.patient.phone}</span>
-                <span>
-                  Ngày bắt đầu chu kì:{" "}
-                  {new Date(treatmentPlan.cycleStartDate).toLocaleDateString(
-                    "vi-VN"
+
+                {/* ✅ Phần cập nhật ngày bắt đầu chu kỳ */}
+                <span
+                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
+                >
+                  Ngày bắt đầu chu kỳ:{" "}
+                  {editingCycleStart ? (
+                    <>
+                      <input
+                        type="datetime-local"
+                        value={newCycleStartDate}
+                        onChange={(e) => setNewCycleStartDate(e.target.value)}
+                        style={{
+                          padding: "4px 8px",
+                          border: "1px solid #ddd",
+                          borderRadius: "4px",
+                          fontSize: "14px",
+                        }}
+                      />
+                      <button
+                        onClick={handleUpdateCycleStartDate}
+                        style={{
+                          padding: "4px 8px",
+                          backgroundColor: "#52c41a",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontSize: "12px",
+                        }}
+                      >
+                        Lưu
+                      </button>
+                      <button
+                        onClick={() => setEditingCycleStart(false)}
+                        style={{
+                          padding: "4px 8px",
+                          backgroundColor: "#ff4d4f",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontSize: "12px",
+                        }}
+                      >
+                        Hủy
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      {new Date(treatmentPlan.cycleStartDate).toLocaleString(
+                        "vi-VN",
+                        {
+                          timeZone: "Asia/Ho_Chi_Minh",
+                          year: "numeric",
+                          month: "2-digit",
+                          day: "2-digit",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )}
+                      <button
+                        onClick={() => {
+                          setEditingCycleStart(true);
+                          setNewCycleStartDate(
+                            treatmentPlan.cycleStartDate
+                              ? new Date(treatmentPlan.cycleStartDate)
+                                  .toISOString()
+                                  .slice(0, 16)
+                              : ""
+                          );
+                        }}
+                        style={{
+                          padding: "4px 8px",
+                          backgroundColor: "#1890ff",
+                          color: "white",
+                          border: "none",
+                          borderRadius: "4px",
+                          cursor: "pointer",
+                          fontSize: "12px",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "4px",
+                        }}
+                      >
+                        <Edit3 size={12} /> Sửa
+                      </button>
+                    </>
                   )}
                 </span>
+
                 <span className={`status-badge ${treatmentPlan.status}`}>
                   {treatmentPlan.status === "planned"
                     ? "Đã lên kế hoạch"
@@ -998,18 +1047,16 @@ const IVFTreatmentTracker: React.FC = () => {
                           <Edit3 className="w-4 h-4" />
                           Chỉnh sửa
                         </button>
-                        {
-                          <button
-                            onClick={() => openMedicalRecordModal(step)}
-                            className="action-btn"
-                            style={{
-                              background: "#00b4c6",
-                              color: "#fff",
-                            }}
-                          >
-                            Kết quả
-                          </button>
-                        }
+                        <button
+                          onClick={() => openMedicalRecordModal(step)}
+                          className="action-btn"
+                          style={{
+                            background: "#00b4c6",
+                            color: "#fff",
+                          }}
+                        >
+                          Kết quả
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -1305,7 +1352,6 @@ const IVFTreatmentTracker: React.FC = () => {
                     medicalRecord={medicalRecordModal.medicalRecord || null}
                     onSuccess={() => {
                       closeMedicalRecordModal();
-                      // TODO: reload treatment plan data nếu cần
                     }}
                     onCancel={closeMedicalRecordModal}
                   />
@@ -1318,4 +1364,5 @@ const IVFTreatmentTracker: React.FC = () => {
     </div>
   );
 };
+
 export default IVFTreatmentTracker;
