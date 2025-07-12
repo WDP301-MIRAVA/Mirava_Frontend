@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import "./CheckOutPage.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { toast } from "react-hot-toast";
 
 interface Test {
   testName: string;
@@ -30,14 +31,23 @@ interface TestPackage {
   updatedAt: string;
 }
 
+interface AvailableDoctor {
+  _id: string;
+  name: string;
+  specialty: string;
+  isAvailable: boolean;
+  timeSlots: string[];
+}
+
 interface OrderFormData {
-  fullName: string;
+  userName: string;
   phone: string;
   email: string;
   address: string;
   gender: string;
   appointmentDate: string;
-  appointmentTime: string;
+  timeSlot: string;
+  doctorId: string;
   paymentMethod: string;
   notes: string;
 }
@@ -46,29 +56,31 @@ const CheckOutPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [testPackage, setTestPackage] = useState<TestPackage | null>(null);
+  const [loadingDoctors, setLoadingDoctors] = useState(false);
+  const [availableDoctors, setAvailableDoctors] = useState<AvailableDoctor[]>(
+    []
+  );
   const [formData, setFormData] = useState<OrderFormData>({
-    fullName: "",
+    userName: "",
     phone: "",
     email: "",
     address: "",
-    gender: "Nam",
+    gender: "Male",
     appointmentDate: "",
-    appointmentTime: "",
-    paymentMethod: "Tiền mặt",
+    timeSlot: "",
+    doctorId: "",
+    paymentMethod: "Cash",
     notes: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
 
-  // Time slots for appointment
+  // Danh sách khung giờ
   const timeSlots = [
-    "07:00",
     "08:00",
     "09:00",
     "10:00",
     "11:00",
-    "12:00",
-    "13:00",
     "14:00",
     "15:00",
     "16:00",
@@ -76,11 +88,9 @@ const CheckOutPage: React.FC = () => {
   ];
 
   useEffect(() => {
-    // Get test package data from location state (passed from detail page)
     if (location.state?.testPackage) {
       setTestPackage(location.state.testPackage);
     } else {
-      // If no data found, redirect back to packages page
       navigate("/test-packages");
     }
   }, [location.state, navigate]);
@@ -97,44 +107,217 @@ const CheckOutPage: React.FC = () => {
     }));
   };
 
-  const handleTimeSlotClick = (time: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      appointmentTime: time,
-    }));
+  // Hàm tìm bác sĩ có sẵn khi thay đổi ngày/giờ
+  const findAvailableDoctors = async (date: string, time: string) => {
+    if (!testPackage?._id || !date || !time) {
+      setAvailableDoctors([]);
+      return;
+    }
+
+    setLoadingDoctors(true);
+    try {
+      console.log("🔍 Tìm bác sĩ có sẵn với params:", {
+        packageId: testPackage._id,
+        date,
+        time,
+      });
+
+      // Gọi API mới để lấy bác sĩ có sẵn cho test package
+      const res = await fetch(
+        `https://mirava-f0rz.onrender.com/api/test-registrations/available-doctors?packageId=${testPackage._id}&date=${date}&time=${time}`
+      );
+
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+      }
+
+      const data = await res.json();
+      console.log("🔍 API Response:", data);
+
+      if (data.success && data.data && Array.isArray(data.data)) {
+        setAvailableDoctors(
+          data.data.map((doc: any) => ({
+            _id: doc._id,
+            name: doc.user?.userName || "Không có tên",
+            specialty: doc.specialty || "Chưa cập nhật",
+            isAvailable: doc.isAvailable || true,
+            timeSlots: [time],
+          }))
+        );
+        console.log("🟢 Bác sĩ có sẵn:", data.data);
+      } else {
+        console.log("⚠️ Không có bác sĩ hoặc API trả về dữ liệu không hợp lệ");
+        setAvailableDoctors([]);
+      }
+    } catch (error) {
+      console.error("❌ Lỗi khi tìm bác sĩ:", error);
+      setAvailableDoctors([]);
+
+      // Hiển thị thông báo lỗi cho người dùng
+      if (error instanceof Error) {
+        console.error("Chi tiết lỗi:", error.message);
+      }
+    } finally {
+      setLoadingDoctors(false);
+    }
+  };
+
+  // Xử lý khi thay đổi ngày
+  const handleDateChange = (date: string) => {
+    setFormData((prev) => ({ ...prev, appointmentDate: date }));
+    if (date && formData.timeSlot) {
+      findAvailableDoctors(date, formData.timeSlot);
+    } else {
+      setAvailableDoctors([]);
+    }
+  };
+
+  // Xử lý khi thay đổi giờ
+  const handleTimeSlotChange = (time: string) => {
+    setFormData((prev) => ({ ...prev, timeSlot: time }));
+    if (formData.appointmentDate && time) {
+      findAvailableDoctors(formData.appointmentDate, time);
+    } else {
+      setAvailableDoctors([]);
+    }
   };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN").format(price);
   };
 
+  // Validate form data
+  const validateForm = (): boolean => {
+    if (!formData.userName.trim()) {
+      toast.error("Vui lòng nhập họ và tên!");
+      return false;
+    }
+
+    const phoneRegex = /^[0-9]{10,11}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error("Số điện thoại không hợp lệ!");
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast.error("Email không hợp lệ!");
+      return false;
+    }
+
+    if (!formData.address.trim()) {
+      toast.error("Vui lòng nhập địa chỉ!");
+      return false;
+    }
+
+    if (!formData.appointmentDate) {
+      toast.error("Vui lòng chọn ngày mong muốn!");
+      return false;
+    }
+
+    // Nếu chọn đặt lịch thì kiểm tra ngày và giờ
+    if (
+      (formData.appointmentDate && !formData.timeSlot) ||
+      (!formData.appointmentDate && formData.timeSlot)
+    ) {
+      toast.error("Vui lòng chọn đầy đủ ngày và khung giờ khám!");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!agreeToTerms) {
-      alert("Vui lòng đồng ý với điều khoản và điều kiện");
+      toast.error("Vui lòng đồng ý với điều khoản và điều kiện");
+      return;
+    }
+
+    if (!validateForm()) {
+      return;
+    }
+
+    if (!testPackage) {
+      toast.error("Không tìm thấy thông tin gói xét nghiệm!");
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // API call to submit order
-      const orderData = {
-        ...formData,
-        testPackageId: testPackage?._id,
-        testPackageName: testPackage?.name,
-        totalAmount: testPackage?.price,
+      const registrationData = {
+        items: [
+          {
+            packageId: testPackage._id,
+            quantity: 1,
+          },
+        ],
+        paymentMethod: formData.paymentMethod,
+        note: formData.notes,
+        customerInfo: {
+          userName: formData.userName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          gender: formData.gender,
+        },
+        appointmentDate: formData.appointmentDate,
+        timeSlot: formData.timeSlot || undefined,
+        doctorId: formData.doctorId || undefined,
       };
 
-      console.log("Submitting order:", orderData);
+      console.log("Submitting test registration:", registrationData);
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await fetch(
+        "https://mirava-f0rz.onrender.com/api/test-registrations/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(registrationData),
+        }
+      );
 
-      alert("Đặt lịch thành công! Chúng tôi sẽ liên hệ với bạn sớm nhất.");
-      navigate("/");
-    } catch (error) {
-      console.error("Error submitting order:", error);
-      alert("Có lỗi xảy ra. Vui lòng thử lại.");
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Có lỗi xảy ra. Vui lòng thử lại!");
+      }
+
+      console.log("✅ Đăng ký thành công:", result.data);
+
+      // Xử lý response cho VNPay
+      if (formData.paymentMethod === "VNPay" && result.data.vnpUrl) {
+        toast.success("Chuyển đến cổng thanh toán...");
+        window.location.href = result.data.vnpUrl;
+        return;
+      }
+
+      toast.success("Đăng ký xét nghiệm thành công!");
+
+      navigate("/payment-success", {
+        state: {
+          orderInfo: {
+            orderId: result.data.order.id,
+            orderCode: result.data.order.orderCode,
+            paymentStatus: result.data.order.paymentStatus,
+            totalAmount: result.data.order.totalAmount,
+            testPackageName: testPackage.name,
+            patientCode: result.data.customer.patientCode,
+            isNewUser: result.data.customer.isNewUser,
+          },
+          userInfo: {
+            userName: result.data.customer.userName,
+            email: result.data.customer.email,
+            phone: result.data.customer.phone,
+          },
+        },
+      });
+    } catch (error: any) {
+      console.error("❌ Lỗi đăng ký xét nghiệm:", error);
+      toast.error(error.message || "Có lỗi xảy ra. Vui lòng thử lại!");
     } finally {
       setIsSubmitting(false);
     }
@@ -157,16 +340,16 @@ const CheckOutPage: React.FC = () => {
           <div className="order-wrapper">
             {/* Left Column - Order Form */}
             <div className="order-form-section">
-              <h2>Thông tin thanh toán</h2>
+              <h2>Thông tin đăng ký xét nghiệm</h2>
 
               <form onSubmit={handleSubmit} className="order-form">
                 <div className="form-group">
-                  <label htmlFor="fullName">Họ và Tên *</label>
+                  <label htmlFor="userName">Họ và Tên *</label>
                   <input
                     type="text"
-                    id="fullName"
-                    name="fullName"
-                    value={formData.fullName}
+                    id="userName"
+                    name="userName"
+                    value={formData.userName}
                     onChange={handleInputChange}
                     required
                     placeholder="Nhập họ và tên"
@@ -182,7 +365,7 @@ const CheckOutPage: React.FC = () => {
                     value={formData.phone}
                     onChange={handleInputChange}
                     required
-                    placeholder="Nhập số điện thoại"
+                    placeholder="Nhập số điện thoại (10-11 số)"
                   />
                 </div>
 
@@ -220,40 +403,115 @@ const CheckOutPage: React.FC = () => {
                     value={formData.gender}
                     onChange={handleInputChange}
                   >
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
+                    <option value="Male">Nam</option>
+                    <option value="Female">Nữ</option>
                   </select>
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="appointmentDate">
-                    Thông tin đặt lịch (tùy chọn)
-                  </label>
-                  <input
-                    type="date"
-                    id="appointmentDate"
-                    name="appointmentDate"
-                    value={formData.appointmentDate}
-                    onChange={handleInputChange}
-                  />
-                </div>
+                {/* Phần đặt lịch hẹn */}
+                <div className="appointment-section">
+                  <h3>Thông tin đặt lịch</h3>
 
-                <div className="form-group">
-                  <label>Chọn khung giờ</label>
-                  <div className="time-slots">
-                    {timeSlots.map((time) => (
-                      <button
-                        key={time}
-                        type="button"
-                        className={`time-slot ${
-                          formData.appointmentTime === time ? "active" : ""
-                        }`}
-                        onClick={() => handleTimeSlotClick(time)}
-                      >
-                        {time}
-                      </button>
-                    ))}
+                  <div className="form-group">
+                    <label htmlFor="appointmentDate">
+                      Ngày mong muốn xét nghiệm *
+                    </label>
+                    <input
+                      type="date"
+                      id="appointmentDate"
+                      name="appointmentDate"
+                      value={formData.appointmentDate}
+                      onChange={(e) => handleDateChange(e.target.value)}
+                      required
+                      min={new Date().toISOString().split("T")[0]}
+                    />
                   </div>
+
+                  <div className="form-group">
+                    <label>Chọn khung giờ:</label>
+                    <div className="time-slots">
+                      {timeSlots.map((time) => (
+                        <button
+                          key={time}
+                          type="button"
+                          className={`time-slot ${
+                            formData.timeSlot === time ? "active" : ""
+                          }`}
+                          onClick={() => handleTimeSlotChange(time)}
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Hiển thị bác sĩ có sẵn */}
+                  {formData.appointmentDate && formData.timeSlot && (
+                    <div className="available-doctors">
+                      <label className="label">
+                        Bác sĩ có sẵn vào {formData.appointmentDate} lúc{" "}
+                        {formData.timeSlot}:
+                      </label>
+
+                      {loadingDoctors ? (
+                        <div className="loading-doctors">
+                          <p>Đang kiểm tra lịch bác sĩ...</p>
+                        </div>
+                      ) : availableDoctors.length > 0 ? (
+                        <div className="doctor-list">
+                          <div className="doctor-option">
+                            <input
+                              type="radio"
+                              id="no-doctor"
+                              name="doctor"
+                              value=""
+                              checked={formData.doctorId === ""}
+                              onChange={(e) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  doctorId: e.target.value,
+                                }))
+                              }
+                            />
+                            <label htmlFor="no-doctor">
+                              Không chọn bác sĩ cụ thể
+                            </label>
+                          </div>
+                          {availableDoctors.map((doctor) => (
+                            <label key={doctor._id} className="doctor-option">
+                              <input
+                                type="radio"
+                                name="doctor"
+                                value={doctor._id}
+                                checked={formData.doctorId === doctor._id}
+                                onChange={(e) =>
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    doctorId: e.target.value,
+                                  }))
+                                }
+                              />
+                              <div className="doctor-info">
+                                <strong>{doctor.name}</strong> -{" "}
+                                {doctor.specialty || "Chưa cập nhật"}
+                                <span className="availability-badge">
+                                  Có thể đặt lịch
+                                </span>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="no-doctors">
+                          <p>Không có bác sĩ nào rảnh vào thời gian này.</p>
+                          <p>
+                            Vui lòng chọn thời gian khác hoặc để trống để chúng
+                            tôi sắp xếp.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="form-group">
@@ -264,9 +522,8 @@ const CheckOutPage: React.FC = () => {
                     value={formData.paymentMethod}
                     onChange={handleInputChange}
                   >
-                    <option value="Tiền mặt">Tiền mặt</option>
-                    <option value="Chuyển khoản">Chuyển khoản</option>
-                    <option value="Thẻ tín dụng">Thẻ tín dụng</option>
+                    <option value="Cash">Tiền mặt</option>
+                    <option value="VNPay">Chuyển khoản (VNPay)</option>
                   </select>
                 </div>
 
@@ -299,14 +556,14 @@ const CheckOutPage: React.FC = () => {
                   className="submit-btn"
                   disabled={isSubmitting || !agreeToTerms}
                 >
-                  {isSubmitting ? "ĐANG XỬ LÝ..." : "ĐẶT HÀNG"}
+                  {isSubmitting ? "ĐANG XỬ LÝ..." : "ĐĂNG KÝ XÉT NGHIỆM"}
                 </button>
               </form>
             </div>
 
             {/* Right Column - Order Summary */}
             <div className="order-summary-section">
-              <h3>Đơn hàng của bạn</h3>
+              <h3>Thông tin gói xét nghiệm</h3>
 
               <div className="order-summary">
                 <div className="product-item">
@@ -322,6 +579,10 @@ const CheckOutPage: React.FC = () => {
                         : testPackage.type === "female"
                         ? "nữ giới"
                         : "cặp đôi"}
+                    </p>
+                    <p className="duration">
+                      <strong>Thời gian có kết quả:</strong>{" "}
+                      {testPackage.duration}
                     </p>
                   </div>
                 </div>
@@ -340,12 +601,11 @@ const CheckOutPage: React.FC = () => {
                 </div>
 
                 <div className="payment-method-info">
-                  <h4>Chuyển khoản ngân hàng (Quét QR)</h4>
+                  <h4>Hướng dẫn thanh toán</h4>
                   <p>
-                    Thực hiện thanh toán vào ngay tài khoản ngân hàng của chúng
-                    tôi. Vui lòng sử dụng Mã đơn hàng của bạn trong phần Nội
-                    dung thanh toán. Đơn hàng sẽ chỉ được giao sau khi tiền đã
-                    chuyển khoản.
+                    Sau khi đăng ký thành công, chúng tôi sẽ gửi email xác nhận
+                    và liên hệ với bạn để xác nhận lịch hẹn. Vui lòng thanh toán
+                    tại phòng khám hoặc theo hướng dẫn trong email.
                   </p>
                 </div>
               </div>
