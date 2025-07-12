@@ -33,7 +33,8 @@ import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
 import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
 import ReproductiveHealthTesting from "@/pages/ReproductiveHealthTesting/ReproductiveHealthTesting";
-// import Medic alHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
+
+import MedicalHistory from "@/pages/Doctor/MedicalHistory/MedicalHistory";
 import OrderHistory from "@/pages/Customer/Orders/OrderHistory";
 
 // Admin pages
@@ -54,11 +55,11 @@ import ContactPatient from "@/pages/Doctor/Patients/ContactPatient/ContactPatien
 import OrderManagement from "@/pages/Manager/OrderManagement/OrderManagement";
 import ManagerDashboard from "@/pages/Manager/ManagerDashboard/ManagerDashboard";
 import DoctorScheduleManagement from "@/pages/Manager/DoctorScheduleManagement/DoctorScheduleManagement";
-
+import ManagerDoctor from "@/pages/Manager/ManagerDoctor/ManagerDoctor";
 import CreateFeedback from "@/pages/Customer/Feedback/CreateFeedback/CreateFeedback";
 import ListFeedback from "@/pages/Customer/Feedback/ListFeedback/ListFeedback";
 import FeedbackManagement from "@/pages/Admin/Feedback/FeedbackManagement/FeedbackManagement";
-
+import ManagerTreatment from "@/pages/Manager/ManagerTreatment/ManagerTreatment";
 const MainRouter = () => {
   return (
     <Routes>
@@ -155,6 +156,8 @@ const MainRouter = () => {
           element={<DoctorScheduleManagement />}
         />
         <Route path="/manager/orders" element={<OrderManagement />} />
+        <Route path="/manager/doctors" element={<ManagerDoctor />} />
+        <Route path="/manager/treatments" element={<ManagerTreatment />} />
       </Route>
 
       {/* Not Found */}

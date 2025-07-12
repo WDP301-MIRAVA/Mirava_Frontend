@@ -21,7 +21,12 @@ interface Patient {
   treatmentEvents?: any[];
 }
 
-type ModalType = "detail" | "examination" | "test_result" | "injection_result" | null;
+type ModalType =
+  | "detail"
+  | "examination"
+  | "test_result"
+  | "injection_result"
+  | null;
 
 const PatientList: React.FC = () => {
   const navigate = useNavigate();
@@ -48,33 +53,53 @@ const PatientList: React.FC = () => {
         const token = localStorage.getItem("accessToken");
         if (!token) return;
 
-        const res = await axios.get("https://mirava-f0rz.onrender.com/api/treatment-plan", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          "https://mirava-f0rz.onrender.com/api/treatment-plan",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         const data = res.data?.data;
         if (Array.isArray(data)) {
-          const transformed: Patient[] = data.map((plan: any) => ({
+          // ✅ Lọc và kiểm tra dữ liệu trước khi transform
+          const validPlans = data.filter(
+            (plan: any) =>
+              plan && plan.patient && plan.patient._id && plan.patient.userName
+          );
+
+          const transformed: Patient[] = validPlans.map((plan: any) => ({
             id: plan.patient._id,
             name: plan.patient.userName || "Không rõ",
             email: plan.patient.email || "",
             phone: plan.patient.phone || "",
-            location: plan.patient.location || "Không rõ",
+            location: plan.patient.address || "Không rõ", // ✅ Sửa từ location thành address
             specialty: plan.doctor?.specialty || "Không rõ",
             gender: plan.patient.gender || "Không rõ",
-            status: plan.status,
-            appointmentDate: new Date(plan.cycleStartDate).toLocaleDateString("vi-VN"),
+            status: plan.status || "planned",
+            appointmentDate: plan.cycleStartDate
+              ? new Date(plan.cycleStartDate).toLocaleDateString("vi-VN")
+              : "Chưa xác định",
             appointmentTime: plan.hcgInjection?.time || "07:00",
             note: plan.notes || "",
             doctor: plan.doctor?.user?.userName || "Không rõ",
-            startDate: new Date(plan.cycleStartDate).toLocaleDateString("vi-VN"),
-            patientCode: generatePatientCode(plan.patient._id),
+            startDate: plan.cycleStartDate
+              ? new Date(plan.cycleStartDate).toLocaleDateString("vi-VN")
+              : "Chưa xác định",
+            patientCode:
+              plan.patient.patientCode || generatePatientCode(plan.patient._id),
             treatmentEvents: plan.treatmentEvents || [],
           }));
+
           setPatients(transformed);
+          console.log("✅ Transformed patients:", transformed);
+        } else {
+          console.warn("⚠️ No valid data received:", data);
+          setPatients([]);
         }
       } catch (err) {
         console.error("Lỗi khi fetch:", err);
+        setPatients([]);
       } finally {
         setLoading(false);
       }
@@ -86,10 +111,11 @@ const PatientList: React.FC = () => {
   useEffect(() => {
     if (!searchTerm.trim()) setFilteredPatients(patients);
     else {
-      const filtered = patients.filter((p) =>
-        p.patientCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        p.email.toLowerCase().includes(searchTerm.toLowerCase())
+      const filtered = patients.filter(
+        (p) =>
+          p.patientCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          p.email.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredPatients(filtered);
     }
@@ -212,16 +238,28 @@ const PatientList: React.FC = () => {
               </div>
 
               <div className="pl-action-buttons">
-                <button className="pl-action-button pl-detail-btn" onClick={() => handleModalOpen(patient, "detail")}>
+                <button
+                  className="pl-action-button pl-detail-btn"
+                  onClick={() => handleModalOpen(patient, "detail")}
+                >
                   📋 Kế hoạch điều trị
                 </button>
-                <button className="pl-action-button pl-examination-btn" onClick={() => handleModalOpen(patient, "examination")}>
+                <button
+                  className="pl-action-button pl-examination-btn"
+                  onClick={() => handleModalOpen(patient, "examination")}
+                >
                   👨‍⚕️ Tiền sử
                 </button>
-                <button className="pl-action-button pl-test-btn" onClick={() => handleModalOpen(patient, "test_result")}>
+                <button
+                  className="pl-action-button pl-test-btn"
+                  onClick={() => handleModalOpen(patient, "test_result")}
+                >
                   🧪 Xét nghiệm
                 </button>
-                <button className="pl-action-button pl-injection-btn" onClick={() => handleModalOpen(patient, "injection_result")}>
+                <button
+                  className="pl-action-button pl-injection-btn"
+                  onClick={() => handleModalOpen(patient, "injection_result")}
+                >
                   💉 Tiêm thuốc
                 </button>
               </div>
@@ -232,10 +270,15 @@ const PatientList: React.FC = () => {
 
       {isModalOpen && (
         <div className="pl-modal-overlay" onClick={closeModal}>
-          <div className="pl-modal-content" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="pl-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="pl-modal-header">
               <h2>{getModalTitle()}</h2>
-              <button className="pl-close-button" onClick={closeModal}>✖</button>
+              <button className="pl-close-button" onClick={closeModal}>
+                ✖
+              </button>
             </div>
             <div className="pl-modal-body">{renderModalContent()}</div>
           </div>
