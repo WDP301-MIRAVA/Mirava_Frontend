@@ -23,7 +23,8 @@ import PaymentConfirmation from "@/pages/IVFIUIService/PaymentConfirmation";
 import PaymentSuccess from "@/pages/Payment/PaymentSuccess";
 import PaymentFailed from "@/pages/Payment/PaymentFailed";
 import DetailServices from "@/pages/IVFIUIService/DetailServices";
-
+import TestPackageDetail from "@/pages/ReproductiveHealthTesting/TestPackageDetail";
+import CheckOutPage from "@/pages/ReproductiveHealthTesting/CheckOutPage";
 // Customer pages
 import CustomerHome from "@/pages/Customer/Home/Home";
 import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
@@ -31,7 +32,6 @@ import AppointmentPage from "@/pages/Users/AppointmentPage";
 import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
 import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
-
 import ReproductiveHealthTesting from "@/pages/ReproductiveHealthTesting/ReproductiveHealthTesting";
 
 import MedicalHistory from "@/pages/Doctor/MedicalHistory/MedicalHistory";
@@ -92,7 +92,9 @@ const MainRouter = () => {
         path="/checkout/paymentConfirm"
         element={<PaymentConfirmation />}
       />
-
+      <Route path="/test-package-detail/:id" element={<TestPackageDetail />} />
+      <Route path="/checkout-page" element={<CheckOutPage />} />
+      {/* 🏥 Protected Routes */}
       {/* 👤 Customer Protected Routes */}
       <Route
         element={
@@ -130,7 +132,7 @@ const MainRouter = () => {
         <Route path="/doctor/schedules/:id?" element={<Schedules />} />
         <Route path="/doctor/patients" element={<PatientList />} />
         <Route path="/doctor/patients/:id" element={<PatientList />} />
-        <Route path="/doctor/medical-history" element={<MedicalHistory />} />
+        {/* <Route path="/doctor/medical-history" element={<MedicalHistory />} /> */}
         <Route
           path="/doctor/patients/ivf-tracker"
           element={<IVFTreatmentTracker />}
