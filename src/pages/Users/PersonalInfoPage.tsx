@@ -14,7 +14,6 @@ import { userServ } from "@/services/userServie";
 import toast from "react-hot-toast";
 
 const { Title } = Typography;
-const { Option } = Select;
 
 interface UserResponse {
   _id: string;
