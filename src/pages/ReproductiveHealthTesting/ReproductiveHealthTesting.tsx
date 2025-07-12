@@ -1,39 +1,56 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./ReproductiveHealthTesting.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import axios from "axios";
+
+type Test = {
+  _id: string;
+  testName: string;
+};
+
+type Package = {
+  _id: string;
+  name: string;
+  description: string;
+  type: string;
+  price: number;
+  discount?: number;
+  tests: Test[];
+};
+
 const ReproductiveHealthTesting = () => {
   const [selectedPackage, setSelectedPackage] = useState("all");
   const [selectedGender, setSelectedGender] = useState("");
+  const [packages, setPackages] = useState<Package[]>([]);
+  const navigate = useNavigate();
 
-  const testingPackages = {
-    female: {
-      title: "Gói Nữ",
-      tests: ["AMH", "FSH", "LH", "Estradiol", "Siêu âm nang noãn"],
-      price: "1,500,000",
-      originalPrice: "2,100,000",
-      discount: 30,
-      description: "Gói xét nghiệm toàn diện cho sức khỏe sinh sản nữ giới",
-    },
-    male: {
-      title: "Gói Nam",
-      tests: ["Tinh dịch đồ", "Hormone testosterone"],
-      price: "800,000",
-      originalPrice: "1,200,000",
-      discount: 35,
-      description: "Gói xét nghiệm chuyên biệt cho sức khỏe sinh sản nam giới",
-    },
-  };
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const response = await axios.get(
+          "https://mirava-f0rz.onrender.com/api/test-packages"
+        );
+        if (response.data.success) {
+          setPackages(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching packages:", error);
+      }
+    };
+
+    fetchPackages();
+  }, []);
 
   const handlePackageSelect = (packageType: string) => {
     setSelectedPackage(packageType);
     setSelectedGender("");
   };
 
-  const handleGenderSelect = (gender: string) => {
-    setSelectedGender(gender);
+  const handleSelectPackage = (packageId: string) => {
+    navigate(`/test-package-detail/${packageId}`);
   };
-
   return (
     <>
       <Header />
@@ -73,149 +90,54 @@ const ReproductiveHealthTesting = () => {
           >
             Gói Nam
           </button>
-          <button
-            className={`tab-button ${
-              selectedPackage === "combo" ? "active" : ""
-            }`}
-            onClick={() => handlePackageSelect("combo")}
-          >
-            Gói Combo
-          </button>
-          <button
-            className={`tab-button ${
-              selectedPackage === "consultation" ? "active" : ""
-            }`}
-            onClick={() => handlePackageSelect("consultation")}
-          >
-            Tư vấn
-          </button>
         </div>
 
         <div className="packages-grid">
-          {(selectedPackage === "all" || selectedPackage === "female") && (
-            <div className="package-card">
-              <div className="discount-badge">
-                -{testingPackages.female.discount}%
-              </div>
-              <div className="package-icon">
-                <div className="icon-female">♀</div>
-              </div>
-              <h3 className="package-title">{testingPackages.female.title}</h3>
-              <p className="package-description">
-                {testingPackages.female.description}
-              </p>
-
-              <div className="tests-list">
-                <h4>Bao gồm các xét nghiệm:</h4>
-                <ul>
-                  {testingPackages.female.tests.map((test, index) => (
-                    <li key={index}>{test}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="price-section">
-                <div className="current-price">
-                  {testingPackages.female.price} VNĐ
+          {packages
+            .filter(
+              (pkg) => selectedPackage === "all" || pkg.type === selectedPackage
+            )
+            .map((pkg) => (
+              <div className="package-card" key={pkg._id}>
+                <div className="discount-badge">
+                  {pkg.discount ? `-${pkg.discount}%` : ""}
                 </div>
-                <div className="original-price">
-                  {testingPackages.female.originalPrice} VNĐ
+                <div className="package-icon">
+                  <div className={`icon-${pkg.type}`}>
+                    {pkg.type === "female" ? "♀" : "♂"}
+                  </div>
                 </div>
-              </div>
+                <h3 className="package-title">{pkg.name}</h3>
+                <p className="package-description">{pkg.description}</p>
 
-              <button
-                className="select-button"
-                onClick={() => handleGenderSelect("female")}
-              >
-                Chọn gói này
-              </button>
-            </div>
-          )}
-
-          {(selectedPackage === "all" || selectedPackage === "male") && (
-            <div className="package-card">
-              <div className="discount-badge">
-                -{testingPackages.male.discount}%
-              </div>
-              <div className="package-icon">
-                <div className="icon-male">♂</div>
-              </div>
-              <h3 className="package-title">{testingPackages.male.title}</h3>
-              <p className="package-description">
-                {testingPackages.male.description}
-              </p>
-
-              <div className="tests-list">
-                <h4>Bao gồm các xét nghiệm:</h4>
-                <ul>
-                  {testingPackages.male.tests.map((test, index) => (
-                    <li key={index}>{test}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="price-section">
-                <div className="current-price">
-                  {testingPackages.male.price} VNĐ
+                <div className="tests-list">
+                  <h4>Bao gồm các xét nghiệm:</h4>
+                  <ul>
+                    {pkg.tests.map((test) => (
+                      <li key={test._id}>{test.testName}</li>
+                    ))}
+                  </ul>
                 </div>
-                <div className="original-price">
-                  {testingPackages.male.originalPrice} VNĐ
+
+                <div className="price-section">
+                  <div className="current-price">{pkg.price} VNĐ</div>
                 </div>
+
+                <button
+                  className="select-button"
+                  onClick={() => handleSelectPackage(pkg._id)}
+                >
+                  Chọn gói này
+                </button>
               </div>
-
-              <button
-                className="select-button"
-                onClick={() => handleGenderSelect("male")}
-              >
-                Chọn gói này
-              </button>
-            </div>
-          )}
-
-          {(selectedPackage === "all" || selectedPackage === "combo") && (
-            <div className="package-card combo-card">
-              <div className="discount-badge">-40%</div>
-              <div className="package-icon">
-                <div className="icon-combo">👫</div>
-              </div>
-              <h3 className="package-title">Gói Combo Cặp đôi</h3>
-              <p className="package-description">
-                Gói xét nghiệm tổng hợp cho cả hai vợ chồng
-              </p>
-
-              <div className="tests-list">
-                <h4>Bao gồm tất cả xét nghiệm:</h4>
-                <ul>
-                  <li>Tất cả xét nghiệm gói nữ</li>
-                  <li>Tất cả xét nghiệm gói nam</li>
-                  <li>Tư vấn miễn phí</li>
-                </ul>
-              </div>
-
-              <div className="price-section">
-                <div className="current-price">1,800,000 VNĐ</div>
-                <div className="original-price">3,000,000 VNĐ</div>
-              </div>
-
-              <button
-                className="select-button"
-                onClick={() => handleGenderSelect("combo")}
-              >
-                Chọn gói này
-              </button>
-            </div>
-          )}
+            ))}
         </div>
 
         {selectedGender && (
           <div className="selected-package-info">
             <h3>
               Bạn đã chọn:{" "}
-              {selectedGender === "female"
-                ? testingPackages.female.title
-                : selectedGender === "male"
-                ? testingPackages.male.title
-                : "Gói Combo Cặp đôi"}
+              {packages.find((pkg) => pkg.type === selectedGender)?.name}
             </h3>
             <p>Vui lòng liên hệ để đặt lịch hẹn và được tư vấn chi tiết.</p>
           </div>
