@@ -92,7 +92,9 @@ const Header: React.FC = () => {
   );
 
   return (
-    <header className={`mirava-header ${scrolled ? "mirava-header-scrolled" : ""}`}>
+    <header
+      className={`mirava-header ${scrolled ? "mirava-header-scrolled" : ""}`}
+    >
       <div className="mirava-header-content">
         <motion.div
           className="mirava-logo-container"

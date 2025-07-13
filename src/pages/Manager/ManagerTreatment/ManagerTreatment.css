@@ -1,0 +1,145 @@
+.manager-treatment-management {
+  padding: 24px;
+  background-color: #f8fafc;
+  min-height: 100vh;
+}
+
+.manager-treatment-management .MuiCard-root {
+  border-radius: 16px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.manager-treatment-management .MuiTableContainer-root {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.manager-treatment-management .MuiTableHead-root {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.manager-treatment-management .MuiTableHead-root .MuiTableCell-root {
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 0.875rem;
+}
+
+.manager-treatment-management .MuiTableBody-root .MuiTableRow-root:hover {
+  background-color: #f8fafc;
+  transition: background-color 0.2s ease;
+}
+
+.manager-treatment-management .MuiLinearProgress-root {
+  border-radius: 4px;
+}
+
+.manager-treatment-management .MuiLinearProgress-bar {
+  border-radius: 4px;
+}
+
+.manager-treatment-management .MuiAccordion-root {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px !important;
+  margin-bottom: 8px;
+}
+
+.manager-treatment-management .MuiAccordion-root:before {
+  display: none;
+}
+
+.manager-treatment-management .MuiAccordionSummary-root {
+  background-color: #f8fafc;
+  border-radius: 8px;
+}
+
+.manager-treatment-management .MuiAccordionSummary-root.Mui-expanded {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.manager-treatment-management .MuiAccordionDetails-root {
+  padding: 16px;
+  background-color: white;
+}
+
+.manager-treatment-management .MuiTab-root {
+  font-weight: 600;
+  text-transform: none;
+  font-size: 1rem;
+}
+
+.manager-treatment-management .MuiTabs-indicator {
+  height: 3px;
+  border-radius: 2px;
+  background: linear-gradient(45deg, #00b4c6, #0284c7);
+}
+
+.manager-treatment-management .MuiAvatar-root {
+  width: 48px;
+  height: 48px;
+}
+
+.manager-treatment-management .MuiChip-root {
+  font-weight: 500;
+}
+
+.manager-treatment-management .MuiAlert-root {
+  border-radius: 8px;
+}
+
+.manager-treatment-management .MuiDialog-paper {
+  border-radius: 16px;
+}
+
+.manager-treatment-management .MuiDialogTitle-root {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 16px 24px;
+}
+
+.manager-treatment-management .MuiDialogContent-root {
+  padding: 24px;
+}
+
+.manager-treatment-management .MuiDialogActions-root {
+  padding: 16px 24px;
+  border-top: 1px solid #e2e8f0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .manager-treatment-management {
+    padding: 12px;
+  }
+
+  .manager-treatment-management .MuiGrid-container {
+    gap: 12px;
+  }
+
+  .manager-treatment-management .MuiCard-root {
+    margin-bottom: 12px;
+  }
+
+  .manager-treatment-management .MuiTableContainer-root {
+    overflow-x: auto;
+  }
+
+  .manager-treatment-management .MuiTable-root {
+    min-width: 800px;
+  }
+}
+
+@media (max-width: 480px) {
+  .manager-treatment-management {
+    padding: 8px;
+  }
+
+  .manager-treatment-management .MuiDialog-paper {
+    margin: 8px;
+    max-width: calc(100% - 16px);
+  }
+}
