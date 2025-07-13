@@ -40,6 +40,39 @@ export interface BlogListParams {
   category?: string;
 }
 
+// Interface cho tạo blog mới
+export interface CreateBlogRequest {
+  title: string;
+  content: string;
+  excerpt: string;
+  category: string;
+  status: string;
+  featuredImage?: string;
+}
+
+// Interface cho cập nhật blog
+export interface UpdateBlogRequest {
+  title?: string;
+  content?: string;
+  excerpt?: string;
+  category?: string;
+  status?: string;
+  featuredImage?: string;
+}
+
+// Interface cho response tạo/sửa blog
+export interface BlogActionResponse {
+  success: boolean;
+  message: string;
+  data: Blog;
+}
+
+// Interface cho response xóa blog
+export interface DeleteBlogResponse {
+  success: boolean;
+  message: string;
+}
+
 // IDs của 2 blog cần hiển thị trên homepage
 const FEATURED_BLOG_IDS = [
   "68357399a30931e1d7dae6d6",
@@ -71,7 +104,7 @@ export const BlogService = {
   getFeaturedBlogs: async (): Promise<Blog[]> => {
     try {
       const response = await axiosInstance.get("/api/blog");
-      console.log("API Response:", response.data); // Debug log
+      console.log("API Response:", response.data);
       
       if (response.data?.data?.blogs) {
         // Lọc ra 2 blog theo ID cụ thể
@@ -79,7 +112,7 @@ export const BlogService = {
           FEATURED_BLOG_IDS.includes(blog._id)
         );
         
-        console.log("Featured blogs found:", featuredBlogs); // Debug log
+        console.log("Featured blogs found:", featuredBlogs);
         
         // Sắp xếp theo thứ tự ID trong mảng FEATURED_BLOG_IDS
         return featuredBlogs.sort((a: Blog, b: Blog) => {
@@ -136,5 +169,67 @@ export const BlogService = {
       console.error("Error fetching categories:", error);
       return [];
     }
-  }
+  },
+
+  // Tạo blog mới (Admin/Doctor/Manager)
+  createBlog: async (blogData: CreateBlogRequest): Promise<BlogActionResponse> => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        throw new Error("No access token found");
+      }
+
+      const response = await axiosInstance.post("/api/blog", blogData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error creating blog:", error);
+      throw error;
+    }
+  },
+
+  // Cập nhật blog (Admin/Doctor/Manager)
+  updateBlog: async (id: string, blogData: UpdateBlogRequest): Promise<BlogActionResponse> => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        throw new Error("No access token found");
+      }
+
+      const response = await axiosInstance.put(`/api/blog/${id}`, blogData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error updating blog with ID ${id}:`, error);
+      throw error;
+    }
+  },
+
+  // Xóa blog (Admin/Manager)
+  deleteBlog: async (id: string): Promise<DeleteBlogResponse> => {
+    try {
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        throw new Error("No access token found");
+      }
+
+      const response = await axiosInstance.delete(`/api/blog/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(`Error deleting blog with ID ${id}:`, error);
+      throw error;
+    }
+  },
 };
