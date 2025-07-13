@@ -228,7 +228,7 @@ const PatientList: React.FC = () => {
 
               <div className="pl-patient-details">
                 <div className="pl-detail-row">
-                  <span className="pl-detail-label">Chuyên khoa:</span>
+                  <span className="pl-detail-label">Dịch vụ:</span>
                   <span className="pl-detail-value">{patient.specialty}</span>
                 </div>
                 <div className="pl-detail-row">
@@ -238,6 +238,7 @@ const PatientList: React.FC = () => {
               </div>
 
               <div className="pl-action-buttons">
+
                 <button
                   className="pl-action-button pl-detail-btn"
                   onClick={() => handleModalOpen(patient, "detail")}

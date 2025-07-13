@@ -376,10 +376,7 @@ const TreatmentPlans: React.FC = () => {
             </span>
           </div>
         </div>
-        <button className="doctor-logout-btn" onClick={handleLogout}>
-          <LogoutOutlined style={{ marginRight: 8 }} />
-          Đăng xuất
-        </button>
+        
       </div>
 
       {currentPage === "selection" ? (
