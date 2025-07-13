@@ -15,23 +15,10 @@ import axios from "axios";
 import "./IVFTreatmentTracker.css";
 import MedicalRecordForm from "../MedicalRecordForm";
 
-// Hàm tính ngày mốc IVF
-// function getIVFEventDates(cycleStartDate: string): string[] {
-//   if (!cycleStartDate) return [];
-//   const base = new Date(cycleStartDate);
-//   // Ngày 1, 5, 8, 10 của chu kỳ (tính từ ngày bắt đầu)
-//   const offsets = [0, 4, 7, 9];
-//   return offsets.map((offset) => {
-//     const d = new Date(base);
-//     d.setDate(base.getDate() + offset);
-//     return d.toISOString().slice(0, 10);
-//   });
-// }
-
 // Types
 interface TreatmentStep {
   id: string;
-  _id?: string; // Thêm _id nếu cần
+  _id?: string;
   name: string;
   date?: string;
   doctorNote?: string;
@@ -56,12 +43,13 @@ interface MedicalRecord {
   attachments: string[];
   notes: string;
 }
+
 interface FormData {
   date: string;
   performedBy: string;
   doctorNote: string;
   specialMetrics: { [key: string]: string | number };
-  status?: "pending" | "in-progress" | "completed"; // Thêm status vào FormData
+  status?: "pending" | "in-progress" | "completed";
   stage?: string;
   title?: string;
   description?: string;
@@ -73,6 +61,7 @@ interface FormData {
   medicalRecords?: MedicalRecord[];
   medicalNotes?: string;
 }
+
 interface TreatmentPlan {
   _id: string;
   patient: {
@@ -403,7 +392,7 @@ const IVFTreatmentTracker: React.FC = () => {
         description: step.description || "",
         specialMetrics: Object.entries(step.specialMetrics || {}).reduce(
           (acc, [key, value]) => {
-            acc[key] = String(value); // Convert all values to strings
+            acc[key] = String(value);
             return acc;
           },
           {} as { [key: string]: string }
@@ -432,6 +421,7 @@ const IVFTreatmentTracker: React.FC = () => {
   const saveFormData = async () => {
     if (!activeForm || !treatmentPlan) return;
     setFormError(null);
+    
     // Validate ngày hẹn khám và ngày thực hiện
     const execDate = formData.executionDate
       ? new Date(formData.executionDate)
@@ -478,7 +468,6 @@ const IVFTreatmentTracker: React.FC = () => {
         performedBy:
           formData.performedBy || treatmentPlan.doctor?.user?.userName || "",
         medicalRecords: formData.medicalRecords || [],
-        // Thêm các trường mới
         medicalNotes: formData.medicalNotes || "",
         doctorNote: formData.doctorNote || "",
         specialMetrics: formData.specialMetrics || {},
@@ -588,7 +577,6 @@ const IVFTreatmentTracker: React.FC = () => {
     };
 
     setTreatmentSteps((prev) => {
-      // Find the last consultation visit index
       const lastConsultationIndex = prev.findIndex(
         (step) => !step.category.includes("Tư vấn")
       );
@@ -601,7 +589,6 @@ const IVFTreatmentTracker: React.FC = () => {
       }
     });
 
-    // Immediately open form for the new visit
     setTimeout(() => openForm(newVisit.id), 100);
   };
 
@@ -626,6 +613,7 @@ const IVFTreatmentTracker: React.FC = () => {
       </button>
     );
   };
+
   const getCategoryClass = (category: string) => {
     switch (category) {
       case "Tư vấn":
@@ -682,35 +670,6 @@ const IVFTreatmentTracker: React.FC = () => {
         return [];
     }
   };
-
-  // const renderDynamicFields = () => {
-  //   // Render các field động dựa trên loại bước điều trị
-  //   const currentStep = treatmentSteps.find((step) => step.id === activeForm);
-  //   if (!currentStep) return null;
-
-  //   const metricFields = getMetricFields(currentStep.name);
-
-  //   if (metricFields.length === 0) return null;
-
-  //   return (
-  //     <div className="dynamic-fields">
-  //       <label>Chỉ số đặc biệt:</label>
-  //       <div className="metrics-grid">
-  //         {metricFields.map((field) => (
-  //           <div key={field} className="metric-item">
-  //             <label className="metric-label">{field}</label>
-  //             <input
-  //               type="text"
-  //               value={formData.specialMetrics?.[field] || ""}
-  //               onChange={(e) => updateSpecialMetric(field, e.target.value)}
-  //               className="metric-input"
-  //             />
-  //           </div>
-  //         ))}
-  //       </div>
-  //     </div>
-  //   );
-  // };
 
   const handleBackToPatientList = () => {
     navigate("/doctor/patients");
@@ -771,15 +730,13 @@ const IVFTreatmentTracker: React.FC = () => {
       setUpdating(true);
       const token = localStorage.getItem("accessToken");
 
-      // Debug log
       console.log("Updating event at index:", stepIndex);
       console.log("Treatment plan ID:", treatmentPlan._id);
 
-      // Sử dụng stepIndex thay vì eventToUpdate._id
       const response = await axios.patch(
         `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/events/${stepIndex}/status`,
         {
-          status: next, // Chỉ gửi status
+          status: next,
         },
         {
           headers: {
@@ -790,11 +747,9 @@ const IVFTreatmentTracker: React.FC = () => {
       );
 
       if (response.data.success) {
-        // Cập nhật UI với dữ liệu trả về từ server
         const updatedTreatmentPlan = response.data.data.treatmentPlan;
         setTreatmentPlan(updatedTreatmentPlan);
 
-        // Cập nhật treatment steps
         const updatedSteps = treatmentSteps.map((step, idx) =>
           idx === stepIndex
             ? {
@@ -912,13 +867,6 @@ const IVFTreatmentTracker: React.FC = () => {
 
         {/* Main Card */}
         <div className="main-card">
-          <div className="card-header">
-            <h2 className="card-header-title">
-              <FileText className="w-6 h-6" />
-              Tiến trình điều trị
-            </h2>
-          </div>
-
           <div className="table-container">
             <table className="treatment-table">
               <thead className="table-header">
@@ -998,18 +946,16 @@ const IVFTreatmentTracker: React.FC = () => {
                           <Edit3 className="w-4 h-4" />
                           Chỉnh sửa
                         </button>
-                        {
-                          <button
-                            onClick={() => openMedicalRecordModal(step)}
-                            className="action-btn"
-                            style={{
-                              background: "#00b4c6",
-                              color: "#fff",
-                            }}
-                          >
-                            Kết quả
-                          </button>
-                        }
+                        <button
+                          onClick={() => openMedicalRecordModal(step)}
+                          className="action-btn"
+                          style={{
+                            background: "#00b4c6",
+                            color: "#fff",
+                          }}
+                        >
+                          Kết quả
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -1027,21 +973,21 @@ const IVFTreatmentTracker: React.FC = () => {
           </div>
         )}
 
-        {/* Form Modal */}
+        {/* Form Modal - Updated with new class names */}
         {activeForm && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <div className="modal-header">
-                <h3 className="modal-title">
+          <div className="form-modal-overlay">
+            <div className="form-modal">
+              <div className="form-modal-header">
+                <h3 className="form-modal-title">
                   Cập nhật kế hoạch điều trị:{" "}
                   {treatmentSteps.find((s) => s.id === activeForm)?.name}
                 </h3>
-                <button onClick={closeForm} className="modal-close-btn">
+                <button onClick={closeForm} className="form-modal-close-btn">
                   ×
                 </button>
               </div>
 
-              <div className="modal-content">
+              <div className="form-modal-content">
                 {/* Stage */}
                 <div className="form-group">
                   <label className="form-label">Giai đoạn</label>
@@ -1186,6 +1132,7 @@ const IVFTreatmentTracker: React.FC = () => {
                     className="form-input"
                   />
                 </div>
+
                 <div className="form-group">
                   <label className="form-label">Ngày hẹn khám</label>
                   <input
@@ -1210,11 +1157,12 @@ const IVFTreatmentTracker: React.FC = () => {
                     className="form-input"
                   />
                   {formError && (
-                    <div style={{ color: "red", marginTop: 4, fontSize: 13 }}>
+                    <div className="form-error">
                       {formError}
                     </div>
                   )}
                 </div>
+
                 {/* Performed By */}
                 <div className="form-group">
                   <label className="form-label">Người thực hiện</label>
@@ -1260,17 +1208,17 @@ const IVFTreatmentTracker: React.FC = () => {
               </div>
 
               {/* Actions */}
-              <div className="modal-footer">
+              <div className="form-modal-footer">
                 <button
                   onClick={closeForm}
-                  className="btn-cancel"
+                  className="form-btn-cancel"
                   disabled={updating}
                 >
                   Hủy
                 </button>
                 <button
                   onClick={saveFormData}
-                  className="btn-save"
+                  className="form-btn-save"
                   disabled={updating}
                 >
                   <Check className="w-4 h-4" />
@@ -1281,34 +1229,37 @@ const IVFTreatmentTracker: React.FC = () => {
           </div>
         )}
 
+        {/* Medical Record Modal - Updated with new class names */}
         {medicalRecordModal.open && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <div className="modal-header">
-                <h3>
+          <div className="medical-modal-overlay">
+            <div className="medical-modal">
+              <div className="medical-modal-header">
+                <h3 className="medical-modal-title">
                   Nhập kết quả cho bước:{" "}
                   {medicalRecordModal.step?.name ||
                     medicalRecordModal.step?.title}
                 </h3>
                 <button
                   onClick={closeMedicalRecordModal}
-                  className="modal-close-btn"
+                  className="medical-modal-close-btn"
                 >
                   ×
                 </button>
               </div>
-              <div className="modal-content">
+              <div className="medical-modal-content">
                 {medicalRecordModal.open && treatmentPlan && (
-                  <MedicalRecordForm
-                    step={medicalRecordModal.step}
-                    treatmentPlan={treatmentPlan}
-                    medicalRecord={medicalRecordModal.medicalRecord || null}
-                    onSuccess={() => {
-                      closeMedicalRecordModal();
-                      // TODO: reload treatment plan data nếu cần
-                    }}
-                    onCancel={closeMedicalRecordModal}
-                  />
+                  <div className="medical-record-form-wrapper">
+                    <MedicalRecordForm
+                      step={medicalRecordModal.step}
+                      treatmentPlan={treatmentPlan}
+                      medicalRecord={medicalRecordModal.medicalRecord || null}
+                      onSuccess={() => {
+                        closeMedicalRecordModal();
+                        // TODO: reload treatment plan data nếu cần
+                      }}
+                      onCancel={closeMedicalRecordModal}
+                    />
+                  </div>
                 )}
               </div>
             </div>
@@ -1318,4 +1269,5 @@ const IVFTreatmentTracker: React.FC = () => {
     </div>
   );
 };
+
 export default IVFTreatmentTracker;

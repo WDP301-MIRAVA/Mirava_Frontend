@@ -34,7 +34,7 @@ import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
 
 import ReproductiveHealthTesting from "@/pages/ReproductiveHealthTesting/ReproductiveHealthTesting";
 
-import MedicalHistory from "@/pages/Customer/MedicalHistory/MedicalHistory";
+import MedicalHistory from "@/pages/Doctor/MedicalHistory/MedicalHistory";
 import OrderHistory from "@/pages/Customer/Orders/OrderHistory";
 
 // Admin pages

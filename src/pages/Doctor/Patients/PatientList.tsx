@@ -202,7 +202,7 @@ const PatientList: React.FC = () => {
 
               <div className="pl-patient-details">
                 <div className="pl-detail-row">
-                  <span className="pl-detail-label">Chuyên khoa:</span>
+                  <span className="pl-detail-label">Dịch vụ:</span>
                   <span className="pl-detail-value">{patient.specialty}</span>
                 </div>
                 <div className="pl-detail-row">
@@ -213,16 +213,16 @@ const PatientList: React.FC = () => {
 
               <div className="pl-action-buttons">
                 <button className="pl-action-button pl-detail-btn" onClick={() => handleModalOpen(patient, "detail")}>
-                  📋 Kế hoạch điều trị
+                  Kế hoạch điều trị
                 </button>
                 <button className="pl-action-button pl-examination-btn" onClick={() => handleModalOpen(patient, "examination")}>
-                  👨‍⚕️ Tiền sử
+                  Tiền sử
                 </button>
                 <button className="pl-action-button pl-test-btn" onClick={() => handleModalOpen(patient, "test_result")}>
-                  🧪 Xét nghiệm
+                  Xét nghiệm
                 </button>
                 <button className="pl-action-button pl-injection-btn" onClick={() => handleModalOpen(patient, "injection_result")}>
-                  💉 Tiêm thuốc
+                  Tiêm thuốc
                 </button>
               </div>
             </div>
