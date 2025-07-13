@@ -60,6 +60,7 @@ import CreateFeedback from "@/pages/Customer/Feedback/CreateFeedback/CreateFeedb
 import ListFeedback from "@/pages/Customer/Feedback/ListFeedback/ListFeedback";
 import FeedbackManagement from "@/pages/Admin/Feedback/FeedbackManagement/FeedbackManagement";
 import ManagerTreatment from "@/pages/Manager/ManagerTreatment/ManagerTreatment";
+import ManagerTestRegister from "@/pages/Manager/ManagerTestRegister/ManagerTestRegister";
 const MainRouter = () => {
   return (
     <Routes>
@@ -158,6 +159,10 @@ const MainRouter = () => {
         <Route path="/manager/orders" element={<OrderManagement />} />
         <Route path="/manager/doctors" element={<ManagerDoctor />} />
         <Route path="/manager/treatments" element={<ManagerTreatment />} />
+        <Route
+          path="/manager/test-register"
+          element={<ManagerTestRegister />}
+        />
       </Route>
 
       {/* Not Found */}
