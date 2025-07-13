@@ -62,11 +62,17 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
     },
     {
       id: 7,
+      name: "Quản lý đăng ký xét nghiệm",
+      label: "Quản lý xét nghiệm",
+      path: "/manager/test-register",
+    },
+    {
+      id: 8,
       name: "Cài đặt hệ thống",
       label: "Cài đặt hệ thống",
       path: "/manager/settings",
     },
-    { id: 8, name: "Hồ sơ", label: "Hồ sơ", path: "/manager/profile" },
+    { id: 9, name: "Hồ sơ", label: "Hồ sơ", path: "/manager/profile" },
   ];
 
   // Tạo breadcrumb dựa trên active menu
