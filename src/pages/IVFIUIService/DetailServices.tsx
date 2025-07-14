@@ -192,9 +192,9 @@ const DetailServices: React.FC = () => {
               </div>
               <div className="actions">
                 <div className="btn-group">
-                  <button className="btn-secondary" onClick={handleAddToCart}>
+                  {/* <button className="btn-secondary" onClick={handleAddToCart}>
                     🛒 THÊM VÀO GIỎ HÀNG
-                  </button>
+                  </button> */}
                   <button className="btn-secondary" onClick={handleBuyNow}>
                     MUA NGAY
                   </button>

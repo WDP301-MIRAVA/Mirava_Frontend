@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Plus, Edit, Eye, Ban, CheckCircle, X } from 'lucide-react';
 import './UserManagement.css';
-import { userServ, type User as ApiUser, type CreateUserRequest, type CreateDoctorRequest, type UserDetail, type UpdateUserRequest } from '../../../services/userServie';
+import { userServ, type User as ApiUser, type CreateUserRequest, type CreateDoctorRequest, type UserDetail, type UpdateUserRequest, type ToggleUserStatusResponse } from '../../../services/userServie';
 
 interface User {
   id: string;
@@ -48,6 +48,7 @@ const UserManagement: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [addingUser, setAddingUser] = useState(false);
   const [updatingUser, setUpdatingUser] = useState(false);
+  const [togglingStatus, setTogglingStatus] = useState<string | null>(null);
   const [viewingUser, setViewingUser] = useState<UserDetail | null>(null);
   const [loadingUserDetail, setLoadingUserDetail] = useState(false);
   
@@ -101,7 +102,8 @@ const UserManagement: React.FC = () => {
           email: apiUser.email,
           phone: apiUser.phone,
           role: apiUser.role,
-          status: 'active', // API doesn't seem to have status field, defaulting to active
+          // Determine status from API response - check if user has deletedAt or status field
+          status: (apiUser as any).status === 'inactive' || (apiUser as any).deletedAt ? 'blocked' : 'active',
           createdDate: new Date(apiUser.createdAt),
           gender: apiUser.gender,
           address: apiUser.address,
@@ -383,14 +385,53 @@ const UserManagement: React.FC = () => {
     setViewingUser(null);
   };
 
-  const handleToggleStatus = (user: User) => {
-    const newStatus: 'active' | 'blocked' = user.status === 'active' ? 'blocked' : 'active';
-    const updatedUsers = users.map(u =>
-      u.id === user.id ? { ...u, status: newStatus } : u
-    );
-    setUsers(updatedUsers);
-    setConfirmAction(null);
-    showMessage('success', `${newStatus === 'active' ? 'Kích hoạt' : 'Khóa'} tài khoản thành công`);
+  const handleToggleStatus = async (user: User) => {
+    setTogglingStatus(user.id);
+    
+    try {
+      let response: ToggleUserStatusResponse;
+      
+      if (user.status === 'active') {
+        // Block user (soft delete)
+        response = await userServ.softDeleteUser(user.id);
+      } else {
+        // Unblock user (restore)
+        response = await userServ.restoreUser(user.id);
+      }
+
+      // Update local state based on API response
+      const updatedUsers = users.map(u =>
+        u.id === user.id 
+          ? { 
+              ...u, 
+              status: response.user.status === 'active' ? 'active' : 'blocked'
+            } 
+          : u
+      );
+      
+      setUsers(updatedUsers);
+      setConfirmAction(null);
+      
+      const actionText = response.user.status === 'active' ? 'kích hoạt' : 'khóa';
+      showMessage('success', response.message || `${actionText} tài khoản thành công`);
+
+    } catch (err: any) {
+      console.error("Error toggling user status:", err);
+      
+      if (err.response?.status === 401) {
+        showMessage('error', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại');
+      } else if (err.response?.status === 403) {
+        showMessage('error', 'Bạn không có quyền thực hiện hành động này');
+      } else if (err.response?.status === 404) {
+        showMessage('error', 'Không tìm thấy người dùng');
+      } else if (err.response?.data?.message) {
+        showMessage('error', err.response.data.message);
+      } else {
+        showMessage('error', 'Có lỗi xảy ra khi thay đổi trạng thái tài khoản');
+      }
+    } finally {
+      setTogglingStatus(null);
+    }
   };
 
   const resetForm = () => {
@@ -585,8 +626,13 @@ const UserManagement: React.FC = () => {
                             user
                           })}
                           title={user.status === 'active' ? 'Khóa tài khoản' : 'Kích hoạt tài khoản'}
+                          disabled={togglingStatus === user.id}
                         >
-                          {user.status === 'active' ? <Ban size={16} /> : <CheckCircle size={16} />}
+                          {togglingStatus === user.id ? (
+                            <span style={{ fontSize: '12px' }}>⏳</span>
+                          ) : (
+                            user.status === 'active' ? <Ban size={16} /> : <CheckCircle size={16} />
+                          )}
                         </button>
                       </div>
                     </td>
@@ -710,9 +756,9 @@ const UserManagement: React.FC = () => {
                       <span className="detail-label">Trạng thái đăng nhập:</span>
                       <span className="detail-value">
                         {viewingUser.accessToken && viewingUser.accessToken.length > 0 ? (
-                          <span style={{ color: 'green' }}>Đã đăng nhập</span>
+                          <span style={{ color: 'green' }}>✅ Đã đăng nhập</span>
                         ) : (
-                          <span style={{ color: 'gray' }}>Chưa đăng nhập</span>
+                          <span style={{ color: 'gray' }}>⚪ Chưa đăng nhập</span>
                         )}
                       </span>
                     </div>
@@ -930,8 +976,24 @@ const UserManagement: React.FC = () => {
             </div>
             <div className="modal-body">
               <p>
-                {confirmAction.type === 'block' && `Bạn có chắc chắn muốn khóa tài khoản "${confirmAction.user.userName}"?`}
-                {confirmAction.type === 'activate' && `Bạn có chắc chắn muốn kích hoạt tài khoản "${confirmAction.user.userName}"?`}
+                {confirmAction.type === 'block' && (
+                  <>
+                    Bạn có chắc chắn muốn <strong>khóa</strong> tài khoản "{confirmAction.user.userName}"?
+                    <br />
+                    <small style={{ color: '#666' }}>
+                      Tài khoản sẽ bị vô hiệu hóa và người dùng không thể đăng nhập.
+                    </small>
+                  </>
+                )}
+                {confirmAction.type === 'activate' && (
+                  <>
+                    Bạn có chắc chắn muốn <strong>kích hoạt</strong> tài khoản "{confirmAction.user.userName}"?
+                    <br />
+                    <small style={{ color: '#666' }}>
+                      Tài khoản sẽ được khôi phục và người dùng có thể đăng nhập trở lại.
+                    </small>
+                  </>
+                )}
               </p>
             </div>
             <div className="modal-footer">
@@ -943,8 +1005,13 @@ const UserManagement: React.FC = () => {
                 onClick={() => {
                   handleToggleStatus(confirmAction.user);
                 }}
+                disabled={togglingStatus === confirmAction.user.id}
               >
-                Xác nhận
+                {togglingStatus === confirmAction.user.id ? (
+                  '⏳ Đang xử lý...'
+                ) : (
+                  'Xác nhận'
+                )}
               </button>
             </div>
           </div>
