@@ -1,14 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import "./PaymentSuccess.css"; // Import your CSS styles
+import "./PaymentSuccess.css";
+
+interface OrderInfo {
+  orderId: string;
+  orderCode: string;
+  paymentStatus: string | null;
+  paidAt: string | null;
+}
+
 const PaymentSuccess: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [orderInfo, setOrderInfo] = useState<any>(null);
+  const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Lấy thông tin từ query params
   const orderId = searchParams.get("orderId");
   const orderCode = searchParams.get("orderCode");
   const paymentStatus = searchParams.get("paymentStatus");
@@ -20,12 +27,14 @@ const PaymentSuccess: React.FC = () => {
       navigate("/");
       return;
     }
+
     setOrderInfo({
       orderId,
       orderCode,
       paymentStatus,
       paidAt,
     });
+
     setLoading(false);
     toast.success("Thanh toán thành công! Đơn hàng đã được tạo.");
   }, [orderId, orderCode, paymentStatus, paidAt, navigate]);
