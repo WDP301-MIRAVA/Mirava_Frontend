@@ -64,6 +64,7 @@ import FeedbackManagement from "@/pages/Admin/Feedback/FeedbackManagement/Feedba
 import ManagerTreatment from "@/pages/Manager/ManagerTreatment/ManagerTreatment";
 import ManagerTestRegister from "@/pages/Manager/ManagerTestRegister/ManagerTestRegister";
 import AdminBlogManagement from "@/pages/Admin/BlogManagement/BlogManagement";
+import DoctorScheduleManager from "@/pages/Manager/DoctorScheduleManager";
 const MainRouter = () => {
   return (
     <Routes>
@@ -160,7 +161,7 @@ const MainRouter = () => {
         <Route path="/manager/profile" element={<PersonalInfoPage />} />
         <Route
           path="/manager/doctor-schedule-management"
-          element={<DoctorScheduleManagement />}
+          element={<DoctorScheduleManager />}
         />
         <Route path="/manager/orders" element={<OrderManagement />} />
         <Route path="/manager/doctors" element={<ManagerDoctor />} />
