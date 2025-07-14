@@ -1,26 +1,37 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Plus, Edit, Trash2, Ban, CheckCircle, X } from 'lucide-react';
+import { Search, Plus, Edit, Eye, Ban, CheckCircle, X } from 'lucide-react';
 import './UserManagement.css';
+import { userServ, type User as ApiUser, type CreateUserRequest, type CreateDoctorRequest, type UserDetail, type UpdateUserRequest } from '../../../services/userServie';
 
 interface User {
   id: string;
   userName: string;
   email: string;
   phone: string;
-  role: 'Customer' | 'Doctor' | 'Admin';
+  role: 'Customer' | 'Doctor' | 'Admin' | 'Manager';
   specialty?: string;
   workSchedule?: string;
   status: 'active' | 'blocked';
   createdDate: Date;
+  gender?: string;
+  address?: string;
+  patientCode?: string;
 }
 
 interface UserFormData {
   userName: string;
   email: string;
+  password: string;
   phone: string;
-  role: 'Customer' | 'Doctor' | 'Admin';
+  role: 'Customer' | 'Doctor' | 'Admin' | 'Manager';
+  gender: string;
+  address: string;
+  // Doctor specific fields
+  degree: string;
   specialty: string;
   workSchedule: string;
+  description: string;
+  imageUrl: string;
 }
 
 const UserManagement: React.FC = () => {
@@ -31,64 +42,95 @@ const UserManagement: React.FC = () => {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
-  const [confirmAction, setConfirmAction] = useState<{type: 'delete' | 'block' | 'activate', user: User} | null>(null);
+  const [confirmAction, setConfirmAction] = useState<{type: 'block' | 'activate', user: User} | null>(null);
   const [message, setMessage] = useState<{type: 'success' | 'error', text: string} | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [addingUser, setAddingUser] = useState(false);
+  const [updatingUser, setUpdatingUser] = useState(false);
+  const [viewingUser, setViewingUser] = useState<UserDetail | null>(null);
+  const [loadingUserDetail, setLoadingUserDetail] = useState(false);
   
   const [formData, setFormData] = useState<UserFormData>({
     userName: '',
     email: '',
+    password: '',
     phone: '',
     role: 'Customer',
+    gender: '',
+    address: '',
+    degree: '',
     specialty: '',
-    workSchedule: ''
+    workSchedule: '',
+    description: '',
+    imageUrl: ''
   });
 
-  // Mock data initialization
+  // Fetch users from API
   useEffect(() => {
-    const mockUsers: User[] = [
-      {
-        id: '1',
-        userName: 'Nguyễn Văn An',
-        email: 'an.nguyen@email.com',
-        phone: '0901234567',
-        role: 'Customer',
-        status: 'active',
-        createdDate: new Date('2024-01-15')
-      },
-      {
-        id: '2',
-        userName: 'Bác sĩ Trần Thị Bình',
-        email: 'binh.tran@hospital.com',
-        phone: '0902345678',
-        role: 'Doctor',
-        specialty: 'Tim mạch',
-        workSchedule: 'Thứ 2-6, 8:00-17:00',
-        status: 'active',
-        createdDate: new Date('2024-02-01')
-      },
-      {
-        id: '3',
-        userName: 'Lê Văn Cường',
-        email: 'cuong.le@admin.com',
-        phone: '0903456789',
-        role: 'Admin',
-        status: 'active',
-        createdDate: new Date('2024-01-10')
-      },
-      {
-        id: '4',
-        userName: 'Bác sĩ Phạm Thị Dung',
-        email: 'dung.pham@hospital.com',
-        phone: '0904567890',
-        role: 'Doctor',
-        specialty: 'Nhi khoa',
-        workSchedule: 'Thứ 3-7, 9:00-18:00',
-        status: 'blocked',
-        createdDate: new Date('2024-03-01')
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Check if user is authenticated
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          setError("Bạn cần đăng nhập để truy cập trang này");
+          setLoading(false);
+          return;
+        }
+
+        const response = await userServ.getAllUsers();
+        
+        let userData: ApiUser[] = [];
+        
+        // Handle different response formats
+        if (Array.isArray(response)) {
+          userData = response;
+        } else if (response && 'data' in response && Array.isArray(response.data)) {
+          userData = response.data;
+        } else {
+          throw new Error("Invalid response format from API");
+        }
+
+        // Transform API data to component data format
+        const transformedUsers: User[] = userData.map((apiUser: ApiUser) => ({
+          id: apiUser._id,
+          userName: apiUser.userName,
+          email: apiUser.email,
+          phone: apiUser.phone,
+          role: apiUser.role,
+          status: 'active', // API doesn't seem to have status field, defaulting to active
+          createdDate: new Date(apiUser.createdAt),
+          gender: apiUser.gender,
+          address: apiUser.address,
+          patientCode: apiUser.patientCode,
+          // For doctors, we might need to get specialty and workSchedule from other sources
+          specialty: undefined, // Not available in current API response
+          workSchedule: undefined, // Not available in current API response
+        }));
+
+        setUsers(transformedUsers);
+        setFilteredUsers(transformedUsers);
+        
+      } catch (err: any) {
+        console.error("Error fetching users:", err);
+        if (err.message.includes("Access token not found")) {
+          setError("Bạn cần đăng nhập để truy cập trang này");
+        } else if (err.response?.status === 401) {
+          setError("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại");
+        } else if (err.response?.status === 403) {
+          setError("Bạn không có quyền truy cập chức năng này");
+        } else {
+          setError("Có lỗi xảy ra khi tải danh sách người dùng");
+        }
+      } finally {
+        setLoading(false);
       }
-    ];
-    setUsers(mockUsers);
-    setFilteredUsers(mockUsers);
+    };
+
+    fetchUsers();
   }, []);
 
   // Search and filter
@@ -127,35 +169,113 @@ const UserManagement: React.FC = () => {
     setTimeout(() => setMessage(null), 3000);
   };
 
-  const handleAddUser = () => {
-    if (!formData.userName || !formData.email || !formData.phone) {
+  const handleAddUser = async () => {
+    if (!formData.userName || !formData.email || !formData.phone || !formData.password) {
       showMessage('error', 'Vui lòng điền đầy đủ thông tin bắt buộc');
       return;
     }
 
-    const newUser: User = {
-      id: Date.now().toString(),
-      userName: formData.userName,
-      email: formData.email,
-      phone: formData.phone,
-      role: formData.role,
-      specialty: formData.role === 'Doctor' ? formData.specialty : undefined,
-      workSchedule: formData.role === 'Doctor' ? formData.workSchedule : undefined,
-      status: 'active',
-      createdDate: new Date()
-    };
+    // Validate doctor specific fields
+    if (formData.role === 'Doctor') {
+      if (!formData.degree || !formData.specialty || !formData.workSchedule || !formData.description) {
+        showMessage('error', 'Vui lòng điền đầy đủ thông tin bác sĩ');
+        return;
+      }
+    }
 
-    setUsers([...users, newUser]);
-    setShowAddForm(false);
-    setFormData({
-      userName: '',
-      email: '',
-      phone: '',
-      role: 'Customer',
-      specialty: '',
-      workSchedule: ''
-    });
-    showMessage('success', 'Thêm người dùng thành công');
+    setAddingUser(true);
+    
+    try {
+      if (formData.role === 'Doctor') {
+        // Create doctor account
+        const doctorData: CreateDoctorRequest = {
+          userName: formData.userName,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone,
+          degree: formData.degree,
+          specialty: formData.specialty,
+          workSchedule: formData.workSchedule.split('\n').filter(schedule => schedule.trim() !== ''),
+          description: formData.description,
+          imageUrl: formData.imageUrl || undefined
+        };
+
+        const response = await userServ.createDoctor(doctorData);
+        
+        // Add to local state
+        const newUser: User = {
+          id: Date.now().toString(),
+          userName: response.doctor.userName,
+          email: response.doctor.email,
+          phone: response.doctor.phone,
+          role: 'Doctor',
+          specialty: response.doctor.specialty,
+          workSchedule: formData.workSchedule,
+          status: 'active',
+          createdDate: new Date()
+        };
+
+        setUsers([...users, newUser]);
+        showMessage('success', response.message || 'Tạo tài khoản bác sĩ thành công');
+      } else {
+        // Create regular user account
+        const userData: CreateUserRequest = {
+          userName: formData.userName,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone,
+          role: formData.role as 'Customer' | 'Admin' | 'Manager'
+        };
+
+        const response = await userServ.createUser(userData);
+        
+        // Add to local state
+        const newUser: User = {
+          id: Date.now().toString(),
+          userName: response.user.userName,
+          email: response.user.email,
+          phone: response.user.phone,
+          role: response.user.role as 'Customer' | 'Doctor' | 'Admin' | 'Manager',
+          status: 'active',
+          createdDate: new Date()
+        };
+
+        setUsers([...users, newUser]);
+        showMessage('success', response.message || 'Tạo tài khoản thành công');
+      }
+
+      // Reset form
+      setShowAddForm(false);
+      setFormData({
+        userName: '',
+        email: '',
+        password: '',
+        phone: '',
+        role: 'Customer',
+        gender: '',
+        address: '',
+        degree: '',
+        specialty: '',
+        workSchedule: '',
+        description: '',
+        imageUrl: ''
+      });
+
+    } catch (err: any) {
+      console.error("Error creating user:", err);
+      
+      if (err.response?.status === 401) {
+        showMessage('error', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại');
+      } else if (err.response?.status === 403) {
+        showMessage('error', 'Bạn không có quyền tạo tài khoản');
+      } else if (err.response?.data?.message) {
+        showMessage('error', err.response.data.message);
+      } else {
+        showMessage('error', 'Có lỗi xảy ra khi tạo tài khoản');
+      }
+    } finally {
+      setAddingUser(false);
+    }
   };
 
   const handleEditUser = (user: User) => {
@@ -163,56 +283,108 @@ const UserManagement: React.FC = () => {
     setFormData({
       userName: user.userName,
       email: user.email,
+      password: '', // Don't prefill password for security
       phone: user.phone,
-      role: user.role,
+      role: user.role as 'Customer' | 'Doctor' | 'Admin' | 'Manager',
+      gender: user.gender || '',
+      address: user.address || '',
       specialty: user.specialty || '',
-      workSchedule: user.workSchedule || ''
+      workSchedule: user.workSchedule || '',
+      degree: '',
+      description: '',
+      imageUrl: ''
     });
     setShowAddForm(true);
   };
 
-  const handleUpdateUser = () => {
+  const handleUpdateUser = async () => {
     if (!editingUser || !formData.userName || !formData.email || !formData.phone) {
       showMessage('error', 'Vui lòng điền đầy đủ thông tin bắt buộc');
       return;
     }
 
-    const updatedUsers = users.map(user =>
-      user.id === editingUser.id
-        ? {
-            ...user,
-            userName: formData.userName,
-            email: formData.email,
-            phone: formData.phone,
-            role: formData.role,
-            specialty: formData.role === 'Doctor' ? formData.specialty : undefined,
-            workSchedule: formData.role === 'Doctor' ? formData.workSchedule : undefined,
-          }
-        : user
-    );
+    setUpdatingUser(true);
+    
+    try {
+      // Prepare update data - only send fields that can be updated via API
+      const updateData: UpdateUserRequest = {
+        phone: formData.phone,
+        address: formData.address,
+        gender: formData.gender
+      };
 
-    setUsers(updatedUsers);
-    setShowAddForm(false);
-    setEditingUser(null);
-    setFormData({
-      userName: '',
-      email: '',
-      phone: '',
-      role: 'Customer',
-      specialty: '',
-      workSchedule: ''
-    });
-    showMessage('success', 'Cập nhật người dùng thành công');
+      // Only include password if it's provided
+      if (formData.password.trim() !== '') {
+        updateData.password = formData.password;
+      }
+
+      const response = await userServ.updateUser(updateData, editingUser.id);
+
+      // Update local state
+      const updatedUsers = users.map(user =>
+        user.id === editingUser.id
+          ? {
+              ...user,
+              phone: formData.phone,
+              address: formData.address,
+              gender: formData.gender
+            }
+          : user
+      );
+
+      setUsers(updatedUsers);
+      setShowAddForm(false);
+      setEditingUser(null);
+      resetForm();
+      showMessage('success', response.message || 'Cập nhật người dùng thành công');
+
+    } catch (err: any) {
+      console.error("Error updating user:", err);
+      
+      if (err.response?.status === 401) {
+        showMessage('error', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại');
+      } else if (err.response?.status === 403) {
+        showMessage('error', 'Bạn không có quyền cập nhật tài khoản này');
+      } else if (err.response?.status === 404) {
+        showMessage('error', 'Không tìm thấy người dùng');
+      } else if (err.response?.data?.message) {
+        showMessage('error', err.response.data.message);
+      } else {
+        showMessage('error', 'Có lỗi xảy ra khi cập nhật tài khoản');
+      }
+    } finally {
+      setUpdatingUser(false);
+    }
   };
 
-  const handleDeleteUser = (user: User) => {
-    setUsers(users.filter(u => u.id !== user.id));
-    setConfirmAction(null);
-    showMessage('success', 'Xóa người dùng thành công');
+  const handleViewUser = async (user: User) => {
+    setLoadingUserDetail(true);
+    try {
+      const userDetail = await userServ.getUserById(user.id);
+      setViewingUser(userDetail);
+    } catch (err: any) {
+      console.error("Error fetching user detail:", err);
+      
+      if (err.response?.status === 401) {
+        showMessage('error', 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại');
+      } else if (err.response?.status === 403) {
+        showMessage('error', 'Bạn không có quyền xem chi tiết tài khoản này');
+      } else if (err.response?.status === 404) {
+        showMessage('error', 'Không tìm thấy thông tin người dùng');
+      } else {
+        showMessage('error', 'Có lỗi xảy ra khi tải thông tin chi tiết');
+      }
+    } finally {
+      setLoadingUserDetail(false);
+    }
+  };
+
+  const closeUserDetailModal = () => {
+    setViewingUser(null);
   };
 
   const handleToggleStatus = (user: User) => {
-    const newStatus = user.status === 'active' ? 'blocked' : 'active';
+    const newStatus: 'active' | 'blocked' = user.status === 'active' ? 'blocked' : 'active';
     const updatedUsers = users.map(u =>
       u.id === user.id ? { ...u, status: newStatus } : u
     );
@@ -225,14 +397,74 @@ const UserManagement: React.FC = () => {
     setFormData({
       userName: '',
       email: '',
+      password: '',
       phone: '',
       role: 'Customer',
+      gender: '',
+      address: '',
+      degree: '',
       specialty: '',
-      workSchedule: ''
+      workSchedule: '',
+      description: '',
+      imageUrl: ''
     });
     setEditingUser(null);
     setShowAddForm(false);
   };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('vi-VN');
+  };
+
+  const formatDateTime = (dateString: string) => {
+    return new Date(dateString).toLocaleString('vi-VN');
+  };
+
+  const getRoleDisplayName = (role: string) => {
+    const roleMap: Record<string, string> = {
+      'Customer': 'Khách hàng',
+      'Doctor': 'Bác sĩ',
+      'Admin': 'Quản trị viên',
+      'Manager': 'Quản lý'
+    };
+    return roleMap[role] || role;
+  };
+
+  if (loading) {
+    return (
+      <div className="user-management">
+        <div className="user-management-card">
+          <div className="card-header">
+            <h1 className="card-title">Quản lý người dùng</h1>
+          </div>
+          <div style={{ textAlign: 'center', padding: '50px' }}>
+            <div>⏳ Đang tải dữ liệu...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="user-management">
+        <div className="user-management-card">
+          <div className="card-header">
+            <h1 className="card-title">Quản lý người dùng</h1>
+          </div>
+          <div style={{ textAlign: 'center', padding: '50px' }}>
+            <div style={{ color: 'red', fontSize: '16px' }}>{error}</div>
+            <button 
+              style={{ marginTop: '20px', padding: '10px 20px' }}
+              onClick={() => window.location.reload()}
+            >
+              Thử lại
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="user-management">
@@ -302,8 +534,10 @@ const UserManagement: React.FC = () => {
                   <th>Email</th>
                   <th>Số điện thoại</th>
                   <th>Vai trò</th>
-                  <th>Chuyên khoa</th>
-                  <th>Lịch làm việc</th>
+                  <th>Giới tính</th>
+                  <th>Địa chỉ</th>
+                  <th>Mã bệnh nhân</th>
+                  <th>Ngày tạo</th>
                   <th>Trạng thái</th>
                   <th>Thao tác</th>
                 </tr>
@@ -316,11 +550,13 @@ const UserManagement: React.FC = () => {
                     <td>{user.phone}</td>
                     <td>
                       <span className={`role-badge ${user.role.toLowerCase()}`}>
-                        {user.role}
+                        {getRoleDisplayName(user.role)}
                       </span>
                     </td>
-                    <td>{user.specialty || '-'}</td>
-                    <td>{user.workSchedule || '-'}</td>
+                    <td>{user.gender === 'Male' ? 'Nam' : user.gender === 'Female' ? 'Nữ' : '-'}</td>
+                    <td>{user.address || '-'}</td>
+                    <td>{user.patientCode || '-'}</td>
+                    <td>{formatDate(user.createdDate)}</td>
                     <td>
                       <span className={`status-badge ${user.status}`}>
                         {user.status === 'active' ? 'Hoạt động' : 'Đã khóa'}
@@ -336,11 +572,11 @@ const UserManagement: React.FC = () => {
                           <Edit size={16} />
                         </button>
                         <button
-                          className="btn-action delete"
-                          onClick={() => setConfirmAction({type: 'delete', user})}
-                          title="Xóa"
+                          className="btn-action view"
+                          onClick={() => handleViewUser(user)}
+                          title="Xem chi tiết"
                         >
-                          <Trash2 size={16} />
+                          <Eye size={16} />
                         </button>
                         <button
                           className={`btn-action ${user.status === 'active' ? 'block' : 'activate'}`}
@@ -362,6 +598,137 @@ const UserManagement: React.FC = () => {
         </div>
       </div>
 
+      {/* User Detail Modal */}
+      {viewingUser && (
+        <div className="modal-overlay">
+          <div className="modal" style={{ maxWidth: '600px' }}>
+            <div className="modal-header">
+              <h2>Chi tiết người dùng</h2>
+              <button className="btn-close" onClick={closeUserDetailModal}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="modal-body">
+              {loadingUserDetail ? (
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                  <div>⏳ Đang tải thông tin chi tiết...</div>
+                </div>
+              ) : (
+                <div className="user-detail-content">
+                  <div className="detail-section">
+                    <h3>Thông tin cơ bản</h3>
+                    <div className="detail-row">
+                      <span className="detail-label">ID:</span>
+                      <span className="detail-value">{viewingUser._id}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Tên:</span>
+                      <span className="detail-value">{viewingUser.userName}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Email:</span>
+                      <span className="detail-value">{viewingUser.email}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Số điện thoại:</span>
+                      <span className="detail-value">{viewingUser.phone}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Vai trò:</span>
+                      <span className={`role-badge ${viewingUser.role.toLowerCase()}`}>
+                        {getRoleDisplayName(viewingUser.role)}
+                      </span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Giới tính:</span>
+                      <span className="detail-value">
+                        {viewingUser.gender === 'Male' ? 'Nam' : viewingUser.gender === 'Female' ? 'Nữ' : 'Chưa cập nhật'}
+                      </span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Địa chỉ:</span>
+                      <span className="detail-value">{viewingUser.address || 'Chưa cập nhật'}</span>
+                    </div>
+                    {viewingUser.patientCode && (
+                      <div className="detail-row">
+                        <span className="detail-label">Mã bệnh nhân:</span>
+                        <span className="detail-value">{viewingUser.patientCode}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {viewingUser.role === 'Doctor' && (
+                    <div className="detail-section">
+                      <h3>Thông tin bác sĩ</h3>
+                      {viewingUser.degree && (
+                        <div className="detail-row">
+                          <span className="detail-label">Bằng cấp:</span>
+                          <span className="detail-value">{viewingUser.degree}</span>
+                        </div>
+                      )}
+                      {viewingUser.specialty && (
+                        <div className="detail-row">
+                          <span className="detail-label">Chuyên khoa:</span>
+                          <span className="detail-value">{viewingUser.specialty}</span>
+                        </div>
+                      )}
+                      {viewingUser.description && (
+                        <div className="detail-row">
+                          <span className="detail-label">Mô tả:</span>
+                          <span className="detail-value">{viewingUser.description}</span>
+                        </div>
+                      )}
+                      {viewingUser.imageUrl && (
+                        <div className="detail-row">
+                          <span className="detail-label">Ảnh đại diện:</span>
+                          <span className="detail-value">
+                            <img 
+                              src={viewingUser.imageUrl} 
+                              alt="Doctor avatar" 
+                              style={{ maxWidth: '100px', maxHeight: '100px', borderRadius: '8px' }}
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).style.display = 'none';
+                              }}
+                            />
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="detail-section">
+                    <h3>Thông tin hệ thống</h3>
+                    <div className="detail-row">
+                      <span className="detail-label">Ngày tạo:</span>
+                      <span className="detail-value">{formatDateTime(viewingUser.createdAt)}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Cập nhật lần cuối:</span>
+                      <span className="detail-value">{formatDateTime(viewingUser.updatedAt)}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="detail-label">Trạng thái đăng nhập:</span>
+                      <span className="detail-value">
+                        {viewingUser.accessToken && viewingUser.accessToken.length > 0 ? (
+                          <span style={{ color: 'green' }}>Đã đăng nhập</span>
+                        ) : (
+                          <span style={{ color: 'gray' }}>Chưa đăng nhập</span>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={closeUserDetailModal}>
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Add/Edit User Form Modal */}
       {showAddForm && (
         <div className="modal-overlay">
@@ -374,6 +741,23 @@ const UserManagement: React.FC = () => {
             </div>
             <div className="modal-body">
               <div className="form-group">
+                <label htmlFor="role">Vai trò *</label>
+                <select
+                  id="role"
+                  value={formData.role}
+                  onChange={(e) => setFormData({...formData, role: e.target.value as 'Customer' | 'Doctor' | 'Admin' | 'Manager'})}
+                  className="form-select"
+                  required
+                  disabled={editingUser !== null}
+                >
+                  <option value="Customer">Khách hàng</option>
+                  <option value="Doctor">Bác sĩ</option>
+                  <option value="Admin">Quản trị viên</option>
+                  <option value="Manager">Quản lý</option>
+                </select>
+              </div>
+              
+              <div className="form-group">
                 <label htmlFor="userName">Tên *</label>
                 <input
                   id="userName"
@@ -382,7 +766,13 @@ const UserManagement: React.FC = () => {
                   onChange={(e) => setFormData({...formData, userName: e.target.value})}
                   className="form-input"
                   required
+                  disabled={editingUser !== null}
                 />
+                {editingUser && (
+                  <small style={{ color: '#666', fontSize: '12px' }}>
+                    Tên không thể thay đổi khi chỉnh sửa
+                  </small>
+                )}
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email *</label>
@@ -393,6 +783,26 @@ const UserManagement: React.FC = () => {
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
                   className="form-input"
                   required
+                  disabled={editingUser !== null}
+                />
+                {editingUser && (
+                  <small style={{ color: '#666', fontSize: '12px' }}>
+                    Email không thể thay đổi khi chỉnh sửa
+                  </small>
+                )}
+              </div>
+              <div className="form-group">
+                <label htmlFor="password">
+                  Mật khẩu {editingUser ? '(để trống nếu không muốn đổi)' : '*'}
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                  className="form-input"
+                  required={!editingUser}
+                  placeholder={editingUser ? 'Nhập mật khẩu mới (tùy chọn)' : 'Nhập mật khẩu'}
                 />
               </div>
               <div className="form-group">
@@ -407,40 +817,89 @@ const UserManagement: React.FC = () => {
                 />
               </div>
               <div className="form-group">
-                <label htmlFor="role">Vai trò *</label>
+                <label htmlFor="gender">Giới tính</label>
                 <select
-                  id="role"
-                  value={formData.role}
-                  onChange={(e) => setFormData({...formData, role: e.target.value as 'Customer' | 'Doctor' | 'Admin'})}
+                  id="gender"
+                  value={formData.gender}
+                  onChange={(e) => setFormData({...formData, gender: e.target.value})}
                   className="form-select"
-                  required
                 >
-                  <option value="Customer">Customer</option>
-                  <option value="Doctor">Doctor</option>
-                  <option value="Admin">Admin</option>
+                  <option value="">Chọn giới tính</option>
+                  <option value="Male">Nam</option>
+                  <option value="Female">Nữ</option>
                 </select>
               </div>
+              <div className="form-group">
+                <label htmlFor="address">Địa chỉ</label>
+                <input
+                  id="address"
+                  type="text"
+                  value={formData.address}
+                  onChange={(e) => setFormData({...formData, address: e.target.value})}
+                  className="form-input"
+                  placeholder="Nhập địa chỉ"
+                />
+              </div>
+              
               {formData.role === 'Doctor' && (
                 <>
                   <div className="form-group">
-                    <label htmlFor="specialty">Chuyên khoa</label>
+                    <label htmlFor="degree">Bằng cấp *</label>
+                    <input
+                      id="degree"
+                      type="text"
+                      value={formData.degree}
+                      onChange={(e) => setFormData({...formData, degree: e.target.value})}
+                      className="form-input"
+                      placeholder="VD: MD, PhD"
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="specialty">Chuyên khoa *</label>
                     <input
                       id="specialty"
                       type="text"
                       value={formData.specialty}
                       onChange={(e) => setFormData({...formData, specialty: e.target.value})}
                       className="form-input"
+                      placeholder="VD: Reproductive Medicine"
+                      required
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="workSchedule">Lịch làm việc</label>
-                    <input
+                    <label htmlFor="workSchedule">Lịch làm việc *</label>
+                    <textarea
                       id="workSchedule"
-                      type="text"
                       value={formData.workSchedule}
                       onChange={(e) => setFormData({...formData, workSchedule: e.target.value})}
                       className="form-input"
-                      placeholder="VD: Thứ 2-6, 8:00-17:00"
+                      placeholder="Mỗi dòng một lịch làm việc&#10;VD: Monday 8:00-17:00&#10;Tuesday 8:00-17:00"
+                      rows={3}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="description">Mô tả *</label>
+                    <textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) => setFormData({...formData, description: e.target.value})}
+                      className="form-input"
+                      placeholder="VD: Specialist in reproductive health with 10 years of experience"
+                      rows={3}
+                      required
+                    />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="imageUrl">URL ảnh đại diện</label>
+                    <input
+                      id="imageUrl"
+                      type="url"
+                      value={formData.imageUrl}
+                      onChange={(e) => setFormData({...formData, imageUrl: e.target.value})}
+                      className="form-input"
+                      placeholder="https://example.com/doctor-image.jpg"
                     />
                   </div>
                 </>
@@ -453,8 +912,9 @@ const UserManagement: React.FC = () => {
               <button
                 className="btn btn-primary"
                 onClick={editingUser ? handleUpdateUser : handleAddUser}
+                disabled={addingUser || updatingUser}
               >
-                {editingUser ? 'Cập nhật' : 'Thêm'}
+                {updatingUser ? '⏳ Đang cập nhật...' : addingUser ? '⏳ Đang tạo...' : (editingUser ? 'Cập nhật' : 'Thêm')}
               </button>
             </div>
           </div>
@@ -470,7 +930,6 @@ const UserManagement: React.FC = () => {
             </div>
             <div className="modal-body">
               <p>
-                {confirmAction.type === 'delete' && `Bạn có chắc chắn muốn xóa người dùng "${confirmAction.user.userName}"?`}
                 {confirmAction.type === 'block' && `Bạn có chắc chắn muốn khóa tài khoản "${confirmAction.user.userName}"?`}
                 {confirmAction.type === 'activate' && `Bạn có chắc chắn muốn kích hoạt tài khoản "${confirmAction.user.userName}"?`}
               </p>
@@ -480,13 +939,9 @@ const UserManagement: React.FC = () => {
                 Hủy
               </button>
               <button
-                className={`btn ${confirmAction.type === 'delete' ? 'btn-danger' : 'btn-primary'}`}
+                className={`btn ${confirmAction.type === 'block' ? 'btn-danger' : 'btn-primary'}`}
                 onClick={() => {
-                  if (confirmAction.type === 'delete') {
-                    handleDeleteUser(confirmAction.user);
-                  } else {
-                    handleToggleStatus(confirmAction.user);
-                  }
+                  handleToggleStatus(confirmAction.user);
                 }}
               >
                 Xác nhận
