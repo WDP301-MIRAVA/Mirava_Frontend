@@ -16,14 +16,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
   const getActiveMenuItem = () => {
     const path = location.pathname;
     if (path === "/admin" || path === "/admin/") return "Dashboard";
-    if (path.includes("/admin/users")) return "Quản lý người dùng";
-    if (path.includes("/admin/doctors")) return "Quản lý bác sĩ";
+    if (path.includes("/admin/usermanagement")) return "Quản lý người dùng";
+    if (path.includes("/admin/order")) return "Quản lý đơn hàng";
     if (path.includes("/admin/appointments")) return "Quản lý lịch hẹn";
-    if (path.includes("/admin/treatments")) return "Quản lý điều trị";
-    if (path.includes("/admin/prescriptions")) return "Quản lý đơn thuốc";
+    if (path.includes("/admin/test-package")) return "Quản lý gói điều trị";
+    if (path.includes("/admin/prescriptions")) return "Danh sách đăng ký khám";
     if (path.includes("/admin/blog")) return "Quản lý bài viết";
     if (path.includes("/admin/admin-feedback")) return "Quản lý đánh giá";
-    if (path.includes("/admin/audit")) return "Nhật ký hệ thống";
+    if (path.includes("/admin/profile")) return "Hồ sơ";
     return "Dashboard";
   };
 
@@ -39,26 +39,26 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
     },
     {
       id: 3,
-      name: "Quản lý bác sĩ",
-      label: "Quản lý bác sĩ",
-      path: "/admin/doctors",
+      name: "Quản lý đơn hàng",
+      label: "Quản lý đơn hàng",
+      path: "/admin/order",
     },
     {
       id: 4,
       name: "Quản lý lịch hẹn",
       label: "Quản lý lịch hẹn",
-      path: "/admin/doctors",
+      path: "/admin/appointments",
     },
     {
       id: 5,
-      name: "Quản lý điều trị",
-      label: "Quản lý điều trị",
-      path: "/admin/treatments",
+      name: "Quản lý gói điều trị",
+      label: "Quản lý gói điều trị",
+      path: "/admin/test-package",
     },
     {
       id: 6,
-      name: "Quản lý đơn thuốc",
-      label: "Quản lý đơn thuốc",
+      name: "Danh sách đăng ký khám",
+      label: "Danh sách đăng ký khám",
       path: "/admin/prescriptions",
     },
     {
