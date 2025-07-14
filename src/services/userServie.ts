@@ -79,8 +79,23 @@ export interface UpdateUserRequest {
   email?: string;
 }
 
-export interface UpdateUserResponse {
+export interface ToggleUserStatusResponse {
   message: string;
+  user: {
+    _id: string;
+    userName: string;
+    email: string;
+    phone: string;
+    gender?: string;
+    address?: string;
+    role: string;
+    accessToken?: string[];
+    createdAt: string;
+    updatedAt: string;
+    patientCode?: string;
+    status: 'active' | 'inactive';
+    deletedAt?: string | null;
+  };
 }
 
 export const userServ = {
@@ -187,7 +202,38 @@ export const userServ = {
     ).then(response => response.data);
   },
   
-  getAllUsers: (): Promise<ApiResponse<User[]> | User[]> => {
+  // Soft delete user (block/deactivate)
+  softDeleteUser: (userId: string): Promise<ToggleUserStatusResponse> => {
+    const accessToken = localStorage.getItem("accessToken");
+    
+    if (!accessToken) {
+      throw new Error("Access token not found. Please login first.");
+    }
+    
+    return axiosInstance.patch(`${BASE_URL}/api/user/${userId}/soft-delete`, {}, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }).then(response => response.data);
+  },
+
+  // Restore user (unblock/activate)
+  restoreUser: (userId: string): Promise<ToggleUserStatusResponse> => {
+    const accessToken = localStorage.getItem("accessToken");
+    
+    if (!accessToken) {
+      throw new Error("Access token not found. Please login first.");
+    }
+    
+    return axiosInstance.patch(`${BASE_URL}/api/user/${userId}/restore`, {}, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+    }).then(response => response.data);
+  },
+  getAllUsers: (): Promise<User[]> => {
     const accessToken = localStorage.getItem("accessToken");
     
     if (!accessToken) {

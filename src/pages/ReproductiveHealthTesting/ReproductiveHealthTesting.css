@@ -109,6 +109,27 @@
   margin-bottom: 20px;
 }
 
+/* Styles cho hình ảnh thật từ API */
+.package-image {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.package-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.package-img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Fallback icon styles - giữ nguyên cho trường hợp lỗi tải hình */
 .icon-female,
 .icon-male,
 .icon-combo {
@@ -273,6 +294,11 @@
     padding: 10px 16px;
     font-size: 0.9rem;
   }
+
+  /* Responsive cho hình ảnh */
+  .package-img {
+    height: 180px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -317,6 +343,11 @@
   .current-price {
     font-size: 1.3rem;
   }
+
+  /* Responsive cho hình ảnh trên mobile */
+  .package-img {
+    height: 150px;
+  }
 }
 
 /* Animation for smooth transitions */
@@ -337,4 +368,21 @@
 
 .selected-package-info {
   animation: fadeIn 0.3s ease-out;
+}
+
+/* Loading animation cho hình ảnh */
+@keyframes imageLoading {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.package-img {
+  animation: imageLoading 0.5s ease-in-out;
 }

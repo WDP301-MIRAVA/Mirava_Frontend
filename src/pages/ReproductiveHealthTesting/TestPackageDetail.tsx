@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { ShoppingCart, Plus, Clock, FileText, Users } from "lucide-react";
+import { Plus, Clock, FileText, Users } from "lucide-react";
 import "./TestPackageDetail.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+
 interface Test {
   testName: string;
   testCode: string;
@@ -39,8 +40,10 @@ const TestPackageDetail: React.FC = () => {
   const [testPackage, setTestPackage] = useState<TestPackage | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [availableImages, setAvailableImages] = useState<string[]>([]);
 
-  const { id: packageId } = useParams(); // Get packageId from URL params
+  const { id: packageId } = useParams();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,6 +56,17 @@ const TestPackageDetail: React.FC = () => {
 
         if (data.success) {
           setTestPackage(data.data);
+          
+          // Xử lý danh sách hình ảnh
+          const images: string[] = [];
+          if (data.data.imageUrl) {
+            images.push(data.data.imageUrl);
+          }
+          if (data.data.treatmentProcessImage && data.data.treatmentProcessImage !== data.data.imageUrl) {
+            images.push(data.data.treatmentProcessImage);
+          }
+          
+          setAvailableImages(images);
         } else {
           setError("Không thể tải thông tin gói xét nghiệm");
         }
@@ -70,25 +84,48 @@ const TestPackageDetail: React.FC = () => {
     }
   }, [packageId]);
 
+  // Auto-slide images khi có nhiều hình ảnh
+  useEffect(() => {
+    if (availableImages.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentImageIndex((prev) => (prev + 1) % availableImages.length);
+      }, 4000); // Chuyển ảnh mỗi 4 giây
+
+      return () => clearInterval(interval);
+    }
+  }, [availableImages.length]);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("vi-VN").format(price);
   };
-  // const handleAddToCart = () => {
-  //   if (testPackage) {
-  //     // Add to cart logic here
-  //     console.log("Adding to cart:", testPackage);
-  //     alert("Đã thêm vào giỏ hàng!");
-  //   }
-  // };
+
   const handleBookNow = () => {
     if (testPackage) {
-      // Navigate to order page with test package data
       navigate("/checkout-page", {
         state: {
           testPackage: testPackage,
         },
       });
     }
+  };
+
+  const handleThumbnailClick = (index: number) => {
+    setCurrentImageIndex(index);
+  };
+
+  const getImageTypeIcon = (imageUrl: string, index: number) => {
+    if (!testPackage) return "📋";
+    
+    // Nếu là hình ảnh chính của gói
+    if (imageUrl === testPackage.imageUrl) {
+      return "📋";
+    }
+    // Nếu là hình ảnh quy trình điều trị
+    if (imageUrl === testPackage.treatmentProcessImage) {
+      return "🔬";
+    }
+    // Fallback cho các hình ảnh khác
+    return ["📊", "🧪", "📈", "🔍"][index % 4];
   };
 
   if (loading) {
@@ -134,24 +171,47 @@ const TestPackageDetail: React.FC = () => {
               <div className="main-image">
                 <div className="discount-badge">-10%</div>
                 <div className="package-image">
-                  <img
-                    src={testPackage.imageUrl}
-                    alt={testPackage.name}
-                    className="main-img"
-                  />
+                  {availableImages.length > 0 ? (
+                    <img
+                      src={availableImages[currentImageIndex]}
+                      alt={`${testPackage.name} - Image ${currentImageIndex + 1}`}
+                      className="main-img"
+                      onError={(e) => {
+                        // Fallback nếu hình ảnh không tải được
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.innerHTML = `
+                          <div class="image-fallback">
+                            <div class="fallback-icon">🧬</div>
+                            <p>Hình ảnh gói xét nghiệm</p>
+                          </div>
+                        `;
+                      }}
+                    />
+                  ) : (
+                    <div className="image-fallback">
+                      <div className="fallback-icon">🧬</div>
+                      <p>Hình ảnh gói xét nghiệm</p>
+                    </div>
+                  )}
                 </div>
               </div>
-              <div className="thumbnail-images">
-                <div className="thumbnail active">
-                  <div className="thumb-icon">📋</div>
+              
+              {/* Chỉ hiển thị thumbnail khi có nhiều hơn 1 hình ảnh */}
+              {availableImages.length > 1 && (
+                <div className="thumbnail-images">
+                  {availableImages.map((imageUrl, index) => (
+                    <div
+                      key={index}
+                      className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
+                      onClick={() => handleThumbnailClick(index)}
+                    >
+                      <div className="thumb-icon">
+                        {getImageTypeIcon(imageUrl, index)}
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="thumbnail">
-                  <div className="thumb-icon">🧪</div>
-                </div>
-                <div className="thumbnail">
-                  <div className="thumb-icon">📊</div>
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Right Column - Details */}
@@ -192,10 +252,10 @@ const TestPackageDetail: React.FC = () => {
               </div>
 
               <div className="action-buttons">
-                <button className="add-to-cart-btn">
+                {/* <button className="add-to-cart-btn">
                   <ShoppingCart size={16} />
                   THÊM VÀO GIỎ HÀNG
-                </button>
+                </button> */}
                 <button className="buy-now-btn" onClick={handleBookNow}>
                   ĐẶT LỊCH NGAY
                 </button>
@@ -208,11 +268,28 @@ const TestPackageDetail: React.FC = () => {
             <h2>Quy trình thực hiện xét nghiệm chuẩn y khoa</h2>
             <div className="details-content">
               <div className="details-image">
-                <img
-                  src={testPackage.treatmentProcessImage}
-                  alt="Quy trình xét nghiệm"
-                  className="process-img"
-                />
+                {testPackage.treatmentProcessImage ? (
+                  <img
+                    src={testPackage.treatmentProcessImage}
+                    alt="Quy trình xét nghiệm"
+                    className="process-img"
+                    onError={(e) => {
+                      // Fallback nếu hình ảnh không tải được
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.parentElement!.innerHTML = `
+                        <div class="medical-image">
+                          <div class="medical-icon">🔬</div>
+                          <p>Quy trình xét nghiệm</p>
+                        </div>
+                      `;
+                    }}
+                  />
+                ) : (
+                  <div className="medical-image">
+                    <div className="medical-icon">🔬</div>
+                    <p>Quy trình xét nghiệm</p>
+                  </div>
+                )}
               </div>
               <div className="details-text">
                 <p>{testPackage.description}</p>
@@ -234,8 +311,26 @@ const TestPackageDetail: React.FC = () => {
             <div className="test-info-content">
               <div className="test-info-image">
                 <div className="info-image">
-                  <div className="info-icon">🧬</div>
-                  <p>Xét nghiệm chuyên sâu</p>
+                  {testPackage.imageUrl ? (
+                    <img
+                      src={testPackage.imageUrl}
+                      alt="Thông tin xét nghiệm"
+                      className="info-img"
+                      onError={(e) => {
+                        // Fallback nếu hình ảnh không tải được
+                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.parentElement!.innerHTML = `
+                          <div class="info-icon">🧬</div>
+                          <p>Xét nghiệm chuyên sâu</p>
+                        `;
+                      }}
+                    />
+                  ) : (
+                    <>
+                      <div className="info-icon">🧬</div>
+                      <p>Xét nghiệm chuyên sâu</p>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="test-info-details">

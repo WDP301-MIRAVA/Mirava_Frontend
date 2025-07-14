@@ -112,20 +112,50 @@ body {
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
+
 .package-image {
   width: 100%;
-  height: auto;
-  background: none; /* Bỏ nền */
-  display: block; /* Không cần flex */
-  padding: 0;
+  height: 400px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  position: relative;
+  overflow: hidden;
 }
 
 .package-image img {
   width: 100%;
-  height: auto;
-  display: block;
+  height: 100%;
   object-fit: cover;
   border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+.package-image img:hover {
+  transform: scale(1.05);
+}
+
+/* Image Fallback Styles */
+.image-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #6b7280;
+}
+
+.fallback-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.8;
+}
+
+.image-fallback p {
+  font-size: 1.2rem;
+  font-weight: 500;
 }
 
 .discount-badge {
@@ -138,37 +168,18 @@ body {
   border-radius: 4px;
   font-size: 0.8rem;
   font-weight: bold;
-  z-index: 1;
-}
-
-.package-image {
-  height: 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-}
-
-.image-placeholder {
-  text-align: center;
-  padding: 2rem;
-}
-
-.type-icon {
-  font-size: 4rem;
-  margin-bottom: 1rem;
-  opacity: 0.8;
-}
-
-.package-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #374151;
+  z-index: 2;
 }
 
 .thumbnail-images {
   display: flex;
   gap: 1rem;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .thumbnail {
@@ -181,16 +192,29 @@ body {
   justify-content: center;
   cursor: pointer;
   border: 2px solid transparent;
-  transition: border-color 0.3s;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.thumbnail:hover,
+.thumbnail:hover {
+  border-color: #2dd4bf;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(45, 212, 191, 0.3);
+}
+
 .thumbnail.active {
   border-color: #2dd4bf;
+  background: #f0fdfa;
+  transform: translateY(-2px);
 }
 
 .thumb-icon {
   font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.thumbnail:hover .thumb-icon {
+  transform: scale(1.1);
 }
 
 /* Details Section */
@@ -337,6 +361,19 @@ body {
   justify-content: center;
 }
 
+.details-image img {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.details-image img:hover {
+  transform: scale(1.05);
+}
+
 .medical-image,
 .info-image {
   text-align: center;
@@ -345,18 +382,47 @@ body {
   border-radius: 8px;
   width: 100%;
   max-width: 250px;
+  transition: transform 0.3s ease;
+}
+
+.medical-image:hover,
+.info-image:hover {
+  transform: translateY(-5px);
+}
+
+.info-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.info-image img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.info-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 1rem;
 }
 
 .medical-icon,
 .info-icon {
   font-size: 3rem;
   margin-bottom: 1rem;
+  display: block;
 }
 
 .medical-image p,
 .info-image p {
   font-weight: 600;
   color: #92400e;
+  margin: 0;
 }
 
 .details-text {
@@ -373,21 +439,13 @@ body {
 }
 
 .process-steps ul {
-  list-style: none;
+  list-style: decimal;
+  padding-left: 20px;
 }
 
 .process-steps li {
   padding: 0.5rem 0;
-  padding-left: 1.5rem;
   position: relative;
-}
-
-.process-steps li::before {
-  content: "•";
-  position: absolute;
-  left: 0;
-  color: #2dd4bf;
-  font-weight: bold;
 }
 
 /* Test Information */
@@ -462,6 +520,11 @@ body {
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 0.8rem;
+}
+
+.treatment-subjects ul {
+  list-style: disc;
+  padding-left: 20px;
 }
 
 /* Footer */
@@ -617,19 +680,96 @@ body {
   .test-information {
     padding: 2rem 1rem;
   }
+
+  .thumbnail-images {
+    justify-content: center;
+  }
+
+  .thumbnail {
+    width: 60px;
+    height: 45px;
+  }
+
+  .thumb-icon {
+    font-size: 1rem;
+  }
 }
+
+/* Additional Image Animation Classes */
 .main-img,
 .process-img {
   width: 100%;
   max-height: 300px;
   object-fit: cover;
   border-radius: 8px;
+  transition: all 0.3s ease;
 }
-.treatment-subjects ul {
-  list-style: disc;
-  padding-left: 20px;
+
+.main-img:hover,
+.process-img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
 }
-.process-steps ul {
-  list-style: decimal;
-  padding-left: 20px;
+
+/* Smooth transitions for image changes */
+.package-image {
+  transition: all 0.5s ease;
+}
+
+/* Enhanced hover effects for thumbnails */
+.thumbnail {
+  position: relative;
+  overflow: hidden;
+}
+
+.thumbnail::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(45, 212, 191, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.thumbnail:hover::before {
+  left: 100%;
+}
+
+/* Image loading state */
+.package-image img,
+.details-image img,
+.info-image img {
+  opacity: 0;
+  animation: imageLoad 0.5s ease forwards;
+}
+
+@keyframes imageLoad {
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fallback styling improvements */
+.image-fallback,
+.medical-image,
+.info-image {
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #fef3c7 100%);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Active thumbnail glow effect */
+.thumbnail.active {
+  box-shadow: 0 0 20px rgba(45, 212, 191, 0.4);
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 20px rgba(45, 212, 191, 0.4);
+  }
+  to {
+    box-shadow: 0 0 25px rgba(45, 212, 191, 0.6);
+  }
 }
