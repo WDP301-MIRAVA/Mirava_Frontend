@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import "./DetailServices.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
+import toast from "react-hot-toast";
 interface ContentBlock {
   title: string;
   description: string;
@@ -82,7 +82,48 @@ const DetailServices: React.FC = () => {
   };
 
   const handleAddToCart = () => {
-    console.log("Added to cart:", id);
+    if (!selectedService) {
+      toast.error("Không thể thêm vào giỏ hàng. Dịch vụ không tồn tại.");
+      return;
+    }
+
+    // Lấy giỏ hàng hiện tại từ localStorage
+    const storedCart = localStorage.getItem("cart");
+    const cartItems = storedCart ? JSON.parse(storedCart) : [];
+
+    // Kiểm tra nếu dịch vụ đã tồn tại trong giỏ hàng
+    const isAlreadyInCart = cartItems.some(
+      (item: any) => item.id === selectedService.id
+    );
+
+    if (isAlreadyInCart) {
+      toast.error("Dịch vụ đã có trong giỏ hàng.");
+      return;
+    }
+
+    // ✅ Tạo cart item với cấu trúc chuẩn
+    const cartItem = {
+      id: selectedService.id,
+      name: selectedService.name,
+      price: selectedService.originalPrice,
+      discountPrice: selectedService.discountPrice,
+      originalPrice: selectedService.originalPrice,
+      image: selectedService.image,
+      type: "service", // ✅ Đảm bảo type được set đúng
+      quantity: 1,
+      addedAt: new Date().toISOString(),
+    };
+
+    console.log("🛒 Thêm dịch vụ vào giỏ hàng:", cartItem);
+
+    // Thêm dịch vụ vào giỏ hàng
+    const updatedCart = [...cartItems, cartItem];
+    localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+    // Phát sự kiện để cập nhật UI
+    window.dispatchEvent(new Event("storage"));
+
+    toast.success(`Đã thêm "${selectedService.name}" vào giỏ hàng!`);
   };
 
   if (!selectedService) {
