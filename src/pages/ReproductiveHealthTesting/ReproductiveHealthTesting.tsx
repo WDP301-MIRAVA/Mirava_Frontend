@@ -18,6 +18,7 @@ type Package = {
   price: number;
   discount?: number;
   tests: Test[];
+  imageUrl?: string; // Thêm imageUrl vào interface
 };
 
 const ReproductiveHealthTesting = () => {
@@ -50,6 +51,16 @@ const ReproductiveHealthTesting = () => {
 
   const handleSelectPackage = (packageId: string) => {
     navigate(`/test-package-detail/${packageId}`);
+  };
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat("vi-VN").format(price);
+  };
+  const calculateDiscountedPrice = (
+    originalPrice: number,
+    discountPercent?: number
+  ): number => {
+    if (!discountPercent) return originalPrice;
+    return originalPrice * (1 - discountPercent / 100);
   };
   return (
     <>
@@ -99,13 +110,39 @@ const ReproductiveHealthTesting = () => {
             )
             .map((pkg) => (
               <div className="package-card" key={pkg._id}>
-                <div className="discount-badge">
-                  {pkg.discount ? `-${pkg.discount}%` : ""}
-                </div>
+                {pkg.discount && (
+                  <div className="discount-badge">-{pkg.discount}%</div>
+                )}
+
                 <div className="package-icon">
-                  <div className={`icon-${pkg.type}`}>
-                    {pkg.type === "female" ? "♀" : "♂"}
-                  </div>
+                  {pkg.imageUrl ? (
+                    <div className="package-image-container">
+                      <img
+                        src={pkg.imageUrl}
+                        alt={pkg.name}
+                        className="package-image"
+                        onError={(e) => {
+                          // Fallback về icon mặc định nếu ảnh không tải được
+                          e.currentTarget.style.display = "none";
+                          const fallbackIcon = e.currentTarget
+                            .nextElementSibling as HTMLElement;
+                          if (fallbackIcon) {
+                            fallbackIcon.style.display = "flex";
+                          }
+                        }}
+                      />
+                      <div
+                        className={`icon-${pkg.type} fallback-icon`}
+                        style={{ display: "none" }}
+                      >
+                        {pkg.type === "female" ? "♀" : "♂"}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={`icon-${pkg.type}`}>
+                      {pkg.type === "female" ? "♀" : "♂"}
+                    </div>
+                  )}
                 </div>
                 <h3 className="package-title">{pkg.name}</h3>
                 <p className="package-description">{pkg.description}</p>
@@ -120,7 +157,31 @@ const ReproductiveHealthTesting = () => {
                 </div>
 
                 <div className="price-section">
-                  <div className="current-price">{pkg.price} VNĐ</div>
+                  {pkg.discount ? (
+                    <>
+                      <div className="original-price">
+                        <span className="price-number">
+                          {formatPrice(pkg.price)}
+                        </span>
+                        <span className="price-currency">VNĐ</span>
+                      </div>
+                      <div className="current-price">
+                        <span className="price-number">
+                          {formatPrice(
+                            calculateDiscountedPrice(pkg.price, pkg.discount)
+                          )}
+                        </span>
+                        <span className="price-currency">VNĐ</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="current-price">
+                      <span className="price-number">
+                        {formatPrice(pkg.price)}
+                      </span>
+                      <span className="price-currency">VNĐ</span>
+                    </div>
+                  )}
                 </div>
 
                 <button
