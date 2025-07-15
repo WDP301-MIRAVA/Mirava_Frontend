@@ -78,7 +78,7 @@ const MainRouter = () => {
       <Route path="/blog/:id" element={<DetailBlog />} />
       <Route path="/user/appointment" element={<AppointmentPage />} />
       <Route path="/profile" element={<PersonalInfoPage />} />
-      <Route path="/checkout/success" element={<PaymentSuccess />} />
+      <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route path="/checkout/failed" element={<PaymentFailed />} />
       <Route path="/iui-ivf-services" element={<IUIIVFServices />} />
       <Route path="/detail-services/:id" element={<DetailServices />} />
