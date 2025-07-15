@@ -180,7 +180,7 @@
 }
 
 .btn-checkout {
-  background: linear-gradient(135deg, #3498db, #2980b9);
+  background: #00b3b0;
   color: white;
   border: none;
   padding: 16px 24px;
@@ -194,7 +194,7 @@
 }
 
 .btn-checkout:hover {
-  background: linear-gradient(135deg, #2980b9, #1f5f8b);
+  background: #00b3b0;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
 }
