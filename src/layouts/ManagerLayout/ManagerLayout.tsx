@@ -68,9 +68,9 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
     },
     {
       id: 8,
-      name: "Cài đặt hệ thống",
-      label: "Cài đặt hệ thống",
-      path: "/manager/settings",
+      name: "Quản lý Tư Vấn",
+      label: "Quản lý tư vấn",
+      path: "/manager/advise",
     },
     { id: 9, name: "Hồ sơ", label: "Hồ sơ", path: "/manager/profile" },
   ];
