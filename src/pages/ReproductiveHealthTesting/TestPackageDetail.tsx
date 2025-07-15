@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Plus, Clock, FileText, Users } from "lucide-react";
+import { Plus, Clock, FileText, Users, ShoppingCart } from "lucide-react";
 import "./TestPackageDetail.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -83,16 +83,19 @@ const TestPackageDetail: React.FC = () => {
 
         if (data.success) {
           setTestPackage(data.data);
-          
+
           // Xử lý danh sách hình ảnh
           const images: string[] = [];
           if (data.data.imageUrl) {
             images.push(data.data.imageUrl);
           }
-          if (data.data.treatmentProcessImage && data.data.treatmentProcessImage !== data.data.imageUrl) {
+          if (
+            data.data.treatmentProcessImage &&
+            data.data.treatmentProcessImage !== data.data.imageUrl
+          ) {
             images.push(data.data.treatmentProcessImage);
           }
-          
+
           setAvailableImages(images);
         } else {
           setError("Không thể tải thông tin gói xét nghiệm");
@@ -250,7 +253,7 @@ const TestPackageDetail: React.FC = () => {
 
   const getImageTypeIcon = (imageUrl: string, index: number) => {
     if (!testPackage) return "📋";
-    
+
     // Nếu là hình ảnh chính của gói
     if (imageUrl === testPackage.imageUrl) {
       return "📋";
@@ -321,11 +324,13 @@ const TestPackageDetail: React.FC = () => {
                   {availableImages.length > 0 ? (
                     <img
                       src={availableImages[currentImageIndex]}
-                      alt={`${testPackage.name} - Image ${currentImageIndex + 1}`}
+                      alt={`${testPackage.name} - Image ${
+                        currentImageIndex + 1
+                      }`}
                       className="main-img"
                       onError={(e) => {
                         // Fallback nếu hình ảnh không tải được
-                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.style.display = "none";
                         e.currentTarget.parentElement!.innerHTML = `
                           <div class="image-fallback">
                             <div class="fallback-icon">🧬</div>
@@ -342,14 +347,16 @@ const TestPackageDetail: React.FC = () => {
                   )}
                 </div>
               </div>
-              
+
               {/* Chỉ hiển thị thumbnail khi có nhiều hơn 1 hình ảnh */}
               {availableImages.length > 1 && (
                 <div className="thumbnail-images">
                   {availableImages.map((imageUrl, index) => (
                     <div
                       key={index}
-                      className={`thumbnail ${index === currentImageIndex ? 'active' : ''}`}
+                      className={`thumbnail ${
+                        index === currentImageIndex ? "active" : ""
+                      }`}
                       onClick={() => handleThumbnailClick(index)}
                     >
                       <div className="thumb-icon">
@@ -400,7 +407,6 @@ const TestPackageDetail: React.FC = () => {
               </div>
 
               <div className="action-buttons">
-
                 <button
                   className={`add-to-cart-btn ${
                     isInCart() ? "btn-in-cart" : ""
@@ -444,7 +450,7 @@ const TestPackageDetail: React.FC = () => {
                     className="process-img"
                     onError={(e) => {
                       // Fallback nếu hình ảnh không tải được
-                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.style.display = "none";
                       e.currentTarget.parentElement!.innerHTML = `
                         <div class="medical-image">
                           <div class="medical-icon">🔬</div>
@@ -487,7 +493,7 @@ const TestPackageDetail: React.FC = () => {
                       className="info-img"
                       onError={(e) => {
                         // Fallback nếu hình ảnh không tải được
-                        e.currentTarget.style.display = 'none';
+                        e.currentTarget.style.display = "none";
                         e.currentTarget.parentElement!.innerHTML = `
                           <div class="info-icon">🧬</div>
                           <p>Xét nghiệm chuyên sâu</p>
