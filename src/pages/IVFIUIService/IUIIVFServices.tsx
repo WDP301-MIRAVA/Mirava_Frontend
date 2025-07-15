@@ -93,7 +93,9 @@ const IUIIVFServices: React.FC = () => {
       <div className="min-h-screen">
         <section className="services">
           <div className="text-center">
-            <h2>Dịch vụ IUI / IVF chuyên nghiệp</h2>
+            <h2 style={{ textAlign: "center", color: "#ffffff" }}>
+              Dịch vụ IUI / IVF chuyên nghiệp
+            </h2>
             <p>
               Trung tâm Hiếm muộn MIRAVA tự hào là đơn vị tiên phong xây dựng và
               ứng dụng thành công mô hình điều trị DFT 1:1 nâng tỷ lệ đậu thai
@@ -130,8 +132,19 @@ const IUIIVFServices: React.FC = () => {
                 <div className="card-image">
                   <div className="badge">-{service.discountPrice}%</div>
                   <div className="icon-container">
-                    <Baby className="icon" />
-                    <p>{service.name}</p>
+                    <img
+                      src={service.image}
+                      alt={service.name}
+                      className="service-image"
+                      onError={(e) => {
+                        // Fallback nếu ảnh không tải được
+                        e.currentTarget.style.display = "none";
+                        e.currentTarget.nextElementSibling?.classList.add(
+                          "show-fallback"
+                        );
+                      }}
+                    />
+                    <Baby className="icon fallback-icon" />
                   </div>
                 </div>
                 <div className="card-content">

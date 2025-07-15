@@ -1,6 +1,6 @@
 /* ReproductiveHealthTesting.css */
 .reproductive-health-container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 20px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -93,15 +93,18 @@
 }
 
 .discount-badge {
-  position: absolute;
-  top: -10px;
-  left: 20px;
-  background-color: #ef4444;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 20px;
-  font-weight: 600;
-  font-size: 0.9rem;
+  width: fit-content;
+  position: absolute !important;
+  top: 16px !important;
+  right: 16px !important;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  color: white !important;
+  padding: 8px 16px !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+  font-size: 0.9rem !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+  z-index: 10 !important;
 }
 
 .package-icon {
@@ -109,6 +112,27 @@
   margin-bottom: 20px;
 }
 
+/* Styles cho hình ảnh thật từ API */
+.package-image {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.package-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 15px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.package-img:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* Fallback icon styles - giữ nguyên cho trường hợp lỗi tải hình */
 .icon-female,
 .icon-male,
 .icon-combo {
@@ -185,11 +209,6 @@
 
 .tests-list li:last-child {
   border-bottom: none;
-}
-
-.price-section {
-  text-align: center;
-  margin-bottom: 24px;
 }
 
 .current-price {
@@ -273,6 +292,11 @@
     padding: 10px 16px;
     font-size: 0.9rem;
   }
+
+  /* Responsive cho hình ảnh */
+  .package-img {
+    height: 180px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -317,6 +341,11 @@
   .current-price {
     font-size: 1.3rem;
   }
+
+  /* Responsive cho hình ảnh trên mobile */
+  .package-img {
+    height: 150px;
+  }
 }
 
 /* Animation for smooth transitions */
@@ -337,4 +366,154 @@
 
 .selected-package-info {
   animation: fadeIn 0.3s ease-out;
+}
+
+.current-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.current-price .price-number {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #000;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  letter-spacing: -0.5px;
+}
+
+.current-price .price-currency {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #000;
+  text-transform: uppercase;
+}
+
+.original-price {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.original-price .price-number {
+  font-size: 1.2rem;
+  font-weight: 500;
+  color: #9ca3af;
+  text-decoration: line-through;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.original-price .price-currency {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #9ca3af;
+  text-decoration: line-through;
+  text-transform: uppercase;
+}
+
+/* Hiệu ứng hover cho price section */
+.package-card:hover .price-section {
+  border-color: #10b981;
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
+.package-card:hover .current-price .price-number {
+  color: #000;
+  transform: scale(1.05);
+  transition: all 0.3s ease;
+}
+
+/* Discount badge cải tiến */
+.price-section {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  margin-bottom: 16px !important;
+}
+/* Responsive cho price section */
+@media (max-width: 768px) {
+  .price-section {
+    padding: 12px;
+    margin-bottom: 20px;
+  }
+
+  .current-price .price-number {
+    font-size: 1.6rem;
+  }
+
+  .current-price .price-currency {
+    font-size: 1rem;
+  }
+
+  .original-price .price-number {
+    font-size: 1rem;
+  }
+
+  .original-price .price-currency {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .price-section {
+    padding: 10px;
+    margin-bottom: 16px;
+  }
+
+  .current-price .price-number {
+    font-size: 1.4rem;
+  }
+
+  .current-price .price-currency {
+    font-size: 0.9rem;
+  }
+
+  .original-price .price-number {
+    font-size: 0.9rem;
+  }
+
+  .original-price .price-currency {
+    font-size: 0.75rem;
+  }
+}
+
+/* Animation cho số tiền */
+@keyframes priceHighlight {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.package-card:hover .current-price .price-number {
+  animation: priceHighlight 0.6s ease-in-out;
+}
+
+/* ...existing code... */
+
+/* Loading animation cho hình ảnh */
+@keyframes imageLoading {
+  0% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.package-img {
+  animation: imageLoading 0.5s ease-in-out;
 }

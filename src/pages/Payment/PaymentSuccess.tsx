@@ -6,10 +6,10 @@ import "./PaymentSuccess.css";
 interface OrderInfo {
   orderId: string;
   orderCode: string;
-  paymentStatus: string;
   totalAmount: number;
   patientCode: string;
-  paidAt: string;
+  paymentStatus: string | null;
+  paidAt: string | null;
 }
 
 const PaymentSuccess: React.FC = () => {
@@ -21,6 +21,11 @@ const PaymentSuccess: React.FC = () => {
 
   // ✅ THÊM REF ĐỂ TRÁNH CHẠY LẠI NHIỀU LẦN
   const processedRef = useRef(false);
+
+  const orderId = searchParams.get("orderId");
+  const orderCode = searchParams.get("orderCode");
+  const paymentStatus = searchParams.get("paymentStatus");
+  const paidAt = searchParams.get("paidAt");
 
   useEffect(() => {
     console.log("PaymentSuccess mounted, location.search:", location.search);
@@ -477,6 +482,7 @@ const PaymentSuccess: React.FC = () => {
       navigate("/");
     }
   };
+
 
   if (loading) {
     return (

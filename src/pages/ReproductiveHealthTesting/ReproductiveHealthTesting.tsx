@@ -18,12 +18,16 @@ type Package = {
   price: number;
   discount?: number;
   tests: Test[];
+  salePrice?: number; // Thêm salePrice để tương thích với dữ liệu từ API
+
+  imageUrl?: string; // Thêm imageUrl vào interface
 };
 
 const ReproductiveHealthTesting = () => {
   const [selectedPackage, setSelectedPackage] = useState("all");
   const [selectedGender, setSelectedGender] = useState("");
   const [packages, setPackages] = useState<Package[]>([]);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -33,7 +37,11 @@ const ReproductiveHealthTesting = () => {
           "https://mirava-f0rz.onrender.com/api/test-packages"
         );
         if (response.data.success) {
-          setPackages(response.data.data);
+          const mappedData = response.data.data.map((pkg: Package) => ({
+            ...pkg,
+            discount: pkg.salePrice, // Gán đúng field
+          }));
+          setPackages(mappedData);
         }
       } catch (error) {
         console.error("Error fetching packages:", error);
@@ -51,6 +59,19 @@ const ReproductiveHealthTesting = () => {
   const handleSelectPackage = (packageId: string) => {
     navigate(`/test-package-detail/${packageId}`);
   };
+
+  const formatPrice = (price: number): string => {
+    return new Intl.NumberFormat("vi-VN").format(price);
+  };
+
+  const calculateDiscountedPrice = (
+    price: number,
+    discountPercent?: number
+  ): number => {
+    if (!discountPercent) return price;
+    return Math.round(price * (1 - discountPercent / 100));
+  };
+
   return (
     <>
       <Header />
@@ -99,14 +120,41 @@ const ReproductiveHealthTesting = () => {
             )
             .map((pkg) => (
               <div className="package-card" key={pkg._id}>
-                <div className="discount-badge">
-                  {pkg.discount ? `-${pkg.discount}%` : ""}
-                </div>
+                {pkg.discount && (
+                  <div className="discount-badge">-{pkg.discount}%</div>
+                )}
+
                 <div className="package-icon">
-                  <div className={`icon-${pkg.type}`}>
-                    {pkg.type === "female" ? "♀" : "♂"}
-                  </div>
+                  {pkg.imageUrl ? (
+                    <div className="package-image-container">
+                      <img
+                        src={pkg.imageUrl}
+                        alt={pkg.name}
+                        className="package-image"
+                        onError={(e) => {
+                          // Fallback về icon mặc định nếu ảnh không tải được
+                          e.currentTarget.style.display = "none";
+                          const fallbackIcon = e.currentTarget
+                            .nextElementSibling as HTMLElement;
+                          if (fallbackIcon) {
+                            fallbackIcon.style.display = "flex";
+                          }
+                        }}
+                      />
+                      <div
+                        className={`icon-${pkg.type} fallback-icon`}
+                        style={{ display: "none" }}
+                      >
+                        {pkg.type === "female" ? "♀" : "♂"}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className={`icon-${pkg.type}`}>
+                      {pkg.type === "female" ? "♀" : "♂"}
+                    </div>
+                  )}
                 </div>
+
                 <h3 className="package-title">{pkg.name}</h3>
                 <p className="package-description">{pkg.description}</p>
 
@@ -120,7 +168,34 @@ const ReproductiveHealthTesting = () => {
                 </div>
 
                 <div className="price-section">
-                  <div className="current-price">{pkg.price} VNĐ</div>
+                  {pkg.discount ? (
+                    <>
+                      <div
+                        className="original-price"
+                        style={{ marginBottom: "4px" }}
+                      >
+                        <span className="price-number">
+                          {formatPrice(pkg.price)}
+                        </span>
+                        <span className="price-currency">đ</span>
+                      </div>
+                      <div className="current-price">
+                        <span className="price-number">
+                          {formatPrice(
+                            calculateDiscountedPrice(pkg.price, pkg.discount)
+                          )}
+                        </span>
+                        <span className="price-currency">đ</span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="current-price">
+                      <span className="price-number">
+                        {formatPrice(pkg.price)}
+                      </span>
+                      <span className="price-currency">đ</span>
+                    </div>
+                  )}
                 </div>
 
                 <button

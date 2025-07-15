@@ -2,9 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import LoginPage from "../pages/Login/login";
 import RegisterPage from "../pages/Register/register";
 import Homepage from "../pages/Homepage/homepage";
-import Intropage from "../pages/IntroPage/introPage";
 import SearchResult from "../pages/SearchResult/searchresult";
-import Appointment from "@/pages/Appointment/appointment";
 import DetailDoctor from "@/pages/DetailDoctor/detailDoctorPage";
 import PrivateRoute from "../utils/PrivateRoute";
 
@@ -25,6 +23,9 @@ import PaymentFailed from "@/pages/Payment/PaymentFailed";
 import DetailServices from "@/pages/IVFIUIService/DetailServices";
 import TestPackageDetail from "@/pages/ReproductiveHealthTesting/TestPackageDetail";
 import CheckOutPage from "@/pages/ReproductiveHealthTesting/CheckOutPage";
+import CartPage from "@/pages/Cart/CartPage";
+import UnifiedCheckOutPage from "@/pages/UnifiedCheckOutPage/UnifiedCheckOutPage";
+
 // Customer pages
 import CustomerHome from "@/pages/Customer/Home/Home";
 import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
@@ -34,7 +35,7 @@ import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSched
 import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
 import ReproductiveHealthTesting from "@/pages/ReproductiveHealthTesting/ReproductiveHealthTesting";
 
-import MedicalHistory from "@/pages/Doctor/MedicalHistory/MedicalHistory";
+// import MedicalHistory from "@/pages/Doctor/MedicalHistory/MedicalHistory";
 import OrderHistory from "@/pages/Customer/Orders/OrderHistory";
 
 // Admin pages
@@ -61,6 +62,8 @@ import ListFeedback from "@/pages/Customer/Feedback/ListFeedback/ListFeedback";
 import FeedbackManagement from "@/pages/Admin/Feedback/FeedbackManagement/FeedbackManagement";
 import ManagerTreatment from "@/pages/Manager/ManagerTreatment/ManagerTreatment";
 import ManagerTestRegister from "@/pages/Manager/ManagerTestRegister/ManagerTestRegister";
+import AdminBlogManagement from "@/pages/Admin/BlogManagement/BlogManagement";
+import DoctorScheduleManager from "@/pages/Manager/DoctorScheduleManager";
 const MainRouter = () => {
   return (
     <Routes>
@@ -69,10 +72,8 @@ const MainRouter = () => {
       <Route path="/home" element={<Homepage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/intro" element={<Intropage />} />
       <Route path="/searchresult" element={<SearchResult />} />
       <Route path="/detaildoctor/:id" element={<DetailDoctor />} />
-      <Route path="/appointment" element={<Appointment />} />
       <Route path="/bloglist" element={<BlogList />} />
       <Route path="/blog/:id" element={<DetailBlog />} />
       <Route path="/user/appointment" element={<AppointmentPage />} />
@@ -95,6 +96,9 @@ const MainRouter = () => {
       />
       <Route path="/test-package-detail/:id" element={<TestPackageDetail />} />
       <Route path="/checkout-page" element={<CheckOutPage />} />
+      <Route path="/cart" element={<CartPage />} />
+      <Route path="/unified-checkout" element={<UnifiedCheckOutPage />} />
+
       {/* 🏥 Protected Routes */}
       {/* 👤 Customer Protected Routes */}
       <Route
@@ -120,7 +124,8 @@ const MainRouter = () => {
         <Route path="/admin/profile" element={<PersonalInfoPage />} />
         <Route path="/admin/usermanagement" element={<UserManagement />} />
         <Route path="/admin/doctors" element={<DoctorManagement />} />
-        <Route path="/admin/feedback" element={<FeedbackManagement />} />
+        <Route path="/admin/admin-feedback" element={<FeedbackManagement />} />
+        <Route path="/admin/blog" element={<AdminBlogManagement />} />
       </Route>
 
       {/* 🩺 Doctor Protected Routes */}
@@ -154,7 +159,7 @@ const MainRouter = () => {
         <Route path="/manager/profile" element={<PersonalInfoPage />} />
         <Route
           path="/manager/doctor-schedule-management"
-          element={<DoctorScheduleManagement />}
+          element={<DoctorScheduleManager />}
         />
         <Route path="/manager/orders" element={<OrderManagement />} />
         <Route path="/manager/doctors" element={<ManagerDoctor />} />
