@@ -22,7 +22,6 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
     if (path.includes("/manager/treatments")) return "Quản lý điều trị";
     if (path.includes("/manager/orders")) return "Quản lý đơn hàng";
     if (path.includes("/manager/reports")) return "Báo cáo thống kê";
-    if (path.includes("/manager/settings")) return "Cài đặt hệ thống";
     return "Dashboard";
   };
 
@@ -66,6 +65,7 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
       label: "Quản lý xét nghiệm",
       path: "/manager/test-register",
     },
+
     {
       id: 8,
       name: "Quản lý Tư Vấn",

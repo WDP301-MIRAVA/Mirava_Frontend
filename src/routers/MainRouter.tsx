@@ -27,7 +27,7 @@ import CartPage from "@/pages/Cart/CartPage";
 import UnifiedCheckOutPage from "@/pages/UnifiedCheckOutPage/UnifiedCheckOutPage";
 
 // Customer pages
-import CustomerHome from "@/pages/Customer/Home/Home";
+import ResultTest from "@/pages/Customer/ResultTest/ResultTest";
 import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
 import AppointmentPage from "@/pages/Users/AppointmentPage";
 import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
@@ -107,7 +107,7 @@ const MainRouter = () => {
           <PrivateRoute allowedRole="Customer" layout={CustomerLayout} />
         }
       >
-        <Route path="/customer" element={<CustomerHome />} />
+        <Route path="/customer" element={<ResultTest />} />
         <Route path="/customer/profile" element={<PersonalInfoPage />} />
         <Route path="/customer/treatmentplan" element={<TreatmentPlan />} />
         <Route path="/customer/contact" element={<ContactDoctor />} />

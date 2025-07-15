@@ -40,7 +40,8 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
   // Xác định active menu dựa trên URL hiện tại
   const getActiveMenuItem = () => {
     const path = location.pathname;
-    if (path === "/customer" || path === "/customer/") return "Trang chủ";
+    if (path === "/customer" || path === "/customer/")
+      return "Kết quả xét nghiệm";
     if (path.includes("/customer/profile")) return "Hồ sơ";
     if (path.includes("/customer/medical-history")) return "Tiền sử y tế";
     if (path.includes("/customer/treatmentplan")) return "Kế hoạch điều trị";
@@ -57,8 +58,8 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
   const menuItems = [
     {
       id: 1,
-      name: "Trang chủ",
-      label: "Trang chủ",
+      name: "Kết quả xét nghiệm",
+      label: "Kết quả xét nghiệm",
       path: "/customer",
     },
     {
