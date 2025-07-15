@@ -12,14 +12,6 @@ import {
   ShoppingCartOutlined,
 } from "@ant-design/icons";
 import toast from "react-hot-toast";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  TextField,
-  Button as MuiButton,
-} from "@mui/material";
 import ConsultModal from "../Modal/ConsultModal";
 // 🧭 Navigation
 const navigationItems = [
@@ -30,13 +22,17 @@ const navigationItems = [
   { name: "Đăng ký tư vấn", action: "openConsultModal" },
   { name: "Tra cứu kết quả", path: "/searchresult" },
 ];
-
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+}
 const Header: React.FC = () => {
   const [activeItem, setActiveItem] = useState("/");
   const [scrolled, setScrolled] = useState(false);
-  const [cartItems, setCartItems] = useState<any[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [consultModalOpen, setConsultModalOpen] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
   const navigate = useNavigate();
   const token = localStorage.getItem("accessToken");
   // Load cart

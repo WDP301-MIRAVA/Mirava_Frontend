@@ -3,7 +3,6 @@ import LoginPage from "../pages/Login/login";
 import RegisterPage from "../pages/Register/register";
 import Homepage from "../pages/Homepage/homepage";
 import SearchResult from "../pages/SearchResult/searchresult";
-import Appointment from "@/pages/Appointment/appointment";
 import DetailDoctor from "@/pages/DetailDoctor/detailDoctorPage";
 import PrivateRoute from "../utils/PrivateRoute";
 
@@ -74,7 +73,6 @@ const MainRouter = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/searchresult" element={<SearchResult />} />
       <Route path="/detaildoctor/:id" element={<DetailDoctor />} />
-      <Route path="/appointment" element={<Appointment />} />
       <Route path="/bloglist" element={<BlogList />} />
       <Route path="/blog/:id" element={<DetailBlog />} />
       <Route path="/user/appointment" element={<AppointmentPage />} />
