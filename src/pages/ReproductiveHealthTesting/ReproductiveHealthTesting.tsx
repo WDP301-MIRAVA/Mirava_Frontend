@@ -18,13 +18,16 @@ type Package = {
   price: number;
   discount?: number;
   tests: Test[];
+
   imageUrl?: string; // Thêm imageUrl vào interface
+
 };
 
 const ReproductiveHealthTesting = () => {
   const [selectedPackage, setSelectedPackage] = useState("all");
   const [selectedGender, setSelectedGender] = useState("");
   const [packages, setPackages] = useState<Package[]>([]);
+  const [imageErrors, setImageErrors] = useState<{[key: string]: boolean}>({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,6 +55,7 @@ const ReproductiveHealthTesting = () => {
   const handleSelectPackage = (packageId: string) => {
     navigate(`/test-package-detail/${packageId}`);
   };
+
   const formatPrice = (price: number): string => {
     return new Intl.NumberFormat("vi-VN").format(price);
   };
@@ -62,6 +66,42 @@ const ReproductiveHealthTesting = () => {
     if (!discountPercent) return originalPrice;
     return originalPrice * (1 - discountPercent / 100);
   };
+
+
+  const handleImageError = (packageId: string) => {
+    setImageErrors(prev => ({
+      ...prev,
+      [packageId]: true
+    }));
+  };
+
+  const renderPackageIcon = (pkg: Package) => {
+    const hasImageError = imageErrors[pkg._id];
+    
+    if (hasImageError || !pkg.imageUrl) {
+      // Fallback to icon nếu không có hình ảnh hoặc lỗi tải hình
+      return (
+        <div className="package-icon">
+          <div className={`icon-${pkg.type}`}>
+            {pkg.type === "female" ? "♀" : "♂"}
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="package-image">
+        <img 
+          src={pkg.imageUrl} 
+          alt={pkg.name}
+          className="package-img"
+          onError={() => handleImageError(pkg._id)}
+          loading="lazy"
+        />
+      </div>
+    );
+  };
+
   return (
     <>
       <Header />
@@ -110,6 +150,7 @@ const ReproductiveHealthTesting = () => {
             )
             .map((pkg) => (
               <div className="package-card" key={pkg._id}>
+
                 {pkg.discount && (
                   <div className="discount-badge">-{pkg.discount}%</div>
                 )}
@@ -144,6 +185,7 @@ const ReproductiveHealthTesting = () => {
                     </div>
                   )}
                 </div>
+
                 <h3 className="package-title">{pkg.name}</h3>
                 <p className="package-description">{pkg.description}</p>
 

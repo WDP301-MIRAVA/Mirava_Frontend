@@ -61,6 +61,8 @@ import CreateFeedback from "@/pages/Customer/Feedback/CreateFeedback/CreateFeedb
 import ListFeedback from "@/pages/Customer/Feedback/ListFeedback/ListFeedback";
 import FeedbackManagement from "@/pages/Admin/Feedback/FeedbackManagement/FeedbackManagement";
 import ManagerTreatment from "@/pages/Manager/ManagerTreatment/ManagerTreatment";
+import ManagerTestRegister from "@/pages/Manager/ManagerTestRegister/ManagerTestRegister";
+import AdminBlogManagement from "@/pages/Admin/BlogManagement/BlogManagement";
 const MainRouter = () => {
   return (
     <Routes>
@@ -121,7 +123,8 @@ const MainRouter = () => {
         <Route path="/admin/profile" element={<PersonalInfoPage />} />
         <Route path="/admin/usermanagement" element={<UserManagement />} />
         <Route path="/admin/doctors" element={<DoctorManagement />} />
-        <Route path="/admin/feedback" element={<FeedbackManagement />} />
+        <Route path="/admin/admin-feedback" element={<FeedbackManagement />} />
+        <Route path="/admin/blog" element={<AdminBlogManagement />} />
       </Route>
 
       {/* 🩺 Doctor Protected Routes */}
@@ -160,6 +163,10 @@ const MainRouter = () => {
         <Route path="/manager/orders" element={<OrderManagement />} />
         <Route path="/manager/doctors" element={<ManagerDoctor />} />
         <Route path="/manager/treatments" element={<ManagerTreatment />} />
+        <Route
+          path="/manager/test-register"
+          element={<ManagerTestRegister />}
+        />
       </Route>
 
       {/* Not Found */}
