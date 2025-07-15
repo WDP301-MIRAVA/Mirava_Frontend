@@ -64,6 +64,7 @@ import ManagerTreatment from "@/pages/Manager/ManagerTreatment/ManagerTreatment"
 import ManagerTestRegister from "@/pages/Manager/ManagerTestRegister/ManagerTestRegister";
 import AdminBlogManagement from "@/pages/Admin/BlogManagement/BlogManagement";
 import DoctorScheduleManager from "@/pages/Manager/DoctorScheduleManager";
+import AdviseManagement from "@/pages/Manager/AdviseManagement/AdviseManagement";
 const MainRouter = () => {
   return (
     <Routes>
@@ -168,6 +169,7 @@ const MainRouter = () => {
           path="/manager/test-register"
           element={<ManagerTestRegister />}
         />
+        <Route path="/manager/advise" element={<AdviseManagement />} />
       </Route>
 
       {/* Not Found */}

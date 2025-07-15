@@ -57,28 +57,34 @@ const CartPage: React.FC = () => {
 
         if (Array.isArray(parsedCart) && parsedCart.length > 0) {
           const normalizedCart: CartItem[] = parsedCart.map((item) => {
-            const discountPrice =
-              item.discountPrice ??
-              ("discount" in item && typeof item.discount === "number"
-                ? item.discount
-                : undefined) ??
-              ("salePrice" in item && typeof item.salePrice === "number"
-                ? item.salePrice
-                : undefined) ??
-              0;
+            // ✅ Sửa lại logic tính discount price
+            const originalPrice = item.originalPrice ?? item.price ?? 0;
 
-            const image =
-              item.image ??
-              ("imageUrl" in item && typeof item.imageUrl === "string"
-                ? item.imageUrl
-                : "/default-image.jpg");
+            // Ưu tiên theo thứ tự: discountPrice > salePrice > tính từ discount % > giá gốc
+            let discountPrice = originalPrice;
+
+            if (item.discountPrice && item.discountPrice > 0) {
+              discountPrice = item.discountPrice;
+            } else if (item.salePrice && item.salePrice > 0) {
+              discountPrice = item.salePrice;
+            } else if (item.discount && typeof item.discount === "number") {
+              // Nếu discount là phần trăm (0-100)
+              if (item.discount <= 100) {
+                discountPrice = originalPrice * (1 - item.discount / 100);
+              } else {
+                // Nếu discount là số tiền cố định
+                discountPrice = Math.max(0, originalPrice - item.discount);
+              }
+            }
+
+            const image = item.image ?? item.imageUrl ?? "/default-image.jpg";
 
             const normalizedItem: CartItem = {
               id: item.id ?? "",
               name: item.name ?? "Không rõ tên",
-              price: item.price ?? item.originalPrice ?? 0,
-              discountPrice,
-              originalPrice: item.originalPrice ?? item.price ?? 0,
+              price: originalPrice,
+              discountPrice: Math.max(0, discountPrice), // Đảm bảo không âm
+              originalPrice: originalPrice,
               image,
               type:
                 item.type ??
@@ -119,20 +125,30 @@ const CartPage: React.FC = () => {
 
   const getTotalPrice = () => {
     return cartItems.reduce((total, item) => {
-      const itemPrice = item.discountPrice ?? item.price;
+      // Sử dụng discountPrice nếu có, không thì dùng originalPrice
+      const itemPrice =
+        item.discountPrice && item.discountPrice > 0
+          ? item.discountPrice
+          : item.originalPrice;
       return total + itemPrice;
     }, 0);
   };
 
   const getTotalOriginalPrice = () => {
     return cartItems.reduce((total, item) => {
-      const itemOriginalPrice = item.originalPrice ?? item.price;
-      return total + itemOriginalPrice;
+      return total + item.originalPrice;
     }, 0);
   };
 
   const getTotalSavings = () => {
-    return getTotalOriginalPrice() - getTotalPrice();
+    return cartItems.reduce((total, item) => {
+      const savings =
+        item.originalPrice -
+        (item.discountPrice && item.discountPrice > 0
+          ? item.discountPrice
+          : item.originalPrice);
+      return total + Math.max(0, savings);
+    }, 0);
   };
 
   if (cartItems.length === 0) {
@@ -188,26 +204,33 @@ const CartPage: React.FC = () => {
                   <div className="cart-item-info">
                     <h3>{item.name}</h3>
                     <div className="cart-item-prices">
+                      {/* Hiển thị giá gốc */}
                       <span className="original-price">
-                        {(item.originalPrice ?? item.price).toLocaleString(
-                          "vi-VN"
-                        )}{" "}
-                        đ
+                        {item.originalPrice.toLocaleString("vi-VN")} đ
                       </span>
-                      <span className="discount-price">
-                        {(item.discountPrice ?? item.price).toLocaleString(
-                          "vi-VN"
-                        )}{" "}
-                        đ
-                      </span>
+                      {/* Chỉ hiển thị giá giảm nếu thực sự có giảm giá */}
+                      {item.discountPrice &&
+                        item.discountPrice > 0 &&
+                        item.discountPrice < item.originalPrice && (
+                          <span className="discount-price">
+                            {item.discountPrice.toLocaleString("vi-VN")} đ
+                          </span>
+                        )}
                     </div>
                     <div className="cart-item-savings">
-                      Tiết kiệm:{" "}
-                      {(
-                        (item.originalPrice ?? item.price) -
-                        (item.discountPrice ?? item.price)
-                      ).toLocaleString("vi-VN")}{" "}
-                      đ
+                      {item.discountPrice &&
+                      item.discountPrice > 0 &&
+                      item.discountPrice < item.originalPrice ? (
+                        <>
+                          Tiết kiệm:{" "}
+                          {(
+                            item.originalPrice - item.discountPrice
+                          ).toLocaleString("vi-VN")}{" "}
+                          đ
+                        </>
+                      ) : (
+                        <span>Không có giảm giá</span>
+                      )}
                     </div>
                   </div>
                   <button
