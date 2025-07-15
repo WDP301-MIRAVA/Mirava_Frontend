@@ -87,6 +87,7 @@ body {
 
 /* Main Content */
 .main-content {
+  max-width: 100%; !Important
   padding: 2rem 0;
   background: #f8fafc;
 }
@@ -125,7 +126,7 @@ body {
 }
 
 .package-image img {
-  width: 100%;
+  width: 600px;
   height: 100%;
   object-fit: cover;
   border-radius: 8px;
@@ -178,8 +179,14 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .thumbnail {
@@ -723,13 +730,18 @@ body {
 }
 
 .thumbnail::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(45, 212, 191, 0.2), transparent);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(45, 212, 191, 0.2),
+    transparent
+  );
   transition: left 0.5s;
 }
 .thumbnail:hover::before {
@@ -772,4 +784,3 @@ body {
     box-shadow: 0 0 25px rgba(45, 212, 191, 0.6);
   }
 }
-
