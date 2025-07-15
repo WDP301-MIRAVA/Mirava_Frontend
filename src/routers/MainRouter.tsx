@@ -51,6 +51,7 @@ import IVFTreatmentTracker from "@/pages/Doctor/Patients/IVFTreatmentTracker";
 import ViewAppointment from "@/pages/Doctor/ViewAppoitment";
 import MedicalRecordManagement from "@/pages/Doctor/MedicalRecordManagement/MedicalRecordManagement";
 import ContactPatient from "@/pages/Doctor/Patients/ContactPatient/ContactPatient";
+import TestResults from "@/pages/Doctor/ResultTest/ResultTest";
 
 // Manager pages
 import OrderManagement from "@/pages/Manager/OrderManagement/OrderManagement";
@@ -149,6 +150,7 @@ const MainRouter = () => {
           path="/doctor/medicalrecord"
           element={<MedicalRecordManagement />}
         />
+        <Route path="/doctor/test-results" element={<TestResults />} />
         <Route path="/doctor/contact" element={<ContactPatient />} />
       </Route>
 
