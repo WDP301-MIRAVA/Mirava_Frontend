@@ -619,7 +619,6 @@ const IVFTreatmentTracker: React.FC = () => {
         type="button"
         className="status-toggle-btn"
         onClick={() => quickToggleStatus(stepId)}
-        style={{ background: "none", border: "none", cursor: "pointer" }}
         title="Đổi trạng thái"
         disabled={updating}
       >
@@ -717,7 +716,6 @@ const IVFTreatmentTracker: React.FC = () => {
               <button
                 onClick={() => window.location.reload()}
                 className="btn-secondary"
-                style={{ marginLeft: "12px" }}
               >
                 Thử lại
               </button>
@@ -742,7 +740,6 @@ const IVFTreatmentTracker: React.FC = () => {
     try {
       setUpdating(true);
       const token = localStorage.getItem("accessToken");
-
 
       const response = await axios.patch(
         `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/events/${stepIndex}/status`,
@@ -835,65 +832,44 @@ const IVFTreatmentTracker: React.FC = () => {
                 <span>SĐT: {treatmentPlan.patient.phone}</span>
 
                 {/* ✅ Phần cập nhật ngày bắt đầu chu kỳ */}
-                <span
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
+                <span className="cycle-start-date-container">
                   Ngày bắt đầu chu kỳ:{" "}
                   {editingCycleStart ? (
-                    <>
+                    <div className="cycle-start-edit-container">
                       <input
                         type="datetime-local"
                         value={newCycleStartDate}
                         onChange={(e) => setNewCycleStartDate(e.target.value)}
-                        style={{
-                          padding: "4px 8px",
-                          border: "1px solid #ddd",
-                          borderRadius: "4px",
-                          fontSize: "14px",
-                        }}
+                        className="cycle-start-input"
                       />
                       <button
                         onClick={handleUpdateCycleStartDate}
-                        style={{
-                          padding: "4px 8px",
-                          backgroundColor: "#52c41a",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontSize: "12px",
-                        }}
+                        className="cycle-start-save-btn"
                       >
                         Lưu
                       </button>
                       <button
                         onClick={() => setEditingCycleStart(false)}
-                        style={{
-                          padding: "4px 8px",
-                          backgroundColor: "#ff4d4f",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontSize: "12px",
-                        }}
+                        className="cycle-start-cancel-btn"
                       >
                         Hủy
                       </button>
-                    </>
+                    </div>
                   ) : (
-                    <>
-                      {new Date(treatmentPlan.cycleStartDate).toLocaleString(
-                        "vi-VN",
-                        {
-                          timeZone: "Asia/Ho_Chi_Minh",
-                          year: "numeric",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }
-                      )}
+                    <div className="cycle-start-view-container">
+                      <span className="cycle-start-date">
+                        {new Date(treatmentPlan.cycleStartDate).toLocaleString(
+                          "vi-VN",
+                          {
+                            timeZone: "Asia/Ho_Chi_Minh",
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }
+                        )}
+                      </span>
                       <button
                         onClick={() => {
                           setEditingCycleStart(true);
@@ -905,22 +881,11 @@ const IVFTreatmentTracker: React.FC = () => {
                               : ""
                           );
                         }}
-                        style={{
-                          padding: "4px 8px",
-                          backgroundColor: "#1890ff",
-                          color: "white",
-                          border: "none",
-                          borderRadius: "4px",
-                          cursor: "pointer",
-                          fontSize: "12px",
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "4px",
-                        }}
+                        className="cycle-start-edit-btn"
                       >
                         <Edit3 size={12} /> Sửa
                       </button>
-                    </>
+                    </div>
                   )}
                 </span>
 
@@ -1032,9 +997,7 @@ const IVFTreatmentTracker: React.FC = () => {
                       )}
                     </td>
                     <td className="table-cell">
-                      <div
-                        style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
-                      >
+                      <div className="action-buttons">
                         <button
                           onClick={() => openForm(step.id)}
                           className="action-btn"
@@ -1044,11 +1007,7 @@ const IVFTreatmentTracker: React.FC = () => {
                         </button>
                         <button
                           onClick={() => openMedicalRecordModal(step)}
-                          className="action-btn"
-                          style={{
-                            background: "#00b4c6",
-                            color: "#fff",
-                          }}
+                          className="action-btn medical-record-btn"
                         >
                           Kết quả
                         </button>
@@ -1069,7 +1028,7 @@ const IVFTreatmentTracker: React.FC = () => {
           </div>
         )}
 
-        {/* Form Modal - Updated with new class names */}
+        {/* Form Modal */}
         {activeForm && (
           <div className="form-modal-overlay">
             <div className="form-modal">
@@ -1252,11 +1211,7 @@ const IVFTreatmentTracker: React.FC = () => {
                     placeholder="2024-07-01,2024-07-05"
                     className="form-input"
                   />
-                  {formError && (
-                    <div className="form-error">
-                      {formError}
-                    </div>
-                  )}
+                  {formError && <div className="form-error">{formError}</div>}
                 </div>
 
                 {/* Performed By */}
@@ -1325,7 +1280,7 @@ const IVFTreatmentTracker: React.FC = () => {
           </div>
         )}
 
-        {/* Medical Record Modal - Updated with new class names */}
+        {/* Medical Record Modal */}
         {medicalRecordModal.open && (
           <div className="medical-modal-overlay">
             <div className="medical-modal">
@@ -1356,7 +1311,6 @@ const IVFTreatmentTracker: React.FC = () => {
                       onCancel={closeMedicalRecordModal}
                     />
                   </div>
-
                 )}
               </div>
             </div>
@@ -1368,4 +1322,3 @@ const IVFTreatmentTracker: React.FC = () => {
 };
 
 export default IVFTreatmentTracker;
-
