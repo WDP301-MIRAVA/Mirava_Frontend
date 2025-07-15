@@ -1162,17 +1162,13 @@ const ManagerDoctor: React.FC = () => {
                 }
               />
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid item xs={12}>
               <TextField
                 fullWidth
-                label="Kinh nghiệm (năm)"
-                type="number"
-                value={editDoctor.experience}
+                label="URL ảnh đại diện"
+                value={editDoctor.imageUrl}
                 onChange={(e) =>
-                  setEditDoctor({
-                    ...editDoctor,
-                    experience: parseInt(e.target.value) || 0,
-                  })
+                  setEditDoctor({ ...editDoctor, imageUrl: e.target.value })
                 }
               />
             </Grid>
@@ -1185,16 +1181,6 @@ const ManagerDoctor: React.FC = () => {
                 value={editDoctor.description}
                 onChange={(e) =>
                   setEditDoctor({ ...editDoctor, description: e.target.value })
-                }
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="URL ảnh đại diện"
-                value={editDoctor.imageUrl}
-                onChange={(e) =>
-                  setEditDoctor({ ...editDoctor, imageUrl: e.target.value })
                 }
               />
             </Grid>

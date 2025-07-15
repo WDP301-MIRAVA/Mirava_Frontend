@@ -72,7 +72,16 @@ export default function CustomizedTables() {
                 {order.orderCode}
               </StyledTableCell>
               <StyledTableCell align="center">
-                {order.items.map((item) => item.service.name).join(", ")}
+                {order.items
+                  .map((item) => {
+                    // Ưu tiên service, nếu không có thì lấy testPackage
+                    const serviceName =
+                      item.service?.name ||
+                      item.testPackage?.name ||
+                      item.serviceName;
+                    return serviceName || "Không có tên";
+                  })
+                  .join(", ")}
               </StyledTableCell>
               <StyledTableCell align="center">
                 {order.appointmentDate} | {order.timeSlot}
