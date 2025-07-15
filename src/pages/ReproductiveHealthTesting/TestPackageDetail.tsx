@@ -6,10 +6,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import toast from "react-hot-toast";
 
-// Khai báo kiểu cho window.gtag để tránh lỗi TypeScript
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
@@ -32,6 +31,8 @@ interface TestPackage {
   type: "male" | "female" | "couple";
   tests: Test[];
   price: number;
+  salePrice?: number; // ✅ Thêm salePrice để tương thích
+  discount?: number; // ✅ Thêm discount computed
   duration: string;
   preparation: string;
   isActive: boolean;
@@ -49,6 +50,8 @@ interface CartItem {
   id: string;
   name: string;
   price: number;
+  discountPrice?: number; // ✅ Thêm discountPrice
+  originalPrice: number; // ✅ Thêm originalPrice
   image: string;
   type: "service" | "test-package";
   addedAt: string;
@@ -82,18 +85,24 @@ const TestPackageDetail: React.FC = () => {
         const data: ApiResponse = await response.json();
 
         if (data.success) {
-          setTestPackage(data.data);
+          // ✅ Chuẩn hóa dữ liệu discount giống như trang danh sách
+          const packageData = {
+            ...data.data,
+            discount: data.data.salePrice || 0, // Gán discount từ salePrice
+          };
+
+          setTestPackage(packageData);
 
           // Xử lý danh sách hình ảnh
           const images: string[] = [];
-          if (data.data.imageUrl) {
-            images.push(data.data.imageUrl);
+          if (packageData.imageUrl) {
+            images.push(packageData.imageUrl);
           }
           if (
-            data.data.treatmentProcessImage &&
-            data.data.treatmentProcessImage !== data.data.imageUrl
+            packageData.treatmentProcessImage &&
+            packageData.treatmentProcessImage !== packageData.imageUrl
           ) {
-            images.push(data.data.treatmentProcessImage);
+            images.push(packageData.treatmentProcessImage);
           }
 
           setAvailableImages(images);
@@ -120,7 +129,7 @@ const TestPackageDetail: React.FC = () => {
     if (availableImages.length > 1) {
       const interval = setInterval(() => {
         setCurrentImageIndex((prev) => (prev + 1) % availableImages.length);
-      }, 4000); // Chuyển ảnh mỗi 4 giây
+      }, 4000);
 
       return () => clearInterval(interval);
     }
@@ -130,6 +139,17 @@ const TestPackageDetail: React.FC = () => {
     return new Intl.NumberFormat("vi-VN").format(price);
   };
 
+  // ✅ Hàm tính giá giảm giống như trang danh sách
+
+  // ✅ Hàm tính giá gốc từ giá hiện tại và % giảm
+  const calculateOriginalPrice = (
+    currentPrice: number,
+    discountPercent?: number
+  ): number => {
+    if (!discountPercent) return currentPrice;
+    return Math.round(currentPrice / (1 - discountPercent / 100));
+  };
+
   // Xử lý thêm vào giỏ hàng
   const handleAddToCart = async () => {
     if (!testPackage) {
@@ -137,7 +157,6 @@ const TestPackageDetail: React.FC = () => {
       return;
     }
 
-    // Prevent multiple clicks
     if (isAddingToCart) {
       return;
     }
@@ -145,11 +164,9 @@ const TestPackageDetail: React.FC = () => {
     setIsAddingToCart(true);
 
     try {
-      // Lấy giỏ hàng hiện tại từ localStorage
       const storedCart = localStorage.getItem("cart");
       const cartItems: CartItem[] = storedCart ? JSON.parse(storedCart) : [];
 
-      // Kiểm tra nếu gói xét nghiệm đã tồn tại trong giỏ hàng
       const existingItemIndex = cartItems.findIndex(
         (item: CartItem) => item.id === testPackage._id
       );
@@ -159,11 +176,22 @@ const TestPackageDetail: React.FC = () => {
         return;
       }
 
+      // ✅ Tính toán giá chính xác dựa trên discount
+      const discountPercent = testPackage.discount || 0;
+      const originalPrice =
+        discountPercent > 0
+          ? calculateOriginalPrice(testPackage.price, discountPercent)
+          : testPackage.price;
+      const discountPrice =
+        discountPercent > 0 ? testPackage.price : testPackage.price;
+
       // Tạo cart item mới cho test package
       const newCartItem: CartItem = {
         id: testPackage._id,
         name: testPackage.name,
         price: testPackage.price,
+        discountPrice: discountPrice, // ✅ Giá sau giảm
+        originalPrice: originalPrice, // ✅ Giá gốc
         image: testPackage.imageUrl,
         type: "test-package",
         addedAt: new Date().toISOString(),
@@ -176,10 +204,8 @@ const TestPackageDetail: React.FC = () => {
         },
       };
 
-      // Thêm gói xét nghiệm vào giỏ hàng
       const updatedCart = [...cartItems, newCartItem];
 
-      // Validate cart size (tối đa 10 items)
       if (updatedCart.length > 10) {
         toast.error(
           "Giỏ hàng đã đầy. Vui lòng xóa một số items trước khi thêm mới."
@@ -187,32 +213,30 @@ const TestPackageDetail: React.FC = () => {
         return;
       }
 
-      // Lưu vào localStorage
       localStorage.setItem("cart", JSON.stringify(updatedCart));
-
-      // Phát sự kiện để cập nhật UI
       window.dispatchEvent(new Event("storage"));
 
-      // Hiển thị thông báo thành công
+      const discountText =
+        discountPercent > 0 ? ` với giá ưu đãi ${discountPercent}%` : "";
+
       toast.success(
-        `Đã thêm gói xét nghiệm "${testPackage.name}" vào giỏ hàng!`,
+        `Đã thêm gói xét nghiệm "${testPackage.name}" vào giỏ hàng${discountText}!`,
         {
           duration: 3000,
           position: "top-right",
         }
       );
 
-      // Optional: Analytics tracking
       if (window.gtag) {
         window.gtag("event", "add_to_cart", {
           currency: "VND",
-          value: testPackage.price,
+          value: discountPrice,
           items: [
             {
               item_id: testPackage._id,
               item_name: testPackage.name,
               category: "test_package",
-              price: testPackage.price,
+              price: discountPrice,
               quantity: 1,
             },
           ],
@@ -226,13 +250,12 @@ const TestPackageDetail: React.FC = () => {
     }
   };
 
-  // Utility function để kiểm tra xem gói xét nghiệm đã có trong giỏ hàng chưa
+  // ...existing utility functions...
+
   const isInCart = (): boolean => {
     if (!testPackage) return false;
-
     const storedCart = localStorage.getItem("cart");
     if (!storedCart) return false;
-
     const cartItems: CartItem[] = JSON.parse(storedCart);
     return cartItems.some((item: CartItem) => item.id === testPackage._id);
   };
@@ -240,9 +263,7 @@ const TestPackageDetail: React.FC = () => {
   const handleBookNow = () => {
     if (testPackage) {
       navigate("/checkout-page", {
-        state: {
-          testPackage: testPackage,
-        },
+        state: { testPackage: testPackage },
       });
     }
   };
@@ -253,19 +274,12 @@ const TestPackageDetail: React.FC = () => {
 
   const getImageTypeIcon = (imageUrl: string, index: number) => {
     if (!testPackage) return "📋";
-
-    // Nếu là hình ảnh chính của gói
-    if (imageUrl === testPackage.imageUrl) {
-      return "📋";
-    }
-    // Nếu là hình ảnh quy trình điều trị
-    if (imageUrl === testPackage.treatmentProcessImage) {
-      return "🔬";
-    }
-    // Fallback cho các hình ảnh khác
+    if (imageUrl === testPackage.imageUrl) return "📋";
+    if (imageUrl === testPackage.treatmentProcessImage) return "🔬";
     return ["📊", "🧪", "📈", "🔍"][index % 4];
   };
 
+  // ✅ Render loading và error states
   if (loading) {
     return (
       <div className="test-package-detail">
@@ -309,17 +323,27 @@ const TestPackageDetail: React.FC = () => {
     );
   }
 
+  // ✅ Tính toán giá hiển thị
+  const discountPercent = testPackage.discount || 0;
+  const currentPrice = testPackage.price;
+  const originalPrice =
+    discountPercent > 0
+      ? calculateOriginalPrice(currentPrice, discountPercent)
+      : currentPrice;
+
   return (
     <div className="test-package-detail">
       <Header />
-      {/* Main Content */}
       <main className="main-content">
         <div className="container">
           <div className="content-wrapper">
             {/* Left Column - Images */}
             <div className="image-section">
               <div className="main-image">
-                <div className="discount-badge">-10%</div>
+                {/* ✅ Hiển thị discount badge chỉ khi có giảm giá */}
+                {discountPercent > 0 && (
+                  <div className="discount-badge">-{discountPercent}%</div>
+                )}
                 <div className="package-image">
                   {availableImages.length > 0 ? (
                     <img
@@ -329,7 +353,6 @@ const TestPackageDetail: React.FC = () => {
                       }`}
                       className="main-img"
                       onError={(e) => {
-                        // Fallback nếu hình ảnh không tải được
                         e.currentTarget.style.display = "none";
                         e.currentTarget.parentElement!.innerHTML = `
                           <div class="image-fallback">
@@ -348,7 +371,6 @@ const TestPackageDetail: React.FC = () => {
                 </div>
               </div>
 
-              {/* Chỉ hiển thị thumbnail khi có nhiều hơn 1 hình ảnh */}
               {availableImages.length > 1 && (
                 <div className="thumbnail-images">
                   {availableImages.map((imageUrl, index) => (
@@ -373,13 +395,34 @@ const TestPackageDetail: React.FC = () => {
               <h1 className="package-title">{testPackage.name}</h1>
 
               <div className="price-section">
-                <span className="original-price">
-                  {formatPrice(Math.round(testPackage.price * 1.1))} đ
-                </span>
-                <span className="current-price">
-                  {formatPrice(testPackage.price)} đ
-                </span>
+                {/* ✅ Hiển thị giá đúng logic như trang danh sách */}
+                {discountPercent > 0 ? (
+                  <>
+                    <span className="original-price">
+                      {formatPrice(originalPrice)} đ
+                    </span>
+                    <span className="current-price">
+                      {formatPrice(currentPrice)} đ
+                    </span>
+                  </>
+                ) : (
+                  <span className="current-price">
+                    {formatPrice(currentPrice)} đ
+                  </span>
+                )}
               </div>
+
+              {/* ✅ Hiển thị thông tin tiết kiệm nếu có discount */}
+              {discountPercent > 0 && (
+                <div className="savings-info">
+                  <span className="savings-text">
+                    Tiết kiệm: {formatPrice(originalPrice - currentPrice)} đ
+                  </span>
+                  <span className="savings-percent">
+                    (Giảm {discountPercent}%)
+                  </span>
+                </div>
+              )}
 
               <div className="add-to-wishlist">
                 <Plus size={16} />
@@ -449,7 +492,6 @@ const TestPackageDetail: React.FC = () => {
                     alt="Quy trình xét nghiệm"
                     className="process-img"
                     onError={(e) => {
-                      // Fallback nếu hình ảnh không tải được
                       e.currentTarget.style.display = "none";
                       e.currentTarget.parentElement!.innerHTML = `
                         <div class="medical-image">
@@ -492,7 +534,6 @@ const TestPackageDetail: React.FC = () => {
                       alt="Thông tin xét nghiệm"
                       className="info-img"
                       onError={(e) => {
-                        // Fallback nếu hình ảnh không tải được
                         e.currentTarget.style.display = "none";
                         e.currentTarget.parentElement!.innerHTML = `
                           <div class="info-icon">🧬</div>
