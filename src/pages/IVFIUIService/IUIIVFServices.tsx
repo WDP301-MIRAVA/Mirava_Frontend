@@ -122,8 +122,6 @@ const IUIIVFServices: React.FC = () => {
             >
               Dịch vụ IVF
             </button>
-            <button>Gói khám IUI</button>
-            <button>Gói khám IVF</button>
           </div>
 
           <div className="card-grid">
