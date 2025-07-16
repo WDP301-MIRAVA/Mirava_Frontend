@@ -64,7 +64,7 @@ const PaymentFailed: React.FC = () => {
             <Link to="/services" className="btn-primary">
               Thử lại
             </Link>
-            <Link to="/home" className="btn-secondary">
+            <Link to="/" className="btn-secondary">
               Về trang chủ
             </Link>
           </div>

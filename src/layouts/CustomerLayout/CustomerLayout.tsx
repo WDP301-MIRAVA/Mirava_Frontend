@@ -152,7 +152,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
     sessionStorage.removeItem("role");
     sessionStorage.removeItem("userInfo");
     // Chuyển về trang home
-    navigate("/home");
+    navigate("/");
   };
 
   return (

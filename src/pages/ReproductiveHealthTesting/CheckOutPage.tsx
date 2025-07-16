@@ -77,10 +77,12 @@ const CheckOutPage: React.FC = () => {
 
   // Danh sách khung giờ
   const timeSlots = [
+    "07:00",
     "08:00",
     "09:00",
     "10:00",
     "11:00",
+    "13:00",
     "14:00",
     "15:00",
     "16:00",
@@ -265,6 +267,7 @@ const CheckOutPage: React.FC = () => {
         appointmentDate: formData.appointmentDate,
         timeSlot: formData.timeSlot || undefined,
         doctorId: formData.doctorId || undefined,
+        platform: "web",
       };
 
       console.log("Submitting test registration:", registrationData);
