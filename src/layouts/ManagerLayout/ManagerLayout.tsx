@@ -117,7 +117,7 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
     sessionStorage.removeItem("role");
     sessionStorage.removeItem("userInfo");
     // Chuyển về trang home
-    navigate("/home");
+    navigate("/");
   };
 
   return (

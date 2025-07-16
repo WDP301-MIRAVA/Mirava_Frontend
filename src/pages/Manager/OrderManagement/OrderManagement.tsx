@@ -245,7 +245,7 @@ const OrderManagement: React.FC = () => {
                 <th>Dịch vụ</th>
                 <th>Tổng tiền</th>
                 <th>Trạng thái</th>
-                <th>Ngày tạo</th>
+                <th>Ngày hẹn khám</th>
                 <th>Hành động</th>
               </tr>
             </thead>
@@ -278,7 +278,12 @@ const OrderManagement: React.FC = () => {
                   </td>
                   <td>{getStatusBadge(order.orderStatus)}</td>
                   <td>
-                    {new Date(order.createdAt).toLocaleDateString("vi-VN")}
+                    {order.appointmentDate
+                      ? new Date(order.appointmentDate).toLocaleDateString(
+                          "vi-VN"
+                        )
+                      : "Chưa đặt lịch"}
+                    {/* {new Date(order.createdAt).toLocaleDateString("vi-VN")} */}
                   </td>
                   <td>
                     <div className="action-buttons">

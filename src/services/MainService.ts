@@ -47,7 +47,9 @@ axiosInstance.interceptors.response.use(
     const originalRequest = error.config as AxiosRequestConfig & {
       _retry?: boolean;
     };
-
+    if (window.location.pathname === "/login") {
+      return Promise.reject(error);
+    }
     // Nếu lỗi là 401 và chưa retry
     if (
       error.response &&

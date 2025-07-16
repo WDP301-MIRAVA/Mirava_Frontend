@@ -19,7 +19,7 @@ const PrivateRoute = ({
   }
 
   if (role !== allowedRole) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/" replace />;
   }
 
   // Nếu hợp lệ, render layout với children bên trong

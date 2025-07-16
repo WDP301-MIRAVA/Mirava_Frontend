@@ -34,8 +34,7 @@ import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
 import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
 import ReproductiveHealthTesting from "@/pages/ReproductiveHealthTesting/ReproductiveHealthTesting";
-
-// import MedicalHistory from "@/pages/Doctor/MedicalHistory/MedicalHistory";
+import MedicalHistoryCustomer from "@/pages/Customer/MedicalHistory/MedicalHistory";
 import OrderHistory from "@/pages/Customer/Orders/OrderHistory";
 
 // Admin pages
@@ -52,6 +51,7 @@ import ViewAppointment from "@/pages/Doctor/ViewAppoitment";
 import MedicalRecordManagement from "@/pages/Doctor/MedicalRecordManagement/MedicalRecordManagement";
 import ContactPatient from "@/pages/Doctor/Patients/ContactPatient/ContactPatient";
 import TestResults from "@/pages/Doctor/ResultTest/ResultTest";
+import MedicalHistoryDoctor from "@/pages/Doctor/MedicalHistory/MedicalHistory";
 
 // Manager pages
 import OrderManagement from "@/pages/Manager/OrderManagement/OrderManagement";
@@ -71,7 +71,6 @@ const MainRouter = () => {
     <Routes>
       {/* 🌐 Public Routes */}
       <Route path="/" element={<Homepage />} />
-      <Route path="/home" element={<Homepage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/searchresult" element={<SearchResult />} />
@@ -115,7 +114,11 @@ const MainRouter = () => {
         <Route path="/customer/schedule" element={<TreatmentSchedule />} />
         <Route path="/customer/orders" element={<OrderHistory />} />
         <Route path="/customer/feedback" element={<CreateFeedback />} />
-        <Route path="/customer/list-feedback" element={<ListFeedback />} />s
+        <Route path="/customer/list-feedback" element={<ListFeedback />} />
+        <Route
+          path="/customer/medical-history"
+          element={<MedicalHistoryCustomer />}
+        />
       </Route>
 
       {/* 🛠 Admin Protected Routes */}
@@ -140,7 +143,10 @@ const MainRouter = () => {
         <Route path="/doctor/schedules/:id?" element={<Schedules />} />
         <Route path="/doctor/patients" element={<PatientList />} />
         <Route path="/doctor/patients/:id" element={<PatientList />} />
-        {/* <Route path="/doctor/medical-history" element={<MedicalHistory />} /> */}
+        <Route
+          path="/doctor/medical-history"
+          element={<MedicalHistoryDoctor />}
+        />
         <Route
           path="/doctor/patients/ivf-tracker"
           element={<IVFTreatmentTracker />}

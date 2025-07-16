@@ -43,6 +43,7 @@ const CheckoutPage: React.FC = () => {
   const [availableDoctors, setAvailableDoctors] = useState<AvailableDoctor[]>(
     []
   );
+  const [checkingDoctor, setCheckingDoctor] = useState(false);
 
   const [formData, setFormData] = useState({
     userName: "",
@@ -70,25 +71,44 @@ const CheckoutPage: React.FC = () => {
     "17:00",
   ];
 
-  // api để lấy thông tin dịch vụ
+  // Lấy thông tin dịch vụ
   useEffect(() => {
     const fetchService = async () => {
       try {
-        console.log("🟢 ID lấy từ useParams:", serviceId);
         const res = await fetch(
           `https://mirava-f0rz.onrender.com/api/service/${serviceId}`
         );
         const data = await res.json();
-        console.log("📦 Dữ liệu API trả về:", data);
         setService(data);
       } catch (error) {
-        console.error("Lỗi khi tải dịch vụ:", error);
         toast.error("Không thể tải thông tin dịch vụ");
       }
     };
-
     if (serviceId) fetchService();
   }, [serviceId]);
+
+  // Hàm kiểm tra tính khả dụng của bác sĩ
+  const checkDoctorAvailability = async (
+    doctorId: string,
+    date: string,
+    time: string
+  ): Promise<boolean> => {
+    try {
+      setCheckingDoctor(true);
+      const res = await fetch(
+        `https://mirava-f0rz.onrender.com/api/work-schedules/availability?doctorId=${doctorId}&date=${date}&startTime=${time}&endTime=${time}`
+      );
+      const data = await res.json();
+      setCheckingDoctor(false);
+      if (data.available) return true;
+      toast.error(data.reason || "Bác sĩ không khả dụng vào thời gian này");
+      return false;
+    } catch {
+      setCheckingDoctor(false);
+      toast.error("Không kiểm tra được lịch bác sĩ");
+      return false;
+    }
+  };
 
   // Hàm tìm bác sĩ có sẵn khi thay đổi ngày/giờ
   const findAvailableDoctors = async (date: string, time: string) => {
@@ -112,7 +132,6 @@ const CheckoutPage: React.FC = () => {
             timeSlots: [time],
           }))
         );
-        console.log("🟢 Bác sĩ có sẵn:", data);
       } else {
         setAvailableDoctors([]);
       }
@@ -125,21 +144,44 @@ const CheckoutPage: React.FC = () => {
 
   // Xử lý khi thay đổi ngày
   const handleDateChange = (date: string) => {
-    setFormData((prev) => ({ ...prev, appointmentDate: date }));
-    if (date && formData.timeSlot) {
-      findAvailableDoctors(date, formData.timeSlot);
-    } else {
-      setAvailableDoctors([]);
-    }
+    setFormData((prev) => {
+      const newForm = { ...prev, appointmentDate: date, doctorId: "" };
+      if (date && newForm.timeSlot) {
+        findAvailableDoctors(date, newForm.timeSlot);
+      } else {
+        setAvailableDoctors([]);
+      }
+      return newForm;
+    });
   };
 
-  // Xử lý khi thay đổi giờ
   const handleTimeSlotChange = (time: string) => {
-    setFormData((prev) => ({ ...prev, timeSlot: time }));
-    if (formData.appointmentDate && time) {
-      findAvailableDoctors(formData.appointmentDate, time);
+    setFormData((prev) => {
+      const newForm = { ...prev, timeSlot: time, doctorId: "" };
+      if (newForm.appointmentDate && time) {
+        findAvailableDoctors(newForm.appointmentDate, time);
+      } else {
+        setAvailableDoctors([]);
+      }
+      return newForm;
+    });
+  };
+
+  // Xử lý khi chọn bác sĩ
+  const handleDoctorSelect = async (doctorId: string) => {
+    if (!formData.appointmentDate || !formData.timeSlot) {
+      toast.error("Vui lòng chọn ngày và khung giờ trước!");
+      return;
+    }
+    const ok = await checkDoctorAvailability(
+      doctorId,
+      formData.appointmentDate,
+      formData.timeSlot
+    );
+    if (ok) {
+      setFormData((prev) => ({ ...prev, doctorId }));
     } else {
-      setAvailableDoctors([]);
+      setFormData((prev) => ({ ...prev, doctorId: "" }));
     }
   };
 
@@ -173,7 +215,6 @@ const CheckoutPage: React.FC = () => {
       toast.error("Vui lòng chọn phương thức thanh toán!");
       return false;
     }
-    // Nếu chọn đặt lịch thì kiểm tra ngày và giờ
     if (
       (formData.appointmentDate && !formData.timeSlot) ||
       (!formData.appointmentDate && formData.timeSlot)
@@ -191,10 +232,19 @@ const CheckoutPage: React.FC = () => {
       return;
     }
 
+    // Kiểm tra lại khả dụng trước khi gửi đơn hàng
+    if (formData.doctorId && formData.appointmentDate && formData.timeSlot) {
+      const ok = await checkDoctorAvailability(
+        formData.doctorId,
+        formData.appointmentDate,
+        formData.timeSlot
+      );
+      if (!ok) return;
+    }
+
     try {
       setLoading(true);
 
-      // Tính toán giá cuối cùng
       const finalPrice = service.salePrice
         ? calculateFinalPrice(service.price, service.salePrice)
         : service.price;
@@ -213,8 +263,8 @@ const CheckoutPage: React.FC = () => {
         appointmentDate: formData.appointmentDate,
         timeSlot: formData.timeSlot,
         doctorId: formData.doctorId,
-        totalAmount: finalPrice, // Thêm totalAmount
-        // Thêm orderItems để backend dễ xử lý
+        platform: "web",
+        totalAmount: finalPrice,
         orderItems: [
           {
             service: service._id,
@@ -227,8 +277,6 @@ const CheckoutPage: React.FC = () => {
         ],
       };
 
-      console.log("🚀 Gửi đơn hàng với data:", orderData);
-
       const res = await fetch(
         "https://mirava-f0rz.onrender.com/api/orders/guest",
         {
@@ -239,7 +287,6 @@ const CheckoutPage: React.FC = () => {
       );
 
       const result = await res.json();
-      console.log("📋 Response từ API:", result);
 
       if (!res.ok || !result.success) {
         throw new Error(result.message || "Có lỗi xảy ra. Vui lòng thử lại!");
@@ -247,11 +294,8 @@ const CheckoutPage: React.FC = () => {
 
       // Xử lý thanh toán VNPay
       if (formData.paymentMethod === "VNPay" && result.data.vnpUrl) {
-        console.log("💳 Chuẩn bị thanh toán VNPay");
-
-        // Lưu thông tin đơn hàng vào localStorage
         const vnpayOrderData = {
-          orderData: result.data.orderData, // Dữ liệu từ backend
+          orderData: result.data.orderData,
           tempOrderId: result.data.tempOrderId,
           service: {
             _id: service._id,
@@ -262,22 +306,13 @@ const CheckoutPage: React.FC = () => {
           userInfo: formData,
           timestamp: new Date().toISOString(),
         };
-
         localStorage.setItem("vnpayOrderData", JSON.stringify(vnpayOrderData));
-
-        console.log("💾 Đã lưu vào localStorage:", vnpayOrderData);
-
         toast.success("Chuyển đến cổng thanh toán...");
-
-        // Chuyển hướng đến VNPay
         window.location.href = result.data.vnpUrl;
         return;
       }
 
-      // Xử lý thanh toán thường (Cash)
-      console.log("💰 Thanh toán tiền mặt thành công");
       toast.success("Đặt hàng thành công!");
-
       navigate("/payment-confirmation", {
         state: {
           orderData: result.data,
@@ -286,12 +321,12 @@ const CheckoutPage: React.FC = () => {
         },
       });
     } catch (error: any) {
-      console.error("❌ Lỗi đặt hàng:", error);
       toast.error(error.message || "Có lỗi xảy ra. Vui lòng thử lại!");
     } finally {
       setLoading(false);
     }
   };
+
   if (!service) {
     return (
       <div>
@@ -375,7 +410,6 @@ const CheckoutPage: React.FC = () => {
 
           <div className="appointment-section">
             <h3>Thông tin đặt lịch (Tùy chọn)</h3>
-
             <label className="label">Ngày khám</label>
             <input
               type="date"
@@ -408,7 +442,6 @@ const CheckoutPage: React.FC = () => {
                   Bác sĩ có sẵn vào {formData.appointmentDate} lúc{" "}
                   {formData.timeSlot}:
                 </label>
-
                 {loadingDoctors ? (
                   <div className="loading-doctors">
                     <p>Đang kiểm tra lịch bác sĩ...</p>
@@ -422,10 +455,10 @@ const CheckoutPage: React.FC = () => {
                         name="doctor"
                         value=""
                         checked={formData.doctorId === ""}
-                        onChange={(e) =>
+                        onChange={() =>
                           setFormData((prev) => ({
                             ...prev,
-                            doctorId: e.target.value,
+                            doctorId: "",
                           }))
                         }
                       />
@@ -440,12 +473,8 @@ const CheckoutPage: React.FC = () => {
                           name="doctor"
                           value={doctor._id}
                           checked={formData.doctorId === doctor._id}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              doctorId: e.target.value,
-                            }))
-                          }
+                          onChange={() => handleDoctorSelect(doctor._id)}
+                          disabled={checkingDoctor}
                         />
                         <div className="doctor-info">
                           <strong>{doctor.name}</strong> -{" "}
