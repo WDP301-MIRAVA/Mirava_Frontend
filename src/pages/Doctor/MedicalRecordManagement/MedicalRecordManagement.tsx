@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import './MedicalRecordManagement.css';
+import React, { useState, useEffect } from "react";
+import "./MedicalRecordManagement.css";
 
 interface MedicalRecord {
   id: string;
@@ -8,7 +8,7 @@ interface MedicalRecord {
   phoneNumber: string;
   treatmentType: string;
   treatmentDate: string;
-  status: 'Completed' | 'In Progress' | 'Scheduled' | 'Cancelled';
+  status: "Completed" | "In Progress" | "Scheduled" | "Cancelled";
   diagnosis: string;
   treatmentPlan: string;
   medications: string;
@@ -16,13 +16,15 @@ interface MedicalRecord {
 }
 
 const MedicalRecordManagement: React.FC = () => {
-  const [searchPatientId, setSearchPatientId] = useState('');
-  const [searchPhoneNumber, setSearchPhoneNumber] = useState('');
-  const [searchDateFrom, setSearchDateFrom] = useState('');
-  const [searchDateTo, setSearchDateTo] = useState('');
+  const [searchPatientId, setSearchPatientId] = useState("");
+  const [searchPhoneNumber, setSearchPhoneNumber] = useState("");
+  const [searchDateFrom, setSearchDateFrom] = useState("");
+  const [searchDateTo, setSearchDateTo] = useState("");
   const [records, setRecords] = useState<MedicalRecord[]>([]);
   const [filteredRecords, setFilteredRecords] = useState<MedicalRecord[]>([]);
-  const [selectedRecord, setSelectedRecord] = useState<MedicalRecord | null>(null);
+  const [selectedRecord, setSelectedRecord] = useState<MedicalRecord | null>(
+    null
+  );
   const [isEditing, setIsEditing] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
   const [showResults, setShowResults] = useState(false);
@@ -31,44 +33,44 @@ const MedicalRecordManagement: React.FC = () => {
   useEffect(() => {
     const sampleRecords: MedicalRecord[] = [
       {
-        id: '1',
-        patientName: 'Nguyễn Thị Lan',
-        patientId: 'BN001',
-        phoneNumber: '0901234567',
-        treatmentType: 'IVF',
-        treatmentDate: '2024-06-15',
-        status: 'Completed',
-        diagnosis: 'Vô sinh nguyên phát',
-        treatmentPlan: 'Thụ tinh trong ống nghiệm - chu kỳ đầu tiên',
-        medications: 'Gonal-F, Cetrotide, Duphaston',
-        notes: 'Bệnh nhân phản ứng tốt với thuốc kích thích rụng trứng'
+        id: "1",
+        patientName: "Nguyễn Thị Lan",
+        patientId: "BN001",
+        phoneNumber: "0901234567",
+        treatmentType: "IVF",
+        treatmentDate: "2024-06-15",
+        status: "Completed",
+        diagnosis: "Vô sinh nguyên phát",
+        treatmentPlan: "Thụ tinh trong ống nghiệm - chu kỳ đầu tiên",
+        medications: "Gonal-F, Cetrotide, Duphaston",
+        notes: "Bệnh nhân phản ứng tốt với thuốc kích thích rụng trứng",
       },
       {
-        id: '2',
-        patientName: 'Trần Thị Hoa',
-        patientId: 'BN002',
-        phoneNumber: '0912345678',
-        treatmentType: 'IUI',
-        treatmentDate: '2024-06-20',
-        status: 'In Progress',
-        diagnosis: 'Vô sinh thứ phát',
-        treatmentPlan: 'Thụ tinh nhân tạo trong tử cung',
-        medications: 'Clomid, HCG',
-        notes: 'Theo dõi phát triển nang trứng'
+        id: "2",
+        patientName: "Trần Thị Hoa",
+        patientId: "BN002",
+        phoneNumber: "0912345678",
+        treatmentType: "IUI",
+        treatmentDate: "2024-06-20",
+        status: "In Progress",
+        diagnosis: "Vô sinh thứ phát",
+        treatmentPlan: "Thụ tinh nhân tạo trong tử cung",
+        medications: "Clomid, HCG",
+        notes: "Theo dõi phát triển nang trứng",
       },
       {
-        id: '3',
-        patientName: 'Lê Thị Mai',
-        patientId: 'BN003',
-        phoneNumber: '0923456789',
-        treatmentType: 'Tư vấn',
-        treatmentDate: '2024-06-25',
-        status: 'Scheduled',
-        diagnosis: 'Khám sức khỏe sinh sản',
-        treatmentPlan: 'Tư vấn và xét nghiệm cơ bản',
-        medications: 'Acid folic',
-        notes: 'Lần đầu đến khám'
-      }
+        id: "3",
+        patientName: "Lê Thị Mai",
+        patientId: "BN003",
+        phoneNumber: "0923456789",
+        treatmentType: "Tư vấn",
+        treatmentDate: "2024-06-25",
+        status: "Scheduled",
+        diagnosis: "Khám sức khỏe sinh sản",
+        treatmentPlan: "Tư vấn và xét nghiệm cơ bản",
+        medications: "Acid folic",
+        notes: "Lần đầu đến khám",
+      },
     ];
     setRecords(sampleRecords);
   }, []);
@@ -77,26 +79,26 @@ const MedicalRecordManagement: React.FC = () => {
     let filtered = records;
 
     if (searchPatientId) {
-      filtered = filtered.filter(record => 
+      filtered = filtered.filter((record) =>
         record.patientId.toLowerCase().includes(searchPatientId.toLowerCase())
       );
     }
 
     if (searchPhoneNumber) {
-      filtered = filtered.filter(record => 
+      filtered = filtered.filter((record) =>
         record.phoneNumber.includes(searchPhoneNumber)
       );
     }
 
     if (searchDateFrom) {
-      filtered = filtered.filter(record => 
-        new Date(record.treatmentDate) >= new Date(searchDateFrom)
+      filtered = filtered.filter(
+        (record) => new Date(record.treatmentDate) >= new Date(searchDateFrom)
       );
     }
 
     if (searchDateTo) {
-      filtered = filtered.filter(record => 
-        new Date(record.treatmentDate) <= new Date(searchDateTo)
+      filtered = filtered.filter(
+        (record) => new Date(record.treatmentDate) <= new Date(searchDateTo)
       );
     }
 
@@ -122,11 +124,11 @@ const MedicalRecordManagement: React.FC = () => {
         setRecords([...records, newRecord]);
         setFilteredRecords([...filteredRecords, newRecord]);
       } else {
-        const updatedRecords = records.map(record => 
+        const updatedRecords = records.map((record) =>
           record.id === selectedRecord.id ? selectedRecord : record
         );
         setRecords(updatedRecords);
-        const updatedFiltered = filteredRecords.map(record => 
+        const updatedFiltered = filteredRecords.map((record) =>
           record.id === selectedRecord.id ? selectedRecord : record
         );
         setFilteredRecords(updatedFiltered);
@@ -145,10 +147,17 @@ const MedicalRecordManagement: React.FC = () => {
   };
 
   const handleDelete = () => {
-    if (selectedRecord && window.confirm('Bạn có chắc chắn muốn xóa hồ sơ này?')) {
-      const updatedRecords = records.filter(record => record.id !== selectedRecord.id);
+    if (
+      selectedRecord &&
+      window.confirm("Bạn có chắc chắn muốn xóa hồ sơ này?")
+    ) {
+      const updatedRecords = records.filter(
+        (record) => record.id !== selectedRecord.id
+      );
       setRecords(updatedRecords);
-      const updatedFiltered = filteredRecords.filter(record => record.id !== selectedRecord.id);
+      const updatedFiltered = filteredRecords.filter(
+        (record) => record.id !== selectedRecord.id
+      );
       setFilteredRecords(updatedFiltered);
       setSelectedRecord(null);
     }
@@ -156,17 +165,17 @@ const MedicalRecordManagement: React.FC = () => {
 
   const handleAddNew = () => {
     const newRecord: MedicalRecord = {
-      id: '',
-      patientName: '',
-      patientId: '',
-      phoneNumber: '',
-      treatmentType: '',
-      treatmentDate: '',
-      status: 'Scheduled',
-      diagnosis: '',
-      treatmentPlan: '',
-      medications: '',
-      notes: ''
+      id: "",
+      patientName: "",
+      patientId: "",
+      phoneNumber: "",
+      treatmentType: "",
+      treatmentDate: "",
+      status: "Scheduled",
+      diagnosis: "",
+      treatmentPlan: "",
+      medications: "",
+      notes: "",
     };
     setSelectedRecord(newRecord);
     setIsAdding(true);
@@ -184,7 +193,9 @@ const MedicalRecordManagement: React.FC = () => {
       <div className="medical-card">
         <div className="medical-header">
           <h1 className="medical-title">Quản lý Hồ sơ Bệnh án</h1>
-          <p className="medical-subtitle">Hệ thống quản lý hồ sơ bệnh án phòng khám hiếm muộn</p>
+          <p className="medical-subtitle">
+            Hệ thống quản lý hồ sơ bệnh án phòng khám hiếm muộn
+          </p>
         </div>
 
         {/* Search Section */}
@@ -262,18 +273,35 @@ const MedicalRecordManagement: React.FC = () => {
                   <div key={record.id} className="record-card">
                     <div className="record-header">
                       <h3 className="patient-name">{record.patientName}</h3>
-                      <span className={`status-badge status-${record.status.toLowerCase().replace(' ', '-')}`}>
-                        {record.status === 'Completed' ? 'Hoàn thành' :
-                         record.status === 'In Progress' ? 'Đang điều trị' :
-                         record.status === 'Scheduled' ? 'Đã lên lịch' : 'Đã hủy'}
+                      <span
+                        className={`status-badge status-${record.status
+                          .toLowerCase()
+                          .replace(" ", "-")}`}
+                      >
+                        {record.status === "Completed"
+                          ? "Hoàn thành"
+                          : record.status === "In Progress"
+                          ? "Đang điều trị"
+                          : record.status === "Scheduled"
+                          ? "Đã lên lịch"
+                          : "Đã hủy"}
                       </span>
                     </div>
                     <div className="record-info">
-                      <p><strong>Mã BN:</strong> {record.patientId}</p>
-                      <p><strong>Loại điều trị:</strong> {record.treatmentType}</p>
-                      <p><strong>Ngày điều trị:</strong> {new Date(record.treatmentDate).toLocaleDateString('vi-VN')}</p>
+                      <p>
+                        <strong>Mã BN:</strong> {record.patientId}
+                      </p>
+                      <p>
+                        <strong>Loại điều trị:</strong> {record.treatmentType}
+                      </p>
+                      <p>
+                        <strong>Ngày điều trị:</strong>{" "}
+                        {new Date(record.treatmentDate).toLocaleDateString(
+                          "vi-VN"
+                        )}
+                      </p>
                     </div>
-                    <button 
+                    <button
                       onClick={() => handleViewDetails(record)}
                       className="view-details-button"
                     >
@@ -291,7 +319,7 @@ const MedicalRecordManagement: React.FC = () => {
           <div className="detail-section">
             <div className="detail-header">
               <h2 className="section-title">
-                {isAdding ? 'Thêm hồ sơ mới' : 'Chi tiết hồ sơ bệnh án'}
+                {isAdding ? "Thêm hồ sơ mới" : "Chi tiết hồ sơ bệnh án"}
               </h2>
               {!isEditing && !isAdding && (
                 <div className="detail-actions">
@@ -312,7 +340,9 @@ const MedicalRecordManagement: React.FC = () => {
                   <input
                     type="text"
                     value={selectedRecord.patientName}
-                    onChange={(e) => handleInputChange('patientName', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("patientName", e.target.value)
+                    }
                     disabled={!isEditing}
                     className="detail-input"
                   />
@@ -322,7 +352,9 @@ const MedicalRecordManagement: React.FC = () => {
                   <input
                     type="text"
                     value={selectedRecord.patientId}
-                    onChange={(e) => handleInputChange('patientId', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("patientId", e.target.value)
+                    }
                     disabled={!isEditing}
                     className="detail-input"
                   />
@@ -335,7 +367,9 @@ const MedicalRecordManagement: React.FC = () => {
                   <input
                     type="text"
                     value={selectedRecord.phoneNumber}
-                    onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("phoneNumber", e.target.value)
+                    }
                     disabled={!isEditing}
                     className="detail-input"
                   />
@@ -345,7 +379,9 @@ const MedicalRecordManagement: React.FC = () => {
                   <input
                     type="text"
                     value={selectedRecord.treatmentType}
-                    onChange={(e) => handleInputChange('treatmentType', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("treatmentType", e.target.value)
+                    }
                     disabled={!isEditing}
                     className="detail-input"
                   />
@@ -358,7 +394,9 @@ const MedicalRecordManagement: React.FC = () => {
                   <input
                     type="date"
                     value={selectedRecord.treatmentDate}
-                    onChange={(e) => handleInputChange('treatmentDate', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("treatmentDate", e.target.value)
+                    }
                     disabled={!isEditing}
                     className="detail-input"
                   />
@@ -367,7 +405,9 @@ const MedicalRecordManagement: React.FC = () => {
                   <label>Trạng thái</label>
                   <select
                     value={selectedRecord.status}
-                    onChange={(e) => handleInputChange('status', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("status", e.target.value)
+                    }
                     disabled={!isEditing}
                     className="detail-input"
                   >
@@ -383,7 +423,9 @@ const MedicalRecordManagement: React.FC = () => {
                 <label>Chẩn đoán</label>
                 <textarea
                   value={selectedRecord.diagnosis}
-                  onChange={(e) => handleInputChange('diagnosis', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("diagnosis", e.target.value)
+                  }
                   disabled={!isEditing}
                   className="detail-textarea"
                   rows={3}
@@ -394,7 +436,9 @@ const MedicalRecordManagement: React.FC = () => {
                 <label>Phác đồ điều trị</label>
                 <textarea
                   value={selectedRecord.treatmentPlan}
-                  onChange={(e) => handleInputChange('treatmentPlan', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("treatmentPlan", e.target.value)
+                  }
                   disabled={!isEditing}
                   className="detail-textarea"
                   rows={3}
@@ -405,7 +449,9 @@ const MedicalRecordManagement: React.FC = () => {
                 <label>Thuốc sử dụng</label>
                 <textarea
                   value={selectedRecord.medications}
-                  onChange={(e) => handleInputChange('medications', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("medications", e.target.value)
+                  }
                   disabled={!isEditing}
                   className="detail-textarea"
                   rows={2}
@@ -416,7 +462,7 @@ const MedicalRecordManagement: React.FC = () => {
                 <label>Ghi chú</label>
                 <textarea
                   value={selectedRecord.notes}
-                  onChange={(e) => handleInputChange('notes', e.target.value)}
+                  onChange={(e) => handleInputChange("notes", e.target.value)}
                   disabled={!isEditing}
                   className="detail-textarea"
                   rows={3}

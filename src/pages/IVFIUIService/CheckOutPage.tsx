@@ -44,6 +44,7 @@ const CheckoutPage: React.FC = () => {
     []
   );
   const [checkingDoctor, setCheckingDoctor] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   const [formData, setFormData] = useState({
     userName: "",
@@ -477,11 +478,13 @@ const CheckoutPage: React.FC = () => {
                           disabled={checkingDoctor}
                         />
                         <div className="doctor-info">
-                          <strong>{doctor.name}</strong> -{" "}
-                          {doctor.specialty || "Chưa cập nhật"}
-                          <span className="availability-badge">
-                            Có thể đặt lịch
-                          </span>
+                          <strong>
+                            {doctor.name} -{" "}
+                            <span className="availability-badge">
+                              Có thể đặt lịch
+                            </span>
+                          </strong>
+                          {/* {doctor.specialty || "Chưa cập nhật"} */}
                         </div>
                       </label>
                     ))}
@@ -522,6 +525,22 @@ const CheckoutPage: React.FC = () => {
 
         <div className="order-summary">
           <h2>Đơn hàng của bạn</h2>
+          <div>
+            {service.imageUrl && (
+              <img
+                src={service.imageUrl}
+                alt={service.name}
+                className="summary-product-image"
+                style={{
+                  width: 80,
+                  height: 80,
+                  objectFit: "cover",
+                  borderRadius: 8,
+                  marginBottom: 8,
+                }}
+              />
+            )}
+          </div>
           <div className="summary-box">
             <div className="summary-item">
               <strong>Sản phẩm</strong>
@@ -533,11 +552,6 @@ const CheckoutPage: React.FC = () => {
               {service.shortDescription?.map((d, i) => (
                 <small key={i}>{d}</small>
               ))}
-              <span className="price">
-                {formatPrice(
-                  calculateFinalPrice(service.price, service.salePrice)
-                )}
-              </span>
             </div>
 
             <div className="summary-item">
@@ -570,7 +584,12 @@ const CheckoutPage: React.FC = () => {
 
           <div className="order-submit">
             <label className="checkbox">
-              <input type="checkbox" required />
+              <input
+                type="checkbox"
+                required
+                checked={agreed}
+                onChange={(e) => setAgreed(e.target.checked)}
+              />
               <strong>
                 Tôi đã đọc và đồng ý với điều khoản và điều kiện của website *
               </strong>
@@ -578,7 +597,11 @@ const CheckoutPage: React.FC = () => {
             <button
               className="place-order-button"
               onClick={handlePlaceOrder}
-              disabled={loading}
+              disabled={loading || !agreed}
+              style={{
+                opacity: !agreed ? 0.6 : 1,
+                cursor: !agreed ? "not-allowed" : "pointer",
+              }}
             >
               {loading ? "Đang xử lý..." : "ĐẶT HÀNG"}
             </button>

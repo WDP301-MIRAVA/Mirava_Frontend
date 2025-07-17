@@ -495,11 +495,12 @@ const CheckOutPage: React.FC = () => {
                                 }
                               />
                               <div className="doctor-info">
-                                <strong>{doctor.name}</strong> -{" "}
-                                {doctor.specialty || "Chưa cập nhật"}
-                                <span className="availability-badge">
-                                  Có thể đặt lịch
-                                </span>
+                                <strong>
+                                  {doctor.name} - {""}
+                                  <span className="availability-badge">
+                                    Có thể đặt lịch
+                                  </span>
+                                </strong>{" "}
                               </div>
                             </label>
                           ))}
