@@ -1,173 +1,274 @@
-/* IUIIVFServices.css (updated version for simpler layout and styling like screenshot) */
-
 .min-h-screen {
-  background: linear-gradient(to bottom right, #ebf8ff, #e6fffa);
-  padding-bottom: 4rem;
+  background-color: #f8fafc;
+  padding: 20px;
+  min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Header section */
 .text-center {
   text-align: center;
-  padding: 2rem 1rem;
+  padding: 40px 20px;
+  background: #00b3b0;
+  border-radius: 20px;
+  color: white;
+  margin-bottom: 32px;
 }
 
 .text-center h2 {
-  text-align: center;
-  font-size: 1.875rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
 }
 
 .text-center p {
-  color: #4b5563;
+  font-size: 1.1rem;
+  line-height: 1.6;
   max-width: 800px;
   margin: 0 auto;
-  font-size: 1rem;
-  line-height: 1.6;
+  opacity: 0.9;
 }
 
+/* Filter buttons */
 .filter-buttons {
   display: flex;
   justify-content: center;
-  margin: 1.5rem 0;
-  gap: 0.5rem;
+  gap: 8px;
+  margin-bottom: 32px;
   flex-wrap: wrap;
 }
 
 .filter-buttons button {
-  padding: 0.5rem 1.5rem;
-  border-radius: 9999px;
-  background: white;
+  padding: 12px 24px;
   border: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  color: #4b5563;
+  border-radius: 25px;
+  background-color: white;
+  color: #64748b;
   cursor: pointer;
-  transition: background 0.2s, color 0.2s;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.filter-buttons button.active,
 .filter-buttons button:hover {
-  background: #14b8a6;
-  color: white;
+  background-color: #f1f5f9;
+  transform: translateY(-2px);
 }
 
+.filter-buttons button.active {
+  background-color: #00b3b0;
+  color: white;
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+}
+
+/* Card Grid */
 .card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 1.5rem;
-  padding: 0 1rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  margin-bottom: 40px;
 }
 
+/* Service Card */
 .service-card {
   background: white;
-  border-radius: 1rem;
-  overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s;
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  position: relative;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 520px;
 }
 
 .service-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
 }
 
+/* Discount badge */
+.badge {
+  position: absolute;
+  top: -10px;
+  right: 20px;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  z-index: 10;
+}
+
+/* Image & Icon fallback */
 .card-image {
-  background: linear-gradient(to right, #a7f3d0, #dbeafe);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.icon-container {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
-  padding: 1.5rem 1rem;
-  text-align: center;
+  height: 220px;
 }
 
-.card-image .badge {
-  position: absolute;
-  top: 1rem;
-  left: 1rem;
-  background: #ef4444;
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 600;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
+.service-image {
+  max-width: 80%;
+  max-height: 100%;
+  border-radius: 12px;
+  object-fit: cover;
 }
 
-.card-image .icon-container .icon {
-  width: 48px;
-  height: 48px;
-  color: #14b8a6;
-  margin: 0 auto 0.5rem auto;
+.fallback-icon {
+  font-size: 3rem;
+  color: #00b9c6;
+  display: none;
 }
 
-.card-content {
-  padding: 1.25rem;
+.fallback-icon.show-fallback {
+  display: block;
 }
 
+/* Card content */
 .card-content h3 {
-  font-size: 1.125rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 0.5rem;
+  text-align: center;
+  margin-bottom: 12px;
   color: #1f2937;
 }
 
 .card-content p {
-  color: #4b5563;
-  font-size: 0.95rem;
-  margin-bottom: 1rem;
+  text-align: center;
+  color: #6b7280;
+  margin-bottom: 24px;
+  line-height: 1.5;
 }
 
 .card-content ul {
   list-style: none;
   padding: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 24px;
 }
 
 .card-content ul li {
-  font-size: 0.9rem;
-  color: #059669;
-  margin-bottom: 0.4rem;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
   position: relative;
-  padding-left: 1.2rem;
+  padding-left: 24px;
 }
 
 .card-content ul li::before {
-  content: "•";
+  content: "✓";
   position: absolute;
   left: 0;
-  color: #14b8a6;
+  color: #10b981;
+  font-weight: bold;
 }
 
+/* Price Section */
 .price-info {
-  border-top: 1px solid #e5e7eb;
-  padding-top: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 16px;
 }
 
 .original-price {
+  display: flex;
+  justify-content: center;
+  font-size: 1rem;
   color: #9ca3af;
-  font-size: 0.875rem;
   text-decoration: line-through;
+  margin-bottom: 4px;
 }
 
 .price {
-  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
+  font-size: 1rem;
   font-weight: 700;
-  color: #dc2626;
+  color: #000;
 }
 
+/* Button */
 .card-content button {
   width: 100%;
-  padding: 0.75rem;
-  background: #14b8a6;
+  padding: 14px;
+  background: #00b3b0;
   color: white;
-  font-weight: 600;
   border: none;
-  border-radius: 0.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.3s ease;
+  margin-top: auto;
 }
 
 .card-content button:hover {
-  background: #0d9488;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .min-h-screen {
+    padding: 16px;
+  }
+
+  .text-center h2 {
+    font-size: 2rem;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .service-card {
+    padding: 20px;
+  }
+
+  .filter-buttons {
+    gap: 4px;
+  }
+
+  .filter-buttons button {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.service-card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.service-card:hover .price {
+  animation: priceHighlight 0.6s ease-in-out;
+}
+
+@keyframes priceHighlight {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

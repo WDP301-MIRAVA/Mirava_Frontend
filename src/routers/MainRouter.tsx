@@ -3,7 +3,6 @@ import LoginPage from "../pages/Login/login";
 import RegisterPage from "../pages/Register/register";
 import Homepage from "../pages/Homepage/homepage";
 import SearchResult from "../pages/SearchResult/searchresult";
-import Appointment from "@/pages/Appointment/appointment";
 import DetailDoctor from "@/pages/DetailDoctor/detailDoctorPage";
 import PrivateRoute from "../utils/PrivateRoute";
 
@@ -28,7 +27,7 @@ import CartPage from "@/pages/Cart/CartPage";
 import UnifiedCheckOutPage from "@/pages/UnifiedCheckOutPage/UnifiedCheckOutPage";
 
 // Customer pages
-import CustomerHome from "@/pages/Customer/Home/Home";
+import ResultTest from "@/pages/Customer/ResultTest/ResultTest";
 import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
 import AppointmentPage from "@/pages/Users/AppointmentPage";
 import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
@@ -64,6 +63,8 @@ import FeedbackManagement from "@/pages/Admin/Feedback/FeedbackManagement/Feedba
 import ManagerTreatment from "@/pages/Manager/ManagerTreatment/ManagerTreatment";
 import ManagerTestRegister from "@/pages/Manager/ManagerTestRegister/ManagerTestRegister";
 import AdminBlogManagement from "@/pages/Admin/BlogManagement/BlogManagement";
+import DoctorScheduleManager from "@/pages/Manager/DoctorScheduleManager";
+import AdviseManagement from "@/pages/Manager/AdviseManagement/AdviseManagement";
 const MainRouter = () => {
   return (
     <Routes>
@@ -74,12 +75,11 @@ const MainRouter = () => {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/searchresult" element={<SearchResult />} />
       <Route path="/detaildoctor/:id" element={<DetailDoctor />} />
-      <Route path="/appointment" element={<Appointment />} />
       <Route path="/bloglist" element={<BlogList />} />
       <Route path="/blog/:id" element={<DetailBlog />} />
       <Route path="/user/appointment" element={<AppointmentPage />} />
       <Route path="/profile" element={<PersonalInfoPage />} />
-      <Route path="/checkout/success" element={<PaymentSuccess />} />
+      <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route path="/checkout/failed" element={<PaymentFailed />} />
       <Route path="/iui-ivf-services" element={<IUIIVFServices />} />
       <Route path="/detail-services/:id" element={<DetailServices />} />
@@ -107,7 +107,7 @@ const MainRouter = () => {
           <PrivateRoute allowedRole="Customer" layout={CustomerLayout} />
         }
       >
-        <Route path="/customer" element={<CustomerHome />} />
+        <Route path="/customer" element={<ResultTest />} />
         <Route path="/customer/profile" element={<PersonalInfoPage />} />
         <Route path="/customer/treatmentplan" element={<TreatmentPlan />} />
         <Route path="/customer/contact" element={<ContactDoctor />} />
@@ -160,7 +160,7 @@ const MainRouter = () => {
         <Route path="/manager/profile" element={<PersonalInfoPage />} />
         <Route
           path="/manager/doctor-schedule-management"
-          element={<DoctorScheduleManagement />}
+          element={<DoctorScheduleManager />}
         />
         <Route path="/manager/orders" element={<OrderManagement />} />
         <Route path="/manager/doctors" element={<ManagerDoctor />} />
@@ -169,6 +169,7 @@ const MainRouter = () => {
           path="/manager/test-register"
           element={<ManagerTestRegister />}
         />
+        <Route path="/manager/advise" element={<AdviseManagement />} />
       </Route>
 
       {/* Not Found */}

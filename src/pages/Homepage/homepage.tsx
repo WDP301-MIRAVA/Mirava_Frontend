@@ -4,7 +4,6 @@ import {
   Container,
   Typography,
   Button,
-  Grid,
   Card,
   CardContent,
   CardMedia,
@@ -31,8 +30,10 @@ import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
 import { DoctorService } from "../../services/doctor.service";
-import { BlogService } from "../../services/blog.services";
+import { BlogService, type Blog } from "../../services/blog.services";
 import { BASE_URL } from "../../services/config";
+import type { SvgIconProps } from "@mui/material/SvgIcon";
+import Grid from "@mui/material/Grid";
 
 import hero1 from "../../assets/HeroSection/1.png";
 import hero2 from "../../assets/HeroSection/2.png";
@@ -51,15 +52,6 @@ interface Doctor {
   imageUrl: string;
   experience?: number;
   rating?: number;
-}
-
-interface Blog {
-  _id: string;
-  title: string;
-  excerpt: string;
-  featuredImage: string;
-  publishedAt?: string;
-  readTime?: number;
 }
 
 interface Service {
@@ -146,12 +138,14 @@ const HomePage: React.FC = () => {
         setLoadingDoctors(false);
 
         // Load blogs
-        const blogRes = await BlogService.getFeaturedBlogs();
-        // Đảm bảo featuredImage luôn là string
-        const safeBlogs = blogRes.slice(0, 3).map((blog: any) => ({
+        const blogRes: Blog[] = await BlogService.getFeaturedBlogs();
+
+        // Xử lý safe mapping cho featuredImage
+        const safeBlogs = blogRes.slice(0, 3).map((blog) => ({
           ...blog,
-          featuredImage: blog.featuredImage ?? "",
+          featuredImage: blog.featuredImage || "", // Sử dụng || thay vì ??
         }));
+
         setBlogs(safeBlogs);
         setLoadingBlogs(false);
 
@@ -362,7 +356,7 @@ const HomePage: React.FC = () => {
         <Container maxWidth="lg">
           <Grid container spacing={4}>
             {stats.map((stat, index) => (
-              <Grid item xs={6} md={3} key={index}>
+              <Grid size={{ xs: 12, md: 3 }} key={index}>
                 <Paper
                   elevation={0}
                   sx={{
@@ -378,9 +372,12 @@ const HomePage: React.FC = () => {
                   }}
                 >
                   <Box sx={{ color: "#00B9C6", mb: 1 }}>
-                    {React.cloneElement(stat.icon as React.ReactElement, {
-                      fontSize: "large",
-                    })}
+                    {React.cloneElement(
+                      stat.icon as React.ReactElement<SvgIconProps>,
+                      {
+                        fontSize: "large",
+                      }
+                    )}
                   </Box>
                   <Typography
                     variant="h4"
@@ -400,8 +397,6 @@ const HomePage: React.FC = () => {
         </Container>
       </Box>
 
-      {/* Service List */}
-      {/* Service List - Cải tiến layout như Doctors Section */}
       <Box sx={{ backgroundColor: "#f8fafc", py: 8 }}>
         <Container maxWidth="lg">
           <Box textAlign="center" mb={6}>
@@ -425,10 +420,10 @@ const HomePage: React.FC = () => {
           ) : (
             <Grid container spacing={4}>
               {services.map((service) => (
-                <Grid item xs={12} sm={6} md={4} key={service._id}>
+                <Grid key={service._id}>
                   <Card
                     sx={{
-                      width: 500,
+                      width: 400,
                       borderRadius: 3,
                       overflow: "hidden",
                       transition: "all 0.3s ease",
@@ -439,7 +434,6 @@ const HomePage: React.FC = () => {
                       cursor: "pointer",
                     }}
                   >
-                    {/* Ảnh được thu nhỏ và hiển thị đầy đủ */}
                     <Box
                       sx={{
                         height: 500,
@@ -606,7 +600,7 @@ const HomePage: React.FC = () => {
         ) : (
           <Grid container spacing={4}>
             {doctors.map((doctor) => (
-              <Grid item xs={12} md={4} key={doctor._id}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={doctor._id}>
                 <Card
                   sx={{
                     borderRadius: 3,
@@ -715,7 +709,7 @@ const HomePage: React.FC = () => {
 
           <Grid container spacing={4}>
             {testimonials.map((testimonial, index) => (
-              <Grid item xs={12} md={4} key={index}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                 <Paper
                   elevation={0}
                   sx={{
@@ -789,7 +783,7 @@ const HomePage: React.FC = () => {
         ) : (
           <Grid container spacing={4}>
             {blogs.map((blog) => (
-              <Grid item xs={12} md={4} key={blog._id}>
+              <Grid size={{ xs: 12, md: 4 }} key={blog._id}>
                 <Card
                   sx={{
                     borderRadius: 3,
@@ -836,9 +830,6 @@ const HomePage: React.FC = () => {
                         alignItems: "center",
                       }}
                     >
-                      <Typography variant="caption" color="text.secondary">
-                        {blog.readTime || "5"} phút đọc
-                      </Typography>
                       <Button
                         size="small"
                         endIcon={<ArrowForward />}

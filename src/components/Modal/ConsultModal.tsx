@@ -17,11 +17,33 @@ interface ConsultModalProps {
 const ConsultModal: React.FC<ConsultModalProps> = ({ open, onClose }) => {
   const [phoneNumber, setPhoneNumber] = React.useState("");
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (/^\d{10,11}$/.test(phoneNumber)) {
-      toast.success("Đăng ký thành công với số: " + phoneNumber);
-      setPhoneNumber("");
-      onClose();
+      try {
+        const res = await fetch(
+          "https://mirava-f0rz.onrender.com/api/consultation/request",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ phone: phoneNumber }),
+          }
+        );
+
+        const data = await res.json();
+
+        if (res.ok) {
+          toast.success("Đăng ký thành công với số: " + phoneNumber);
+          setPhoneNumber("");
+          onClose();
+        } else {
+          toast.error(data.message || "Gửi yêu cầu thất bại");
+        }
+      } catch (error) {
+        toast.error("Có lỗi xảy ra khi gửi yêu cầu");
+        console.error("API error:", error);
+      }
     } else {
       toast.error("Vui lòng nhập số điện thoại hợp lệ");
     }

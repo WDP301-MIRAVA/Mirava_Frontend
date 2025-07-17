@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import "./CheckoutPage.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -37,6 +37,7 @@ const CheckoutPage: React.FC = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
   const [service, setService] = useState<ServiceDetail | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [loadingDoctors, setLoadingDoctors] = useState(false);
   const [availableDoctors, setAvailableDoctors] = useState<AvailableDoctor[]>(
@@ -68,6 +69,7 @@ const CheckoutPage: React.FC = () => {
     "16:00",
     "17:00",
   ];
+
   // api để lấy thông tin dịch vụ
   useEffect(() => {
     const fetchService = async () => {
@@ -147,84 +149,6 @@ const CheckoutPage: React.FC = () => {
   const calculateFinalPrice = (price: number, salePercent: number = 0) =>
     Math.round(price * (1 - salePercent / 100));
 
-  const handlePlaceOrder = async () => {
-    if (!validatePaymentInfo()) return;
-    if (!service) {
-      toast.error("Không tìm thấy thông tin dịch vụ!");
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const orderData = {
-        items: [{ serviceId: service._id, quantity: 1 }],
-        paymentMethod: formData.paymentMethod,
-        note: formData.appointmentNote || `Đặt dịch vụ: ${service.name}`,
-        customerInfo: {
-          userName: formData.userName,
-          email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          gender: formData.gender,
-        },
-        appointmentDate: formData.appointmentDate,
-        timeSlot: formData.timeSlot,
-        doctorId: formData.doctorId,
-      };
-
-      const res = await fetch(
-        "https://mirava-f0rz.onrender.com/api/orders/guest",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(orderData),
-        }
-      );
-
-      const result = await res.json();
-      if (!res.ok || !result.success) {
-        throw new Error(result.message || "Có lỗi xảy ra. Vui lòng thử lại!");
-      }
-
-      const { order, vnpUrl } = result.data;
-
-      // 🔁 Nếu chọn VNPay → chuyển hướng đến VNPay URL
-      if (formData.paymentMethod === "VNPay" && vnpUrl) {
-        toast.success("Chuyển đến cổng thanh toán...");
-        window.location.href = vnpUrl;
-        return;
-      }
-
-      // ✅ Với thanh toán thường (cash)
-      toast.success("Đặt hàng thành công!");
-      navigate("/payment-confirmation", {
-        state: {
-          orderData: result.data,
-          userInfo: formData,
-          service: service,
-        },
-      });
-    } catch (error: any) {
-      console.error("❌ Lỗi:", error);
-      toast.error(error.message || "Có lỗi xảy ra. Vui lòng thử lại!");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (!service) {
-    return (
-      <div>
-        <Header />
-        <div className="loading-container">
-          <p>Đang tải thông tin dịch vụ...</p>
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
   // Hàm validate thông tin thanh toán
   const validatePaymentInfo = () => {
     if (!formData.userName.trim()) {
@@ -259,6 +183,126 @@ const CheckoutPage: React.FC = () => {
     }
     return true;
   };
+
+  const handlePlaceOrder = async () => {
+    if (!validatePaymentInfo()) return;
+    if (!service) {
+      toast.error("Không tìm thấy thông tin dịch vụ!");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Tính toán giá cuối cùng
+      const finalPrice = service.salePrice
+        ? calculateFinalPrice(service.price, service.salePrice)
+        : service.price;
+
+      const orderData = {
+        items: [{ serviceId: service._id, quantity: 1 }],
+        paymentMethod: formData.paymentMethod,
+        note: formData.appointmentNote || `Đặt dịch vụ: ${service.name}`,
+        customerInfo: {
+          userName: formData.userName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          gender: formData.gender,
+        },
+        appointmentDate: formData.appointmentDate,
+        timeSlot: formData.timeSlot,
+        doctorId: formData.doctorId,
+        totalAmount: finalPrice, // Thêm totalAmount
+        // Thêm orderItems để backend dễ xử lý
+        orderItems: [
+          {
+            service: service._id,
+            serviceName: service.name,
+            price: finalPrice,
+            originalPrice: service.price,
+            quantity: 1,
+            subtotal: finalPrice,
+          },
+        ],
+      };
+
+      console.log("🚀 Gửi đơn hàng với data:", orderData);
+
+      const res = await fetch(
+        "https://mirava-f0rz.onrender.com/api/orders/guest",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderData),
+        }
+      );
+
+      const result = await res.json();
+      console.log("📋 Response từ API:", result);
+
+      if (!res.ok || !result.success) {
+        throw new Error(result.message || "Có lỗi xảy ra. Vui lòng thử lại!");
+      }
+
+      // Xử lý thanh toán VNPay
+      if (formData.paymentMethod === "VNPay" && result.data.vnpUrl) {
+        console.log("💳 Chuẩn bị thanh toán VNPay");
+
+        // Lưu thông tin đơn hàng vào localStorage
+        const vnpayOrderData = {
+          orderData: result.data.orderData, // Dữ liệu từ backend
+          tempOrderId: result.data.tempOrderId,
+          service: {
+            _id: service._id,
+            name: service.name,
+            price: service.price,
+            salePrice: service.salePrice,
+          },
+          userInfo: formData,
+          timestamp: new Date().toISOString(),
+        };
+
+        localStorage.setItem("vnpayOrderData", JSON.stringify(vnpayOrderData));
+
+        console.log("💾 Đã lưu vào localStorage:", vnpayOrderData);
+
+        toast.success("Chuyển đến cổng thanh toán...");
+
+        // Chuyển hướng đến VNPay
+        window.location.href = result.data.vnpUrl;
+        return;
+      }
+
+      // Xử lý thanh toán thường (Cash)
+      console.log("💰 Thanh toán tiền mặt thành công");
+      toast.success("Đặt hàng thành công!");
+
+      navigate("/payment-confirmation", {
+        state: {
+          orderData: result.data,
+          userInfo: formData,
+          service: service,
+        },
+      });
+    } catch (error: any) {
+      console.error("❌ Lỗi đặt hàng:", error);
+      toast.error(error.message || "Có lỗi xảy ra. Vui lòng thử lại!");
+    } finally {
+      setLoading(false);
+    }
+  };
+  if (!service) {
+    return (
+      <div>
+        <Header />
+        <div className="loading-container">
+          <p>Đang tải thông tin dịch vụ...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div>
