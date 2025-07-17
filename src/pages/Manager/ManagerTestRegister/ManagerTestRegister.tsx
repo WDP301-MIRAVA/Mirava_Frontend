@@ -85,7 +85,15 @@ const StatusChip = styled(Chip)(({ status }: { status: string }) => {
     borderRadius: 20,
   };
 });
-
+type TestItem =
+  | string
+  | {
+      testName: string;
+      testCode?: string;
+      normalRange?: string;
+      unit?: string;
+      _id?: string;
+    };
 interface TestRegistration {
   _id: string;
   patient: {
@@ -107,7 +115,7 @@ interface TestRegistration {
     treatmentSubjects: string[];
     treatmentProcess: string[];
     preparation?: string;
-    tests: string[];
+    tests: TestItem[];
   } | null;
   assignedDoctor?: {
     _id: string;
@@ -888,7 +896,15 @@ const ManagerTestRegister: React.FC = () => {
                           {selectedRegistration.testPackage.tests.map(
                             (test, index) => (
                               <ListItem key={index}>
-                                <ListItemText primary={test} />
+                                <ListItemText
+                                  primary={
+                                    typeof test === "string"
+                                      ? test
+                                      : test?.testName
+                                      ? test.testName
+                                      : JSON.stringify(test)
+                                  }
+                                />
                               </ListItem>
                             )
                           )}
@@ -986,7 +1002,7 @@ const ManagerTestRegister: React.FC = () => {
         fullWidth
       >
         <DialogTitle>
-          <Typography variant="h6" fontWeight="bold">
+          <Typography variant="h6" component="span" fontWeight="bold">
             Cập nhật đăng ký xét nghiệm
           </Typography>
         </DialogTitle>

@@ -37,12 +37,15 @@ const PersonalInfoPage: React.FC = () => {
 
   const fetchUser = async () => {
     try {
-      const response = await userServ.getUserById(userLocal.id);
-      const userData = response.data;
+      const userData = await userServ.getUserById(userLocal.id);
 
-      const normalizedGender = capitalizeFirstLetter(userData?.gender);
+      const normalizedGender = capitalizeFirstLetter(userData?.gender ?? "");
 
-      setUser({ ...userData, gender: normalizedGender });
+      setUser({
+        ...userData,
+        gender: normalizedGender,
+        address: userData?.address ?? "",
+      });
 
       form.setFieldsValue({
         userName: userData?.userName,

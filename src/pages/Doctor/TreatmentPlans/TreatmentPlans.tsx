@@ -10,8 +10,6 @@ import {
 import { DoctorService } from "@/services/doctor.service";
 import { message, Select, DatePicker, Input, Form, Button } from "antd";
 import { useNavigate } from "react-router-dom";
-import { userServ } from "../../../services/userServie";
-import { LogoutOutlined } from "@ant-design/icons";
 import axios from "axios";
 import "./TreatmentPlans.css";
 import moment from "moment";
@@ -35,71 +33,7 @@ interface Doctor {
   imageUrl: string;
 }
 
-interface Patient {
-  _id: string;
-  user: {
-    _id: string;
-    userName: string;
-    email: string;
-    phone: string;
-  };
-}
-
 type TreatmentMethod = "IUI" | "IVF" | null;
-
-interface MonitoringItem {
-  day: number;
-  type: string;
-  notes: string;
-  instructions?: string; // Optional field for additional instructions
-  time?: string; // Optional field for time of the monitoring
-}
-interface DailyDetail {
-  medication: string;
-  dosage: string;
-  instructions?: string; // Optional field for additional instructions
-  time?: string; // Optional field for time of the medication
-}
-
-interface TreatmentPlanData {
-  patientCodeOrPhone: string;
-  doctor: string;
-  cycleStartDate: string;
-  ovarianStimulation: {
-    startDay: number;
-    durationDays: number;
-    medication: string;
-    dailyDosage: string;
-    monitoringSchedule: MonitoringItem[];
-    dailyDetails: DailyDetail[];
-    instructions?: string; // Optional field for additional instructions
-    time?: string; // Optional field for time of the stimulation
-  };
-  hcgInjection: {
-    plannedDate: string;
-    medication: string;
-    dosage: string;
-  };
-  eggRetrieval: {
-    plannedDate: string;
-    notes: string;
-  };
-  embryoTransfer: {
-    plannedDate: string;
-    embryoStage: string;
-  };
-  postTransferMonitoring: {
-    betaHcgTestDate: string;
-    ultrasoundCheckDate: string;
-  };
-  reminders: {
-    type: string;
-    content: string;
-    sendTime: string;
-  }[];
-  status: string;
-  notes: string;
-}
 
 const TreatmentPlans: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<"selection" | "form">(
@@ -108,12 +42,7 @@ const TreatmentPlans: React.FC = () => {
   const [selectedMethod, setSelectedMethod] = useState<TreatmentMethod>(null);
   const [doctorInfo, setDoctorInfo] = useState<Doctor | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [patients, setPatients] = useState<Patient[]>([]);
-  const [dailyDetails, setDailyDetails] = useState<any[]>([]);
   const [form] = Form.useForm();
-  const [monitoringSchedule, setMonitoringSchedule] = useState<
-    MonitoringItem[]
-  >([{ day: 5, type: "ultrasound", notes: "Kiểm tra kích thước nang trứng" }]);
   const [reminders, setReminders] = useState<any[]>([
     {
       type: "medication_reminder",
@@ -136,7 +65,10 @@ const TreatmentPlans: React.FC = () => {
           doctorData.data.length > 0 &&
           doctorData.data[0].doctor
         ) {
-          setDoctorInfo(doctorData.data[0].doctor);
+          setDoctorInfo({
+            ...doctorData.data[0].doctor,
+            workSchedule: doctorData.workSchedule || [],
+          });
         } else {
           console.error("Không tìm thấy thông tin bác sĩ");
         }
@@ -162,29 +94,6 @@ const TreatmentPlans: React.FC = () => {
   const handleMethodSelect = (method: TreatmentMethod) => {
     setSelectedMethod(method);
     setCurrentPage("form");
-  };
-
-  const addMonitoringSchedule = () => {
-    setMonitoringSchedule([
-      ...monitoringSchedule,
-      { day: 0, type: "ultrasound", notes: "" },
-    ]);
-  };
-
-  const updateMonitoringSchedule = (
-    index: number,
-    field: string,
-    value: any
-  ) => {
-    const updatedSchedule = [...monitoringSchedule];
-    updatedSchedule[index] = { ...updatedSchedule[index], [field]: value };
-    setMonitoringSchedule(updatedSchedule);
-  };
-
-  const removeMonitoringSchedule = (index: number) => {
-    const updatedSchedule = [...monitoringSchedule];
-    updatedSchedule.splice(index, 1);
-    setMonitoringSchedule(updatedSchedule);
   };
 
   const addReminder = () => {
@@ -261,24 +170,6 @@ const TreatmentPlans: React.FC = () => {
     form.resetFields();
   };
 
-  // Handle logout
-  const handleLogout = async () => {
-    try {
-      const refreshToken = localStorage.getItem("refreshToken");
-      const accessToken = localStorage.getItem("accessToken");
-      if (refreshToken && accessToken) {
-        await userServ.postLogout(refreshToken, accessToken);
-      }
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      message.success("Đăng xuất thành công!");
-      navigate("/");
-    } catch (error) {
-      console.error("Logout error:", error);
-      message.error("Đăng xuất thất bại!");
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="loading-container">
@@ -292,42 +183,15 @@ const TreatmentPlans: React.FC = () => {
     return (
       <div className="loading-container">
         <div className="error-message">
-          <h2>Không thể tải thông tin bác sĩ</h2>
+          <h2>Không thể tạo kế hoạch điều trị</h2>
           <p>
-            Phiên làm việc đã hết hạn hoặc đã xảy ra lỗi. Vui lòng đăng nhập
-            lại.
+            Hiện tại không có cuộc hẹn nào được liên kết với bác sĩ. Vui lòng
+            kiểm tra lại sau.
           </p>
-          <button
-            className="login-again-button"
-            onClick={() => navigate("/login")}
-            style={{
-              padding: "10px 20px",
-              background: "#1890ff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              marginTop: "15px",
-            }}
-          >
-            Đăng nhập lại
-          </button>
         </div>
       </div>
     );
   }
-
-  const handleDailyDetailChange = (
-    index: number,
-    field: string,
-    value: string
-  ) => {
-    setDailyDetails((prev) => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: value };
-      return updated;
-    });
-  };
 
   return (
     <div className="view-appointment-container">
@@ -372,11 +236,19 @@ const TreatmentPlans: React.FC = () => {
             <Clock size={16} />
             <span>
               Lịch làm việc:{" "}
-              {doctorInfo.workSchedule?.join(", ") || "Chưa cập nhật"}
+              {doctorInfo.workSchedule && doctorInfo.workSchedule.length > 0
+                ? doctorInfo.workSchedule
+                    .map(
+                      (ws: any) =>
+                        `Thứ ${ws.dayOfWeek + 1} (${ws.startTime} - ${
+                          ws.endTime
+                        })`
+                    )
+                    .join(", ")
+                : "Chưa cập nhật"}
             </span>
           </div>
         </div>
-        
       </div>
 
       {currentPage === "selection" ? (

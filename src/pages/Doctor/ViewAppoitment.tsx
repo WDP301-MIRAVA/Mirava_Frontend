@@ -187,6 +187,17 @@ const ViewAppointment: React.FC = () => {
       </div>
     );
   }
+  // Nếu không có cuộc hẹn nào
+  if (!doctorInfo && appointments.length === 0) {
+    return (
+      <div className="loading-container">
+        <div className="error-message">
+          <h2>Không có cuộc hẹn nào</h2>
+          <p>Bạn chưa có cuộc hẹn nào được lên lịch.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Handle logout
   const handleLogout = async () => {
