@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, Filter, Eye, Package, Clock, CheckCircle } from "lucide-react";
+import { Search, Filter, Eye, Check } from "lucide-react";
 import "./OrderManagement.css";
 
 interface Doctor {
@@ -18,12 +18,9 @@ interface Order {
     phone: string;
     patientCode: string;
   };
-  customerInfo?: {
-    userName: string;
-  };
-  doctorId?: string;
   items: Array<{
     service: {
+      _id: string; // Thêm dòng này
       name: string;
       price: number;
     };
@@ -45,7 +42,7 @@ interface Order {
 const OrderManagement: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null); // Thêm state error
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,12 +97,13 @@ const OrderManagement: React.FC = () => {
   };
   useEffect(() => {
     fetchOrders();
+    // eslint-disable-next-line
   }, [currentPage, statusFilter]);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      setError(null);
+      setError(null); // Reset error trước khi fetch
       const token = localStorage.getItem("accessToken");
 
       let url = `https://mirava-f0rz.onrender.com/api/orders?page=${currentPage}&limit=10`;
@@ -136,7 +134,6 @@ const OrderManagement: React.FC = () => {
   };
 
   const handleConfirmOrder = async (orderId: string, doctorId?: string) => {
-
     const order = orders.find((o) => o._id === orderId);
     if (!order) return;
     // Nếu chưa có doctorId và không truyền doctorId mới => mở modal chọn bác sĩ
@@ -151,7 +148,6 @@ const OrderManagement: React.FC = () => {
       )
     )
       return;
-
     setLoading(true);
     setError(null);
     try {
@@ -166,13 +162,14 @@ const OrderManagement: React.FC = () => {
           },
           body: JSON.stringify({
             doctorId: order.doctorId,
+            // note: "Ghi chú nếu cần"
           }),
         }
       );
       const data = await response.json();
       if (response.ok && data.success) {
         alert("Xác nhận đơn hàng và tạo kế hoạch điều trị thành công!");
-        fetchOrders();
+        fetchOrders(); // Refresh lại danh sách
       } else {
         setError(data.message || "Xác nhận đơn hàng thất bại");
       }
@@ -204,7 +201,7 @@ const OrderManagement: React.FC = () => {
     };
 
     return (
-      <span className={`om-status-badge ${statusInfo.class}`}>
+      <span className={`status-badge ${statusInfo.class}`}>
         {statusInfo.label}
       </span>
     );
@@ -224,12 +221,11 @@ const OrderManagement: React.FC = () => {
         searchTerm.toLowerCase()
       )
   );
-
   if (loading) {
     return (
-      <div className="om-container">
-        <div className="om-loading">
-          <div className="om-loading-spinner"></div>
+      <div className="order-management">
+        <div className="loading-container">
+          <div className="loading-spinner"></div>
           <p>Đang tải danh sách đơn hàng...</p>
         </div>
       </div>
@@ -238,195 +234,210 @@ const OrderManagement: React.FC = () => {
 
   if (error) {
     return (
-      <div className="om-container">
-        <div className="om-loading">
-          <p className="om-error-message">Lỗi: {error}</p>
+      <div className="order-management">
+        <div className="loading-container">
+          <p style={{ color: "red", fontWeight: 600 }}>Lỗi: {error}</p>
         </div>
       </div>
     );
   }
-
   return (
     <div className="om-container">
-      {/* Stats Cards */}
-      <div className="om-stats">
-        <div className="om-stat-card">
-          <div className="om-stat-icon">
-            <Package size={24} />
-          </div>
-          <div className="om-stat-content">
-            <h3>Tổng đơn hàng</h3>
-            <p>{orders.length}</p>
-          </div>
+      {loading ? (
+        <div className="om-loading">
+          <div className="om-loading-spinner"></div>
+          <p>Đang tải danh sách đơn hàng...</p>
         </div>
-        <div className="om-stat-card">
-          <div className="om-stat-icon pending">
-            <Clock size={24} />
-          </div>
-          <div className="om-stat-content">
-            <h3>Chờ xử lý</h3>
-            <p>{orders.filter((o) => o.orderStatus === "pending").length}</p>
-          </div>
+      ) : error ? (
+        <div className="om-loading">
+          <p className="om-error-message">Lỗi: {error}</p>
         </div>
-        <div className="om-stat-card">
-          <div className="om-stat-icon completed">
-            <CheckCircle size={24} />
+      ) : (
+        <>
+          <div className="om-stats">
+            <div className="om-stat-card">
+              <div className="om-stat-icon">
+                <Search size={28} />
+              </div>
+              <div className="om-stat-content">
+                <h3>Tổng đơn hàng</h3>
+                <p>{orders.length}</p>
+              </div>
+            </div>
+            <div className="om-stat-card">
+              <div className="om-stat-icon pending">
+                <Filter size={28} />
+              </div>
+              <div className="om-stat-content">
+                <h3>Chờ xử lý</h3>
+                <p>
+                  {orders.filter((o) => o.orderStatus === "pending").length}
+                </p>
+              </div>
+            </div>
+            <div className="om-stat-card">
+              <div className="om-stat-icon completed">
+                <Eye size={28} />
+              </div>
+              <div className="om-stat-content">
+                <h3>Đã thanh toán</h3>
+                <p>{orders.filter((o) => o.orderStatus === "paid").length}</p>
+              </div>
+            </div>
           </div>
-          <div className="om-stat-content">
-            <h3>Đã thanh toán</h3>
-            <p>{orders.filter((o) => o.orderStatus === "paid").length}</p>
-          </div>
-        </div>
-      </div>
 
-      {/* Controls */}
-      <div className="om-controls">
-        <div className="om-search-box">
-          <Search size={18} />
-          <input
-            type="text"
-            placeholder="Tìm kiếm theo mã đơn hàng, tên khách hàng..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="om-filter-select"
-        >
-          <option value="all">Tất cả trạng thái</option>
-          <option value="pending">Chờ xử lý</option>
-          <option value="paid">Đã thanh toán</option>
-          <option value="completed">Hoàn thành</option>
-          <option value="cancelled">Đã hủy</option>
-        </select>
-      </div>
-
-      {/* Table */}
-      <div className="om-table-container">
-        <div className="om-table-header">
-          <h2>Danh sách đơn hàng ({filteredOrders.length})</h2>
-        </div>
-
-        {filteredOrders.length === 0 ? (
-          <div className="om-no-data">
-            <Package size={40} />
-            <p>Không có đơn hàng nào được tìm thấy</p>
-          </div>
-        ) : (
-          <table className="orders-table">
-            <thead>
-              <tr>
-                <th>Mã đơn hàng</th>
-                <th>Khách hàng</th>
-                <th>Dịch vụ</th>
-                <th>Tổng tiền</th>
-                <th>Trạng thái</th>
-                <th>Ngày hẹn khám</th>
-                <th>Bác sĩ</th>
-                <th>Hành động</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredOrders.map((order) => (
-                <tr key={order._id}>
-                  <td>{order.orderCode}</td>
-                  <td>
-                    <div className="customer-info">
-                      <strong>
-                        {order.user?.userName ||
-                          order.customerInfo?.userName ||
-                          "N/A"}
-                      </strong>
-                      <br />
-                      <small>{order.user?.patientCode || ""}</small>
-                    </div>
-                  </td>
-                  <td>
-                    <div className="services-list">
-                      {order.items.map((item, index) => (
-                        <div key={index} className="service-item">
-                          {item.service.name} x{item.quantity}
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-                  <td className="price-cell">
-                    {formatPrice(order.totalAmount)}
-                  </td>
-                  <td>{getStatusBadge(order.orderStatus)}</td>
-                  <td>
-                    {order.appointmentDate
-                      ? new Date(order.appointmentDate).toLocaleDateString(
-                          "vi-VN"
-                        )
-                      : "Chưa đặt lịch"}
-                    {/* {new Date(order.createdAt).toLocaleDateString("vi-VN")} */}
-                  </td>
-                  <td>
-                    {order.doctorId ? (
-                      <span className="doctor-name">
-                        {order.doctorId.user?.userName || "Chưa có bác sĩ"}
-                      </span>
-                    ) : (
-                      <button
-                        className="select-doctor-btn"
-                        onClick={() => handleSelectDoctor(order)}
-                      >
-                        Chọn bác sĩ
-                      </button>
-                    )}
-                  </td>
-                  <td>
-                    <div className="action-buttons">
-                      <button
-                        className="action-btn view-btn"
-                        title="Xem chi tiết"
-                      >
-                        <Eye size={16} />
-                      </button>
-                      {order.orderStatus === "pending" && (
-
-                        <button
-                          className="om-action-btn om-view-btn"
-                          title="Xem chi tiết"
-                        >
-                          <Eye size={16} />
-                        </button>
-                        {order.orderStatus === "pending" && (
-                          <button
-                            className="om-action-btn om-confirm-btn"
-                            title="Xác nhận & tạo kế hoạch"
-                            onClick={() => handleConfirmOrder(order._id)}
-                          >
-                            <CheckCircle size={16} />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="om-pagination">
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              className={`om-page-btn ${currentPage === page ? "active" : ""}`}
-              onClick={() => setCurrentPage(page)}
+          <div className="om-controls">
+            <div className="om-search-box">
+              <Search size={20} />
+              <input
+                type="text"
+                placeholder="Tìm kiếm theo mã đơn hàng, tên khách hàng..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="om-filter-select"
             >
-              {page}
-            </button>
-          ))}
-        </div>
+              <option value="all">Tất cả trạng thái</option>
+              <option value="pending">Chờ xử lý</option>
+              <option value="paid">Đã thanh toán</option>
+              <option value="completed">Hoàn thành</option>
+              <option value="cancelled">Đã hủy</option>
+            </select>
+          </div>
+
+          <div className="om-table-container">
+            {filteredOrders.length === 0 ? (
+              <div className="om-no-data">
+                <p>Không có đơn hàng nào được tìm thấy</p>
+              </div>
+            ) : (
+              <div className="om-table-wrapper">
+                <table className="om-table">
+                  <thead>
+                    <tr>
+                      <th>Mã đơn hàng</th>
+                      <th>Khách hàng</th>
+                      <th>Dịch vụ</th>
+                      <th>Tổng tiền</th>
+                      <th>Trạng thái</th>
+                      <th>Ngày hẹn khám</th>
+                      <th>Bác sĩ</th>
+                      <th>Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredOrders.map((order) => (
+                      <tr key={order._id}>
+                        <td>
+                          <span className="om-order-code">
+                            {order.orderCode}
+                          </span>
+                        </td>
+                        <td>
+                          <div className="om-customer-info">
+                            <span className="om-customer-name">
+                              {order.user?.userName ||
+                                order.customerInfo?.userName ||
+                                "N/A"}
+                            </span>
+                            <span className="om-patient-code">
+                              {order.user?.patientCode || ""}
+                            </span>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="om-services-list">
+                            {order.items.map((item, index) => (
+                              <div key={index} className="om-service-item">
+                                {item.service.name} x{item.quantity}
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="om-price-cell">
+                          {formatPrice(order.totalAmount)}
+                        </td>
+                        <td>
+                          <span
+                            className={`om-status-badge ${getStatusBadge(
+                              order.orderStatus
+                            ).props.className?.replace("status-badge ", "")}`}
+                          >
+                            {getStatusBadge(order.orderStatus).props.children}
+                          </span>
+                        </td>
+                        <td className="om-date-cell">
+                          {order.appointmentDate
+                            ? new Date(
+                                order.appointmentDate
+                              ).toLocaleDateString("vi-VN")
+                            : "Chưa đặt lịch"}
+                        </td>
+                        <td>
+                          {order.doctorId ? (
+                            <span className="doctor-name">
+                              {order.doctorId.user.userName || "Chưa có bác sĩ"}
+                            </span>
+                          ) : (
+                            <button
+                              className="select-doctor-btn"
+                              onClick={() => handleSelectDoctor(order)}
+                            >
+                              Chọn bác sĩ
+                            </button>
+                          )}
+                        </td>
+                        <td>
+                          <div className="om-action-buttons">
+                            <button
+                              className="om-action-btn om-view-btn"
+                              title="Xem chi tiết"
+                            >
+                              <Eye size={16} />
+                            </button>
+                            {order.orderStatus === "pending" && (
+                              <button
+                                className="om-action-btn om-confirm-btn"
+                                title="Xác nhận & tạo kế hoạch"
+                                onClick={() => handleConfirmOrder(order._id)}
+                              >
+                                <Check size={16} />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+
+          {totalPages > 1 && (
+            <div className="om-pagination">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    className={`om-page-btn ${
+                      currentPage === page ? "active" : ""
+                    }`}
+                    onClick={() => setCurrentPage(page)}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+            </div>
+          )}
+        </>
       )}
+
       {showDoctorModal && (
         <div className="modal-backdrop">
           <div className="modal">
@@ -440,6 +451,7 @@ const OrderManagement: React.FC = () => {
                 {availableDoctors.map((doc: any) => (
                   <li
                     key={doc._id}
+                    className="doctor-item"
                     style={{ marginBottom: 8, listStyle: "none" }}
                   >
                     <label style={{ cursor: "pointer" }}>
@@ -458,31 +470,17 @@ const OrderManagement: React.FC = () => {
                 ))}
               </ul>
             )}
-            <div style={{ marginTop: 16 }}>
+            <div className="modal-actions">
               <button
                 disabled={!selectedDoctorId}
                 onClick={handleConfirmWithDoctor}
-                style={{
-                  background: "#10b981",
-                  color: "#fff",
-                  padding: "8px 16px",
-                  border: "none",
-                  borderRadius: 4,
-                  marginRight: 8,
-                  cursor: selectedDoctorId ? "pointer" : "not-allowed",
-                }}
+                className="modal-confirm-btn"
               >
                 Xác nhận
               </button>
               <button
                 onClick={() => setShowDoctorModal(false)}
-                style={{
-                  padding: "8px 16px",
-                  border: "1px solid #ccc",
-                  borderRadius: 4,
-                  background: "#fff",
-                  cursor: "pointer",
-                }}
+                className="modal-cancel-btn"
               >
                 Hủy
               </button>
