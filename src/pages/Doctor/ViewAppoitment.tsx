@@ -20,6 +20,7 @@ import { LogoutOutlined } from "@ant-design/icons";
 import axiosInstance from "../../services/MainService";
 import { BASE_URL } from "../../services/config";
 import axios from "axios";
+
 interface Doctor {
   _id: string;
   user: {
@@ -77,7 +78,6 @@ const ViewAppointment: React.FC = () => {
           setAppointments(sortedAppointments);
           setFilteredAppointments(sortedAppointments);
 
-          // Nếu có dữ liệu cuộc hẹn, lấy thông tin doctor từ cuộc hẹn đầu tiên
           if (sortedAppointments.length > 0 && sortedAppointments[0].doctor) {
             setDoctorInfo(sortedAppointments[0].doctor);
           }
@@ -88,13 +88,11 @@ const ViewAppointment: React.FC = () => {
       } catch (error) {
         console.error("Error fetching appointments:", error);
 
-        // Kiểm tra nếu lỗi 401/403 (Unauthorized/Forbidden)
         if (
           axios.isAxiosError(error) &&
           (error.response?.status === 401 || error.response?.status === 403)
         ) {
           message.error("Phiên làm việc đã hết hạn. Vui lòng đăng nhập lại.");
-          // Làm sạch localStorage và chuyển hướng về trang login
           localStorage.removeItem("accessToken");
           localStorage.removeItem("refreshToken");
           setTimeout(() => navigate("/login"), 2000);
@@ -108,23 +106,18 @@ const ViewAppointment: React.FC = () => {
     };
 
     fetchAppointments();
-
-    // Thêm interval để tự động refresh dữ liệu mỗi 4 phút
     const refreshInterval = setInterval(fetchAppointments, 4 * 60 * 1000);
-
     return () => clearInterval(refreshInterval);
   }, [navigate]);
 
   useEffect(() => {
     let filtered = appointments;
-    // Filter by search term
     if (searchTerm) {
       filtered = filtered.filter((appointment) =>
         appointment.fullName.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filter by status
     if (statusFilter !== "all") {
       filtered = filtered.filter(
         (appointment) => appointment.status === statusFilter
@@ -140,7 +133,6 @@ const ViewAppointment: React.FC = () => {
         `${BASE_URL}/api/appointment/appointments/${appointmentId}/status`,
         { status: "done" }
       );
-      // Gọi lại API để lấy danh sách mới nhất
       const res = await DoctorService.getDoctorAppointments();
       const data = res.data;
       if (data.success && Array.isArray(data.data)) {
@@ -156,10 +148,9 @@ const ViewAppointment: React.FC = () => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
       year: "numeric",
-      month: "long",
-      day: "numeric",
-      weekday: "long",
     });
   };
 
@@ -179,27 +170,6 @@ const ViewAppointment: React.FC = () => {
     return status === "done" ? "Đã xác nhận" : "Chờ xác nhận";
   };
 
-  if (isLoading) {
-    return (
-      <div className="loading-container">
-        <div className="loading-spinner"></div>
-        <p>Đang tải danh sách cuộc hẹn...</p>
-      </div>
-    );
-  }
-  // Nếu không có cuộc hẹn nào
-  if (!doctorInfo && appointments.length === 0) {
-    return (
-      <div className="loading-container">
-        <div className="error-message">
-          <h2>Không có cuộc hẹn nào</h2>
-          <p>Bạn chưa có cuộc hẹn nào được lên lịch.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Handle logout
   const handleLogout = async () => {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
@@ -216,27 +186,39 @@ const ViewAppointment: React.FC = () => {
       message.error("Đăng xuất thất bại!");
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="va-loading">
+        <div className="va-loading-spinner"></div>
+        <p>Đang tải danh sách cuộc hẹn...</p>
+      </div>
+    );
+  }
+
+  if (!doctorInfo && appointments.length === 0) {
+    return (
+      <div className="va-loading">
+        <div className="va-error-message">
+          <h2>Không có cuộc hẹn nào</h2>
+          <p>Bạn chưa có cuộc hẹn nào được lên lịch.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (!doctorInfo) {
     return (
-      <div className="loading-container">
-        <div className="error-message">
+      <div className="va-loading">
+        <div className="va-error-message">
           <h2>Không thể tải thông tin bác sĩ</h2>
           <p>
             Phiên làm việc đã hết hạn hoặc đã xảy ra lỗi. Vui lòng đăng nhập
             lại.
           </p>
           <button
-            className="login-again-button"
+            className="va-login-again-btn"
             onClick={() => navigate("/login")}
-            style={{
-              padding: "10px 20px",
-              background: "#1890ff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              marginTop: "15px",
-            }}
           >
             Đăng nhập lại
           </button>
@@ -246,178 +228,167 @@ const ViewAppointment: React.FC = () => {
   }
 
   return (
-    <div className="view-appointment-container">
+    <div className="va-container">
       {/* Doctor Header */}
-      <div className="doctor-header">
-        <div className="doctor-avatar">
+      <div className="va-header">
+        <div className="va-doctor-info">
           <img
-            src={doctorInfo.imageUrl || "https://via.placeholder.com/150"}
+            src={doctorInfo.imageUrl || "https://via.placeholder.com/60"}
             alt="Doctor avatar"
+            className="va-doctor-avatar"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = "https://via.placeholder.com/150";
+              target.src = "https://via.placeholder.com/60";
             }}
           />
-        </div>
-        <div className="doctor-info">
-          <h1 className="doctor-name">
-            {doctorInfo.user?.userName || "Bác sĩ"}
-          </h1>
-          <div className="doctor-details">
-            <div className="detail-item">
-              <GraduationCap size={16} />
-              <span>{doctorInfo.degree || "Chưa cập nhật"}</span>
-            </div>
-            <div className="detail-item">
-              <User size={16} />
-              <span>{doctorInfo.specialty || "Chưa cập nhật"}</span>
-            </div>
-            <div className="detail-item">
-              <Mail size={16} />
-              <span>{doctorInfo.user?.email || "Chưa cập nhật"}</span>
-            </div>
-            <div className="detail-item">
-              <Phone size={16} />
-              <span>{doctorInfo.user?.phone || "Chưa cập nhật"}</span>
-            </div>
-          </div>
-          <p className="doctor-description">
-            {doctorInfo.description || "Chưa có mô tả"}
-          </p>
-          <div className="work-schedule">
-            <Clock size={16} />
-            <span>
-              Lịch làm việc:{" "}
-              {doctorInfo.workSchedule?.join(", ") || "Chưa cập nhật"}
-            </span>
+          <div className="va-doctor-details">
+            <h1 className="va-doctor-name">
+              {doctorInfo.user?.userName || "Bác sĩ"}
+            </h1>
+            <p className="va-doctor-specialty">
+              {doctorInfo.specialty} • {doctorInfo.degree}
+            </p>
           </div>
         </div>
-        <button className="doctor-logout-btn" onClick={handleLogout}>
-          <LogoutOutlined style={{ marginRight: 8 }} />
+        <button className="va-logout-btn" onClick={handleLogout}>
+          <LogoutOutlined />
           Đăng xuất
         </button>
       </div>
 
       {/* Controls */}
-      <div className="controls-section">
-        <div className="search-container">
-          <Search size={20} />
+      <div className="va-controls">
+        <div className="va-search-box">
+          <Search size={18} />
           <input
             type="text"
-            placeholder="Tìm kiếm bệnh nhân theo tên..."
+            placeholder="Tìm kiếm theo tên bệnh nhân..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
           />
         </div>
-
-        <div className="filter-container">
-          <select
-            value={statusFilter}
-            onChange={(e) =>
-              setStatusFilter(e.target.value as "all" | "pending" | "confirmed")
-            }
-            className="status-filter"
-          >
-            <option value="all">Tất cả trạng thái</option>
-            <option value="pending">Chờ xác nhận</option>
-            <option value="confirmed">Đã xác nhận</option>
-          </select>
-        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) =>
+            setStatusFilter(e.target.value as "all" | "pending" | "confirmed")
+          }
+          className="va-filter-select"
+        >
+          <option value="all">Tất cả trạng thái</option>
+          <option value="pending">Chờ xác nhận</option>
+          <option value="confirmed">Đã xác nhận</option>
+        </select>
       </div>
 
-      {/* Appointments List */}
-      <div className="appointments-section">
-        <div className="section-header">
+      {/* Table */}
+      <div className="va-table-container">
+        <div className="va-table-header">
           <h2>Danh sách cuộc hẹn ({filteredAppointments.length})</h2>
         </div>
 
         {filteredAppointments.length === 0 ? (
-          <div className="no-appointments">
-            <Calendar size={48} />
-            <h3>Không có cuộc hẹn nào</h3>
-            <p>
-              Không tìm thấy cuộc hẹn phù hợp với tiêu chí tìm kiếm của bạn.
-            </p>
+          <div className="va-no-data">
+            <Calendar size={40} />
+            <p>Không có cuộc hẹn nào phù hợp với tiêu chí tìm kiếm</p>
           </div>
         ) : (
-          <div className="appointments-grid">
-            {filteredAppointments.map((appointment) => (
-              <div key={appointment._id} className="appointment-card">
-                <div className="card-header">
-                  <div className="patient-info">
-                    <h3 className="patient-name">{appointment.fullName}</h3>
-                    <span
-                      className={`status-badge ${getStatusColor(
-                        appointment.status
-                      )}`}
-                    >
-                      {getStatusText(appointment.status)}
-                    </span>
-                  </div>
-                  <div className="appointment-date">
-                    <Calendar size={16} />
-                    <div>
-                      <div className="date">{formatDate(appointment.date)}</div>
-                      <div className="time">{formatTime(appointment.date)}</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="card-body">
-                  <div className="contact-info">
-                    <div className="info-item">
-                      <span style={{ fontWeight: "bold", marginRight: 6 }}>
-                        🆔
-                      </span>
-                      <span>{appointment.patientCode}</span>
-                    </div>
-                    <div className="info-item">
-                      <Mail size={16} />
-                      <span>{appointment.email}</span>
-                    </div>
-                    <div className="info-item">
-                      <Phone size={16} />
-                      <span>{appointment.phone}</span>
-                    </div>
-                    <div className="info-item">
-                      <MapPin size={16} />
-                      <span>{appointment.address}</span>
-                    </div>
-                  </div>
-
-                  <div className="appointment-details">
-                    <div className="detail-row">
-                      <span className="label">Giới tính:</span>
-                      <span className="value">
-                        {appointment.gender === "Male" ? "Nam" : "Nữ"}
-                      </span>
-                    </div>
-                    {appointment.note && (
-                      <div className="note-section">
-                        <FileText size={16} />
-                        <div>
-                          <span className="label">Ghi chú:</span>
-                          <p className="note-text">{appointment.note}</p>
+          <div className="va-table-wrapper">
+            <table className="va-table">
+              <thead>
+                <tr>
+                  <th>Mã BN</th>
+                  <th>Tên bệnh nhân</th>
+                  <th>Liên hệ</th>
+                  <th>Ngày hẹn</th>
+                  <th>Giới tính</th>
+                  <th>Trạng thái</th>
+                  <th>Ghi chú</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAppointments.map((appointment) => (
+                  <tr key={appointment._id}>
+                    <td>
+                      <div className="va-patient-code">
+                        {appointment.patientCode}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="va-patient-name">
+                        {appointment.fullName}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="va-contact">
+                        <div className="va-contact-item">
+                          <Mail size={14} />
+                          <span>{appointment.email}</span>
+                        </div>
+                        <div className="va-contact-item">
+                          <Phone size={14} />
+                          <span>{appointment.phone}</span>
+                        </div>
+                        <div className="va-contact-item">
+                          <MapPin size={14} />
+                          <span>{appointment.address}</span>
                         </div>
                       </div>
-                    )}
-                  </div>
-                </div>
-
-                {appointment.status === "pending" && (
-                  <div className="card-footer">
-                    <button
-                      onClick={() => handleConfirmAppointment(appointment._id)}
-                      className="confirm-button"
-                    >
-                      <Check size={16} />
-                      Xác nhận cuộc hẹn
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))}
+                    </td>
+                    <td>
+                      <div className="va-date-time">
+                        <div className="va-date">
+                          {formatDate(appointment.date)}
+                        </div>
+                        <div className="va-time">
+                          {formatTime(appointment.date)}
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="va-gender">
+                        {appointment.gender === "Male" ? "Nam" : "Nữ"}
+                      </span>
+                    </td>
+                    <td>
+                      <span
+                        className={`va-status va-status-${getStatusColor(
+                          appointment.status
+                        )}`}
+                      >
+                        {getStatusText(appointment.status)}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="va-note">
+                        {appointment.note ? (
+                          <span title={appointment.note}>
+                            {appointment.note.length > 30
+                              ? `${appointment.note.substring(0, 30)}...`
+                              : appointment.note}
+                          </span>
+                        ) : (
+                          <span className="va-no-note">Không có ghi chú</span>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      {appointment.status === "pending" && (
+                        <button
+                          onClick={() =>
+                            handleConfirmAppointment(appointment._id)
+                          }
+                          className="va-confirm-btn"
+                        >
+                          <Check size={16} />
+                          Xác nhận
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

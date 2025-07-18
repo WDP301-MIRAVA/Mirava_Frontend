@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, Filter, Eye } from "lucide-react";
+import { Search, Filter, Eye, Package, Clock, CheckCircle } from "lucide-react";
 import "./OrderManagement.css";
 
 interface Doctor {
@@ -18,6 +18,10 @@ interface Order {
     phone: string;
     patientCode: string;
   };
+  customerInfo?: {
+    userName: string;
+  };
+  doctorId?: string;
   items: Array<{
     service: {
       name: string;
@@ -41,7 +45,7 @@ interface Order {
 const OrderManagement: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null); // Thêm state error
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -96,13 +100,12 @@ const OrderManagement: React.FC = () => {
   };
   useEffect(() => {
     fetchOrders();
-    // eslint-disable-next-line
   }, [currentPage, statusFilter]);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      setError(null); // Reset error trước khi fetch
+      setError(null);
       const token = localStorage.getItem("accessToken");
 
       let url = `https://mirava-f0rz.onrender.com/api/orders?page=${currentPage}&limit=10`;
@@ -133,6 +136,7 @@ const OrderManagement: React.FC = () => {
   };
 
   const handleConfirmOrder = async (orderId: string, doctorId?: string) => {
+
     const order = orders.find((o) => o._id === orderId);
     if (!order) return;
     // Nếu chưa có doctorId và không truyền doctorId mới => mở modal chọn bác sĩ
@@ -147,6 +151,7 @@ const OrderManagement: React.FC = () => {
       )
     )
       return;
+
     setLoading(true);
     setError(null);
     try {
@@ -161,14 +166,13 @@ const OrderManagement: React.FC = () => {
           },
           body: JSON.stringify({
             doctorId: order.doctorId,
-            // note: "Ghi chú nếu cần"
           }),
         }
       );
       const data = await response.json();
       if (response.ok && data.success) {
         alert("Xác nhận đơn hàng và tạo kế hoạch điều trị thành công!");
-        fetchOrders(); // Refresh lại danh sách
+        fetchOrders();
       } else {
         setError(data.message || "Xác nhận đơn hàng thất bại");
       }
@@ -200,7 +204,7 @@ const OrderManagement: React.FC = () => {
     };
 
     return (
-      <span className={`status-badge ${statusInfo.class}`}>
+      <span className={`om-status-badge ${statusInfo.class}`}>
         {statusInfo.label}
       </span>
     );
@@ -220,11 +224,12 @@ const OrderManagement: React.FC = () => {
         searchTerm.toLowerCase()
       )
   );
+
   if (loading) {
     return (
-      <div className="order-management">
-        <div className="loading-container">
-          <div className="loading-spinner"></div>
+      <div className="om-container">
+        <div className="om-loading">
+          <div className="om-loading-spinner"></div>
           <p>Đang tải danh sách đơn hàng...</p>
         </div>
       </div>
@@ -233,64 +238,80 @@ const OrderManagement: React.FC = () => {
 
   if (error) {
     return (
-      <div className="order-management">
-        <div className="loading-container">
-          <p style={{ color: "red", fontWeight: 600 }}>Lỗi: {error}</p>
+      <div className="om-container">
+        <div className="om-loading">
+          <p className="om-error-message">Lỗi: {error}</p>
         </div>
       </div>
     );
   }
+
   return (
-    <div className="order-management">
-      <div className="order-header">
-        <h1>Quản lý đơn hàng</h1>
-        <div className="order-stats">
-          <div className="stat-card">
+    <div className="om-container">
+      {/* Stats Cards */}
+      <div className="om-stats">
+        <div className="om-stat-card">
+          <div className="om-stat-icon">
+            <Package size={24} />
+          </div>
+          <div className="om-stat-content">
             <h3>Tổng đơn hàng</h3>
             <p>{orders.length}</p>
           </div>
-          <div className="stat-card">
+        </div>
+        <div className="om-stat-card">
+          <div className="om-stat-icon pending">
+            <Clock size={24} />
+          </div>
+          <div className="om-stat-content">
             <h3>Chờ xử lý</h3>
             <p>{orders.filter((o) => o.orderStatus === "pending").length}</p>
           </div>
-          <div className="stat-card">
+        </div>
+        <div className="om-stat-card">
+          <div className="om-stat-icon completed">
+            <CheckCircle size={24} />
+          </div>
+          <div className="om-stat-content">
             <h3>Đã thanh toán</h3>
             <p>{orders.filter((o) => o.orderStatus === "paid").length}</p>
           </div>
         </div>
       </div>
 
-      <div className="order-controls">
-        <div className="search-container">
-          <Search size={20} />
+      {/* Controls */}
+      <div className="om-controls">
+        <div className="om-search-box">
+          <Search size={18} />
           <input
             type="text"
             placeholder="Tìm kiếm theo mã đơn hàng, tên khách hàng..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
           />
         </div>
-
-        <div className="filter-container">
-          <Filter size={20} />
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="filter-select"
-          >
-            <option value="all">Tất cả trạng thái</option>
-            <option value="pending">Chờ xử lý</option>
-            <option value="paid">Đã thanh toán</option>
-            <option value="completed">Hoàn thành</option>
-            <option value="cancelled">Đã hủy</option>
-          </select>
-        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className="om-filter-select"
+        >
+          <option value="all">Tất cả trạng thái</option>
+          <option value="pending">Chờ xử lý</option>
+          <option value="paid">Đã thanh toán</option>
+          <option value="completed">Hoàn thành</option>
+          <option value="cancelled">Đã hủy</option>
+        </select>
       </div>
 
-      <div className="orders-table-container">
+      {/* Table */}
+      <div className="om-table-container">
+        <div className="om-table-header">
+          <h2>Danh sách đơn hàng ({filteredOrders.length})</h2>
+        </div>
+
         {filteredOrders.length === 0 ? (
-          <div className="no-orders">
+          <div className="om-no-data">
+            <Package size={40} />
             <p>Không có đơn hàng nào được tìm thấy</p>
           </div>
         ) : (
@@ -366,34 +387,39 @@ const OrderManagement: React.FC = () => {
                         <Eye size={16} />
                       </button>
                       {order.orderStatus === "pending" && (
+
                         <button
-                          className="action-btn confirm-btn"
-                          style={{
-                            background: "#10b981",
-                            color: "#fff",
-                            marginLeft: 8,
-                          }}
-                          title="Xác nhận & tạo kế hoạch"
-                          onClick={() => handleConfirmOrder(order._id)}
+                          className="om-action-btn om-view-btn"
+                          title="Xem chi tiết"
                         >
-                          Xác nhận
+                          <Eye size={16} />
                         </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                        {order.orderStatus === "pending" && (
+                          <button
+                            className="om-action-btn om-confirm-btn"
+                            title="Xác nhận & tạo kế hoạch"
+                            onClick={() => handleConfirmOrder(order._id)}
+                          >
+                            <CheckCircle size={16} />
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
+      {/* Pagination */}
       {totalPages > 1 && (
-        <div className="pagination">
+        <div className="om-pagination">
           {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
             <button
               key={page}
-              className={`page-btn ${currentPage === page ? "active" : ""}`}
+              className={`om-page-btn ${currentPage === page ? "active" : ""}`}
               onClick={() => setCurrentPage(page)}
             >
               {page}

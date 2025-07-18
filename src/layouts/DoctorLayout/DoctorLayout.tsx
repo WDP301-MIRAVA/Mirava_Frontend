@@ -17,7 +17,6 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
     const path = location.pathname;
     if (path === "/doctor" || path === "/doctor/") return "Trang chủ";
     if (path.includes("/doctor/patients")) return "Bệnh nhân";
-    if (path.includes("/doctor/appointments")) return "Lịch hẹn";
     if (path.includes("/doctor/treatment-plans")) return "Kế hoạch điều trị";
     if (path.includes("/doctor/prescriptions")) return "Kê đơn thuốc";
     if (path.includes("/doctor/medicalrecord")) return "Hồ sơ y tế";
@@ -35,12 +34,7 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
   const menuItems = [
     { id: 1, name: "Trang chủ", label: "Trang chủ", path: "/doctor" },
     { id: 3, name: "Bệnh nhân", label: "Bệnh nhân", path: "/doctor/patients" },
-    {
-      id: 4,
-      name: "Lịch hẹn",
-      label: "Lịch hẹn",
-      path: "/doctor/appointments",
-    },
+
     {
       id: 5,
       name: "Kế hoạch điều trị",
