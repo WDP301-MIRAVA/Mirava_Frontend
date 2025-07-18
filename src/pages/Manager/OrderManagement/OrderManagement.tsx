@@ -161,7 +161,7 @@ const OrderManagement: React.FC = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            doctorId: order.doctorId,
+            doctorId: doctorId || order.doctorId,
             // note: "Ghi chú nếu cần"
           }),
         }
