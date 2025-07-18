@@ -71,6 +71,21 @@ export interface CreateUserResponse {
   message: string;
 }
 
+export interface CreateDoctorResponse {
+  user: {
+    userName: string;
+    email: string;
+    phone: string;
+    role: string;
+    degree: string;
+    specialty: string;
+    workSchedule: string[];
+    description: string;
+    imageUrl?: string;
+  };
+  message: string;
+}
+
 export interface UpdateUserRequest {
   password?: string;
   phone?: string;
@@ -78,6 +93,12 @@ export interface UpdateUserRequest {
   gender?: string;
   userName?: string;
   email?: string;
+}
+
+export interface UpdateUserResponse {
+  success: boolean;
+  message: string;
+  data: UserDetail;
 }
 
 export interface ToggleUserStatusResponse {

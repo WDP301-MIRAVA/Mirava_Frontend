@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Typography, Button, Avatar, message } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  Typography,
+  Button,
+  Avatar,
+  message,
+  Spin,
+} from "antd";
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -44,7 +53,7 @@ const Home: React.FC = () => {
               }
             );
             setUserInfo(response.data);
-          } catch (error) {
+          } catch {
             // Nếu không lấy được thông tin chi tiết, dùng thông tin từ token
             setUserInfo({
               _id: payload.id,
@@ -79,6 +88,14 @@ const Home: React.FC = () => {
       message.error("Đăng xuất thất bại!");
     }
   };
+
+  if (loading) {
+    return (
+      <div style={{ padding: "20px", textAlign: "center" }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
 
   return (
     <div style={{ padding: "20px" }}>

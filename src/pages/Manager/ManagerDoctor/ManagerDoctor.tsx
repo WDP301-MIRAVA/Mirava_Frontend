@@ -10,7 +10,6 @@ import {
   Stethoscope,
   Users,
   UserPlus,
-  Award,
 } from "lucide-react";
 import "./ManagerDoctor.css";
 
@@ -156,13 +155,13 @@ const ManagerDoctor: React.FC = () => {
         setDoctors(data);
         const uniqueSpecialties = [
           ...new Set(data.map((doctor: Doctor) => doctor.specialty)),
-        ];
+        ] as string[];
         setSpecialties(uniqueSpecialties);
       } else if (data.doctors && Array.isArray(data.doctors)) {
         setDoctors(data.doctors);
         const uniqueSpecialties = [
           ...new Set(data.doctors.map((doctor: Doctor) => doctor.specialty)),
-        ];
+        ] as string[];
         setSpecialties(uniqueSpecialties);
       } else {
         throw new Error("Dữ liệu trả về không đúng định dạng");

@@ -80,7 +80,8 @@ const CheckoutPage: React.FC = () => {
         );
         const data = await res.json();
         setService(data);
-      } catch (error) {
+      } catch (error: unknown) {
+        console.error("Lỗi khi tải thông tin dịch vụ:", error);
         toast.error("Không thể tải thông tin dịch vụ");
       }
     };
@@ -124,7 +125,7 @@ const CheckoutPage: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setAvailableDoctors(
-          data.data.map((doc: any) => ({
+          data.data.map((doc: Doctor) => ({
             _id: doc._id,
             name: doc.user.userName,
             specialty: doc.specialty,
@@ -320,8 +321,12 @@ const CheckoutPage: React.FC = () => {
           service: service,
         },
       });
-    } catch (error: any) {
-      toast.error(error.message || "Có lỗi xảy ra. Vui lòng thử lại!");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra. Vui lòng thử lại!";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

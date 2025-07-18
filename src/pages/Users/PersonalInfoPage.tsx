@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Form,
-  Input,
-  Button,
-  Select,
-  Typography,
-  Card,
-  Spin,
-  Radio,
-} from "antd";
+import { Form, Input, Button, Typography, Card, Spin, Radio } from "antd";
 import { decodeToken } from "@/utils/decodeToken";
 import { userServ } from "@/services/userServie";
 import toast from "react-hot-toast";
@@ -26,7 +17,21 @@ interface UserResponse {
   createdAt: string;
   updatedAt: string;
 }
-
+interface FormValues {
+  userName: string;
+  phone: string;
+  email: string;
+  address: string;
+  gender: "Male" | "Female" | "Other";
+  password?: string;
+  confirmPassword?: string;
+}
+interface UpdateUserPayload {
+  phone: string;
+  address: string;
+  gender: "Male" | "Female" | "Other";
+  password?: string;
+}
 const PersonalInfoPage: React.FC = () => {
   const [form] = Form.useForm();
   const [user, setUser] = useState<UserResponse | null>(null);
@@ -95,8 +100,12 @@ const PersonalInfoPage: React.FC = () => {
     fetchUser();
   }, []); // Empty dependency array
 
-  const onFinish = async (values: any) => {
+
+  const onFinish = async (values: FormValues) => {
+
+  
     // Validate password confirmation
+
     if (values.password && values.password !== values.confirmPassword) {
       toast.error("Mật khẩu xác nhận không khớp!");
       return;
@@ -104,6 +113,7 @@ const PersonalInfoPage: React.FC = () => {
 
     try {
       setUpdating(true);
+
 
       const token = localStorage.getItem("accessToken");
       if (!token) {
@@ -118,6 +128,7 @@ const PersonalInfoPage: React.FC = () => {
 
       // Prepare payload - chỉ gửi các field có thể update
       const payload: any = {
+
         phone: values.phone,
         address: values.address,
         gender: values.gender,

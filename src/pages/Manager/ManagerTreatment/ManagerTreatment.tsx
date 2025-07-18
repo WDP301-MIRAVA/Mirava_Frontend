@@ -17,7 +17,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  Grid,
   Card,
   CardContent,
   Select,
@@ -40,7 +39,6 @@ import {
   Search,
   Add,
   Edit,
-  Delete,
   Visibility,
   Assignment,
   Person,
@@ -51,6 +49,7 @@ import {
   Phone,
   Email,
   Refresh,
+  Close,
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import "./ManagerTreatment.css";
@@ -64,7 +63,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const GradientButton = styled(Button)(({ theme }) => ({
+const GradientButton = styled(Button)(() => ({
   background: "linear-gradient(45deg, #00B4C6, #0284c7)",
   color: "white",
   "&:hover": {
@@ -92,6 +91,7 @@ const StatusChip = styled(Chip)<{ status: string }>(({ status }) => ({
   }),
 }));
 
+// ✅ FIXED: Định nghĩa đầy đủ interfaces
 interface Patient {
   _id: string;
   userName: string;
@@ -103,23 +103,19 @@ interface Patient {
   treatmentPlans?: TreatmentPlan[];
 }
 
-interface TreatmentPlan {
+interface Doctor {
   _id: string;
-  patient: Patient;
-  doctor: {
-    _id: string;
-    user: {
-      userName: string;
-    };
-    specialty: string;
+  user: {
+    userName: string;
   };
-  treatmentType: string;
-  cycleStartDate: string;
-  status: string;
-  treatmentEvents: TreatmentEvent[];
-  progress: number;
-  createdAt: string;
-  updatedAt: string;
+  specialty: string;
+}
+
+interface MedicalRecord {
+  _id: string;
+  type: string;
+  content: string;
+  date: string;
 }
 
 interface TreatmentEvent {
@@ -132,7 +128,20 @@ interface TreatmentEvent {
   scheduledDates: string[];
   executionDate: string | null;
   performedBy: string;
-  medicalRecords: any[];
+  medicalRecords: MedicalRecord[];
+}
+
+interface TreatmentPlan {
+  _id: string;
+  patient: Patient;
+  doctor: Doctor;
+  treatmentType: string;
+  cycleStartDate: string;
+  status: string;
+  treatmentEvents: TreatmentEvent[];
+  progress: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface TabPanelProps {
@@ -141,13 +150,21 @@ interface TabPanelProps {
   value: number;
 }
 
-// Custom TabPanel component
-const CustomTabPanel = ({
+interface Statistics {
+  totalPlans: number;
+  activePlans: number;
+  completedPlans: number;
+  pausedPlans: number;
+  totalPatients: number;
+}
+
+// ✅ FIXED: Custom TabPanel component với proper typing
+const CustomTabPanel: React.FC<TabPanelProps> = ({
   children,
   value,
   index,
   ...other
-}: TabPanelProps) => (
+}) => (
   <div
     role="tabpanel"
     hidden={value !== index}
@@ -163,21 +180,20 @@ const ManagerTreatment: React.FC = () => {
   const [patients, setPatients] = useState<Patient[]>([]);
   const [treatmentPlans, setTreatmentPlans] = useState<TreatmentPlan[]>([]);
   const [filteredPlans, setFilteredPlans] = useState<TreatmentPlan[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
-  const [filterTreatmentType, setFilterTreatmentType] = useState("all");
-  const [tabValue, setTabValue] = useState(0);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [filterStatus, setFilterStatus] = useState<string>("all");
+  const [filterTreatmentType, setFilterTreatmentType] = useState<string>("all");
+  const [tabValue, setTabValue] = useState<number>(0);
 
   // Modal states
-  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState<boolean>(false);
   const [selectedPlan, setSelectedPlan] = useState<TreatmentPlan | null>(null);
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
-  // Statistics
-  const [stats, setStats] = useState({
+  // ✅ FIXED: Statistics with proper typing
+  const [stats, setStats] = useState<Statistics>({
     totalPlans: 0,
     activePlans: 0,
     completedPlans: 0,
@@ -193,7 +209,7 @@ const ManagerTreatment: React.FC = () => {
     filterTreatmentPlans();
   }, [treatmentPlans, searchTerm, filterStatus, filterTreatmentType]);
 
-  const fetchData = async () => {
+  const fetchData = async (): Promise<void> => {
     setLoading(true);
     try {
       await Promise.all([fetchTreatmentPlans(), fetchPatients()]);
@@ -205,9 +221,13 @@ const ManagerTreatment: React.FC = () => {
     }
   };
 
-  const fetchTreatmentPlans = async () => {
+  const fetchTreatmentPlans = async (): Promise<void> => {
     try {
       const token = localStorage.getItem("accessToken");
+      if (!token) {
+        throw new Error("Không tìm thấy token xác thực");
+      }
+
       const response = await fetch(
         "https://mirava-f0rz.onrender.com/api/treatment-plans",
         {
@@ -218,24 +238,21 @@ const ManagerTreatment: React.FC = () => {
         }
       );
 
-      if (!response.ok) throw new Error("Failed to fetch treatment plans");
+      if (!response.ok) {
+        throw new Error("Không thể tải danh sách kế hoạch điều trị");
+      }
 
       const data = await response.json();
-      setTreatmentPlans(data.data || []);
+      const plans: TreatmentPlan[] = data.data || [];
+      setTreatmentPlans(plans);
 
       // Calculate statistics
-      const plans = data.data || [];
       setStats({
         totalPlans: plans.length,
-        activePlans: plans.filter((p: TreatmentPlan) => p.status === "active")
-          .length,
-        completedPlans: plans.filter(
-          (p: TreatmentPlan) => p.status === "completed"
-        ).length,
-        pausedPlans: plans.filter((p: TreatmentPlan) => p.status === "paused")
-          .length,
-        totalPatients: new Set(plans.map((p: TreatmentPlan) => p.patient._id))
-          .size,
+        activePlans: plans.filter((p) => p.status === "active").length,
+        completedPlans: plans.filter((p) => p.status === "completed").length,
+        pausedPlans: plans.filter((p) => p.status === "paused").length,
+        totalPatients: new Set(plans.map((p) => p.patient._id)).size,
       });
     } catch (error) {
       console.error("Error fetching treatment plans:", error);
@@ -243,9 +260,13 @@ const ManagerTreatment: React.FC = () => {
     }
   };
 
-  const fetchPatients = async () => {
+  const fetchPatients = async (): Promise<void> => {
     try {
       const token = localStorage.getItem("accessToken");
+      if (!token) {
+        throw new Error("Không tìm thấy token xác thực");
+      }
+
       const response = await fetch(
         "https://mirava-f0rz.onrender.com/api/treatment-plans/patients",
         {
@@ -256,30 +277,30 @@ const ManagerTreatment: React.FC = () => {
         }
       );
 
-      if (!response.ok) throw new Error("Failed to fetch patients");
+      if (!response.ok) {
+        throw new Error("Không thể tải danh sách bệnh nhân");
+      }
 
       const data = await response.json();
       setPatients(data.data || []);
     } catch (error) {
       console.error("Error fetching patients:", error);
+      setError("Không thể tải danh sách bệnh nhân");
     }
   };
 
-  const filterTreatmentPlans = () => {
+  const filterTreatmentPlans = (): void => {
     let filtered = treatmentPlans;
 
     // Search filter
     if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (plan) =>
-          plan.patient.userName
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          plan.patient.patientCode
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
+          plan.patient.userName.toLowerCase().includes(searchLower) ||
+          plan.patient.patientCode.toLowerCase().includes(searchLower) ||
           plan.patient.phone.includes(searchTerm) ||
-          plan.patient.email.toLowerCase().includes(searchTerm.toLowerCase())
+          plan.patient.email.toLowerCase().includes(searchLower)
       );
     }
 
@@ -298,7 +319,7 @@ const ManagerTreatment: React.FC = () => {
     setFilteredPlans(filtered);
   };
 
-  const calculateProgress = (events: TreatmentEvent[]) => {
+  const calculateProgress = (events: TreatmentEvent[]): number => {
     if (!events.length) return 0;
     const completedEvents = events.filter(
       (event) => event.status === "completed"
@@ -306,7 +327,7 @@ const ManagerTreatment: React.FC = () => {
     return (completedEvents / events.length) * 100;
   };
 
-  const getStatusText = (status: string) => {
+  const getStatusText = (status: string): string => {
     switch (status) {
       case "active":
         return "Đang điều trị";
@@ -321,18 +342,52 @@ const ManagerTreatment: React.FC = () => {
     }
   };
 
-  const handleViewDetails = (plan: TreatmentPlan) => {
+  const getEventStatusText = (status: string): string => {
+    switch (status) {
+      case "completed":
+        return "Hoàn thành";
+      case "in_progress":
+        return "Đang thực hiện";
+      case "planned":
+        return "Đã lên lịch";
+      default:
+        return "Chưa thực hiện";
+    }
+  };
+
+  const getEventStatusColor = (
+    status: string
+  ): "success" | "warning" | "default" => {
+    switch (status) {
+      case "completed":
+        return "success";
+      case "in_progress":
+        return "warning";
+      default:
+        return "default";
+    }
+  };
+
+  const handleViewDetails = (plan: TreatmentPlan): void => {
     setSelectedPlan(plan);
     setShowDetailModal(true);
   };
 
-  const handleCreateTreatmentPlan = (patient: Patient) => {
+  const handleCreateTreatmentPlan = (patient: Patient): void => {
     setSelectedPatient(patient);
-    setShowCreateModal(true);
+    console.log("Patient selected:", selectedPatient);
+    console.log("Create treatment plan for patient:", patient.userName);
+  };
+  const handleTabChange = (
+    event: React.SyntheticEvent,
+    newValue: number
+  ): void => {
+    setTabValue(newValue);
   };
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
+  const handleCloseDetailModal = (): void => {
+    setShowDetailModal(false);
+    setSelectedPlan(null);
   };
 
   return (
@@ -367,9 +422,24 @@ const ManagerTreatment: React.FC = () => {
         </CardContent>
       </StyledCard>
 
-      {/* Statistics Cards */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} sm={6} md={2.4}>
+      {/* ✅ FIXED: Statistics Cards - Chuyển từ Grid sang Box */}
+      <Box
+        sx={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 2,
+          mb: 3,
+        }}
+      >
+        <Box
+          sx={{
+            flex: {
+              xs: "1 1 100%",
+              sm: "1 1 calc(50% - 8px)",
+              md: "1 1 calc(20% - 8px)",
+            },
+          }}
+        >
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
@@ -385,8 +455,17 @@ const ManagerTreatment: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={2.4}>
+        </Box>
+
+        <Box
+          sx={{
+            flex: {
+              xs: "1 1 100%",
+              sm: "1 1 calc(50% - 8px)",
+              md: "1 1 calc(20% - 8px)",
+            },
+          }}
+        >
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
@@ -402,8 +481,17 @@ const ManagerTreatment: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={2.4}>
+        </Box>
+
+        <Box
+          sx={{
+            flex: {
+              xs: "1 1 100%",
+              sm: "1 1 calc(50% - 8px)",
+              md: "1 1 calc(20% - 8px)",
+            },
+          }}
+        >
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
@@ -419,8 +507,17 @@ const ManagerTreatment: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={2.4}>
+        </Box>
+
+        <Box
+          sx={{
+            flex: {
+              xs: "1 1 100%",
+              sm: "1 1 calc(50% - 8px)",
+              md: "1 1 calc(20% - 8px)",
+            },
+          }}
+        >
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
@@ -436,8 +533,17 @@ const ManagerTreatment: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} sm={6} md={2.4}>
+        </Box>
+
+        <Box
+          sx={{
+            flex: {
+              xs: "1 1 100%",
+              sm: "1 1 calc(50% - 8px)",
+              md: "1 1 calc(20% - 8px)",
+            },
+          }}
+        >
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
@@ -453,8 +559,8 @@ const ManagerTreatment: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Tabs */}
       <Paper sx={{ mb: 3 }}>
@@ -471,8 +577,16 @@ const ManagerTreatment: React.FC = () => {
         <CustomTabPanel value={tabValue} index={0}>
           {/* Treatment Plans Tab */}
           <Box sx={{ mb: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={4}>
+            {/* ✅ FIXED: Filter controls - Chuyển từ Grid sang Box */}
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 2,
+                alignItems: "center",
+              }}
+            >
+              <Box sx={{ flex: { xs: "1 1 100%", md: "1 1 300px" } }}>
                 <TextField
                   fullWidth
                   placeholder="Tìm kiếm theo tên, mã BN, SĐT, email..."
@@ -486,8 +600,9 @@ const ManagerTreatment: React.FC = () => {
                     ),
                   }}
                 />
-              </Grid>
-              <Grid item xs={12} md={3}>
+              </Box>
+
+              <Box sx={{ flex: { xs: "1 1 100%", md: "1 1 200px" } }}>
                 <FormControl fullWidth>
                   <InputLabel>Trạng thái</InputLabel>
                   <Select
@@ -502,8 +617,9 @@ const ManagerTreatment: React.FC = () => {
                     <MenuItem value="cancelled">Đã hủy</MenuItem>
                   </Select>
                 </FormControl>
-              </Grid>
-              <Grid item xs={12} md={3}>
+              </Box>
+
+              <Box sx={{ flex: { xs: "1 1 100%", md: "1 1 200px" } }}>
                 <FormControl fullWidth>
                   <InputLabel>Loại điều trị</InputLabel>
                   <Select
@@ -516,8 +632,8 @@ const ManagerTreatment: React.FC = () => {
                     <MenuItem value="IUI">IUI</MenuItem>
                   </Select>
                 </FormControl>
-              </Grid>
-            </Grid>
+              </Box>
+            </Box>
           </Box>
 
           {loading && <LinearProgress sx={{ mb: 2 }} />}
@@ -651,10 +767,21 @@ const ManagerTreatment: React.FC = () => {
         </CustomTabPanel>
 
         <CustomTabPanel value={tabValue} index={1}>
-          {/* Patients Tab */}
-          <Grid container spacing={2}>
+          {/* ✅ FIXED: Patients Tab - Chuyển từ Grid sang Box */}
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 2,
+            }}
+          >
             {patients.map((patient) => (
-              <Grid item xs={12} md={6} key={patient._id}>
+              <Box
+                key={patient._id}
+                sx={{
+                  flex: { xs: "1 1 100%", md: "1 1 calc(50% - 8px)" },
+                }}
+              >
                 <Card>
                   <CardContent>
                     <Box
@@ -697,16 +824,16 @@ const ManagerTreatment: React.FC = () => {
                     </Box>
                   </CardContent>
                 </Card>
-              </Grid>
+              </Box>
             ))}
-          </Grid>
+          </Box>
         </CustomTabPanel>
       </Paper>
 
-      {/* Treatment Plan Detail Modal */}
+      {/* ✅ FIXED: Treatment Plan Detail Modal */}
       <Dialog
         open={showDetailModal}
-        onClose={() => setShowDetailModal(false)}
+        onClose={handleCloseDetailModal}
         maxWidth="lg"
         fullWidth
       >
@@ -717,16 +844,26 @@ const ManagerTreatment: React.FC = () => {
             alignItems="center"
           >
             <Typography variant="h6">Chi tiết kế hoạch điều trị</Typography>
-            <IconButton onClick={() => setShowDetailModal(false)}>
-              <Delete />
+            <IconButton onClick={handleCloseDetailModal}>
+              <Close />
             </IconButton>
           </Box>
         </DialogTitle>
         <DialogContent>
           {selectedPlan && (
             <Box>
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
+              {/* ✅ FIXED: Patient and Treatment Info - Chuyển từ Grid sang Box */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 3,
+                  mb: 3,
+                }}
+              >
+                <Box
+                  sx={{ flex: { xs: "1 1 100%", md: "1 1 calc(50% - 12px)" } }}
+                >
                   <Typography variant="h6" gutterBottom>
                     Thông tin bệnh nhân
                   </Typography>
@@ -762,8 +899,11 @@ const ManagerTreatment: React.FC = () => {
                       {selectedPlan.patient.email}
                     </Typography>
                   </Box>
-                </Grid>
-                <Grid item xs={12} md={6}>
+                </Box>
+
+                <Box
+                  sx={{ flex: { xs: "1 1 100%", md: "1 1 calc(50% - 12px)" } }}
+                >
                   <Typography variant="h6" gutterBottom>
                     Thông tin điều trị
                   </Typography>
@@ -815,8 +955,8 @@ const ManagerTreatment: React.FC = () => {
                       status={selectedPlan.status}
                     />
                   </Box>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
 
               <Divider sx={{ my: 3 }} />
 
@@ -863,23 +1003,9 @@ const ManagerTreatment: React.FC = () => {
                           {event.title}
                         </Typography>
                         <Chip
-                          label={
-                            event.status === "completed"
-                              ? "Hoàn thành"
-                              : event.status === "in_progress"
-                              ? "Đang thực hiện"
-                              : event.status === "planned"
-                              ? "Đã lên lịch"
-                              : "Chưa thực hiện"
-                          }
+                          label={getEventStatusText(event.status)}
                           size="small"
-                          color={
-                            event.status === "completed"
-                              ? "success"
-                              : event.status === "in_progress"
-                              ? "warning"
-                              : "default"
-                          }
+                          color={getEventStatusColor(event.status)}
                         />
                       </Box>
                     </AccordionSummary>
@@ -891,21 +1017,28 @@ const ManagerTreatment: React.FC = () => {
                       >
                         {event.description}
                       </Typography>
-                      <Grid container spacing={2}>
-                        <Grid item xs={6}>
+                      {/* ✅ FIXED: Event details - Chuyển từ Grid sang Box */}
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexWrap: "wrap",
+                          gap: 2,
+                        }}
+                      >
+                        <Box sx={{ flex: "1 1 calc(50% - 8px)" }}>
                           <Typography variant="body2" color="text.secondary">
                             Giai đoạn
                           </Typography>
                           <Typography variant="body2">{event.stage}</Typography>
-                        </Grid>
-                        <Grid item xs={6}>
+                        </Box>
+                        <Box sx={{ flex: "1 1 calc(50% - 8px)" }}>
                           <Typography variant="body2" color="text.secondary">
                             Loại
                           </Typography>
                           <Typography variant="body2">{event.type}</Typography>
-                        </Grid>
+                        </Box>
                         {event.executionDate && (
-                          <Grid item xs={6}>
+                          <Box sx={{ flex: "1 1 calc(50% - 8px)" }}>
                             <Typography variant="body2" color="text.secondary">
                               Ngày thực hiện
                             </Typography>
@@ -914,19 +1047,19 @@ const ManagerTreatment: React.FC = () => {
                                 "vi-VN"
                               )}
                             </Typography>
-                          </Grid>
+                          </Box>
                         )}
                         {event.performedBy && (
-                          <Grid item xs={6}>
+                          <Box sx={{ flex: "1 1 calc(50% - 8px)" }}>
                             <Typography variant="body2" color="text.secondary">
                               Người thực hiện
                             </Typography>
                             <Typography variant="body2">
                               {event.performedBy}
                             </Typography>
-                          </Grid>
+                          </Box>
                         )}
-                      </Grid>
+                      </Box>
                     </AccordionDetails>
                   </Accordion>
                 ))}
@@ -935,8 +1068,8 @@ const ManagerTreatment: React.FC = () => {
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setShowDetailModal(false)}>Đóng</Button>
-          <GradientButton onClick={() => setShowDetailModal(false)}>
+          <Button onClick={handleCloseDetailModal}>Đóng</Button>
+          <GradientButton onClick={handleCloseDetailModal}>
             Cập nhật
           </GradientButton>
         </DialogActions>
