@@ -92,6 +92,7 @@ const OrderManagement: React.FC = () => {
   // Khi xác nhận chọn bác sĩ
   const handleConfirmWithDoctor = async () => {
     if (!selectingOrder || !selectedDoctorId) return;
+    console.log("Xác nhận với doctorId:", selectedDoctorId);
     setShowDoctorModal(false);
     await handleConfirmOrder(selectingOrder._id, selectedDoctorId);
   };
