@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Form,
-  Input,
-  Button,
-  Select,
-  Typography,
-  Card,
-  Spin,
-  Radio,
-} from "antd";
+import { Form, Input, Button, Typography, Card, Spin, Radio } from "antd";
 import { decodeToken } from "@/utils/decodeToken";
 import { userServ } from "@/services/userServie";
 import toast from "react-hot-toast";
@@ -26,7 +17,21 @@ interface UserResponse {
   createdAt: string;
   updatedAt: string;
 }
-
+interface FormValues {
+  userName: string;
+  phone: string;
+  email: string;
+  address: string;
+  gender: "Male" | "Female" | "Other";
+  password?: string;
+  confirmPassword?: string;
+}
+interface UpdateUserPayload {
+  phone: string;
+  address: string;
+  gender: "Male" | "Female" | "Other";
+  password?: string;
+}
 const PersonalInfoPage: React.FC = () => {
   const [form] = Form.useForm();
   const [user, setUser] = useState<UserResponse | null>(null);
@@ -68,7 +73,7 @@ const PersonalInfoPage: React.FC = () => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   };
 
-  const onFinish = async (values: any) => {
+  const onFinish = async (values: FormValues) => {
     if (values.password && values.password !== values.confirmPassword) {
       toast.error("Mật khẩu xác nhận không khớp!");
       return;
@@ -77,7 +82,7 @@ const PersonalInfoPage: React.FC = () => {
     try {
       setLoading(true);
 
-      const payload: any = {
+      const payload: UpdateUserPayload = {
         phone: values.phone,
         address: values.address,
         gender: values.gender,

@@ -4,12 +4,20 @@ import { Link } from "react-router-dom";
 import { userServ } from "../../services/userServie";
 import Header from "../../components/Header/index";
 import Footer from "../../components/Footer";
-import logo from '../../assets/mirava-logo.png'; 
+import logo from "../../assets/mirava-logo.png";
 import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
   const navigate = useNavigate();
-  const onFinish = async (values) => {
+  interface RegisterFormData {
+    userName: string;
+    phone: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+  }
+
+  const onFinish = async (values: RegisterFormData): Promise<void> => {
     try {
       await userServ.postSignUp(values);
       console.log("Đăng ký thành công:", values);
@@ -43,7 +51,9 @@ const RegisterPage = () => {
               <Form.Item
                 label="Họ và tên"
                 name="userName"
-                rules={[{ required: true, message: "Vui lòng nhập họ và tên!" }]}
+                rules={[
+                  { required: true, message: "Vui lòng nhập họ và tên!" },
+                ]}
               >
                 <Input size="large" />
               </Form.Item>

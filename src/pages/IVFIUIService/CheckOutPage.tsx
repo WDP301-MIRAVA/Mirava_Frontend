@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./CheckoutPage.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -37,7 +37,6 @@ const CheckoutPage: React.FC = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
   const [service, setService] = useState<ServiceDetail | null>(null);
   const navigate = useNavigate();
-  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [loadingDoctors, setLoadingDoctors] = useState(false);
   const [availableDoctors, setAvailableDoctors] = useState<AvailableDoctor[]>(
@@ -81,7 +80,8 @@ const CheckoutPage: React.FC = () => {
         );
         const data = await res.json();
         setService(data);
-      } catch (error) {
+      } catch (error: unknown) {
+        console.error("Lỗi khi tải thông tin dịch vụ:", error);
         toast.error("Không thể tải thông tin dịch vụ");
       }
     };
@@ -125,7 +125,7 @@ const CheckoutPage: React.FC = () => {
       const data = await res.json();
       if (data.success) {
         setAvailableDoctors(
-          data.data.map((doc: any) => ({
+          data.data.map((doc: Doctor) => ({
             _id: doc._id,
             name: doc.user.userName,
             specialty: doc.specialty,
@@ -321,8 +321,12 @@ const CheckoutPage: React.FC = () => {
           service: service,
         },
       });
-    } catch (error: any) {
-      toast.error(error.message || "Có lỗi xảy ra. Vui lòng thử lại!");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra. Vui lòng thử lại!";
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import "./UnifiedCheckOutPage.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -43,10 +43,24 @@ interface OrderFormData {
   paymentMethod: string;
   notes: string;
 }
-
+interface DoctorApiResponse {
+  _id: string;
+  user?: {
+    userName?: string;
+  };
+  specialty?: string;
+}
+interface OrderResult {
+  type: "service" | "test-package";
+  data: {
+    orderCode: string;
+    vnpUrl?: string;
+    [key: string]: unknown;
+  };
+  orderCode: string;
+}
 const UnifiedCheckOutPage: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loadingDoctors, setLoadingDoctors] = useState(false);
   const [availableDoctors, setAvailableDoctors] = useState<AvailableDoctor[]>(
@@ -88,7 +102,7 @@ const UnifiedCheckOutPage: React.FC = () => {
       try {
         const parsedCart = JSON.parse(storedCart);
         if (Array.isArray(parsedCart) && parsedCart.length > 0) {
-          const normalizedCart = parsedCart.map((item: any) => ({
+          const normalizedCart = parsedCart.map((item: CartItem) => ({
             ...item,
             quantity: item.quantity || 1, // Mặc định là 1 nếu không có quantity
           }));
@@ -123,7 +137,7 @@ const UnifiedCheckOutPage: React.FC = () => {
       const data = await response.json();
 
       if (data.success && Array.isArray(data.data)) {
-        return data.data.map((doc: any) => ({
+        return data.data.map((doc: DoctorApiResponse) => ({
           _id: doc._id,
           name: doc.user?.userName || "Không có tên",
           specialty: doc.specialty || "Chưa cập nhật",
@@ -151,7 +165,7 @@ const UnifiedCheckOutPage: React.FC = () => {
       const data = await response.json();
 
       if (data.success && Array.isArray(data.data)) {
-        return data.data.map((doc: any) => ({
+        return data.data.map((doc: DoctorApiResponse) => ({
           _id: doc._id,
           name: doc.user?.userName || "Không có tên",
           specialty: doc.specialty || "Chưa cập nhật",
@@ -349,7 +363,7 @@ const UnifiedCheckOutPage: React.FC = () => {
       console.log("📝 Dữ liệu chung:", commonData);
 
       // Tạo array chứa các promises để gửi đồng thời
-      const orderPromises: Promise<any>[] = [];
+      const orderPromises: Promise<OrderResult>[] = [];
       const orderTypes: string[] = [];
 
       // ✅ XỬ LÝ DỊCH VỤ IUI/IVF
@@ -396,8 +410,8 @@ const UnifiedCheckOutPage: React.FC = () => {
               );
             }
 
-            const serviceResult = {
-              type: "service",
+            const serviceResult: OrderResult = {
+              type: "service" as const,
               data: result.data,
               orderCode: result.data.orderCode,
             };
@@ -463,8 +477,8 @@ const UnifiedCheckOutPage: React.FC = () => {
               );
             }
 
-            const testResult = {
-              type: "test-package",
+            const testResult: OrderResult = {
+              type: "test-package" as const,
               data: result.data,
               orderCode: result.data.orderCode,
             };
@@ -582,23 +596,31 @@ const UnifiedCheckOutPage: React.FC = () => {
       navigate("/payment-success", {
         state: navigationState,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("❌ Lỗi tổng thể:", error);
-      console.error("❌ Error stack:", error.stack);
+
+      // Type guard để kiểm tra và xử lý error an toàn
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Có lỗi xảy ra. Vui lòng thử lại!";
+
+      if (error instanceof Error && error.stack) {
+        console.error("❌ Error stack:", error.stack);
+      }
 
       // Hiển thị lỗi cụ thể
-      if (error.message.includes("dịch vụ")) {
-        const errorMsg = `Lỗi đặt dịch vụ: ${error.message}`;
+      if (errorMessage.includes("dịch vụ")) {
+        const errorMsg = `Lỗi đặt dịch vụ: ${errorMessage}`;
         console.error("🏥 " + errorMsg);
         toast.error(errorMsg);
-      } else if (error.message.includes("xét nghiệm")) {
-        const errorMsg = `Lỗi đặt gói xét nghiệm: ${error.message}`;
+      } else if (errorMessage.includes("xét nghiệm")) {
+        const errorMsg = `Lỗi đặt gói xét nghiệm: ${errorMessage}`;
         console.error("🧪 " + errorMsg);
         toast.error(errorMsg);
       } else {
-        const errorMsg = error.message || "Có lỗi xảy ra. Vui lòng thử lại!";
-        console.error("⚠️ " + errorMsg);
-        toast.error(errorMsg);
+        console.error("⚠️ " + errorMessage);
+        toast.error(errorMessage);
       }
     } finally {
       console.log("🔚 Kết thúc xử lý đơn hàng");
