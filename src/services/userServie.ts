@@ -16,6 +16,7 @@ export interface User {
 }
 
 export interface UserDetail {
+  data: any;
   _id: string;
   userName: string;
   email: string;

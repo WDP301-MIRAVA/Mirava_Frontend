@@ -83,7 +83,7 @@ h2 {
   text-align: left;
 }
 
-/* Ant Design Form Item Overrides - Sửa lỗi ô trong ô */
+/* Ant Design Form Item Overrides */
 .login-box .ant-form-item {
   margin-bottom: 24px;
 }
@@ -95,16 +95,15 @@ h2 {
   height: auto;
 }
 
-/* Sửa lỗi Input bị lồng nhau */
-.login-box .ant-input,
-.login-box .ant-input-password {
-  height: 44px;
-  border-radius: 8px;
-  border: 2px solid #e5e7eb;
-  font-size: 15px;
-  padding: 0 16px;
-  transition: all 0.3s ease;
-  background-color: #fff;
+/* Normal Input styling */
+.login-box .ant-input {
+  height: 44px !important;
+  border-radius: 8px !important;
+  border: 2px solid #e5e7eb !important;
+  font-size: 15px !important;
+  padding: 0 16px !important;
+  transition: all 0.3s ease !important;
+  background-color: #fff !important;
   box-shadow: none !important;
 }
 
@@ -112,39 +111,74 @@ h2 {
 .login-box .ant-input-password:focus,
 .login-box .ant-input-focused,
 .login-box .ant-input-password-focused {
-  border-color: #24b5cf;
+  border-color: #24B5CF;
   box-shadow: 0 0 0 3px rgba(36, 181, 207, 0.1) !important;
-  outline: none;
+  outline: none !important;
 }
 
 .login-box .ant-input:hover,
 .login-box .ant-input-password:hover {
-  border-color: #24b5cf;
+  border-color: #24B5CF;
 }
 
 /* Sửa lỗi Input Password bị lồng */
 .login-box .ant-input-password .ant-input {
   border: none !important;
+  outline: none !important;
   box-shadow: none !important;
-  padding: 0;
-  background: transparent;
-  height: auto;
+  background: transparent !important;
+  padding: 0 16px !important;
+  width: 100% !important;
+  height: 100% !important;
+  font-size: 15px !important;
+  color: rgba(0, 0, 0, 0.85) !important;
+  border-radius: 0 !important;
 }
 
-.login-box .ant-input-password .ant-input:focus {
-  box-shadow: none !important;
+/* Remove focus styling từ input bên trong */
+.login-box .ant-input-password > .ant-input:focus,
+.login-box .ant-input-password > .ant-input:focus-visible {
   border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
-/* Icon mắt trong password input */
+/* Hover state cho password container */
+.login-box .ant-input-password:hover {
+  border-color: #24B5CF !important;
+}
+
+/* Focus state cho password container */
+.login-box .ant-input-password:focus,
+.login-box .ant-input-password:focus-within,
+.login-box .ant-input-password-focused {
+  border-color: #24B5CF !important;
+  box-shadow: 0 0 0 3px rgba(36, 181, 207, 0.1) !important;
+  outline: none !important;
+}
+
+/* Icon container */
+.login-box .ant-input-password .ant-input-suffix {
+  position: absolute !important;
+  right: 12px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 1 !important;
+}
+
+/* Icon mắt */
 .login-box .ant-input-password-icon {
-  color: #9ca3af;
-  transition: color 0.3s ease;
+  color: #9ca3af !important;
+  cursor: pointer !important;
+  transition: color 0.3s ease !important;
+  font-size: 16px !important;
 }
 
 .login-box .ant-input-password-icon:hover {
-  color: #24b5cf;
+  color: #24B5CF;
 }
+
+/* ===== END PASSWORD INPUT FIX ===== */
 
 /* Checkbox styling */
 .login-box .ant-checkbox-wrapper {
@@ -228,12 +262,13 @@ h2 {
 /* Error states */
 .login-box .ant-form-item-has-error .ant-input,
 .login-box .ant-form-item-has-error .ant-input-password {
-  border-color: #ef4444;
+  border-color: #ef4444 !important;
 }
 
 .login-box .ant-form-item-has-error .ant-input:focus,
 .login-box .ant-form-item-has-error .ant-input-password:focus {
   border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
 }
 
 .login-box .ant-form-item-explain-error {
@@ -285,43 +320,4 @@ h2 {
     font-size: 24px;
     text-align: center;
   }
-}
-/* FIX lỗi viền đỏ bị đúp khi nhập sai password */
-.login-box .ant-form-item-has-error .ant-input-password {
-  border: 2px solid #ef4444 !important;
-  padding: 0 11px;
-  border-radius: 8px;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.05);
-}
-
-.login-box .ant-form-item-has-error .ant-input-password input {
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  background: transparent;
-}
-/* 🧼 Fix lỗi viền đỏ lặp ở Input.Password khi có lỗi */
-.login-box .ant-input-password {
-  border: 2px solid #e5e7eb; /* default */
-  border-radius: 8px;
-  padding: 0 11px;
-  transition: all 0.3s ease;
-}
-
-.login-box .ant-input-password input {
-  border: none !important;
-  box-shadow: none !important;
-  padding: 0 !important;
-  height: 44px;
-  background: transparent;
-}
-
-/* 🔴 Khi có lỗi */
-.login-box .ant-form-item-has-error .ant-input-password {
-  border-color: #ef4444 !important;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-.login-box .ant-form-item-has-error .ant-input-password input {
-  background-color: transparent;
 }
