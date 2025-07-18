@@ -1,66 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  Box,
-  Card,
-  CardContent,
-  Typography,
-  TextField,
-  Button,
-  Grid,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Alert,
-  Paper,
-  Chip,
-  Divider,
-  Avatar,
-  Container,
-  Stack,
-  CircularProgress,
-  Snackbar,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  IconButton,
-  Tooltip,
-  Stepper,
-  Step,
-  StepLabel,
-  StepContent,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  FormControlLabel,
-  Switch,
-  LinearProgress,
-  Pagination,
-} from "@mui/material";
-import {
-  Science,
-  Person,
-  Assignment,
-  Save,
-  CheckCircle,
-  Warning,
-  Add,
-  Delete,
-  Edit,
-  Print,
-  ExpandMore,
-  CalendarToday,
-  Search,
-  Refresh,
-} from "@mui/icons-material";
 import axios from "axios";
+import "./ResultTest.css";
 
 // API Base URL
 const BASE_URL = "https://mirava-f0rz.onrender.com";
@@ -146,13 +86,13 @@ const TestResults: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedResult, setSubmittedResult] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState<
+  const [showNotification, setShowNotification] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [notificationType, setNotificationType] = useState<
     "success" | "error" | "info"
   >("success");
   const [activeStep, setActiveStep] = useState(0);
-  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // States for test registrations
   const [testRegistrations, setTestRegistrations] = useState<
@@ -369,9 +309,9 @@ const TestResults: React.FC = () => {
 
       if (response.data.success) {
         setSubmittedResult(response.data.data);
-        setSnackbarMessage("Kết quả xét nghiệm đã được tạo thành công!");
-        setSnackbarSeverity("success");
-        setSnackbarOpen(true);
+        setNotificationMessage("Kết quả xét nghiệm đã được tạo thành công!");
+        setNotificationType("success");
+        setShowNotification(true);
         setActiveStep(0);
 
         // Reset form
@@ -399,9 +339,9 @@ const TestResults: React.FC = () => {
         error.response?.data?.message ||
         error.message ||
         "Có lỗi xảy ra khi tạo kết quả";
-      setSnackbarMessage(errorMsg);
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
+      setNotificationMessage(errorMsg);
+      setNotificationType("error");
+      setShowNotification(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -430,26 +370,7 @@ const TestResults: React.FC = () => {
     setActiveStep((prev) => prev - 1);
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "normal":
-        return "success";
-      case "abnormal":
-        return "error";
-      case "borderline":
-        return "warning";
-      case "pending":
-        return "warning";
-      case "confirmed":
-        return "info";
-      case "completed":
-        return "success";
-      default:
-        return "default";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
+  const getStatusText = (status: string) => {
     switch (status) {
       case "normal":
         return "Bình thường";
@@ -486,106 +407,106 @@ const TestResults: React.FC = () => {
     switch (step) {
       case 0:
         return (
-          <Box>
-            <Typography variant="h6" mb={3}>
-              Danh sách đăng ký xét nghiệm
-            </Typography>
+          <div className="rt-step-content">
+            <h3>Danh sách đăng ký xét nghiệm</h3>
 
-            <Grid container spacing={2} mb={3}>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Tìm kiếm theo tên, mã bệnh nhân hoặc số điện thoại"
+            <div className="rt-controls">
+              <div className="rt-search-box">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.35-4.35" />
+                </svg>
+                <input
+                  type="text"
+                  placeholder="Tìm kiếm theo tên, mã bệnh nhân hoặc số điện thoại..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Nhập từ khóa tìm kiếm..."
-                  InputProps={{
-                    startAdornment: (
-                      <Search sx={{ mr: 1, color: "action.active" }} />
-                    ),
-                  }}
                 />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <FormControl fullWidth>
-                  <InputLabel>Trạng thái</InputLabel>
-                  <Select
-                    value={statusFilter}
-                    onChange={(e) => setStatusFilter(e.target.value)}
-                    label="Trạng thái"
-                  >
-                    <MenuItem value="">Tất cả</MenuItem>
-                    <MenuItem value="pending">Chờ xử lý</MenuItem>
-                    <MenuItem value="confirmed">Đã xác nhận</MenuItem>
-                    <MenuItem value="completed">Hoàn thành</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} md={2}>
-                <Button
-                  fullWidth
-                  variant="outlined"
-                  startIcon={<Refresh />}
-                  onClick={fetchTestRegistrations}
-                  sx={{ height: 56 }}
-                >
-                  Làm mới
-                </Button>
-              </Grid>
-            </Grid>
+              </div>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="rt-filter-select"
+              >
+                <option value="">Tất cả trạng thái</option>
+                <option value="pending">Chờ xử lý</option>
+                <option value="confirmed">Đã xác nhận</option>
+                <option value="completed">Hoàn thành</option>
+              </select>
+              <button
+                className="rt-refresh-btn"
+                onClick={fetchTestRegistrations}
+              >
+                🔄 Làm mới
+              </button>
+            </div>
 
             {isLoading ? (
-              <Box display="flex" justifyContent="center" p={3}>
-                <CircularProgress />
-              </Box>
+              <div className="rt-loading">
+                <div className="rt-loading-spinner"></div>
+                <p>Đang tải danh sách đăng ký...</p>
+              </div>
             ) : testRegistrations.length === 0 ? (
-              <Paper sx={{ p: 3, textAlign: "center" }}>
-                <Science
-                  sx={{ fontSize: 48, color: "text.secondary", mb: 2 }}
-                />
-                <Typography variant="h6" color="text.secondary">
-                  Không có đăng ký xét nghiệm nào
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Chưa có bệnh nhân nào đăng ký xét nghiệm với bạn
-                </Typography>
-              </Paper>
+              <div className="rt-no-data">
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                <p>Không có đăng ký xét nghiệm nào</p>
+              </div>
             ) : (
-              <>
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Bệnh nhân</TableCell>
-                        <TableCell>Mã BN</TableCell>
-                        <TableCell>Gói xét nghiệm</TableCell>
-                        <TableCell>Ngày đăng ký</TableCell>
-                        <TableCell>Trạng thái</TableCell>
-                        <TableCell>Thao tác</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
+              <div className="rt-table-container">
+                <div className="rt-table-wrapper">
+                  <table className="rt-table">
+                    <thead>
+                      <tr>
+                        <th>Bệnh nhân</th>
+                        <th>Mã BN</th>
+                        <th>Gói xét nghiệm</th>
+                        <th>Ngày đăng ký</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
                       {testRegistrations.map((registration) => (
-                        <TableRow key={registration._id}>
-                          <TableCell>{registration.patient.userName}</TableCell>
-                          <TableCell>
-                            {registration.patient.patientCode}
-                          </TableCell>
-                          <TableCell>{registration.testPackage.name}</TableCell>
-                          <TableCell>
+                        <tr key={registration._id}>
+                          <td>{registration.patient.userName}</td>
+                          <td>
+                            <div className="rt-patient-code">
+                              {registration.patient.patientCode}
+                            </div>
+                          </td>
+                          <td>{registration.testPackage.name}</td>
+                          <td>
                             {formatDateForDisplay(registration.requestedDate)}
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={getStatusLabel(registration.status)}
-                              color={getStatusColor(registration.status) as any}
-                              size="small"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              variant="outlined"
-                              size="small"
+                          </td>
+                          <td>
+                            <span
+                              className={`rt-status rt-status-${registration.status}`}
+                            >
+                              {getStatusText(registration.status)}
+                            </span>
+                          </td>
+                          <td>
+                            <button
+                              className="rt-action-btn rt-select-btn"
                               onClick={() =>
                                 handleSelectRegistration(registration)
                               }
@@ -594,207 +515,194 @@ const TestResults: React.FC = () => {
                               {registration.status === "completed"
                                 ? "Đã có KQ"
                                 : "Chọn"}
-                            </Button>
-                          </TableCell>
-                        </TableRow>
+                            </button>
+                          </td>
+                        </tr>
                       ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
+                    </tbody>
+                  </table>
+                </div>
 
-                <Box display="flex" justifyContent="center" mt={3}>
-                  <Pagination
-                    count={totalPages}
-                    page={currentPage}
-                    onChange={(event, page) => setCurrentPage(page)}
-                    color="primary"
-                  />
-                </Box>
-              </>
+                {totalPages > 1 && (
+                  <div className="rt-pagination">
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (page) => (
+                        <button
+                          key={page}
+                          className={`rt-page-btn ${
+                            currentPage === page ? "active" : ""
+                          }`}
+                          onClick={() => setCurrentPage(page)}
+                        >
+                          {page}
+                        </button>
+                      )
+                    )}
+                  </div>
+                )}
+              </div>
             )}
 
             {formData.patientInfo && (
-              <Paper sx={{ p: 2, mt: 2, bgcolor: "success.light" }}>
-                <Typography variant="h6" color="success.dark">
-                  Đã chọn:
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <Typography>
-                      <strong>Bệnh nhân:</strong> {formData.patientInfo.name}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography>
-                      <strong>Mã BN:</strong> {formData.patientInfo.patientCode}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography>
-                      <strong>SĐT:</strong> {formData.patientInfo.phone}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography>
-                      <strong>Gói XN:</strong> {formData.testPackageInfo?.name}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </Paper>
+              <div className="rt-selected-info">
+                <h4>Đã chọn:</h4>
+                <div className="rt-selected-details">
+                  <div className="rt-detail-item">
+                    <strong>Bệnh nhân:</strong> {formData.patientInfo.name}
+                  </div>
+                  <div className="rt-detail-item">
+                    <strong>Mã BN:</strong> {formData.patientInfo.patientCode}
+                  </div>
+                  <div className="rt-detail-item">
+                    <strong>SĐT:</strong> {formData.patientInfo.phone}
+                  </div>
+                  <div className="rt-detail-item">
+                    <strong>Gói XN:</strong> {formData.testPackageInfo?.name}
+                  </div>
+                </div>
+              </div>
             )}
-          </Box>
+          </div>
         );
 
       case 1:
         return (
-          <Box>
-            <Box mb={3}>
-              <Typography variant="h6" mb={2}>
-                Ngày thực hiện xét nghiệm
-              </Typography>
-              <TextField
-                fullWidth
-                label="Ngày xét nghiệm"
+          <div className="rt-step-content">
+            <div className="rt-form-group">
+              <label className="rt-form-label">
+                Ngày thực hiện xét nghiệm *
+              </label>
+              <input
                 type="date"
+                className="rt-form-input"
                 value={formData.testDate}
                 onChange={(e) => handleInputChange("testDate", e.target.value)}
                 required
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <CalendarToday sx={{ mr: 1, color: "action.active" }} />
-                  ),
-                }}
               />
-            </Box>
+            </div>
 
-            <Box
-              display="flex"
-              justifyContent="space-between"
-              alignItems="center"
-              mb={3}
-            >
-              <Typography variant="h6">Chi tiết kết quả xét nghiệm</Typography>
-              <Button
-                variant="outlined"
-                startIcon={<Add />}
-                onClick={addTestResult}
-                color="primary"
-              >
-                Thêm xét nghiệm
-              </Button>
-            </Box>
+            <div className="rt-section-header">
+              <h3>Chi tiết kết quả xét nghiệm</h3>
+              <button className="rt-add-btn" onClick={addTestResult}>
+                ➕ Thêm xét nghiệm
+              </button>
+            </div>
 
             {formData.testResults.length === 0 ? (
-              <Paper sx={{ p: 3, textAlign: "center" }}>
-                <Science
-                  sx={{ fontSize: 48, color: "text.secondary", mb: 2 }}
-                />
-                <Typography variant="h6" color="text.secondary">
-                  Chưa có kết quả xét nghiệm
-                </Typography>
-                <Typography variant="body2" color="text.secondary" mb={2}>
-                  Nhấn "Thêm xét nghiệm" để bắt đầu nhập kết quả
-                </Typography>
-              </Paper>
+              <div className="rt-no-data">
+                <svg
+                  width="40"
+                  height="40"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+                <p>Chưa có kết quả xét nghiệm</p>
+                <p>Nhấn "Thêm xét nghiệm" để bắt đầu nhập kết quả</p>
+              </div>
             ) : (
-              <TableContainer component={Paper}>
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Tên xét nghiệm</TableCell>
-                      <TableCell>Mã XN</TableCell>
-                      <TableCell>Giá trị</TableCell>
-                      <TableCell>Đơn vị</TableCell>
-                      <TableCell>Khoảng bình thường</TableCell>
-                      <TableCell>Trạng thái</TableCell>
-                      <TableCell>Ghi chú</TableCell>
-                      <TableCell>Thao tác</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {formData.testResults.map((result, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <TextField
-                            size="small"
-                            value={result.testName}
-                            onChange={(e) =>
-                              handleTestResultChange(
-                                index,
-                                "testName",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Tên xét nghiệm"
-                            fullWidth
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            size="small"
-                            value={result.testCode}
-                            onChange={(e) =>
-                              handleTestResultChange(
-                                index,
-                                "testCode",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Mã XN"
-                            fullWidth
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            size="small"
-                            value={result.value}
-                            onChange={(e) =>
-                              handleTestResultChange(
-                                index,
-                                "value",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Giá trị"
-                            fullWidth
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            size="small"
-                            value={result.unit}
-                            onChange={(e) =>
-                              handleTestResultChange(
-                                index,
-                                "unit",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Đơn vị"
-                            fullWidth
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            size="small"
-                            value={result.normalRange}
-                            onChange={(e) =>
-                              handleTestResultChange(
-                                index,
-                                "normalRange",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Khoảng bình thường"
-                            fullWidth
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <FormControl size="small" fullWidth>
-                            <Select
+              <div className="rt-table-container">
+                <div className="rt-table-wrapper">
+                  <table className="rt-table rt-results-table">
+                    <thead>
+                      <tr>
+                        <th>Tên xét nghiệm</th>
+                        <th>Mã XN</th>
+                        <th>Giá trị</th>
+                        <th>Đơn vị</th>
+                        <th>Khoảng bình thường</th>
+                        <th>Trạng thái</th>
+                        <th>Ghi chú</th>
+                        <th>Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {formData.testResults.map((result, index) => (
+                        <tr key={index}>
+                          <td>
+                            <input
+                              type="text"
+                              className="rt-table-input"
+                              value={result.testName}
+                              onChange={(e) =>
+                                handleTestResultChange(
+                                  index,
+                                  "testName",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Tên xét nghiệm"
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              className="rt-table-input"
+                              value={result.testCode}
+                              onChange={(e) =>
+                                handleTestResultChange(
+                                  index,
+                                  "testCode",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Mã XN"
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              className="rt-table-input"
+                              value={result.value}
+                              onChange={(e) =>
+                                handleTestResultChange(
+                                  index,
+                                  "value",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Giá trị"
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              className="rt-table-input"
+                              value={result.unit}
+                              onChange={(e) =>
+                                handleTestResultChange(
+                                  index,
+                                  "unit",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Đơn vị"
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              className="rt-table-input"
+                              value={result.normalRange}
+                              onChange={(e) =>
+                                handleTestResultChange(
+                                  index,
+                                  "normalRange",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Khoảng bình thường"
+                            />
+                          </td>
+                          <td>
+                            <select
+                              className="rt-table-select"
                               value={result.status}
                               onChange={(e) =>
                                 handleTestResultChange(
@@ -804,70 +712,67 @@ const TestResults: React.FC = () => {
                                 )
                               }
                             >
-                              <MenuItem value="normal">Bình thường</MenuItem>
-                              <MenuItem value="abnormal">Bất thường</MenuItem>
-                              <MenuItem value="borderline">Cận biên</MenuItem>
-                            </Select>
-                          </FormControl>
-                        </TableCell>
-                        <TableCell>
-                          <TextField
-                            size="small"
-                            value={result.notes || ""}
-                            onChange={(e) =>
-                              handleTestResultChange(
-                                index,
-                                "notes",
-                                e.target.value
-                              )
-                            }
-                            placeholder="Ghi chú"
-                            fullWidth
-                          />
-                        </TableCell>
-                        <TableCell>
-                          <Tooltip title="Xóa">
-                            <IconButton
-                              color="error"
+                              <option value="normal">Bình thường</option>
+                              <option value="abnormal">Bất thường</option>
+                              <option value="borderline">Cận biên</option>
+                            </select>
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              className="rt-table-input"
+                              value={result.notes || ""}
+                              onChange={(e) =>
+                                handleTestResultChange(
+                                  index,
+                                  "notes",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Ghi chú"
+                            />
+                          </td>
+                          <td>
+                            <button
+                              className="rt-action-btn rt-delete-btn"
                               onClick={() => removeTestResult(index)}
-                              size="small"
+                              title="Xóa"
                             >
-                              <Delete />
-                            </IconButton>
-                          </Tooltip>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                              🗑️
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             )}
-          </Box>
+          </div>
         );
 
       case 2:
         return (
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth>
-                <InputLabel>Tình trạng tổng quát</InputLabel>
-                <Select
+          <div className="rt-step-content">
+            <div className="rt-form-grid">
+              <div className="rt-form-group">
+                <label className="rt-form-label">Tình trạng tổng quát *</label>
+                <select
+                  className="rt-form-select"
                   value={formData.overallStatus}
                   onChange={(e) =>
                     handleInputChange("overallStatus", e.target.value)
                   }
-                  label="Tình trạng tổng quát"
                 >
-                  <MenuItem value="normal">Bình thường</MenuItem>
-                  <MenuItem value="abnormal">Bất thường</MenuItem>
-                  <MenuItem value="pending">Cần theo dõi</MenuItem>
-                </Select>
-              </FormControl>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <FormControlLabel
-                control={
-                  <Switch
+                  <option value="normal">Bình thường</option>
+                  <option value="abnormal">Bất thường</option>
+                  <option value="pending">Cần theo dõi</option>
+                </select>
+              </div>
+              <div className="rt-form-group">
+                <label className="rt-checkbox-label">
+                  <input
+                    type="checkbox"
                     checked={formData.isConsultationProvided}
                     onChange={(e) =>
                       handleInputChange(
@@ -876,29 +781,29 @@ const TestResults: React.FC = () => {
                       )
                     }
                   />
-                }
-                label="Đã tư vấn trực tiếp"
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Nhận xét của bác sĩ"
-                multiline
+                  Đã tư vấn trực tiếp
+                </label>
+              </div>
+            </div>
+
+            <div className="rt-form-group">
+              <label className="rt-form-label">Nhận xét của bác sĩ *</label>
+              <textarea
+                className="rt-form-textarea"
                 rows={4}
                 value={formData.doctorNotes}
                 onChange={(e) =>
                   handleInputChange("doctorNotes", e.target.value)
                 }
-                required
                 placeholder="Nhập nhận xét, chẩn đoán và đánh giá kết quả..."
+                required
               />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Khuyến nghị điều trị"
-                multiline
+            </div>
+
+            <div className="rt-form-group">
+              <label className="rt-form-label">Khuyến nghị điều trị</label>
+              <textarea
+                className="rt-form-textarea"
                 rows={3}
                 value={formData.recommendations}
                 onChange={(e) =>
@@ -906,174 +811,136 @@ const TestResults: React.FC = () => {
                 }
                 placeholder="Nhập khuyến nghị điều trị, thuốc, chế độ sinh hoạt..."
               />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                fullWidth
-                label="Lịch hẹn tái khám (nếu có)"
+            </div>
+
+            <div className="rt-form-group">
+              <label className="rt-form-label">
+                Lịch hẹn tái khám (nếu có)
+              </label>
+              <input
                 type="date"
+                className="rt-form-input"
                 value={formData.nextAppointment}
                 onChange={(e) =>
                   handleInputChange("nextAppointment", e.target.value)
                 }
-                InputLabelProps={{
-                  shrink: true,
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <CalendarToday sx={{ mr: 1, color: "action.active" }} />
-                  ),
-                }}
               />
-            </Grid>
-          </Grid>
+            </div>
+          </div>
         );
 
       case 3:
         return (
-          <Box>
-            <Typography variant="h6" gutterBottom>
-              Xác nhận thông tin kết quả xét nghiệm
-            </Typography>
+          <div className="rt-step-content">
+            <h3>Xác nhận thông tin kết quả xét nghiệm</h3>
 
-            <Accordion defaultExpanded>
-              <AccordionSummary expandIcon={<ExpandMore />}>
-                <Typography variant="subtitle1">Thông tin bệnh nhân</Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Grid container spacing={2}>
-                  <Grid item xs={6}>
-                    <Typography variant="body2" color="text.secondary">
-                      Mã bệnh nhân:
-                    </Typography>
-                    <Typography variant="body1">
-                      {formData.patientInfo?.patientCode}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography variant="body2" color="text.secondary">
-                      Tên bệnh nhân:
-                    </Typography>
-                    <Typography variant="body1">
-                      {formData.patientInfo?.name}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography variant="body2" color="text.secondary">
-                      Gói xét nghiệm:
-                    </Typography>
-                    <Typography variant="body1">
-                      {formData.testPackageInfo?.name}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={6}>
-                    <Typography variant="body2" color="text.secondary">
-                      Ngày xét nghiệm:
-                    </Typography>
-                    <Typography variant="body1">
-                      {formatDateForDisplay(formData.testDate)}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </AccordionDetails>
-            </Accordion>
+            <div className="rt-confirmation-section">
+              <div className="rt-section-title">Thông tin bệnh nhân</div>
+              <div className="rt-info-grid">
+                <div className="rt-info-item">
+                  <span className="rt-info-label">Mã bệnh nhân:</span>
+                  <span className="rt-info-value">
+                    {formData.patientInfo?.patientCode}
+                  </span>
+                </div>
+                <div className="rt-info-item">
+                  <span className="rt-info-label">Tên bệnh nhân:</span>
+                  <span className="rt-info-value">
+                    {formData.patientInfo?.name}
+                  </span>
+                </div>
+                <div className="rt-info-item">
+                  <span className="rt-info-label">Gói xét nghiệm:</span>
+                  <span className="rt-info-value">
+                    {formData.testPackageInfo?.name}
+                  </span>
+                </div>
+                <div className="rt-info-item">
+                  <span className="rt-info-label">Ngày xét nghiệm:</span>
+                  <span className="rt-info-value">
+                    {formatDateForDisplay(formData.testDate)}
+                  </span>
+                </div>
+              </div>
+            </div>
 
-            <Accordion>
-              <AccordionSummary expandIcon={<ExpandMore />}>
-                <Typography variant="subtitle1">
-                  Kết quả chi tiết ({formData.testResults.length} xét nghiệm)
-                </Typography>
+            <div className="rt-confirmation-section">
+              <div className="rt-section-title">
+                Kết quả chi tiết ({formData.testResults.length} xét nghiệm)
                 {calculateAbnormalCount() > 0 && (
-                  <Chip
-                    label={`${calculateAbnormalCount()} bất thường`}
-                    color="error"
-                    size="small"
-                    sx={{ ml: 1 }}
-                  />
+                  <span className="rt-abnormal-count">
+                    {calculateAbnormalCount()} bất thường
+                  </span>
                 )}
-              </AccordionSummary>
-              <AccordionDetails>
-                <TableContainer>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>Tên xét nghiệm</TableCell>
-                        <TableCell>Mã XN</TableCell>
-                        <TableCell>Giá trị</TableCell>
-                        <TableCell>Trạng thái</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
+              </div>
+              <div className="rt-table-container">
+                <div className="rt-table-wrapper">
+                  <table className="rt-table rt-summary-table">
+                    <thead>
+                      <tr>
+                        <th>Tên xét nghiệm</th>
+                        <th>Mã XN</th>
+                        <th>Giá trị</th>
+                        <th>Trạng thái</th>
+                      </tr>
+                    </thead>
+                    <tbody>
                       {formData.testResults.map((result, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{result.testName}</TableCell>
-                          <TableCell>{result.testCode}</TableCell>
-                          <TableCell>
+                        <tr key={index}>
+                          <td>{result.testName}</td>
+                          <td>{result.testCode}</td>
+                          <td>
                             {result.value} {result.unit}
-                          </TableCell>
-                          <TableCell>
-                            <Chip
-                              label={getStatusLabel(result.status)}
-                              color={getStatusColor(result.status) as any}
-                              size="small"
-                            />
-                          </TableCell>
-                        </TableRow>
+                          </td>
+                          <td>
+                            <span
+                              className={`rt-status rt-status-${result.status}`}
+                            >
+                              {getStatusText(result.status)}
+                            </span>
+                          </td>
+                        </tr>
                       ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </AccordionDetails>
-            </Accordion>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
 
-            <Accordion>
-              <AccordionSummary expandIcon={<ExpandMore />}>
-                <Typography variant="subtitle1">
-                  Nhận xét và khuyến nghị
-                </Typography>
-              </AccordionSummary>
-              <AccordionDetails>
-                <Box mb={2}>
-                  <Typography variant="body2" color="text.secondary">
-                    Tình trạng tổng quát:
-                  </Typography>
-                  <Chip
-                    label={getStatusLabel(formData.overallStatus)}
-                    color={getStatusColor(formData.overallStatus) as any}
-                    sx={{ mt: 1 }}
-                  />
-                </Box>
-                <Box mb={2}>
-                  <Typography variant="body2" color="text.secondary">
-                    Nhận xét của bác sĩ:
-                  </Typography>
-                  <Typography variant="body1">
-                    {formData.doctorNotes}
-                  </Typography>
-                </Box>
+            <div className="rt-confirmation-section">
+              <div className="rt-section-title">Nhận xét và khuyến nghị</div>
+              <div className="rt-info-grid">
+                <div className="rt-info-item rt-full-width">
+                  <span className="rt-info-label">Tình trạng tổng quát:</span>
+                  <span
+                    className={`rt-status rt-status-${formData.overallStatus}`}
+                  >
+                    {getStatusText(formData.overallStatus)}
+                  </span>
+                </div>
+                <div className="rt-info-item rt-full-width">
+                  <span className="rt-info-label">Nhận xét của bác sĩ:</span>
+                  <span className="rt-info-value">{formData.doctorNotes}</span>
+                </div>
                 {formData.recommendations && (
-                  <Box mb={2}>
-                    <Typography variant="body2" color="text.secondary">
-                      Khuyến nghị điều trị:
-                    </Typography>
-                    <Typography variant="body1">
+                  <div className="rt-info-item rt-full-width">
+                    <span className="rt-info-label">Khuyến nghị điều trị:</span>
+                    <span className="rt-info-value">
                       {formData.recommendations}
-                    </Typography>
-                  </Box>
+                    </span>
+                  </div>
                 )}
                 {formData.nextAppointment && (
-                  <Box>
-                    <Typography variant="body2" color="text.secondary">
-                      Lịch hẹn tái khám:
-                    </Typography>
-                    <Typography variant="body1">
+                  <div className="rt-info-item rt-full-width">
+                    <span className="rt-info-label">Lịch hẹn tái khám:</span>
+                    <span className="rt-info-value">
                       {formatDateForDisplay(formData.nextAppointment)}
-                    </Typography>
-                  </Box>
+                    </span>
+                  </div>
                 )}
-              </AccordionDetails>
-            </Accordion>
-          </Box>
+              </div>
+            </div>
+          </div>
         );
 
       default:
@@ -1082,214 +949,218 @@ const TestResults: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 3 }}>
-      <Paper
-        sx={{
-          p: 3,
-          mb: 3,
-          background: "linear-gradient(135deg, #00B4C6 0%, #0284c7 100%)",
-        }}
-      >
-        <Box display="flex" alignItems="center" mb={2}>
-          <Avatar sx={{ bgcolor: "white", color: "primary.main", mr: 2 }}>
-            <Science />
-          </Avatar>
-          <Box>
-            <Typography variant="h4" color="white" fontWeight="bold">
-              Tạo Kết Quả Xét Nghiệm
-            </Typography>
-            <Typography variant="subtitle1" color="white" opacity={0.9}>
+    <div className="rt-container">
+      {/* Header */}
+      <div className="rt-header">
+        <div className="rt-header-content">
+          <div className="rt-header-info">
+            <h1 className="rt-title">Tạo Kết Quả Xét Nghiệm</h1>
+            <p className="rt-subtitle">
               Hệ thống quản lý điều trị hiếm muộn MIRAVA
-            </Typography>
-          </Box>
-        </Box>
-        <Box sx={{ mt: 2 }}>
-          <LinearProgress
-            variant="determinate"
-            value={(activeStep / (steps.length - 1)) * 100}
-            sx={{
-              height: 6,
-              borderRadius: 3,
-              backgroundColor: "rgba(255,255,255,0.3)",
-              "& .MuiLinearProgress-bar": {
-                backgroundColor: "white",
-                borderRadius: 3,
-              },
-            }}
-          />
-        </Box>
-      </Paper>
+            </p>
+          </div>
+          <div className="rt-progress-bar">
+            <div
+              className="rt-progress-fill"
+              style={{ width: `${((activeStep + 1) / steps.length) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
 
+      {/* Error Message */}
       {errorMessage && (
-        <Alert severity="error" sx={{ mb: 3 }}>
+        <div className="rt-error-message">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <circle cx="12" cy="12" r="10" />
+            <line x1="15" y1="9" x2="9" y2="15" />
+            <line x1="9" y1="9" x2="15" y2="15" />
+          </svg>
           {errorMessage}
-        </Alert>
+        </div>
       )}
 
-      <Paper sx={{ p: 3 }}>
-        <Stepper activeStep={activeStep} orientation="vertical">
-          {steps.map((label, index) => (
-            <Step key={label}>
-              <StepLabel>
-                <Typography variant="h6">{label}</Typography>
-              </StepLabel>
-              <StepContent>
-                <Box sx={{ py: 2 }}>{renderStepContent(index)}</Box>
-                <Box sx={{ mb: 2 }}>
-                  <Button
-                    variant="contained"
-                    onClick={
-                      index === steps.length - 1 ? handleSubmit : handleNext
-                    }
-                    disabled={isSubmitting}
-                    sx={{ mr: 1 }}
-                    startIcon={
-                      index === steps.length - 1 ? (
-                        isSubmitting ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          <Save />
-                        )
-                      ) : null
-                    }
-                  >
-                    {index === steps.length - 1
-                      ? isSubmitting
-                        ? "Đang tạo..."
-                        : "Tạo kết quả"
-                      : "Tiếp theo"}
-                  </Button>
-                  <Button
-                    disabled={index === 0}
-                    onClick={handleBack}
-                    sx={{ mr: 1 }}
-                  >
-                    Quay lại
-                  </Button>
-                  {index === steps.length - 1 && (
-                    <Button
-                      variant="outlined"
-                      onClick={() => setPreviewDialogOpen(true)}
-                      startIcon={<Print />}
-                    >
-                      Xem trước
-                    </Button>
-                  )}
-                </Box>
-              </StepContent>
-            </Step>
+      {/* Steps */}
+      <div className="rt-steps-container">
+        <div className="rt-steps">
+          {steps.map((step, index) => (
+            <div
+              key={index}
+              className={`rt-step ${index <= activeStep ? "active" : ""} ${
+                index === activeStep ? "current" : ""
+              }`}
+            >
+              <div className="rt-step-number">{index + 1}</div>
+              <div className="rt-step-title">{step}</div>
+            </div>
           ))}
-        </Stepper>
-      </Paper>
+        </div>
 
+        <div className="rt-step-content-container">
+          {renderStepContent(activeStep)}
+
+          <div className="rt-step-actions">
+            <button
+              className="rt-btn rt-btn-primary"
+              onClick={
+                activeStep === steps.length - 1 ? handleSubmit : handleNext
+              }
+              disabled={isSubmitting}
+            >
+              {activeStep === steps.length - 1
+                ? isSubmitting
+                  ? "Đang tạo..."
+                  : "💾 Tạo kết quả"
+                : "Tiếp theo"}
+            </button>
+            <button
+              className="rt-btn rt-btn-secondary"
+              disabled={activeStep === 0}
+              onClick={handleBack}
+            >
+              Quay lại
+            </button>
+            {activeStep === steps.length - 1 && (
+              <button
+                className="rt-btn rt-btn-outline"
+                onClick={() => setShowPreviewModal(true)}
+              >
+                🖨️ Xem trước
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Success Result */}
       {submittedResult && (
-        <Paper sx={{ p: 3, mt: 3, border: 2, borderColor: "success.main" }}>
-          <Box display="flex" alignItems="center" mb={2}>
-            <CheckCircle sx={{ color: "success.main", mr: 2, fontSize: 32 }} />
-            <Typography variant="h5" color="success.main">
-              Kết quả xét nghiệm đã được tạo thành công!
-            </Typography>
-          </Box>
-          <Divider sx={{ my: 2 }} />
-          <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
-              <Typography variant="body2" color="text.secondary">
-                Bệnh nhân:
-              </Typography>
-              <Typography variant="h6">
-                {submittedResult.patient?.userName}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography variant="body2" color="text.secondary">
-                Gói xét nghiệm:
-              </Typography>
-              <Typography variant="h6">
-                {submittedResult.testPackage?.name}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography variant="body2" color="text.secondary">
-                Số lượng xét nghiệm:
-              </Typography>
-              <Typography variant="h6">
-                {submittedResult.results?.length || 0}
-              </Typography>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Typography variant="body2" color="text.secondary">
-                Tình trạng:
-              </Typography>
-              <Chip
-                label={getStatusLabel(submittedResult.overallStatus)}
-                color={getStatusColor(submittedResult.overallStatus) as any}
-                size="medium"
-              />
-            </Grid>
-          </Grid>
-          <Box sx={{ mt: 3 }}>
-            <Button
-              variant="contained"
-              startIcon={<Add />}
+        <div className="rt-success-container">
+          <div className="rt-success-header">
+            <svg
+              width="32"
+              height="32"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22,4 12,14.01 9,11.01" />
+            </svg>
+            <h2>Kết quả xét nghiệm đã được tạo thành công!</h2>
+          </div>
+          <div className="rt-success-details">
+            <div className="rt-detail-item">
+              <strong>Bệnh nhân:</strong> {submittedResult.patient?.userName}
+            </div>
+            <div className="rt-detail-item">
+              <strong>Gói xét nghiệm:</strong>{" "}
+              {submittedResult.testPackage?.name}
+            </div>
+            <div className="rt-detail-item">
+              <strong>Số lượng xét nghiệm:</strong>{" "}
+              {submittedResult.results?.length || 0}
+            </div>
+            <div className="rt-detail-item">
+              <strong>Tình trạng:</strong>
+              <span
+                className={`rt-status rt-status-${submittedResult.overallStatus}`}
+              >
+                {getStatusText(submittedResult.overallStatus)}
+              </span>
+            </div>
+          </div>
+          <div className="rt-success-actions">
+            <button
+              className="rt-btn rt-btn-primary"
               onClick={() => {
                 setSubmittedResult(null);
                 setActiveStep(0);
               }}
-              sx={{ mr: 2 }}
             >
-              Tạo kết quả mới
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<Print />}
-              onClick={() => setPreviewDialogOpen(true)}
+              ➕ Tạo kết quả mới
+            </button>
+            <button
+              className="rt-btn rt-btn-outline"
+              onClick={() => setShowPreviewModal(true)}
             >
-              In kết quả
-            </Button>
-          </Box>
-        </Paper>
+              🖨️ In kết quả
+            </button>
+          </div>
+        </div>
       )}
 
-      <Dialog
-        open={previewDialogOpen}
-        onClose={() => setPreviewDialogOpen(false)}
-        maxWidth="md"
-        fullWidth
-      >
-        <DialogTitle>
-          <Box display="flex" alignItems="center">
-            <Print sx={{ mr: 1 }} />
-            Xem trước kết quả xét nghiệm
-          </Box>
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body1">
-            Chức năng xem trước sẽ hiển thị định dạng in của kết quả xét nghiệm
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setPreviewDialogOpen(false)}>Đóng</Button>
-          <Button variant="contained" startIcon={<Print />}>
-            In ngay
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
+      {/* Preview Modal */}
+      {showPreviewModal && (
+        <div
+          className="rt-modal-overlay"
+          onClick={() => setShowPreviewModal(false)}
         >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-    </Container>
+          <div
+            className="rt-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="rt-modal-header">
+              <h2>🖨️ Xem trước kết quả xét nghiệm</h2>
+              <button
+                className="rt-close-button"
+                onClick={() => setShowPreviewModal(false)}
+              >
+                ✖
+              </button>
+            </div>
+            <div className="rt-modal-body">
+              <p>
+                Chức năng xem trước sẽ hiển thị định dạng in của kết quả xét
+                nghiệm
+              </p>
+            </div>
+            <div className="rt-modal-actions">
+              <button
+                className="rt-btn rt-btn-secondary"
+                onClick={() => setShowPreviewModal(false)}
+              >
+                Đóng
+              </button>
+              <button className="rt-btn rt-btn-primary">🖨️ In ngay</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Notification */}
+      {showNotification && (
+        <div className={`rt-notification rt-notification-${notificationType}`}>
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            {notificationType === "success" && (
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            )}
+            {notificationType === "error" && <circle cx="12" cy="12" r="10" />}
+          </svg>
+          {notificationMessage}
+          <button
+            className="rt-notification-close"
+            onClick={() => setShowNotification(false)}
+          >
+            ✖
+          </button>
+        </div>
+      )}
+    </div>
   );
 };
 
