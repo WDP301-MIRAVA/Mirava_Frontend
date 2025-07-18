@@ -2,6 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Search, Filter, Eye } from "lucide-react";
 import "./OrderManagement.css";
 
+interface Doctor {
+  _id: string;
+  user: {
+    _id: string;
+    userName: string;
+  };
+}
 interface Order {
   _id: string;
   orderCode: string;
@@ -25,6 +32,10 @@ interface Order {
   createdAt: string;
   appointmentDate?: string;
   timeSlot?: string;
+  doctorId?: Doctor; // Thêm trường doctorId
+  customerInfo?: {
+    userName: string;
+  };
 }
 
 const OrderManagement: React.FC = () => {
@@ -36,6 +47,53 @@ const OrderManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
+  // Modal chọn bác sĩ
+  const [showDoctorModal, setShowDoctorModal] = useState(false);
+  const [selectingOrder, setSelectingOrder] = useState<Order | null>(null);
+  const [availableDoctors, setAvailableDoctors] = useState<any[]>([]);
+  const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
+
+  // Hàm lấy danh sách bác sĩ rảnh cho đơn hàng
+  const fetchAvailableDoctors = async (order: Order) => {
+    setAvailableDoctors([]);
+    setSelectedDoctorId("");
+    try {
+      // Lấy packageId từ dịch vụ đầu tiên của đơn hàng
+      const packageId = order.items[0]?.service?._id || order.items[0]?.service;
+      if (!packageId) {
+        setError("Không tìm thấy gói xét nghiệm trong đơn hàng!");
+        return;
+      }
+      const res = await fetch(
+        `https://mirava-f0rz.onrender.com/api/test-registrations/available-doctors?packageId=${packageId}&date=${order.appointmentDate}&time=${order.timeSlot}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+      if (data.success) setAvailableDoctors(data.data);
+      else setError(data.message || "Không lấy được danh sách bác sĩ");
+    } catch (err) {
+      setError("Lỗi khi lấy danh sách bác sĩ cho gói xét nghiệm");
+    }
+  };
+
+  // Khi bấm xác nhận đơn hàng mà chưa có doctorId
+  const handleSelectDoctor = (order: Order) => {
+    setSelectingOrder(order);
+    setShowDoctorModal(true);
+    fetchAvailableDoctors(order);
+  };
+
+  // Khi xác nhận chọn bác sĩ
+  const handleConfirmWithDoctor = async () => {
+    if (!selectingOrder || !selectedDoctorId) return;
+    setShowDoctorModal(false);
+    await handleConfirmOrder(selectingOrder._id, selectedDoctorId);
+  };
   useEffect(() => {
     fetchOrders();
     // eslint-disable-next-line
@@ -74,13 +132,12 @@ const OrderManagement: React.FC = () => {
     }
   };
 
-  const handleConfirmOrder = async (orderId: string) => {
-    // Tìm đơn hàng theo id để lấy doctorId
+  const handleConfirmOrder = async (orderId: string, doctorId?: string) => {
     const order = orders.find((o) => o._id === orderId);
-    if (!order?.doctorId) {
-      setError(
-        "Đơn hàng chưa có bác sĩ. Vui lòng cập nhật doctorId trước khi xác nhận!"
-      );
+    if (!order) return;
+    // Nếu chưa có doctorId và không truyền doctorId mới => mở modal chọn bác sĩ
+    if (!order.doctorId && !doctorId) {
+      handleSelectDoctor(order);
       return;
     }
 
@@ -246,6 +303,7 @@ const OrderManagement: React.FC = () => {
                 <th>Tổng tiền</th>
                 <th>Trạng thái</th>
                 <th>Ngày hẹn khám</th>
+                <th>Bác sĩ</th>
                 <th>Hành động</th>
               </tr>
             </thead>
@@ -284,6 +342,20 @@ const OrderManagement: React.FC = () => {
                         )
                       : "Chưa đặt lịch"}
                     {/* {new Date(order.createdAt).toLocaleDateString("vi-VN")} */}
+                  </td>
+                  <td>
+                    {order.doctorId ? (
+                      <span className="doctor-name">
+                        {order.doctorId.user?.userName || "Chưa có bác sĩ"}
+                      </span>
+                    ) : (
+                      <button
+                        className="select-doctor-btn"
+                        onClick={() => handleSelectDoctor(order)}
+                      >
+                        Chọn bác sĩ
+                      </button>
+                    )}
                   </td>
                   <td>
                     <div className="action-buttons">
@@ -327,6 +399,69 @@ const OrderManagement: React.FC = () => {
               {page}
             </button>
           ))}
+        </div>
+      )}
+      {showDoctorModal && (
+        <div className="modal-backdrop">
+          <div className="modal">
+            <h3>Chọn bác sĩ rảnh cho đơn hàng</h3>
+            {availableDoctors.length === 0 ? (
+              <p style={{ margin: "16px 0" }}>
+                Không có bác sĩ nào rảnh vào thời gian này.
+              </p>
+            ) : (
+              <ul style={{ maxHeight: 250, overflowY: "auto", padding: 0 }}>
+                {availableDoctors.map((doc: any) => (
+                  <li
+                    key={doc._id}
+                    style={{ marginBottom: 8, listStyle: "none" }}
+                  >
+                    <label style={{ cursor: "pointer" }}>
+                      <input
+                        type="radio"
+                        name="doctor"
+                        value={doc._id}
+                        checked={selectedDoctorId === doc._id}
+                        onChange={() => setSelectedDoctorId(doc._id)}
+                        style={{ marginRight: 8 }}
+                      />
+                      {doc.user?.userName || "Không có tên"}{" "}
+                      {doc.specialty ? `- ${doc.specialty}` : ""}
+                    </label>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div style={{ marginTop: 16 }}>
+              <button
+                disabled={!selectedDoctorId}
+                onClick={handleConfirmWithDoctor}
+                style={{
+                  background: "#10b981",
+                  color: "#fff",
+                  padding: "8px 16px",
+                  border: "none",
+                  borderRadius: 4,
+                  marginRight: 8,
+                  cursor: selectedDoctorId ? "pointer" : "not-allowed",
+                }}
+              >
+                Xác nhận
+              </button>
+              <button
+                onClick={() => setShowDoctorModal(false)}
+                style={{
+                  padding: "8px 16px",
+                  border: "1px solid #ccc",
+                  borderRadius: 4,
+                  background: "#fff",
+                  cursor: "pointer",
+                }}
+              >
+                Hủy
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

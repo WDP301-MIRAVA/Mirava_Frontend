@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import "./CheckoutPage.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -37,7 +37,6 @@ const CheckoutPage: React.FC = () => {
   const { serviceId } = useParams<{ serviceId: string }>();
   const [service, setService] = useState<ServiceDetail | null>(null);
   const navigate = useNavigate();
-  const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [loadingDoctors, setLoadingDoctors] = useState(false);
   const [availableDoctors, setAvailableDoctors] = useState<AvailableDoctor[]>(
