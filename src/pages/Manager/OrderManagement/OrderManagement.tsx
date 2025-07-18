@@ -465,7 +465,6 @@ const OrderManagement: React.FC = () => {
                         style={{ marginRight: 8 }}
                       />
                       {doc.user?.userName || "Không có tên"}{" "}
-                      {doc.specialty ? `- ${doc.specialty}` : ""}
                     </label>
                   </li>
                 ))}
