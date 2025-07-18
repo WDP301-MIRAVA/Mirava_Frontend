@@ -11,8 +11,6 @@ import {
   GraduationCap,
   Clock,
   Check,
-  Eye,
-  Filter,
 } from "lucide-react";
 import "./ViewAppointment.css";
 import { message } from "antd";
@@ -64,7 +62,6 @@ const ViewAppointment: React.FC = () => {
   >("all");
   const [isLoading, setIsLoading] = useState(true);
   const [doctorInfo, setDoctorInfo] = useState<Doctor | null>(null);
-  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -154,7 +151,6 @@ const ViewAppointment: React.FC = () => {
       day: "2-digit",
       month: "2-digit",
       year: "numeric",
-
     });
   };
 
@@ -163,16 +159,6 @@ const ViewAppointment: React.FC = () => {
     return date.toLocaleTimeString("vi-VN", {
       hour: "2-digit",
       minute: "2-digit",
-    });
-  };
-
-  const formatFullDateTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString("vi-VN", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      weekday: "long",
     });
   };
 
@@ -200,7 +186,6 @@ const ViewAppointment: React.FC = () => {
       message.error("Đăng xuất thất bại!");
     }
   };
-
 
   if (isLoading) {
     return (
@@ -234,7 +219,6 @@ const ViewAppointment: React.FC = () => {
           <button
             className="va-login-again-btn"
             onClick={() => navigate("/login")}
-
           >
             Đăng nhập lại
           </button>
@@ -273,7 +257,6 @@ const ViewAppointment: React.FC = () => {
       </div>
 
       {/* Controls */}
-
       <div className="va-controls">
         <div className="va-search-box">
           <Search size={18} />
@@ -315,7 +298,6 @@ const ViewAppointment: React.FC = () => {
                 <tr>
                   <th>Mã BN</th>
                   <th>Tên bệnh nhân</th>
-
                   <th>Liên hệ</th>
                   <th>Ngày hẹn</th>
                   <th>Giới tính</th>
@@ -326,7 +308,6 @@ const ViewAppointment: React.FC = () => {
               </thead>
               <tbody>
                 {filteredAppointments.map((appointment) => (
-
                   <tr key={appointment._id}>
                     <td>
                       <div className="va-patient-code">
@@ -365,7 +346,6 @@ const ViewAppointment: React.FC = () => {
                       </div>
                     </td>
                     <td>
-
                       <span className="va-gender">
                         {appointment.gender === "Male" ? "Nam" : "Nữ"}
                       </span>
@@ -380,7 +360,6 @@ const ViewAppointment: React.FC = () => {
                       </span>
                     </td>
                     <td>
-
                       <div className="va-note">
                         {appointment.note ? (
                           <span title={appointment.note}>
@@ -410,10 +389,9 @@ const ViewAppointment: React.FC = () => {
                 ))}
               </tbody>
             </table>
-
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
