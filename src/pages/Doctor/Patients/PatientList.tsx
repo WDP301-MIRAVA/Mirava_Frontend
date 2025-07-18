@@ -37,6 +37,11 @@ const PatientList: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortField, setSortField] = useState<keyof Patient>("name");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "planned" | "in_progress" | "completed" | "cancelled"
+  >("all");
 
   const generatePatientCode = (patientId: string): string => {
     const currentDate = new Date();
@@ -62,7 +67,6 @@ const PatientList: React.FC = () => {
 
         const data = res.data?.data;
         if (Array.isArray(data)) {
-          // ✅ Lọc và kiểm tra dữ liệu trước khi transform
           const validPlans = data.filter(
             (plan: any) =>
               plan && plan.patient && plan.patient._id && plan.patient.userName
@@ -73,7 +77,7 @@ const PatientList: React.FC = () => {
             name: plan.patient.userName || "Không rõ",
             email: plan.patient.email || "",
             phone: plan.patient.phone || "",
-            location: plan.patient.address || "Không rõ", // ✅ Sửa từ location thành address
+            location: plan.patient.address || "Không rõ",
             specialty: plan.doctor?.specialty || "Không rõ",
             gender: plan.patient.gender || "Không rõ",
             status: plan.status || "planned",
@@ -109,17 +113,45 @@ const PatientList: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!searchTerm.trim()) setFilteredPatients(patients);
-    else {
-      const filtered = patients.filter(
+    let filtered = patients;
+
+    // Filter by search term
+    if (searchTerm.trim()) {
+      filtered = filtered.filter(
         (p) =>
           p.patientCode?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           p.email.toLowerCase().includes(searchTerm.toLowerCase())
       );
-      setFilteredPatients(filtered);
     }
-  }, [searchTerm, patients]);
+
+    // Filter by status
+    if (statusFilter !== "all") {
+      filtered = filtered.filter((patient) => patient.status === statusFilter);
+    }
+
+    setFilteredPatients(filtered);
+  }, [searchTerm, statusFilter, patients]);
+
+  const handleSort = (field: keyof Patient) => {
+    const direction =
+      sortField === field && sortDirection === "asc" ? "desc" : "asc";
+    setSortField(field);
+    setSortDirection(direction);
+
+    const sorted = [...filteredPatients].sort((a, b) => {
+      const aValue = a[field] as string;
+      const bValue = b[field] as string;
+
+      if (direction === "asc") {
+        return aValue.localeCompare(bValue, "vi-VN");
+      } else {
+        return bValue.localeCompare(aValue, "vi-VN");
+      }
+    });
+
+    setFilteredPatients(sorted);
+  };
 
   const handleModalOpen = (patient: Patient, type: ModalType) => {
     if (type === "detail") {
@@ -172,103 +204,258 @@ const PatientList: React.FC = () => {
     }
   };
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case "planned":
+        return "Đã lên kế hoạch";
+      case "in_progress":
+        return "Đang thực hiện";
+      case "completed":
+        return "Hoàn thành";
+      case "cancelled":
+        return "Đã hủy";
+      default:
+        return status;
+    }
+  };
+
+  const getSortIcon = (field: keyof Patient) => {
+    if (sortField !== field) return "";
+    return sortDirection === "asc" ? " ↑" : " ↓";
+  };
+
+  if (loading) {
+    return (
+      <div className="pl-loading">
+        <div className="pl-loading-spinner"></div>
+        <p>Đang tải danh sách bệnh nhân...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="pl-container">
-      <div className="pl-header">
-        <h2>Danh sách bệnh nhân ({filteredPatients.length})</h2>
-        <div className="pl-search-container">
-          <div className="pl-search-input-wrapper">
-            <input
-              type="text"
-              className="pl-search-input"
-              placeholder="Tìm theo tên, mã bệnh nhân hoặc email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+      {/* Controls */}
+      <div className="pl-controls">
+        <div className="pl-search-box">
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+          >
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Tìm kiếm theo tên, mã bệnh nhân hoặc email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
+        <select
+          value={statusFilter}
+          onChange={(e) =>
+            setStatusFilter(e.target.value as typeof statusFilter)
+          }
+          className="pl-filter-select"
+        >
+          <option value="all">Tất cả trạng thái</option>
+          <option value="planned">Đã lên kế hoạch</option>
+          <option value="in_progress">Đang thực hiện</option>
+          <option value="completed">Hoàn thành</option>
+          <option value="cancelled">Đã hủy</option>
+        </select>
       </div>
 
-      {loading ? (
-        <p>⏳ Đang tải danh sách...</p>
-      ) : (
-        <div className="pl-cards-grid">
-          {filteredPatients.map((patient) => (
-            <div key={patient.id} className="pl-card">
-              <div className="pl-card-header">
-                <div className="pl-patient-info">
-                  <span className="pl-patient-code">{patient.patientCode}</span>
-                  <h3 className="pl-patient-name">{patient.name}</h3>
-                  <span className={`pl-status-badge pl-${patient.status}`}>
-                    {patient.status === "planned"
-                      ? "ĐÃ LÊN KẾ HOẠCH"
-                      : patient.status === "in_progress"
-                      ? "ĐANG THỰC HIỆN"
-                      : patient.status === "completed"
-                      ? "HOÀN THÀNH"
-                      : "ĐÃ HỦY"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="pl-patient-contact">
-                <div className="pl-contact-item">
-                  <span className="pl-contact-icon">📧</span>
-                  <span className="pl-contact-text">{patient.email}</span>
-                </div>
-                <div className="pl-contact-item">
-                  <span className="pl-contact-icon">📞</span>
-                  <span className="pl-contact-text">{patient.phone}</span>
-                </div>
-                <div className="pl-contact-item">
-                  <span className="pl-contact-icon">📍</span>
-                  <span className="pl-contact-text">{patient.location}</span>
-                </div>
-              </div>
-
-              <div className="pl-patient-details">
-                <div className="pl-detail-row">
-                  <span className="pl-detail-label">Dịch vụ:</span>
-                  <span className="pl-detail-value">{patient.specialty}</span>
-                </div>
-                <div className="pl-detail-row">
-                  <span className="pl-detail-label">Giới tính:</span>
-                  <span className="pl-detail-value">{patient.gender}</span>
-                </div>
-              </div>
-
-              <div className="pl-action-buttons">
-
-                <button
-                  className="pl-action-button pl-detail-btn"
-                  onClick={() => handleModalOpen(patient, "detail")}
-                >
-                  📋 Kế hoạch điều trị
-                </button>
-                <button
-                  className="pl-action-button pl-examination-btn"
-                  onClick={() => handleModalOpen(patient, "examination")}
-                >
-                  👨‍⚕️ Tiền sử
-                </button>
-                <button
-                  className="pl-action-button pl-test-btn"
-                  onClick={() => handleModalOpen(patient, "test_result")}
-                >
-                  🧪 Xét nghiệm
-                </button>
-                <button
-                  className="pl-action-button pl-injection-btn"
-                  onClick={() => handleModalOpen(patient, "injection_result")}
-                >
-                  💉 Tiêm thuốc
-                </button>
-              </div>
-            </div>
-          ))}
+      {/* Table */}
+      <div className="pl-table-container">
+        <div className="pl-table-header">
+          <h2>Danh sách bệnh nhân ({filteredPatients.length})</h2>
         </div>
-      )}
 
+        {filteredPatients.length === 0 ? (
+          <div className="pl-no-data">
+            <svg
+              width="40"
+              height="40"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            <p>Không có bệnh nhân nào phù hợp với tiêu chí tìm kiếm</p>
+          </div>
+        ) : (
+          <div className="pl-table-wrapper">
+            <table className="pl-table">
+              <thead>
+                <tr>
+                  <th
+                    onClick={() => handleSort("patientCode")}
+                    className="pl-sortable"
+                  >
+                    Mã BN{getSortIcon("patientCode")}
+                  </th>
+                  <th
+                    onClick={() => handleSort("name")}
+                    className="pl-sortable"
+                  >
+                    Họ và tên{getSortIcon("name")}
+                  </th>
+                  <th>Liên hệ</th>
+                  <th
+                    onClick={() => handleSort("gender")}
+                    className="pl-sortable"
+                  >
+                    Giới tính{getSortIcon("gender")}
+                  </th>
+                  <th
+                    onClick={() => handleSort("specialty")}
+                    className="pl-sortable"
+                  >
+                    Dịch vụ{getSortIcon("specialty")}
+                  </th>
+                  <th
+                    onClick={() => handleSort("status")}
+                    className="pl-sortable"
+                  >
+                    Trạng thái{getSortIcon("status")}
+                  </th>
+                  <th
+                    onClick={() => handleSort("startDate")}
+                    className="pl-sortable"
+                  >
+                    Ngày bắt đầu{getSortIcon("startDate")}
+                  </th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredPatients.map((patient) => (
+                  <tr key={patient.id}>
+                    <td>
+                      <div className="pl-patient-code">
+                        {patient.patientCode}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="pl-patient-name">{patient.name}</div>
+                    </td>
+                    <td>
+                      <div className="pl-contact">
+                        <div className="pl-contact-item">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
+                          </svg>
+                          <span>{patient.email}</span>
+                        </div>
+                        <div className="pl-contact-item">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                          </svg>
+                          <span>{patient.phone}</span>
+                        </div>
+                        <div className="pl-contact-item">
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                          <span>{patient.location}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="pl-gender">{patient.gender}</span>
+                    </td>
+                    <td>
+                      <span className="pl-specialty">{patient.specialty}</span>
+                    </td>
+                    <td>
+                      <span className={`pl-status pl-status-${patient.status}`}>
+                        {getStatusText(patient.status)}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="pl-date">{patient.startDate}</span>
+                    </td>
+                    <td>
+                      <div className="pl-action-buttons">
+                        <button
+                          className="pl-action-btn pl-detail-btn"
+                          onClick={() => handleModalOpen(patient, "detail")}
+                          title="Kế hoạch điều trị"
+                        >
+                          📋
+                        </button>
+                        <button
+                          className="pl-action-btn pl-examination-btn"
+                          onClick={() =>
+                            handleModalOpen(patient, "examination")
+                          }
+                          title="Tiền sử"
+                        >
+                          👨‍⚕️
+                        </button>
+                        <button
+                          className="pl-action-btn pl-test-btn"
+                          onClick={() =>
+                            handleModalOpen(patient, "test_result")
+                          }
+                          title="Xét nghiệm"
+                        >
+                          🧪
+                        </button>
+                        <button
+                          className="pl-action-btn pl-injection-btn"
+                          onClick={() =>
+                            handleModalOpen(patient, "injection_result")
+                          }
+                          title="Tiêm thuốc"
+                        >
+                          💉
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Modal */}
       {isModalOpen && (
         <div className="pl-modal-overlay" onClick={closeModal}>
           <div

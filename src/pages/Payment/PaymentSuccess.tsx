@@ -1,6 +1,18 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import {
+  CheckCircle,
+  Home,
+  ShoppingBag,
+  Clock,
+  CreditCard,
+  User,
+  Calendar,
+  Phone,
+  Mail,
+  MapPin,
+} from "lucide-react";
 import "./PaymentSuccess.css";
 
 interface OrderInfo {
@@ -10,6 +22,17 @@ interface OrderInfo {
   patientCode: string;
   paymentStatus: string | null;
   paidAt: string | null;
+  customerInfo?: {
+    userName: string;
+    email: string;
+    phone: string;
+    address: string;
+  };
+  services?: Array<{
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
 }
 
 const PaymentSuccess: React.FC = () => {
@@ -483,99 +506,202 @@ const PaymentSuccess: React.FC = () => {
     }
   };
 
-
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="loading-container">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
-          <p className="mt-4 text-lg text-gray-600">Đang xử lý thanh toán...</p>
+      <div className="ps-loading-container">
+        <div className="ps-loading-content">
+          <div className="ps-loading-spinner">
+            <div className="ps-spinner"></div>
+          </div>
+          <h2>Đang xử lý thanh toán...</h2>
+          <p>Vui lòng đợi trong giây lát</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="ps-container">
+      <div className="ps-success-wrapper">
+        {/* Success Header */}
+        <div className="ps-success-header">
+          <div className="ps-success-icon">
+            <CheckCircle size={80} />
+          </div>
+          <h1 className="ps-success-title">Thanh toán thành công!</h1>
+          <p className="ps-success-subtitle">
+            Cảm ơn quý khách đã tin tương và sử dụng dịch vụ của Mirava Center
+          </p>
+        </div>
+
         {orderInfo && (
-          <div className="order-success-card">
-            <div className="order-success-icon">
-              <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-                <circle
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="#10B981"
-                  strokeWidth="2"
-                />
-                <path
-                  d="m9 12 2 2 4-4"
-                  stroke="#10B981"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
-            <h3 className="order-success-title">Thanh toán thành công!</h3>
-            <p className="order-success-desc">
-              Cảm ơn bạn đã sử dụng dịch vụ của Mirava.
-              <br />
-              Chúng tôi sẽ liên hệ với bạn trong thời gian sớm nhất.
-            </p>
-            <div className="order-info-list">
-              <div className="order-info-row">
-                <span className="order-info-label">Mã đơn hàng:</span>
-                <span className="order-info-value">{orderInfo.orderCode}</span>
+          <div className="ps-content-grid">
+            {/* Order Information Card */}
+            <div className="ps-card ps-order-card">
+              <div className="ps-card-header">
+                <CreditCard size={24} />
+                <h3>Thông tin đơn hàng</h3>
               </div>
-              {orderInfo.totalAmount > 0 && (
-                <div className="order-info-row">
-                  <span className="order-info-label">Tổng tiền:</span>
-                  <span className="order-info-value">
+              <div className="ps-card-content">
+                <div className="ps-info-row">
+                  <span className="ps-label">Mã đơn hàng:</span>
+                  <span className="ps-value ps-highlight">
+                    {orderInfo.orderCode}
+                  </span>
+                </div>
+                <div className="ps-info-row">
+                  <span className="ps-label">Tổng tiền:</span>
+                  <span className="ps-value ps-price">
                     {orderInfo.totalAmount.toLocaleString("vi-VN")} VNĐ
                   </span>
                 </div>
-              )}
-              {orderInfo.patientCode && (
-                <div className="order-info-row">
-                  <span className="order-info-label">Mã bệnh nhân:</span>
-                  <span className="order-info-value">
-                    {orderInfo.patientCode}
+                {orderInfo.patientCode && (
+                  <div className="ps-info-row">
+                    <span className="ps-label">Mã bệnh nhân:</span>
+                    <span className="ps-value ps-patient-code">
+                      {orderInfo.patientCode}
+                    </span>
+                  </div>
+                )}
+                <div className="ps-info-row">
+                  <span className="ps-label">Trạng thái:</span>
+                  <span
+                    className={`ps-status ps-status-${orderInfo.paymentStatus}`}
+                  >
+                    {orderInfo.paymentStatus === "success"
+                      ? "Đã thanh toán"
+                      : "Đang xử lý"}
                   </span>
                 </div>
-              )}
-              <div className="order-info-row">
-                <span className="order-info-label">Trạng thái thanh toán:</span>
-                <span
-                  className={`order-info-value status-${orderInfo.paymentStatus}`}
-                >
-                  {orderInfo.paymentStatus === "success"
-                    ? "Đã thanh toán"
-                    : orderInfo.paymentStatus}
-                </span>
+                <div className="ps-info-row">
+                  <span className="ps-label">Thời gian:</span>
+                  <span className="ps-value">
+                    {orderInfo.paidAt &&
+                      new Date(orderInfo.paidAt).toLocaleString("vi-VN")}
+                  </span>
+                </div>
               </div>
-              <div className="order-info-row">
-                <span className="order-info-label">Thời gian thanh toán:</span>
-                <span className="order-info-value">
-                  {new Date(orderInfo.paidAt).toLocaleString("vi-VN")}
-                </span>
+            </div>
+
+            {/* Customer Information Card */}
+            {orderInfo.customerInfo && (
+              <div className="ps-card ps-customer-card">
+                <div className="ps-card-header">
+                  <User size={24} />
+                  <h3>Thông tin khách hàng</h3>
+                </div>
+                <div className="ps-card-content">
+                  <div className="ps-info-row">
+                    <User size={16} />
+                    <span className="ps-customer-name">
+                      {orderInfo.customerInfo.userName}
+                    </span>
+                  </div>
+                  <div className="ps-info-row">
+                    <Mail size={16} />
+                    <span className="ps-customer-email">
+                      {orderInfo.customerInfo.email}
+                    </span>
+                  </div>
+                  <div className="ps-info-row">
+                    <Phone size={16} />
+                    <span className="ps-customer-phone">
+                      {orderInfo.customerInfo.phone}
+                    </span>
+                  </div>
+                  <div className="ps-info-row">
+                    <MapPin size={16} />
+                    <span className="ps-customer-address">
+                      {orderInfo.customerInfo.address}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Next Steps Card */}
+            <div className="ps-card ps-next-steps-card">
+              <div className="ps-card-header">
+                <Calendar size={24} />
+                <h3>Các bước tiếp theo</h3>
+              </div>
+              <div className="ps-card-content">
+                <div className="ps-step">
+                  <div className="ps-step-number">1</div>
+                  <div className="ps-step-content">
+                    <h4>Xác nhận đơn hàng</h4>
+                    <p>
+                      Chúng tôi sẽ xác nhận đơn hàng và liên hệ với quý khách
+                      trong vòng 2-4 giờ
+                    </p>
+                  </div>
+                </div>
+                <div className="ps-step">
+                  <div className="ps-step-number">2</div>
+                  <div className="ps-step-content">
+                    <h4>Tư vấn và lên lịch</h4>
+                    <p>
+                      Đội ngũ chuyên gia sẽ tư vấn chi tiết và sắp xếp lịch hẹn
+                      phù hợp
+                    </p>
+                  </div>
+                </div>
+                <div className="ps-step">
+                  <div className="ps-step-number">3</div>
+                  <div className="ps-step-content">
+                    <h4>Bắt đầu điều trị</h4>
+                    <p>
+                      Theo dõi kế hoạch điều trị được cá nhân hóa cho từng
+                      trường hợp
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Support Card */}
+            <div className="ps-card ps-support-card">
+              <div className="ps-card-header">
+                <Phone size={24} />
+                <h3>Hỗ trợ khách hàng</h3>
+              </div>
+              <div className="ps-card-content">
+                <p style={{ color: "white" }}>
+                  Nếu có bất kỳ thắc mắc nào, vui lòng liên hệ:
+                </p>
+                <div className="ps-contact-info">
+                  <div className="ps-contact-item">
+                    <Phone size={16} />
+                    <span>Hotline: 1900 2247</span>
+                  </div>
+                  <div className="ps-contact-item">
+                    <Mail size={16} />
+                    <span>Email: support@mirava.vn</span>
+                  </div>
+                  <div className="ps-contact-item">
+                    <Clock size={16} />
+                    <span>Thời gian: 24/7</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         )}
 
-        <div className="order-success-actions">
+        {/* Action Buttons */}
+        <div className="ps-actions">
           <button
             onClick={() => navigate("/")}
-            className="btn-order-success btn-primary"
+            className="ps-btn ps-btn-primary"
           >
+            <Home size={20} />
             Về trang chủ
           </button>
           <button
             onClick={() => navigate("/services")}
-            className="btn-order-success btn-secondary"
+            className="ps-btn ps-btn-secondary"
           >
+            <ShoppingBag size={20} />
             Tiếp tục mua sắm
           </button>
         </div>

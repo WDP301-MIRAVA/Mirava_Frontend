@@ -18,8 +18,8 @@
 }
 /* ...existing code... */
 .summary-product-image {
-  width: 800px !important;
-  height: 500px !important;
+  width: 300px !important;
+  height: 300px !important;
   object-fit: cover;
   border-radius: 12px;
   margin-bottom: 12px;
