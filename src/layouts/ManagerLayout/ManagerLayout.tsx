@@ -21,7 +21,6 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
       return "Quản lý lịch làm việc";
     if (path.includes("/manager/treatments")) return "Quản lý điều trị";
     if (path.includes("/manager/orders")) return "Quản lý đơn hàng";
-    if (path.includes("/manager/reports")) return "Báo cáo thống kê";
     return "Dashboard";
   };
 
@@ -55,24 +54,18 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
     },
     {
       id: 6,
-      name: "Báo cáo thống kê",
-      label: "Báo cáo thống kê",
-      path: "/manager/reports",
-    },
-    {
-      id: 7,
       name: "Quản lý đăng ký xét nghiệm",
       label: "Quản lý xét nghiệm",
       path: "/manager/test-register",
     },
 
     {
-      id: 8,
+      id: 7,
       name: "Quản lý Tư Vấn",
       label: "Quản lý tư vấn",
       path: "/manager/advise",
     },
-    { id: 9, name: "Hồ sơ", label: "Hồ sơ", path: "/manager/profile" },
+    { id: 8, name: "Hồ sơ", label: "Hồ sơ", path: "/manager/profile" },
   ];
 
   // Tạo breadcrumb dựa trên active menu
@@ -117,7 +110,7 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
     sessionStorage.removeItem("role");
     sessionStorage.removeItem("userInfo");
     // Chuyển về trang home
-    navigate("/home");
+    navigate("/");
   };
 
   return (

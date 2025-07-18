@@ -41,48 +41,16 @@ const PersonalInfoPage: React.FC = () => {
 
   const fetchUser = async () => {
     try {
-      setLoading(true);
-      setError(null);
 
-      // Lấy token từ localStorage
-      const token = localStorage.getItem("accessToken");
-      if (!token) {
-        setError("Vui lòng đăng nhập để sử dụng chức năng này");
-        setLoading(false);
-        return;
-      }
+      const userData = await userServ.getUserById(userLocal.id);
 
-      // Decode token để lấy user info
-      const userLocal = decodeToken(token);
-      console.log("Decoded user:", userLocal); // Debug log
+      const normalizedGender = capitalizeFirstLetter(userData?.gender ?? "");
 
-      if (!userLocal || !userLocal.id) {
-        setError("Token không hợp lệ, vui lòng đăng nhập lại");
-        setLoading(false);
-        return;
-      }
-
-      // Gọi API để lấy thông tin user
-      const response = await userServ.getUserById(userLocal.id);
-      console.log("API Response:", response); // Debug log
-
-      // Xử lý response data - có thể là response.data hoặc response trực tiếp
-      const userData = response.data || response;
-      
-      if (!userData || !userData._id) {
-        setError("Không thể tải thông tin người dùng");
-        setLoading(false);
-        return;
-      }
-
-      const normalizedGender = capitalizeFirstLetter(userData?.gender || "");
-
-      const userWithNormalizedGender = { 
-        ...userData, 
-        gender: normalizedGender 
-      };
-
-      setUser(userWithNormalizedGender);
+      setUser({
+        ...userData,
+        gender: normalizedGender,
+        address: userData?.address ?? "",
+      });
 
       // Set form values
       form.setFieldsValue({

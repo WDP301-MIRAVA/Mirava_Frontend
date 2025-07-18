@@ -17,7 +17,6 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
     const path = location.pathname;
     if (path === "/doctor" || path === "/doctor/") return "Trang chủ";
     if (path.includes("/doctor/patients")) return "Bệnh nhân";
-    if (path.includes("/doctor/appointments")) return "Lịch hẹn";
     if (path.includes("/doctor/treatment-plans")) return "Kế hoạch điều trị";
     if (path.includes("/doctor/prescriptions")) return "Kê đơn thuốc";
     if (path.includes("/doctor/medicalrecord")) return "Hồ sơ y tế";
@@ -25,6 +24,8 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
     if (path.includes("/doctor/contact")) return "Liên hệ";
     if (path.includes("/doctor/reports")) return "Báo cáo";
     if (path.includes("/doctor/profile")) return "Hồ sơ";
+    if (path.includes("/doctor/medical-history")) return "Tiền sử y tế";
+    if (path.includes("/doctor/test-results")) return "Kết quả xét nghiệm";
     return "Trang chủ";
   };
 
@@ -33,12 +34,7 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
   const menuItems = [
     { id: 1, name: "Trang chủ", label: "Trang chủ", path: "/doctor" },
     { id: 3, name: "Bệnh nhân", label: "Bệnh nhân", path: "/doctor/patients" },
-    {
-      id: 4,
-      name: "Lịch hẹn",
-      label: "Lịch hẹn",
-      path: "/doctor/appointments",
-    },
+
     {
       id: 5,
       name: "Kế hoạch điều trị",
@@ -59,8 +55,8 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
     },
     {
       id: 9,
-      name: "Tiền sư y tế",
-      label: "Tiền sư y tế",
+      name: "Tiền sử y tế",
+      label: "Tiền sử y tế",
       path: "/doctor/medical-history",
     },
     {
@@ -68,6 +64,12 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
       name: "Liên hệ",
       label: "Liên hệ",
       path: "/doctor/contact",
+    },
+    {
+      id: 11,
+      name: "Kết quả xét nghiệm",
+      label: "Kết quả xét nghiệm",
+      path: "/doctor/test-results",
     },
 
     { id: 2, name: "Hồ sơ", label: "Hồ sơ", path: "/doctor/profile" },
@@ -115,7 +117,7 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
     sessionStorage.removeItem("role");
     sessionStorage.removeItem("userInfo");
     // Chuyển về trang home
-    navigate("/home");
+    navigate("/");
   };
 
   return (
