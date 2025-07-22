@@ -248,6 +248,47 @@ const AdviseManagement: React.FC = () => {
     setCurrentPage(1);
   };
 
+  // Hàm hủy yêu cầu tư vấn
+  const handleCancelConsultation = async (
+    consultationId: string,
+    reason?: string
+  ) => {
+    try {
+      const token = getAccessToken();
+      if (!token) {
+        showSnackbar("Vui lòng đăng nhập để tiếp tục", "error");
+        return;
+      }
+
+      const response = await fetch(
+        `https://mirava-f0rz.onrender.com/api/consultation/${consultationId}/cancel`,
+        {
+          method: "PATCH",
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ reason }),
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error("401 - Unauthorized");
+        }
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      showSnackbar("Hủy yêu cầu tư vấn thành công", "success");
+      await fetchConsultations(currentPage);
+    } catch (error) {
+      console.error("Lỗi khi hủy yêu cầu tư vấn:", error);
+
+      if (error instanceof Error) {
+        handleAuthError(error);
+      } else {
+        showSnackbar("Lỗi khi hủy yêu cầu tư vấn", "error");
+      }
+    }
+  };
+
   const handleDeleteConsultation = async (consultationId: string) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa yêu cầu tư vấn này?")) {
       try {
