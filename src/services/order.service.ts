@@ -30,3 +30,13 @@ export const getOrderHistory = async (): Promise<Order[]> => {
     throw error;
   }
 };
+
+export const getOrders = async (): Promise<Order[]> => {
+  try {
+    const response = await axiosInstance.get("/api/orders");
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching order history:", error);
+    throw error;
+  }
+};
