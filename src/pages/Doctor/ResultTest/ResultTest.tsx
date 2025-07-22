@@ -61,7 +61,7 @@ interface FormData {
     }>;
   } | null;
   testDate: string;
-  overallStatus: "normal" | "abnormal" | "pending";
+  overallStatus: "normal" | "abnormal" | "requires_attention";
   doctorNotes: string;
   recommendations: string;
   testResults: TestResultDetail[];
@@ -75,7 +75,7 @@ const TestResults: React.FC = () => {
     patientInfo: null,
     testPackageInfo: null,
     testDate: "",
-    overallStatus: "pending",
+    overallStatus: "requires_attention",
     doctorNotes: "",
     recommendations: "",
     testResults: [],
@@ -320,7 +320,7 @@ const TestResults: React.FC = () => {
           patientInfo: null,
           testPackageInfo: null,
           testDate: "",
-          overallStatus: "pending",
+          overallStatus: "requires_attention",
           doctorNotes: "",
           recommendations: "",
           testResults: [],
@@ -378,8 +378,8 @@ const TestResults: React.FC = () => {
         return "Bất thường";
       case "borderline":
         return "Cận biên";
-      case "pending":
-        return "Chờ xử lý";
+      case "requires_attention":
+        return "Cần theo dõi";
       case "confirmed":
         return "Đã xác nhận";
       case "completed":
@@ -766,7 +766,7 @@ const TestResults: React.FC = () => {
                 >
                   <option value="normal">Bình thường</option>
                   <option value="abnormal">Bất thường</option>
-                  <option value="pending">Cần theo dõi</option>
+                  <option value="requires_attention">Cần theo dõi</option>
                 </select>
               </div>
               <div className="rt-form-group">
@@ -1129,7 +1129,12 @@ const TestResults: React.FC = () => {
               >
                 Đóng
               </button>
-              <button className="rt-btn rt-btn-primary">🖨️ In ngay</button>
+              <button
+                className="rt-btn rt-btn-primary"
+                onClick={() => window.print()}
+              >
+                🖨️ In ngay
+              </button>
             </div>
           </div>
         </div>

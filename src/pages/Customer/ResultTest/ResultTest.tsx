@@ -67,7 +67,10 @@ interface TestResult {
   } | null;
   performedBy: {
     _id: string;
-    user: string;
+    user: {
+      _id: string;
+      userName: string;
+    };
     degree: string;
     specialty: string;
   };
@@ -88,7 +91,7 @@ interface TestResult {
     notes?: string;
     _id: string;
   }>;
-  overallStatus: "normal" | "abnormal" | "review_needed";
+  overallStatus: "normal" | "abnormal" | "requires_attention";
   doctorNotes: string;
   recommendations: string;
   attachments: Array<{
@@ -177,7 +180,7 @@ const ResultTest: React.FC = () => {
         return "error";
       case "borderline":
         return "warning";
-      case "review_needed":
+      case "requires_attention":
         return "info";
       default:
         return "default";
@@ -192,7 +195,7 @@ const ResultTest: React.FC = () => {
         return <Error color="error" />;
       case "borderline":
         return <Warning color="warning" />;
-      case "review_needed":
+      case "requires_attention":
         return <Info color="info" />;
       default:
         return <Schedule color="disabled" />;
@@ -207,8 +210,8 @@ const ResultTest: React.FC = () => {
         return "Bất thường";
       case "borderline":
         return "Biên giới";
-      case "review_needed":
-        return "Cần xem xét";
+      case "requires_attention":
+        return "Cần theo dõi";
       default:
         return "Chưa xác định";
     }
@@ -391,12 +394,12 @@ const ResultTest: React.FC = () => {
                   <Typography variant="h6" fontWeight="bold">
                     {
                       testResults.filter(
-                        (r) => r.overallStatus === "review_needed"
+                        (r) => r.overallStatus === "requires_attention"
                       ).length
                     }
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    Cần xem xét
+                    Cần theo dõi
                   </Typography>
                 </Box>
               </Box>
@@ -459,8 +462,7 @@ const ResultTest: React.FC = () => {
                         <Person fontSize="small" color="action" />
                         <Typography variant="body2" color="text.secondary">
                           Bác sĩ thực hiện:{" "}
-                          {result.performedBy?.degree || "Chưa cập nhật"} -{" "}
-                          {result.performedBy?.specialty || "Chưa cập nhật"}
+                          {result.performedBy.user.userName || "Chưa cập nhật"}{" "}
                         </Typography>
                       </Stack>
                     </Box>
