@@ -1135,3 +1135,38 @@
     border: 2px solid currentColor !important;
   }
 }
+.rt-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 32px;
+  background: #f9fafb;
+  padding: 16px 0;
+  border-radius: 12px;
+}
+
+.rt-tab-btn {
+  padding: 12px 32px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #4a9b8e;
+  background: white;
+  border: 2px solid #4a9b8e;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.rt-tab-btn:hover:not(.active) {
+  background: #e0f2f1;
+  color: #059669;
+  border-color: #059669;
+}
+
+.rt-tab-btn.active {
+  background: #4a9b8e;
+  color: white;
+  border-color: #059669;
+  box-shadow: 0 2px 8px rgba(74, 155, 142, 0.08);
+}
