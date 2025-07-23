@@ -1,17 +1,6 @@
 import { DoctorService } from "@/services/doctor.service";
 import React, { useState, useEffect } from "react";
-import {
-  Search,
-  Calendar,
-  Phone,
-  Mail,
-  MapPin,
-  FileText,
-  User,
-  GraduationCap,
-  Clock,
-  Check,
-} from "lucide-react";
+import { Search, Calendar, Phone, Mail, MapPin, Check } from "lucide-react";
 import "./ViewAppointment.css";
 import { message } from "antd";
 import { useNavigate } from "react-router-dom";
