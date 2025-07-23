@@ -11,27 +11,10 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { MedicalServices, Save, Cancel } from "@mui/icons-material";
-
-interface MedicalHistoryFormData {
-  diseases: string;
-  allergies: string;
-  note: string;
-}
-
-interface MedicalHistoryData {
-  _id: string;
-  user: {
-    _id: string;
-    userName: string;
-    email: string;
-    phone: string;
-  };
-  diseases: string[];
-  allergies: string[];
-  note: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import type {
+  MedicalHistoryData,
+  MedicalHistoryFormData,
+} from "./MedicalHistory";
 
 interface MedicalHistoryModalProps {
   open: boolean;

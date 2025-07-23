@@ -7,7 +7,6 @@ import { Avatar, Dropdown, Menu, Badge } from "antd";
 import {
   UserOutlined,
   LogoutOutlined,
-  CalendarOutlined,
   InfoCircleOutlined,
   ShoppingCartOutlined,
 } from "@ant-design/icons";
@@ -67,8 +66,7 @@ const Header: React.FC = () => {
     toast.success("Đăng xuất thành công");
   };
 
-  const handleProfileClick = () => navigate("/profile");
-  const handleScheduleClick = () => navigate("/user/appointment");
+  const handleProfileClick = () => navigate("/customer");
 
   const menu = (
     <Menu>
@@ -79,13 +77,7 @@ const Header: React.FC = () => {
       >
         Thông tin cá nhân
       </Menu.Item>
-      <Menu.Item
-        key="schedule"
-        icon={<CalendarOutlined />}
-        onClick={handleScheduleClick}
-      >
-        Xem lịch hẹn
-      </Menu.Item>
+
       <Menu.Divider />
       <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout}>
         Đăng xuất
@@ -172,7 +164,7 @@ const Header: React.FC = () => {
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate("/login")}
               >
-                Đăng ký tài khoản
+                Đăng nhập
               </motion.button>
             )}
 

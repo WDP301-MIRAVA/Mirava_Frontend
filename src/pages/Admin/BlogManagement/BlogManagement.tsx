@@ -1,28 +1,41 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import './BlogManagement.css';
-import { BlogService, type Blog, type CreateBlogRequest, type UpdateBlogRequest } from '../../../services/blog.services';
-import toast from 'react-hot-toast';
-import { Plus, Edit, Trash2, Eye, Search, Calendar, User, FileText } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from "react";
+import "./BlogManagement.css";
+import {
+  BlogService,
+  type Blog,
+  type CreateBlogRequest,
+} from "../../../services/blog.services";
+import toast from "react-hot-toast";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  Search,
+  Calendar,
+  User,
+  FileText,
+} from "lucide-react";
 
 const AdminBlogManagement: React.FC = () => {
   // States for blog data and UI
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalBlogs, setTotalBlogs] = useState(0);
   const limit = 10;
-  
+
   // Filter and sort states
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [categories, setCategories] = useState<string[]>([]);
-  const [sortBy, setSortBy] = useState<'createdAt' | 'title'>('createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  
+  const [sortBy, setSortBy] = useState<"createdAt" | "title">("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
   // Modal states
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -30,19 +43,22 @@ const AdminBlogManagement: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedBlog, setSelectedBlog] = useState<Blog | null>(null);
   const [blogToDelete, setBlogToDelete] = useState<Blog | null>(null);
-  
+
   // Form states
   const [blogForm, setBlogForm] = useState<CreateBlogRequest>({
-    title: '',
-    content: '',
-    excerpt: '',
-    category: '',
-    status: 'draft',
-    featuredImage: ''
+    title: "",
+    content: "",
+    excerpt: "",
+    category: "",
+    status: "draft",
+    featuredImage: "",
   });
-  
+
   // Notification state
-  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const [notification, setNotification] = useState<{
+    message: string;
+    type: "success" | "error";
+  } | null>(null);
 
   // Authentication check
   useEffect(() => {
@@ -52,7 +68,7 @@ const AdminBlogManagement: React.FC = () => {
       setLoading(false);
       return;
     }
-    
+
     // Load initial data
     fetchBlogs();
     fetchCategories();
@@ -63,18 +79,18 @@ const AdminBlogManagement: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      
+
       const token = localStorage.getItem("accessToken");
       if (!token) {
         throw new Error("No access token found");
       }
 
       const response = await BlogService.getBlogList(
-        currentPage, 
-        limit, 
-        selectedCategory === 'all' ? undefined : selectedCategory
+        currentPage,
+        limit,
+        selectedCategory === "all" ? undefined : selectedCategory
       );
-      
+
       if (response.success) {
         setBlogs(response.data.blogs);
         setTotalPages(response.data.totalPages);
@@ -106,19 +122,22 @@ const AdminBlogManagement: React.FC = () => {
 
   // Filter and sort blogs locally (for search)
   const filteredAndSortedBlogs = useMemo(() => {
-    let filtered = blogs.filter(blog =>
-      blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (blog.author?.userName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (blog.excerpt || '').toLowerCase().includes(searchTerm.toLowerCase())
+    let filtered = blogs.filter(
+      (blog) =>
+        blog.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (blog.author?.userName || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        (blog.excerpt || "").toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     filtered.sort((a, b) => {
-      if (sortBy === 'createdAt') {
+      if (sortBy === "createdAt") {
         const dateA = new Date(a.createdAt).getTime();
         const dateB = new Date(b.createdAt).getTime();
-        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
       } else {
-        return sortOrder === 'asc' 
+        return sortOrder === "asc"
           ? a.title.localeCompare(b.title)
           : b.title.localeCompare(a.title);
       }
@@ -128,12 +147,12 @@ const AdminBlogManagement: React.FC = () => {
   }, [blogs, searchTerm, sortBy, sortOrder]);
 
   // Handle sort
-  const handleSort = (field: 'createdAt' | 'title') => {
+  const handleSort = (field: "createdAt" | "title") => {
     if (sortBy === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
     } else {
       setSortBy(field);
-      setSortOrder('desc');
+      setSortOrder("desc");
     }
   };
 
@@ -157,12 +176,12 @@ const AdminBlogManagement: React.FC = () => {
   // Handle create blog
   const handleCreate = () => {
     setBlogForm({
-      title: '',
-      content: '',
-      excerpt: '',
-      category: '',
-      status: 'draft',
-      featuredImage: ''
+      title: "",
+      content: "",
+      excerpt: "",
+      category: "",
+      status: "draft",
+      featuredImage: "",
     });
     setShowCreateModal(true);
   };
@@ -171,11 +190,11 @@ const AdminBlogManagement: React.FC = () => {
   const handleEdit = (blog: Blog) => {
     setBlogForm({
       title: blog.title,
-      content: blog.content || '',
+      content: blog.content || "",
       excerpt: blog.excerpt,
-      category: blog.category || '',
-      status: blog.status || 'draft',
-      featuredImage: blog.featuredImage || ''
+      category: blog.category || "",
+      status: blog.status || "draft",
+      featuredImage: blog.featuredImage || "",
     });
     setSelectedBlog(blog);
     setShowEditModal(true);
@@ -193,7 +212,10 @@ const AdminBlogManagement: React.FC = () => {
     try {
       const response = await BlogService.createBlog(blogForm);
       if (response.success) {
-        showNotification(`Blog "${blogForm.title}" đã được tạo thành công`, 'success');
+        showNotification(
+          `Blog "${blogForm.title}" đã được tạo thành công`,
+          "success"
+        );
         setShowCreateModal(false);
         fetchBlogs(); // Refresh list
       } else {
@@ -201,7 +223,7 @@ const AdminBlogManagement: React.FC = () => {
       }
     } catch (err: any) {
       console.error("Error creating blog:", err);
-      showNotification(err.message || "Có lỗi xảy ra khi tạo blog", 'error');
+      showNotification(err.message || "Có lỗi xảy ra khi tạo blog", "error");
     }
   };
 
@@ -209,11 +231,14 @@ const AdminBlogManagement: React.FC = () => {
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedBlog) return;
-    
+
     try {
       const response = await BlogService.updateBlog(selectedBlog._id, blogForm);
       if (response.success) {
-        showNotification(`Blog "${blogForm.title}" đã được cập nhật thành công`, 'success');
+        showNotification(
+          `Blog "${blogForm.title}" đã được cập nhật thành công`,
+          "success"
+        );
         setShowEditModal(false);
         setSelectedBlog(null);
         fetchBlogs(); // Refresh list
@@ -222,18 +247,24 @@ const AdminBlogManagement: React.FC = () => {
       }
     } catch (err: any) {
       console.error("Error updating blog:", err);
-      showNotification(err.message || "Có lỗi xảy ra khi cập nhật blog", 'error');
+      showNotification(
+        err.message || "Có lỗi xảy ra khi cập nhật blog",
+        "error"
+      );
     }
   };
 
   // Confirm delete blog
   const confirmDelete = async () => {
     if (!blogToDelete) return;
-    
+
     try {
       const response = await BlogService.deleteBlog(blogToDelete._id);
       if (response.success) {
-        showNotification(`Blog "${blogToDelete.title}" đã được xóa thành công`, 'success');
+        showNotification(
+          `Blog "${blogToDelete.title}" đã được xóa thành công`,
+          "success"
+        );
         setShowDeleteModal(false);
         setBlogToDelete(null);
         fetchBlogs(); // Refresh list
@@ -242,17 +273,17 @@ const AdminBlogManagement: React.FC = () => {
       }
     } catch (err: any) {
       console.error("Error deleting blog:", err);
-      showNotification(err.message || "Có lỗi xảy ra khi xóa blog", 'error');
+      showNotification(err.message || "Có lỗi xảy ra khi xóa blog", "error");
     }
   };
 
   // Show notification
-  const showNotification = (message: string, type: 'success' | 'error') => {
+  const showNotification = (message: string, type: "success" | "error") => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 5000);
-    
+
     // Also show toast
-    if (type === 'success') {
+    if (type === "success") {
       toast.success(message);
     } else {
       toast.error(message);
@@ -262,20 +293,20 @@ const AdminBlogManagement: React.FC = () => {
   // Format date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return date.toLocaleDateString("vi-VN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   // Handle form input changes
   const handleFormChange = (field: keyof CreateBlogRequest, value: string) => {
-    setBlogForm(prev => ({
+    setBlogForm((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -283,7 +314,7 @@ const AdminBlogManagement: React.FC = () => {
   const getPaginationNumbers = () => {
     const pages = [];
     const maxVisible = 5;
-    
+
     if (totalPages <= maxVisible) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
@@ -303,7 +334,7 @@ const AdminBlogManagement: React.FC = () => {
         }
       }
     }
-    
+
     return pages;
   };
 
@@ -330,7 +361,7 @@ const AdminBlogManagement: React.FC = () => {
         </div>
         <div style={{ textAlign: "center", padding: "50px", color: "red" }}>
           <div>{error}</div>
-          <button 
+          <button
             onClick={() => window.location.reload()}
             style={{ marginTop: "20px", padding: "10px 20px" }}
           >
@@ -352,7 +383,9 @@ const AdminBlogManagement: React.FC = () => {
 
       {/* Notification */}
       {notification && (
-        <div className={`admin-notification admin-notification--${notification.type}`}>
+        <div
+          className={`admin-notification admin-notification--${notification.type}`}
+        >
           {notification.message}
         </div>
       )}
@@ -377,8 +410,10 @@ const AdminBlogManagement: React.FC = () => {
             className="admin-category-select"
           >
             <option value="all">Tất cả danh mục</option>
-            {categories.map(category => (
-              <option key={category} value={category}>{category}</option>
+            {categories.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
             ))}
           </select>
         </div>
@@ -386,25 +421,27 @@ const AdminBlogManagement: React.FC = () => {
         <div className="admin-controls-right">
           <div className="admin-sort-controls">
             <button
-              onClick={() => handleSort('createdAt')}
-              className={`admin-sort-button ${sortBy === 'createdAt' ? 'admin-sort-button--active' : ''}`}
+              onClick={() => handleSort("createdAt")}
+              className={`admin-sort-button ${
+                sortBy === "createdAt" ? "admin-sort-button--active" : ""
+              }`}
             >
               <Calendar size={16} />
-              Ngày tạo {sortBy === 'createdAt' && (sortOrder === 'asc' ? '▲' : '▼')}
+              Ngày tạo{" "}
+              {sortBy === "createdAt" && (sortOrder === "asc" ? "▲" : "▼")}
             </button>
             <button
-              onClick={() => handleSort('title')}
-              className={`admin-sort-button ${sortBy === 'title' ? 'admin-sort-button--active' : ''}`}
+              onClick={() => handleSort("title")}
+              className={`admin-sort-button ${
+                sortBy === "title" ? "admin-sort-button--active" : ""
+              }`}
             >
               <FileText size={16} />
-              Tiêu đề {sortBy === 'title' && (sortOrder === 'asc' ? '▲' : '▼')}
+              Tiêu đề {sortBy === "title" && (sortOrder === "asc" ? "▲" : "▼")}
             </button>
           </div>
 
-          <button
-            onClick={handleCreate}
-            className="admin-create-button"
-          >
+          <button onClick={handleCreate} className="admin-create-button">
             <Plus size={16} />
             Thêm bài viết
           </button>
@@ -435,27 +472,31 @@ const AdminBlogManagement: React.FC = () => {
                   </div>
                 </td>
                 <td className="admin-blog-author">
-                  <User size={14} style={{ marginRight: '5px' }} />
-                  {blog.author?.userName || 'Không xác định'}
+                  <User size={14} style={{ marginRight: "5px" }} />
+                  {blog.author?.userName || "Không xác định"}
                 </td>
                 <td className="admin-blog-category">
                   <span className="admin-category-tag">
-                    {blog.category || 'Chưa phân loại'}
+                    {blog.category || "Chưa phân loại"}
                   </span>
                 </td>
                 <td className="admin-blog-status">
-                  <span className={`admin-status-badge admin-status-${blog.status}`}>
-                    {blog.status === 'published' ? 'Đã xuất bản' : 
-                     blog.status === 'draft' ? 'Bản nháp' : 
-                     blog.status === 'archived' ? 'Lưu trữ' : blog.status}
+                  <span
+                    className={`admin-status-badge admin-status-${blog.status}`}
+                  >
+                    {blog.status === "published"
+                      ? "Đã xuất bản"
+                      : blog.status === "draft"
+                      ? "Bản nháp"
+                      : blog.status === "archived"
+                      ? "Lưu trữ"
+                      : blog.status}
                   </span>
                 </td>
                 <td className="admin-blog-date">
                   {formatDate(blog.createdAt)}
                 </td>
-                <td className="admin-blog-views">
-                  {blog.viewCount || 0}
-                </td>
+                <td className="admin-blog-views">{blog.viewCount || 0}</td>
                 <td className="admin-blog-actions">
                   <button
                     onClick={() => handleView(blog)}
@@ -501,17 +542,19 @@ const AdminBlogManagement: React.FC = () => {
           >
             Trước
           </button>
-          
-          {getPaginationNumbers().map(page => (
+
+          {getPaginationNumbers().map((page) => (
             <button
               key={page}
               onClick={() => handlePageChange(page)}
-              className={`admin-pagination-button ${currentPage === page ? 'active' : ''}`}
+              className={`admin-pagination-button ${
+                currentPage === page ? "active" : ""
+              }`}
             >
               {page}
             </button>
           ))}
-          
+
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
@@ -519,7 +562,7 @@ const AdminBlogManagement: React.FC = () => {
           >
             Sau
           </button>
-          
+
           <span className="admin-pagination-info">
             Trang {currentPage} / {totalPages} (Tổng: {totalBlogs} bài viết)
           </span>
@@ -528,13 +571,21 @@ const AdminBlogManagement: React.FC = () => {
 
       {/* Create/Edit Modal */}
       {(showCreateModal || showEditModal) && (
-        <div className="admin-modal-overlay" onClick={() => {
-          setShowCreateModal(false);
-          setShowEditModal(false);
-        }}>
-          <div className="admin-modal admin-modal--form" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="admin-modal-overlay"
+          onClick={() => {
+            setShowCreateModal(false);
+            setShowEditModal(false);
+          }}
+        >
+          <div
+            className="admin-modal admin-modal--form"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="admin-modal__header">
-              <h2>{showCreateModal ? 'Thêm bài viết mới' : 'Chỉnh sửa bài viết'}</h2>
+              <h2>
+                {showCreateModal ? "Thêm bài viết mới" : "Chỉnh sửa bài viết"}
+              </h2>
               <button
                 onClick={() => {
                   setShowCreateModal(false);
@@ -545,14 +596,16 @@ const AdminBlogManagement: React.FC = () => {
                 ×
               </button>
             </div>
-            <form onSubmit={showCreateModal ? handleCreateSubmit : handleEditSubmit}>
+            <form
+              onSubmit={showCreateModal ? handleCreateSubmit : handleEditSubmit}
+            >
               <div className="admin-modal__body">
                 <div className="admin-form-group">
                   <label>Tiêu đề *</label>
                   <input
                     type="text"
                     value={blogForm.title}
-                    onChange={(e) => handleFormChange('title', e.target.value)}
+                    onChange={(e) => handleFormChange("title", e.target.value)}
                     required
                     placeholder="Nhập tiêu đề bài viết"
                   />
@@ -562,7 +615,9 @@ const AdminBlogManagement: React.FC = () => {
                   <label>Tóm tắt *</label>
                   <textarea
                     value={blogForm.excerpt}
-                    onChange={(e) => handleFormChange('excerpt', e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange("excerpt", e.target.value)
+                    }
                     required
                     placeholder="Nhập tóm tắt bài viết"
                     rows={3}
@@ -574,11 +629,15 @@ const AdminBlogManagement: React.FC = () => {
                     <label>Danh mục</label>
                     <select
                       value={blogForm.category}
-                      onChange={(e) => handleFormChange('category', e.target.value)}
+                      onChange={(e) =>
+                        handleFormChange("category", e.target.value)
+                      }
                     >
                       <option value="">Chọn danh mục</option>
-                      {categories.map(category => (
-                        <option key={category} value={category}>{category}</option>
+                      {categories.map((category) => (
+                        <option key={category} value={category}>
+                          {category}
+                        </option>
                       ))}
                     </select>
                   </div>
@@ -587,7 +646,9 @@ const AdminBlogManagement: React.FC = () => {
                     <label>Trạng thái</label>
                     <select
                       value={blogForm.status}
-                      onChange={(e) => handleFormChange('status', e.target.value)}
+                      onChange={(e) =>
+                        handleFormChange("status", e.target.value)
+                      }
                     >
                       <option value="draft">Bản nháp</option>
                       <option value="published">Xuất bản</option>
@@ -601,7 +662,9 @@ const AdminBlogManagement: React.FC = () => {
                   <input
                     type="url"
                     value={blogForm.featuredImage}
-                    onChange={(e) => handleFormChange('featuredImage', e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange("featuredImage", e.target.value)
+                    }
                     placeholder="https://example.com/image.jpg"
                   />
                 </div>
@@ -610,7 +673,9 @@ const AdminBlogManagement: React.FC = () => {
                   <label>Nội dung *</label>
                   <textarea
                     value={blogForm.content}
-                    onChange={(e) => handleFormChange('content', e.target.value)}
+                    onChange={(e) =>
+                      handleFormChange("content", e.target.value)
+                    }
                     required
                     placeholder="Nhập nội dung bài viết"
                     rows={10}
@@ -632,7 +697,7 @@ const AdminBlogManagement: React.FC = () => {
                   type="submit"
                   className="admin-modal-button admin-modal-button--primary"
                 >
-                  {showCreateModal ? 'Tạo bài viết' : 'Cập nhật'}
+                  {showCreateModal ? "Tạo bài viết" : "Cập nhật"}
                 </button>
               </div>
             </form>
@@ -642,8 +707,14 @@ const AdminBlogManagement: React.FC = () => {
 
       {/* View Modal */}
       {showViewModal && selectedBlog && (
-        <div className="admin-modal-overlay" onClick={() => setShowViewModal(false)}>
-          <div className="admin-modal admin-modal--view" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="admin-modal-overlay"
+          onClick={() => setShowViewModal(false)}
+        >
+          <div
+            className="admin-modal admin-modal--view"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="admin-modal__header">
               <h2>{selectedBlog.title}</h2>
               <button
@@ -656,41 +727,62 @@ const AdminBlogManagement: React.FC = () => {
             <div className="admin-modal__body">
               <div className="admin-blog-meta">
                 <div className="admin-meta-row">
-                  <span><strong>Tác giả:</strong></span>
-                  <span>{selectedBlog.author?.userName || 'Không xác định'}</span>
-                </div>
-                <div className="admin-meta-row">
-                  <span><strong>Danh mục:</strong></span>
-                  <span>{selectedBlog.category || 'Chưa phân loại'}</span>
-                </div>
-                <div className="admin-meta-row">
-                  <span><strong>Trạng thái:</strong></span>
-                  <span className={`admin-status-badge admin-status-${selectedBlog.status}`}>
-                    {selectedBlog.status === 'published' ? 'Đã xuất bản' : 
-                     selectedBlog.status === 'draft' ? 'Bản nháp' : 
-                     selectedBlog.status === 'archived' ? 'Lưu trữ' : selectedBlog.status}
+                  <span>
+                    <strong>Tác giả:</strong>
+                  </span>
+                  <span>
+                    {selectedBlog.author?.userName || "Không xác định"}
                   </span>
                 </div>
                 <div className="admin-meta-row">
-                  <span><strong>Ngày tạo:</strong></span>
+                  <span>
+                    <strong>Danh mục:</strong>
+                  </span>
+                  <span>{selectedBlog.category || "Chưa phân loại"}</span>
+                </div>
+                <div className="admin-meta-row">
+                  <span>
+                    <strong>Trạng thái:</strong>
+                  </span>
+                  <span
+                    className={`admin-status-badge admin-status-${selectedBlog.status}`}
+                  >
+                    {selectedBlog.status === "published"
+                      ? "Đã xuất bản"
+                      : selectedBlog.status === "draft"
+                      ? "Bản nháp"
+                      : selectedBlog.status === "archived"
+                      ? "Lưu trữ"
+                      : selectedBlog.status}
+                  </span>
+                </div>
+                <div className="admin-meta-row">
+                  <span>
+                    <strong>Ngày tạo:</strong>
+                  </span>
                   <span>{formatDate(selectedBlog.createdAt)}</span>
                 </div>
                 <div className="admin-meta-row">
-                  <span><strong>Lượt xem:</strong></span>
+                  <span>
+                    <strong>Lượt xem:</strong>
+                  </span>
                   <span>{selectedBlog.viewCount || 0}</span>
                 </div>
               </div>
 
               {selectedBlog.featuredImage && (
                 <div className="admin-featured-image">
-                  <img src={selectedBlog.featuredImage} alt={selectedBlog.title} />
+                  <img
+                    src={selectedBlog.featuredImage}
+                    alt={selectedBlog.title}
+                  />
                 </div>
               )}
 
               <div className="admin-blog-content">
                 <h3>Tóm tắt:</h3>
                 <p>{selectedBlog.excerpt}</p>
-                
+
                 <h3>Nội dung:</h3>
                 <div className="admin-content-display">
                   {selectedBlog.content}
@@ -703,8 +795,14 @@ const AdminBlogManagement: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && blogToDelete && (
-        <div className="admin-modal-overlay" onClick={() => setShowDeleteModal(false)}>
-          <div className="admin-modal admin-modal--confirm" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="admin-modal-overlay"
+          onClick={() => setShowDeleteModal(false)}
+        >
+          <div
+            className="admin-modal admin-modal--confirm"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="admin-modal__header">
               <h2>Xác nhận xóa</h2>
             </div>

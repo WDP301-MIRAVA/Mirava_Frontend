@@ -9,4 +9,7 @@ export default defineConfig({
     react(),
     tsconfigPaths(),
   ],
+    build: {
+    chunkSizeWarningLimit: 2000, // đơn vị KB, mặc định là 500
+  },
 })

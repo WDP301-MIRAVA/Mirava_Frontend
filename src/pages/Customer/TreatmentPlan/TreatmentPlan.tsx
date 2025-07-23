@@ -8,7 +8,6 @@ import {
   User,
   Phone,
   Mail,
-  MapPin,
   ChevronLeft,
   ChevronRight,
   Eye,
@@ -55,11 +54,35 @@ interface DoctorInfo {
   description: string;
   imageUrl: string;
 }
-
+interface Attachment {
+  url: string;
+  name?: string;
+  type?: string;
+}
+interface RecordDetail {
+  date?: string;
+  type?: string;
+  title?: string;
+  conclusion?: string;
+  notes?: string;
+  attachments?: Attachment[]; // hoặc interface Attachment[] nếu có định dạng chuẩn
+}
+interface TreatmentEventStep {
+  title: string;
+  type?: string;
+  stage?: string;
+  description?: string;
+  scheduledDates?: string[]; // ISO date strings
+  executionDate?: string; // ISO date string
+  performedBy?: string;
+  doctorNote?: string;
+  medicalRecords?: string[]; // <-- nên định nghĩa cụ thể hơn nếu biết
+  status?: "completed" | "in_progress" | "pending";
+}
 const TreatmentPlan: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [plans, setPlans] = useState<ApiTreatmentPlan[]>([]);
+  const [, setPlans] = useState<ApiTreatmentPlan[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<ApiTreatmentPlan | null>(
     null
   );
@@ -73,17 +96,22 @@ const TreatmentPlan: React.FC = () => {
   const [doctorInfo, setDoctorInfo] = useState<DoctorInfo | null>(null);
 
   // Medical Records
-  const [recordDetail, setRecordDetail] = useState<any>(null);
+  const [recordDetail, setRecordDetail] = useState<RecordDetail | null>(null);
   const [recordModalOpen, setRecordModalOpen] = useState(false);
   const [loadingRecord, setLoadingRecord] = useState(false);
 
   // Notification handler
   useEffect(() => {
-    const handler = (e: any) => {
-      toast(e.detail.message);
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent<{ message: string }>;
+      toast(customEvent.detail.message);
     };
+
     window.addEventListener("mirava-notification", handler);
-    return () => window.removeEventListener("mirava-notification", handler);
+
+    return () => {
+      window.removeEventListener("mirava-notification", handler);
+    };
   }, []);
 
   // Fetch treatment plans and related data
@@ -124,7 +152,6 @@ const TreatmentPlan: React.FC = () => {
             const plan = response.data.data[0];
             setSelectedPlan(plan);
 
-            // Set patient info
             if (plan.patient) {
               setPatientInfo(plan.patient);
             }
@@ -137,7 +164,7 @@ const TreatmentPlan: React.FC = () => {
             // Process treatment events
             if (plan.treatmentEvents && Array.isArray(plan.treatmentEvents)) {
               const steps: TreatmentStep[] = plan.treatmentEvents.map(
-                (event: any, idx: number) => ({
+                (event: TreatmentEventStep, idx: number) => ({
                   id: `${idx + 1}`,
                   name: event.title,
                   category: event.type || "Tư vấn",
@@ -344,7 +371,7 @@ const TreatmentPlan: React.FC = () => {
 
         const idx = stepIndex % upcomingSteps.length;
         const step = upcomingSteps[idx];
-        const notifyId = `${step.id}-${step.scheduledDates[0]}`;
+        const notifyId = `${step.id}-${step.scheduledDates?.[0] || "no-date"}`;
 
         if (!remindedRef.current[notifyId]) {
           window.dispatchEvent(
@@ -353,7 +380,7 @@ const TreatmentPlan: React.FC = () => {
                 id: `${notifyId}-${Date.now()}`,
                 message: `Nhắc nhở: Sắp đến lịch "${
                   step.name
-                }" vào ngày ${formatDateShort(step.scheduledDates[0])}`,
+                }" vào ngày ${formatDateShort(step.scheduledDates?.[0])}`,
                 read: false,
                 time: new Date().toLocaleTimeString("vi-VN"),
               },
@@ -418,15 +445,15 @@ const TreatmentPlan: React.FC = () => {
                       <strong>File đính kèm:</strong>
                       <div className="tp-attachments">
                         {recordDetail.attachments.map(
-                          (url: string, idx: number) => (
+                          (attachment: Attachment, idx: number) => (
                             <a
                               key={idx}
-                              href={url}
+                              href={attachment.url}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="tp-attachment-link"
                             >
-                              📎 Xem file {idx + 1}
+                              📎 {attachment.name || `Xem file ${idx + 1}`}
                             </a>
                           )
                         )}
@@ -708,7 +735,9 @@ const TreatmentPlan: React.FC = () => {
                             <button
                               className="tp-view-btn"
                               onClick={() =>
-                                handleViewMedicalRecord(step.medicalRecords[0])
+                                handleViewMedicalRecord(
+                                  step.medicalRecords?.[0] || ""
+                                )
                               }
                             >
                               <Eye size={14} />
@@ -732,7 +761,7 @@ const TreatmentPlan: React.FC = () => {
             <div className="tp-timeline-container">
               <h2>Timeline điều trị</h2>
               <div className="tp-timeline-content">
-                {treatmentSteps.map((step, idx) => (
+                {treatmentSteps.map((step) => (
                   <div
                     key={step.id}
                     className={`tp-timeline-item ${step.status}`}
@@ -777,7 +806,9 @@ const TreatmentPlan: React.FC = () => {
                           <button
                             className="tp-view-btn"
                             onClick={() =>
-                              handleViewMedicalRecord(step.medicalRecords[0])
+                              handleViewMedicalRecord(
+                                step.medicalRecords?.[0] || ""
+                              )
                             }
                           >
                             <Eye size={14} />
@@ -909,7 +940,7 @@ const TreatmentPlan: React.FC = () => {
                                 className="tp-view-btn"
                                 onClick={() =>
                                   handleViewMedicalRecord(
-                                    step.medicalRecords[0]
+                                    step.medicalRecords![0]
                                   )
                                 }
                               >

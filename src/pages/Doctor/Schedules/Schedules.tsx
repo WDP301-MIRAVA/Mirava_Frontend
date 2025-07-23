@@ -9,28 +9,21 @@ import {
   Row,
   Col,
   Card,
-  Avatar,
   Modal,
   Timeline,
   Tag,
 } from "antd";
-import type { Moment } from "moment";
+import type { Dayjs } from "dayjs";
 import axios from "axios";
 import {
   ClockCircleOutlined,
-  PhoneOutlined,
-  MailOutlined,
-  EnvironmentOutlined,
-  UserOutlined,
   CalendarOutlined,
   CheckCircleOutlined,
-  CloseCircleOutlined,
 } from "@ant-design/icons";
 import "./Schedules.css";
 import moment from "moment";
-import "moment/locale/vi";
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
 interface UserInfo {
   _id: string;
@@ -70,7 +63,7 @@ const Schedules: React.FC = () => {
     Map<string, { start: string; end: string }>
   >(new Map());
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [selectedDate, setSelectedDate] = useState<Moment | null>(null);
+  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [loadingTimeSlots, setLoadingTimeSlots] = useState<boolean>(false);
 
@@ -172,9 +165,9 @@ const Schedules: React.FC = () => {
 
     // Tạo các khung giờ 1 tiếng một
     let currentTime = startTime.clone();
-    while (currentTime < endTime) {
+    while (currentTime.isBefore(endTime)) {
       const slotStart = currentTime.format("HH:mm");
-      currentTime.add(1, "hour");
+      currentTime = currentTime.add(1, "hour");
       const slotEnd = currentTime.format("HH:mm");
 
       // Tạo ngẫu nhiên một số khung giờ đã được đặt để demo
@@ -196,7 +189,7 @@ const Schedules: React.FC = () => {
   };
 
   // Hàm xử lý khi click vào một ngày trên lịch
-  const handleDateSelect = (date: Moment) => {
+  const handleDateSelect = (date: Dayjs) => {
     const day = date.day().toString();
     const isWorkingDay = parsedSchedule.has(day);
 
@@ -220,7 +213,7 @@ const Schedules: React.FC = () => {
     }
   };
 
-  const dateCellRender = (value: Moment) => {
+  const dateCellRender = (value: Dayjs) => {
     const day = value.day().toString();
     const isWorkingDay = parsedSchedule.has(day);
 
@@ -238,7 +231,7 @@ const Schedules: React.FC = () => {
     return null;
   };
 
-  const monthCellRender = (value: Moment) => {
+  const monthCellRender = () => {
     return null;
   };
 

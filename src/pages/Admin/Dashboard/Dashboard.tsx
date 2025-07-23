@@ -136,7 +136,10 @@ const Dashboard: React.FC = () => {
           yField="total"
           xAxis={{ label: { autoHide: true, autoRotate: false } }}
           yAxis={{
-            label: { formatter: (v) => `${Number(v).toLocaleString()} đ` },
+            label: {
+              formatter: (v: number | string) =>
+                `${Number(v).toLocaleString()} đ`,
+            },
           }}
           meta={{ total: { alias: "Doanh thu" } }}
           height={300}

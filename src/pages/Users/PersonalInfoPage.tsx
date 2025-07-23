@@ -3,35 +3,41 @@ import { Form, Input, Button, Typography, Card, Spin, Radio } from "antd";
 import { decodeToken } from "@/utils/decodeToken";
 import { userServ } from "@/services/userServie";
 import toast from "react-hot-toast";
+import { AxiosError } from "axios";
 
 const { Title } = Typography;
+
+type Gender = "Male" | "Female" | "Other";
 
 interface UserResponse {
   _id: string;
   userName: string;
   phone: string;
   email: string;
-  gender: "Male" | "Female" | "Other" | string;
+  gender: Gender;
   address: string;
   role: string;
   createdAt: string;
   updatedAt: string;
 }
+
 interface FormValues {
   userName: string;
   phone: string;
   email: string;
   address: string;
-  gender: "Male" | "Female" | "Other";
+  gender: Gender;
   password?: string;
   confirmPassword?: string;
 }
+
 interface UpdateUserPayload {
   phone: string;
   address: string;
-  gender: "Male" | "Female" | "Other";
+  gender: Gender;
   password?: string;
 }
+
 const PersonalInfoPage: React.FC = () => {
   const [form] = Form.useForm();
   const [user, setUser] = useState<UserResponse | null>(null);
@@ -46,10 +52,17 @@ const PersonalInfoPage: React.FC = () => {
 
   const fetchUser = async () => {
     try {
-
+      const token = localStorage.getItem("accessToken");
+      if (!token) {
+        setError("Không tìm thấy token, vui lòng đăng nhập lại");
+        return;
+      }
+      const userLocal = decodeToken(token);
       const userData = await userServ.getUserById(userLocal.id);
 
-      const normalizedGender = capitalizeFirstLetter(userData?.gender ?? "");
+      const normalizedGender = capitalizeFirstLetter(
+        userData?.gender ?? ""
+      ) as Gender;
 
       setUser({
         ...userData,
@@ -57,7 +70,6 @@ const PersonalInfoPage: React.FC = () => {
         address: userData?.address ?? "",
       });
 
-      // Set form values
       form.setFieldsValue({
         userName: userData?.userName || "",
         phone: userData?.phone || "",
@@ -65,32 +77,23 @@ const PersonalInfoPage: React.FC = () => {
         gender: normalizedGender || "",
         address: userData?.address || "",
       });
-
-      console.log("Form values set:", {
-        userName: userData?.userName,
-        phone: userData?.phone,
-        email: userData?.email,
-        gender: normalizedGender,
-        address: userData?.address,
-      }); // Debug log
-
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Lỗi lấy thông tin người dùng:", error);
-      
-      // Xử lý các loại lỗi khác nhau
-      if (error.response?.status === 401) {
-        setError("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
-        // Có thể redirect về trang login
-        localStorage.removeItem("accessToken");
-      } else if (error.response?.status === 403) {
-        setError("Bạn không có quyền truy cập thông tin này");
-      } else if (error.response?.status === 404) {
-        setError("Không tìm thấy thông tin người dùng");
-      } else {
-        setError(error.message || "Không thể tải thông tin người dùng");
+
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) {
+          setError("Phiên đăng nhập đã hết hạn, vui lòng đăng nhập lại");
+          localStorage.removeItem("accessToken");
+        } else if (error.response?.status === 403) {
+          setError("Bạn không có quyền truy cập thông tin này");
+        } else if (error.response?.status === 404) {
+          setError("Không tìm thấy thông tin người dùng");
+        } else {
+          setError(error.message || "Không thể tải thông tin người dùng");
+        }
+
+        toast.error("Không thể tải thông tin người dùng");
       }
-      
-      toast.error("Không thể tải thông tin người dùng");
     } finally {
       setLoading(false);
     }
@@ -98,14 +101,9 @@ const PersonalInfoPage: React.FC = () => {
 
   useEffect(() => {
     fetchUser();
-  }, []); // Empty dependency array
-
+  }, []);
 
   const onFinish = async (values: FormValues) => {
-
-  
-    // Validate password confirmation
-
     if (values.password && values.password !== values.confirmPassword) {
       toast.error("Mật khẩu xác nhận không khớp!");
       return;
@@ -113,7 +111,6 @@ const PersonalInfoPage: React.FC = () => {
 
     try {
       setUpdating(true);
-
 
       const token = localStorage.getItem("accessToken");
       if (!token) {
@@ -126,54 +123,47 @@ const PersonalInfoPage: React.FC = () => {
         return;
       }
 
-      // Prepare payload - chỉ gửi các field có thể update
-      const payload: any = {
-
+      const payload: UpdateUserPayload = {
         phone: values.phone,
         address: values.address,
         gender: values.gender,
       };
 
-      // Chỉ thêm password nếu user nhập
-      if (values.password && values.password.trim()) {
+      if (values.password?.trim()) {
         payload.password = values.password;
       }
 
-      console.log("Update payload:", payload); // Debug log
-
-      // Gọi API update
-      const response = await userServ.updateUser(payload, user._id);
-      console.log("Update response:", response); // Debug log
+      await userServ.updateUser(payload, user._id);
 
       toast.success("Cập nhật thông tin thành công!");
-      
-      // Refresh user data sau khi update
       await fetchUser();
-      
-      // Clear password fields
+
       form.setFieldsValue({
         password: "",
-        confirmPassword: ""
+        confirmPassword: "",
       });
-
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Lỗi cập nhật:", error);
-      
-      // Xử lý các loại lỗi
-      if (error.response?.status === 401) {
-        toast.error("Phiên đăng nhập đã hết hạn");
-        localStorage.removeItem("accessToken");
-      } else if (error.response?.status === 400) {
-        toast.error(error.response?.data?.message || "Dữ liệu không hợp lệ");
+
+      if (error instanceof AxiosError) {
+        const status = error.response?.status;
+
+        if (status === 401) {
+          toast.error("Phiên đăng nhập đã hết hạn");
+          localStorage.removeItem("accessToken");
+        } else if (status === 400) {
+          toast.error(error.response?.data?.message || "Dữ liệu không hợp lệ");
+        } else {
+          toast.error(error.message || "Cập nhật thất bại!");
+        }
       } else {
-        toast.error(error.message || "Cập nhật thất bại!");
+        toast.error("Lỗi không xác định");
       }
     } finally {
       setUpdating(false);
     }
   };
 
-  // Loading state
   if (loading) {
     return (
       <div style={{ textAlign: "center", marginTop: 100 }}>
@@ -183,7 +173,6 @@ const PersonalInfoPage: React.FC = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div style={{ textAlign: "center", marginTop: 100 }}>
@@ -195,105 +184,103 @@ const PersonalInfoPage: React.FC = () => {
     );
   }
 
-  // Main render
   return (
-    <>
-      <div style={{ padding: 24, maxWidth: 600, margin: "0 auto" }}>
-        <Card>
-          <Title level={3}>Thông tin cá nhân</Title>
-          <Form layout="vertical" form={form} onFinish={onFinish}>
-            <Form.Item
-              label="Họ và tên"
-              name="userName"
-              rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
-            >
-              <Input disabled />
-            </Form.Item>
+    <div style={{ padding: 24, maxWidth: 600, margin: "0 auto" }}>
+      <Card>
+        <Title level={3}>Thông tin cá nhân</Title>
+        <Form layout="vertical" form={form} onFinish={onFinish}>
+          <Form.Item
+            label="Họ và tên"
+            name="userName"
+            rules={[{ required: true, message: "Vui lòng nhập họ và tên" }]}
+          >
+            <Input disabled />
+          </Form.Item>
 
-            <Form.Item
-              label="Số điện thoại"
-              name="phone"
-              rules={[
-                { required: true, message: "Vui lòng nhập số điện thoại" },
-                {
-                  pattern: /^0\d{9}$/,
-                  message: "Số điện thoại không hợp lệ (phải có 10 số và bắt đầu bằng 0)",
+          <Form.Item
+            label="Số điện thoại"
+            name="phone"
+            rules={[
+              { required: true, message: "Vui lòng nhập số điện thoại" },
+              {
+                pattern: /^0\d{9}$/,
+                message:
+                  "Số điện thoại không hợp lệ (phải có 10 số và bắt đầu bằng 0)",
+              },
+            ]}
+          >
+            <Input placeholder="Nhập số điện thoại" />
+          </Form.Item>
+
+          <Form.Item
+            label="Email"
+            name="email"
+            rules={[
+              { required: true, message: "Vui lòng nhập email" },
+              { type: "email", message: "Email không hợp lệ" },
+            ]}
+          >
+            <Input disabled />
+          </Form.Item>
+
+          <Form.Item
+            label="Địa chỉ"
+            name="address"
+            rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}
+          >
+            <Input placeholder="Nhập địa chỉ" />
+          </Form.Item>
+
+          <Form.Item
+            label="Giới tính"
+            name="gender"
+            rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
+          >
+            <Radio.Group>
+              <Radio value="Male">Nam</Radio>
+              <Radio value="Female">Nữ</Radio>
+              <Radio value="Other">Khác</Radio>
+            </Radio.Group>
+          </Form.Item>
+
+          <Form.Item label="Mật khẩu mới" name="password">
+            <Input.Password placeholder="Nhập nếu muốn đổi mật khẩu" />
+          </Form.Item>
+
+          <Form.Item
+            label="Xác nhận mật khẩu"
+            name="confirmPassword"
+            dependencies={["password"]}
+            rules={[
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error("Mật khẩu xác nhận không khớp!")
+                  );
                 },
-              ]}
+              }),
+            ]}
+          >
+            <Input.Password placeholder="Nhập lại mật khẩu" />
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={updating}
+              disabled={updating}
+              style={{ width: "100%" }}
             >
-              <Input placeholder="Nhập số điện thoại" />
-            </Form.Item>
-
-            <Form.Item
-              label="Email"
-              name="email"
-              rules={[
-                { required: true, message: "Vui lòng nhập email" },
-                { type: "email", message: "Email không hợp lệ" },
-              ]}
-            >
-              <Input disabled />
-            </Form.Item>
-
-            <Form.Item
-              label="Địa chỉ"
-              name="address"
-              rules={[{ required: true, message: "Vui lòng nhập địa chỉ" }]}
-            >
-              <Input placeholder="Nhập địa chỉ" />
-            </Form.Item>
-
-            <Form.Item
-              label="Giới tính"
-              name="gender"
-              rules={[{ required: true, message: "Vui lòng chọn giới tính" }]}
-            >
-              <Radio.Group>
-                <Radio value="Male">Nam</Radio>
-                <Radio value="Female">Nữ</Radio>
-                <Radio value="Other">Khác</Radio>
-              </Radio.Group>
-            </Form.Item>
-
-            <Form.Item label="Mật khẩu mới" name="password">
-              <Input.Password placeholder="Nhập nếu muốn đổi mật khẩu" />
-            </Form.Item>
-
-            <Form.Item
-              label="Xác nhận mật khẩu"
-              name="confirmPassword"
-              dependencies={["password"]}
-              rules={[
-                ({ getFieldValue }) => ({
-                  validator(_, value) {
-                    if (!value || getFieldValue("password") === value) {
-                      return Promise.resolve();
-                    }
-                    return Promise.reject(
-                      new Error("Mật khẩu xác nhận không khớp!")
-                    );
-                  },
-                }),
-              ]}
-            >
-              <Input.Password placeholder="Nhập lại mật khẩu" />
-            </Form.Item>
-
-            <Form.Item>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
-                loading={updating}
-                disabled={updating}
-                style={{ width: "100%" }}
-              >
-                {updating ? "Đang lưu..." : "Lưu thay đổi"}
-              </Button>
-            </Form.Item>
-          </Form>
-        </Card>
-      </div>
-    </>
+              {updating ? "Đang lưu..." : "Lưu thay đổi"}
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
+    </div>
   );
 };
 

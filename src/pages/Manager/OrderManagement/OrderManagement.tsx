@@ -51,7 +51,7 @@ const OrderManagement: React.FC = () => {
   // Modal chọn bác sĩ
   const [showDoctorModal, setShowDoctorModal] = useState(false);
   const [selectingOrder, setSelectingOrder] = useState<Order | null>(null);
-  const [availableDoctors, setAvailableDoctors] = useState<any[]>([]);
+  const [availableDoctors, setAvailableDoctors] = useState<Doctor[]>([]);
   const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
 
   // Hàm lấy danh sách bác sĩ rảnh cho đơn hàng
@@ -78,6 +78,7 @@ const OrderManagement: React.FC = () => {
       if (data.success) setAvailableDoctors(data.data);
       else setError(data.message || "Không lấy được danh sách bác sĩ");
     } catch (err) {
+      console.error("Lỗi khi lấy danh sách bác sĩ:", err);
       setError("Lỗi khi lấy danh sách bác sĩ cho gói xét nghiệm");
     }
   };
@@ -127,8 +128,12 @@ const OrderManagement: React.FC = () => {
         const data = await response.json();
         setError(data.message || "Lỗi khi tải đơn hàng");
       }
-    } catch (error: any) {
-      setError(error.message || "Lỗi không xác định khi tải đơn hàng");
+    } catch (error: unknown) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Lỗi không xác định khi tải đơn hàng"
+      );
     } finally {
       setLoading(false);
     }
@@ -174,8 +179,12 @@ const OrderManagement: React.FC = () => {
       } else {
         setError(data.message || "Xác nhận đơn hàng thất bại");
       }
-    } catch (error: any) {
-      setError(error.message || "Lỗi không xác định khi xác nhận đơn hàng");
+    } catch (error: unknown) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Lỗi không xác định khi xác nhận đơn hàng"
+      );
     } finally {
       setLoading(false);
     }
@@ -449,7 +458,7 @@ const OrderManagement: React.FC = () => {
               </p>
             ) : (
               <ul style={{ maxHeight: 250, overflowY: "auto", padding: 0 }}>
-                {availableDoctors.map((doc: any) => (
+                {availableDoctors.map((doc: Doctor) => (
                   <li
                     key={doc._id}
                     className="doctor-item"

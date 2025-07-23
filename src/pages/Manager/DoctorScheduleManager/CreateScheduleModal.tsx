@@ -13,12 +13,19 @@ const daysOfWeek = [
   { label: "Thứ 7", value: 6 },
 ];
 
+interface CreateScheduleModalProps {
+  open: boolean;
+  onClose?: () => void;
+  doctorId: string;
+  onSuccess?: () => void;
+}
+
 export default function CreateScheduleModal({
   open,
   onClose,
   doctorId,
   onSuccess,
-}) {
+}: CreateScheduleModalProps) {
   const [loading, setLoading] = useState(false);
   const [schedules, setSchedules] = useState([
     {
@@ -31,9 +38,24 @@ export default function CreateScheduleModal({
     },
   ]);
 
-  const handleChange = (index, field, value) => {
+  interface ScheduleItem {
+    dayOfWeek: string;
+    startTime: string;
+    endTime: string;
+    breakStartTime: string;
+    breakEndTime: string;
+    maxPatients: number;
+  }
+
+  type ScheduleField = keyof ScheduleItem;
+
+  const handleChange = (
+    index: number,
+    field: ScheduleField,
+    value: string | number
+  ) => {
     const newSchedules = [...schedules];
-    newSchedules[index][field] = value;
+    newSchedules[index][field] = value as never;
     setSchedules(newSchedules);
   };
 
@@ -51,7 +73,7 @@ export default function CreateScheduleModal({
     ]);
   };
 
-  const handleRemove = (index) => {
+  const handleRemove = (index: number): void => {
     setSchedules(schedules.filter((_, i) => i !== index));
   };
 
@@ -70,7 +92,10 @@ export default function CreateScheduleModal({
       schedules: schedules.map((s) => ({
         ...s,
         dayOfWeek: parseInt(s.dayOfWeek),
-        maxPatients: parseInt(s.maxPatients),
+        maxPatients:
+          typeof s.maxPatients === "string"
+            ? parseInt(s.maxPatients)
+            : s.maxPatients,
       })),
     };
 

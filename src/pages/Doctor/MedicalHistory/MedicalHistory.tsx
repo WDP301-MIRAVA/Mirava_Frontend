@@ -1,21 +1,22 @@
 import React, { useState } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  Modal,
-  Popconfirm,
-  Space,
-  Tag,
-  Descriptions,
-} from "antd";
+import { Button, Form, Input, Modal, Space, Tag, Descriptions } from "antd";
 import { MedicalHistoryService } from "@/services/medical-history.service";
 import toast from "react-hot-toast";
 
+interface User {
+  userId: string;
+  userName: string;
+}
+interface MedicalHistoryType {
+  diseases: string[];
+  allergies?: string;
+  note?: string;
+}
 const MedicalHistory: React.FC = () => {
   const [keyword, setKeyword] = useState("");
-  const [user, setUser] = useState<any>(null);
-  const [medicalHistory, setMedicalHistory] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [medicalHistory, setMedicalHistory] =
+    useState<MedicalHistoryType | null>(null);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [form] = Form.useForm();
@@ -29,7 +30,7 @@ const MedicalHistory: React.FC = () => {
         foundUser?.data?.userId
       );
       setMedicalHistory(history?.data);
-    } catch (err) {
+    } catch {
       setMedicalHistory(null);
       toast.error("Không tìm thấy bệnh nhân hoặc chưa có tiền sử.");
     } finally {
@@ -51,6 +52,11 @@ const MedicalHistory: React.FC = () => {
   };
 
   const handleDelete = async () => {
+    if (!user) {
+      toast.error("Không tìm thấy thông tin bệnh nhân");
+      return;
+    }
+
     try {
       await MedicalHistoryService.deleteMedicalHistory(user.userId);
       toast.success("Xoá thành công");
@@ -61,6 +67,11 @@ const MedicalHistory: React.FC = () => {
   };
 
   const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Không tìm thấy thông tin bệnh nhân");
+      return;
+    }
+
     try {
       const values = await form.validateFields();
       const payload = {

@@ -2,17 +2,6 @@ import React from "react";
 import "./PaymentConfirmation.css";
 import { useLocation } from "react-router-dom";
 
-interface UserInfo {
-  fullName: string;
-  phone: string;
-  email: string;
-  address: string;
-  appointmentDate: string;
-  timeSlot: string;
-  doctor: string;
-  notes: string;
-}
-
 const PaymentConfirmation: React.FC = () => {
   const { state } = useLocation();
   const { userInfo, amount, transferContent, qrImageUrl } = state || {};

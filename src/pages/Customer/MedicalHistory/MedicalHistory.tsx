@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Card,
@@ -23,13 +23,10 @@ import {
 } from "@mui/material";
 import {
   MedicalServices,
-  Person,
   Edit,
   LocalHospital,
   Warning,
   Note,
-  Phone,
-  Email,
   AccessTime,
   Update,
   Add,
@@ -37,12 +34,21 @@ import {
 import { styled } from "@mui/material/styles";
 import { MedicalHistoryService } from "../../../services/medical-history.service";
 import MedicalHistoryModal from "./MedicalHistoryModal";
-
+interface AxiosError {
+  response?: {
+    status: number;
+    data?: {
+      message?: string;
+      error?: string;
+      [key: string]: unknown;
+    };
+  };
+}
 // Styled Components
 const StyledCard = styled(Card)(({ theme }) => ({
   marginBottom: theme.spacing(2),
   boxShadow: theme.shadows[3],
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as number) * 2,
   "&:hover": {
     boxShadow: theme.shadows[8],
     transform: "translateY(-2px)",
@@ -54,7 +60,7 @@ const HeaderCard = styled(Card)(({ theme }) => ({
   background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
   color: theme.palette.primary.contrastText,
   marginBottom: theme.spacing(3),
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: (theme.shape.borderRadius as number) * 2,
 }));
 
 const StyledChip = styled(Chip)(({ theme }) => ({
@@ -73,13 +79,13 @@ const LoadingContainer = styled(Box)(({ theme }) => ({
 
 // Interface định nghĩa cấu trúc dữ liệu cho hệ thống điều trị hiếm muộn
 interface UserInfo {
-  _id: string;
+  id: string;
   userName: string;
   email: string;
   phone: string;
 }
 
-interface MedicalHistoryData {
+export interface MedicalHistoryData {
   _id: string;
   user: UserInfo;
   diseases: string[];
@@ -89,7 +95,7 @@ interface MedicalHistoryData {
   updatedAt: string;
 }
 
-interface MedicalHistoryFormData {
+export interface MedicalHistoryFormData {
   diseases: string;
   allergies: string;
   note: string;
@@ -114,7 +120,7 @@ const MedicalHistory: React.FC = () => {
   });
 
   // Lấy thông tin user từ localStorage với error handling
-  const getUserInfo = (): any => {
+  const getUserInfo = (): UserInfo | null => {
     try {
       const userInfo = localStorage.getItem("userInfo");
       return userInfo ? JSON.parse(userInfo) : null;
@@ -137,12 +143,8 @@ const MedicalHistory: React.FC = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
-  useEffect(() => {
-    fetchMedicalHistory();
-  }, []);
-
   // Hàm lấy tiền sử y tế từ API sử dụng MedicalHistoryService
-  const fetchMedicalHistory = async (): Promise<void> => {
+  const fetchMedicalHistory = useCallback(async (): Promise<void> => {
     setFetchLoading(true);
     try {
       const userInfo = getUserInfo();
@@ -163,11 +165,11 @@ const MedicalHistory: React.FC = () => {
         setMedicalHistory(null);
         setOpenDialog(true);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Lỗi khi tải tiền sử y tế:", error);
 
       // Xử lý lỗi 404 (chưa có tiền sử y tế)
-      if (error.response?.status === 404) {
+      if (error && (error as AxiosError).response?.status === 404) {
         setMedicalHistory(null);
         setOpenDialog(true);
       } else {
@@ -176,7 +178,10 @@ const MedicalHistory: React.FC = () => {
     } finally {
       setFetchLoading(false);
     }
-  };
+  }, []);
+  useEffect(() => {
+    fetchMedicalHistory();
+  }, [fetchMedicalHistory]);
 
   // Xử lý submit form sử dụng MedicalHistoryService
   const handleSubmit = async (
@@ -204,12 +209,7 @@ const MedicalHistory: React.FC = () => {
           .split(",")
           .map((d: string) => d.trim())
           .filter((d) => d),
-        allergies: formData.allergies
-          ? formData.allergies
-              .split(",")
-              .map((a: string) => a.trim())
-              .filter((a) => a)
-          : [],
+        allergies: formData.allergies ? formData.allergies : undefined, // <-- sửa ở đây
         note: formData.note || "",
       };
 
@@ -239,10 +239,11 @@ const MedicalHistory: React.FC = () => {
       } else {
         showSnackbar(response.message || "Có lỗi xảy ra!", "error");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Lỗi khi lưu tiền sử y tế:", error);
       showSnackbar(
-        error.response?.data?.message || "Có lỗi xảy ra khi lưu thông tin!",
+        (error as AxiosError).response?.data?.message ||
+          "Có lỗi xảy ra khi lưu thông tin!",
         "error"
       );
     } finally {
@@ -326,7 +327,16 @@ const MedicalHistory: React.FC = () => {
       {medicalHistory ? (
         <Grid spacing={3}>
           {/* Thông tin cập nhật */}
-          <Grid item xs={12} md={6}>
+          <Box
+            sx={{
+              width: {
+                xs: "100%", // tương đương xs={12}
+                md: "50%", // tương đương md={6}
+              },
+              px: 1, // padding ngang (tùy ý nếu bạn cần giữ khoảng cách giống Grid spacing)
+              boxSizing: "border-box",
+            }}
+          >
             <StyledCard>
               <CardContent>
                 <Box display="flex" alignItems="center" mb={2}>
@@ -355,8 +365,16 @@ const MedicalHistory: React.FC = () => {
                 </List>
               </CardContent>
             </StyledCard>
-          </Grid>
-          <Grid item xs={12}>
+          </Box>
+          <Box
+            sx={{
+              width: {
+                xs: "100%", // tương đương xs={12}
+              },
+              px: 1, // padding ngang (tùy ý nếu bạn cần giữ khoảng cách giống Grid spacing)
+              boxSizing: "border-box",
+            }}
+          >
             <StyledCard>
               <CardContent>
                 <Box
@@ -444,7 +462,7 @@ const MedicalHistory: React.FC = () => {
                 </Box>
               </CardContent>
             </StyledCard>
-          </Grid>
+          </Box>
         </Grid>
       ) : (
         <Box textAlign="center" py={6}>

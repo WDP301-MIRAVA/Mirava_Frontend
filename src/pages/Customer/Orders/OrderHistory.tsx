@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { styled } from "@mui/material/styles";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -8,6 +8,23 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import { getOrderHistory } from "@/services/order.service";
+
+interface Order {
+  _id: string;
+  orderCode: string;
+  appointmentDate?: string;
+  timeSlot?: string;
+  totalAmount: number;
+  items: Array<{
+    service?: {
+      name: string;
+    };
+    testPackage?: {
+      name: string;
+    };
+    serviceName?: string;
+  }>;
+}
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -84,7 +101,8 @@ export default function CustomizedTables() {
                   .join(", ")}
               </StyledTableCell>
               <StyledTableCell align="center">
-                {order.appointmentDate} | {order.timeSlot}
+                {order.appointmentDate || "Chưa có ngày hẹn"} |{" "}
+                {order.timeSlot || "Chưa có khung giờ"}
               </StyledTableCell>
               <StyledTableCell align="center">
                 {order.totalAmount}

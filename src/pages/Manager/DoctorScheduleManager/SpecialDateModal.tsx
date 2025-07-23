@@ -1,15 +1,21 @@
 import { Modal, message } from "antd";
 import { useState } from "react";
-import dayjs from "dayjs";
 import { WorkScheduleService } from "@/services/work-schedule.service";
 import toast from "react-hot-toast";
+
+interface SpecialDateModalProps {
+  open: boolean;
+  onClose?: () => void;
+  doctorId: string;
+  onSuccess?: () => void;
+}
 
 export default function SpecialDateModal({
   open,
   onClose,
   doctorId,
   onSuccess,
-}) {
+}: SpecialDateModalProps) {
   const [formState, setFormState] = useState({
     date: "",
     isWorking: false,
@@ -19,7 +25,20 @@ export default function SpecialDateModal({
   });
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (field, value) => {
+  interface FormState {
+    date: string;
+    isWorking: boolean;
+    startTime: string;
+    endTime: string;
+    note: string;
+  }
+
+  type FormField = keyof FormState;
+
+  const handleChange = <K extends FormField>(
+    field: K,
+    value: FormState[K]
+  ): void => {
     setFormState((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -42,11 +61,14 @@ export default function SpecialDateModal({
       toast.success("Cập nhật ngày đặc biệt thành công");
       onSuccess?.();
       onClose?.();
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Lỗi khi thêm ngày đặc biệt:", err);
-      toast.error(
-        err?.response?.data?.message ?? "Thêm ngày đặc biệt thất bại"
-      );
+      const errorMessage =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message
+          : undefined;
+      toast.error(errorMessage ?? "Thêm ngày đặc biệt thất bại");
     } finally {
       setLoading(false);
     }

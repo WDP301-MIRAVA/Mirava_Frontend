@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Container,
@@ -18,16 +18,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Paper,
   CircularProgress,
   Alert,
   Avatar,
   Divider,
   IconButton,
-  Tooltip,
-  Badge,
   Stack,
-  LinearProgress,
 } from "@mui/material";
 import {
   Visibility,
@@ -35,18 +31,18 @@ import {
   Assessment,
   Person,
   CalendarToday,
-  MedicalServices,
   Assignment,
   Close,
   Info,
   CheckCircle,
   Warning,
-  Error,
+  Error as ErrorIcon,
   Schedule,
 } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-
+import type { ChipPropsColorOverrides } from "@mui/material/Chip";
+import type { OverridableStringUnion } from "@mui/types";
 interface TestResult {
   _id: string;
   testRegistration: string;
@@ -114,11 +110,7 @@ const ResultTest: React.FC = () => {
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchTestResults();
-  }, []);
-
-  const fetchTestResults = async () => {
+  const fetchTestResults = useCallback(async () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("accessToken");
@@ -153,15 +145,19 @@ const ResultTest: React.FC = () => {
       } else {
         throw new Error(data.message || "Có lỗi xảy ra");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Lỗi khi tải kết quả xét nghiệm:", error);
-      setError(error.message);
-      toast.error(error.message || "Có lỗi xảy ra khi tải kết quả xét nghiệm");
+      const errorMessage =
+        error instanceof Error ? error.message : "Có lỗi xảy ra";
+      setError(errorMessage);
+      toast.error(errorMessage || "Có lỗi xảy ra khi tải kết quả xét nghiệm");
     } finally {
       setLoading(false);
     }
-  };
-
+  }, [navigate]);
+  useEffect(() => {
+    fetchTestResults();
+  }, [fetchTestResults]);
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("vi-VN", {
       year: "numeric",
@@ -172,7 +168,18 @@ const ResultTest: React.FC = () => {
     });
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (
+    status: string
+  ): OverridableStringUnion<
+    | "default"
+    | "primary"
+    | "secondary"
+    | "error"
+    | "info"
+    | "success"
+    | "warning",
+    ChipPropsColorOverrides
+  > => {
     switch (status) {
       case "normal":
         return "success";
@@ -192,7 +199,7 @@ const ResultTest: React.FC = () => {
       case "normal":
         return <CheckCircle color="success" />;
       case "abnormal":
-        return <Error color="error" />;
+        return <ErrorIcon color="error" />;
       case "borderline":
         return <Warning color="warning" />;
       case "requires_attention":
@@ -247,11 +254,12 @@ const ResultTest: React.FC = () => {
       a.click();
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
-
-      toast.success("Tải file kết quả thành công");
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Lỗi tải file:", error);
-      toast.error(error.message || "Có lỗi xảy ra khi tải file");
+      const errorMessage =
+        error instanceof Error ? error.message : "Có lỗi xảy ra khi tải file";
+      toast.error(errorMessage);
+      toast.error(errorMessage || "Có lỗi xảy ra khi tải file");
     }
   };
 
@@ -342,7 +350,7 @@ const ResultTest: React.FC = () => {
 
       {/* Statistics Cards */}
       <Grid container spacing={3} mb={4}>
-        <Grid item xs={12} md={4}>
+        <Box sx={{ width: { xs: "100%", md: "33.3333%" }, p: 1 }}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
@@ -360,8 +368,8 @@ const ResultTest: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
+        </Box>
+        <Box sx={{ width: { xs: "100%", md: "33.3333%" }, p: 1 }}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
@@ -382,8 +390,8 @@ const ResultTest: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
+        </Box>
+        <Box sx={{ width: { xs: "100%", md: "33.3333%" }, p: 1 }}>
           <Card>
             <CardContent>
               <Box display="flex" alignItems="center" gap={2}>
@@ -405,7 +413,7 @@ const ResultTest: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
       </Grid>
 
       {/* Results List */}
@@ -434,7 +442,7 @@ const ResultTest: React.FC = () => {
       ) : (
         <Grid container spacing={3}>
           {testResults.map((result) => (
-            <Grid item xs={12} key={result._id}>
+            <Box sx={{ width: { xs: "100%" }, p: 1 }} key={result._id}>
               <Card>
                 <CardContent>
                   <Box
@@ -470,7 +478,7 @@ const ResultTest: React.FC = () => {
                       <Chip
                         icon={getStatusIcon(result.overallStatus)}
                         label={getStatusText(result.overallStatus)}
-                        color={getStatusColor(result.overallStatus) as any}
+                        color={getStatusColor(result.overallStatus)}
                         variant="outlined"
                       />
                       {result.isReviewed && (
@@ -487,7 +495,7 @@ const ResultTest: React.FC = () => {
                   <Divider sx={{ my: 2 }} />
 
                   <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} md={6}>
+                    <Box sx={{ width: { xs: "100%", md: "50%" }, p: 1 }}>
                       <Box>
                         <Typography
                           variant="body2"
@@ -510,8 +518,8 @@ const ResultTest: React.FC = () => {
                           </Typography>
                         )}
                       </Box>
-                    </Grid>
-                    <Grid item xs={12} md={6}>
+                    </Box>
+                    <Box sx={{ width: { xs: "100%", md: "50%" }, p: 1 }}>
                       <Box display="flex" gap={1} justifyContent="flex-end">
                         <Button
                           variant="outlined"
@@ -530,11 +538,11 @@ const ResultTest: React.FC = () => {
                           Tải xuống
                         </Button>
                       </Box>
-                    </Grid>
+                    </Box>
                   </Grid>
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
           ))}
         </Grid>
       )}
@@ -568,31 +576,31 @@ const ResultTest: React.FC = () => {
                     Thông tin cơ bản
                   </Typography>
                   <Grid container spacing={2}>
-                    <Grid item xs={12}>
+                    <Box sx={{ width: "100%", p: 1 }}>
                       <Typography variant="body2" color="text.secondary">
                         Tên gói xét nghiệm
                       </Typography>
                       <Typography variant="body1" fontWeight="bold">
                         {getTestPackageName(selectedResult)}
                       </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
+                    </Box>
+                    <Box sx={{ width: "50%", p: 1 }}>
                       <Typography variant="body2" color="text.secondary">
                         Loại xét nghiệm
                       </Typography>
                       <Typography variant="body1">
                         {getTestPackageType(selectedResult)}
                       </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
+                    </Box>
+                    <Box sx={{ width: "50%", p: 1 }}>
                       <Typography variant="body2" color="text.secondary">
                         Ngày xét nghiệm
                       </Typography>
                       <Typography variant="body1">
                         {formatDate(selectedResult.testDate)}
                       </Typography>
-                    </Grid>
-                    <Grid item xs={12}>
+                    </Box>
+                    <Box sx={{ width: "100%", p: 1 }}>
                       <Typography variant="body2" color="text.secondary">
                         Bác sĩ thực hiện
                       </Typography>
@@ -602,7 +610,7 @@ const ResultTest: React.FC = () => {
                         {selectedResult.performedBy?.specialty ||
                           "Chưa cập nhật"}
                       </Typography>
-                    </Grid>
+                    </Box>
                   </Grid>
                 </CardContent>
               </Card>
@@ -654,7 +662,7 @@ const ResultTest: React.FC = () => {
                                 <Chip
                                   size="small"
                                   label={getStatusText(result.status)}
-                                  color={getStatusColor(result.status) as any}
+                                  color={getStatusColor(result.status)}
                                 />
                               </TableCell>
                             </TableRow>

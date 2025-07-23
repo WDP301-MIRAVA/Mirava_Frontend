@@ -3,6 +3,15 @@ import { useNavigate } from "react-router-dom";
 import "./PatientList.css";
 import axios from "axios";
 
+interface TreatmentEvent {
+  id: string;
+  type: string;
+  date: string;
+  description?: string;
+  status: string;
+  result?: string;
+}
+
 interface Patient {
   id: string;
   name: string;
@@ -18,9 +27,32 @@ interface Patient {
   doctor: string;
   startDate: string;
   patientCode?: string;
-  treatmentEvents?: any[];
+  treatmentEvents?: TreatmentEvent[];
 }
-
+interface RawPlan {
+  patient: {
+    _id: string;
+    userName: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    gender?: string;
+    patientCode?: string;
+  };
+  doctor?: {
+    user?: {
+      userName: string;
+    };
+    specialty?: string;
+  };
+  status?: "planned" | "in_progress" | "completed" | "cancelled";
+  cycleStartDate?: string;
+  hcgInjection?: {
+    time?: string;
+  };
+  notes?: string;
+  treatmentEvents?: TreatmentEvent[];
+}
 type ModalType =
   | "detail"
   | "examination"
@@ -68,11 +100,11 @@ const PatientList: React.FC = () => {
         const data = res.data?.data;
         if (Array.isArray(data)) {
           const validPlans = data.filter(
-            (plan: any) =>
+            (plan: RawPlan) =>
               plan && plan.patient && plan.patient._id && plan.patient.userName
           );
 
-          const transformed: Patient[] = validPlans.map((plan: any) => ({
+          const transformed: Patient[] = validPlans.map((plan: RawPlan) => ({
             id: plan.patient._id,
             name: plan.patient.userName || "Không rõ",
             email: plan.patient.email || "",
@@ -179,13 +211,45 @@ const PatientList: React.FC = () => {
   };
 
   const renderModalContent = () => {
+    if (!selectedPatient) return null;
+
     switch (modalType) {
       case "examination":
-        return <div>Kết quả khám</div>;
+        return (
+          <div>
+            <p>
+              <strong>Bệnh nhân:</strong> {selectedPatient.name}
+            </p>
+            <p>
+              <strong>Mã BN:</strong> {selectedPatient.patientCode}
+            </p>
+            <div>Kết quả khám</div>
+          </div>
+        );
       case "test_result":
-        return <div>Kết quả xét nghiệm</div>;
+        return (
+          <div>
+            <p>
+              <strong>Bệnh nhân:</strong> {selectedPatient.name}
+            </p>
+            <p>
+              <strong>Mã BN:</strong> {selectedPatient.patientCode}
+            </p>
+            <div>Kết quả xét nghiệm</div>
+          </div>
+        );
       case "injection_result":
-        return <div>Kết quả tiêm thuốc</div>;
+        return (
+          <div>
+            <p>
+              <strong>Bệnh nhân:</strong> {selectedPatient.name}
+            </p>
+            <p>
+              <strong>Mã BN:</strong> {selectedPatient.patientCode}
+            </p>
+            <div>Kết quả tiêm thuốc</div>
+          </div>
+        );
       default:
         return null;
     }

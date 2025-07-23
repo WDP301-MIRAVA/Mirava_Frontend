@@ -87,7 +87,7 @@ body {
 
 /* Main Content */
 .main-content {
-  max-width: 100%; !Important
+  max-width: 100% !important;
   padding: 2rem 0;
   background: #f8fafc;
 }

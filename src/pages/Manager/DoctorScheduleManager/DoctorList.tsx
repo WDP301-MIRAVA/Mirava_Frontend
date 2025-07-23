@@ -2,8 +2,22 @@ import { DoctorService } from "@/services/doctor.service";
 import { List, Avatar } from "antd";
 import { useEffect, useState } from "react";
 
-export default function DoctorList({ onSelect }) {
-  const [doctors, setDoctors] = useState([]);
+export interface Doctor {
+  _id: string;
+  name: string;
+  imageUrl?: string;
+  specialty?: string;
+  user?: {
+    userName?: string;
+  };
+}
+
+interface DoctorListProps {
+  onSelect: (doctor: Doctor) => void;
+}
+
+export default function DoctorList({ onSelect }: DoctorListProps) {
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
 
   useEffect(() => {
     const fetchDoctors = async () => {

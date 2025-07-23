@@ -3,7 +3,59 @@ import axios from "axios";
 import { message } from "antd";
 import "./MedicalRecordForm.css";
 
-const MedicalRecordForm = ({
+interface MedicalRecordData {
+  _id: string;
+  patientId: string;
+  doctorId: string;
+  treatmentPlanId: string;
+  treatmentEventId: string;
+  serviceId?: string;
+  date: string;
+  type: string;
+  title: string;
+  findings: string;
+  conclusion: string;
+  attachments: string[];
+  notes: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+interface MedicalRecordFormProps {
+  step?: {
+    id?: string;
+    type?: string;
+    name?: string;
+    title?: string;
+    findings?: string;
+    conclusion?: string;
+    serviceId?: string;
+    medicalRecords?: string[];
+  };
+  treatmentPlan?: {
+    _id: string;
+    patient: string;
+    doctor?: {
+      _id: string;
+    };
+    treatmentEvents?: Array<{
+      _id: string;
+    }>;
+  };
+  medicalRecord?: {
+    date?: string;
+    type?: string;
+    title?: string;
+    findings?: string;
+    conclusion?: string;
+    attachments?: string[];
+    notes?: string;
+  };
+  onSuccess: (data: MedicalRecordData) => void;
+  onCancel: () => void;
+}
+
+const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
   step,
   treatmentPlan,
   medicalRecord,
@@ -75,12 +127,25 @@ const MedicalRecordForm = ({
 
   console.log("treatmentPlan:", treatmentEventId);
 
-  const handleChange = (e) => {
+  interface FormChangeEvent {
+    target: {
+      name: string;
+      value: string;
+    };
+  }
+
+  const handleChange = (e: FormChangeEvent) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     if (error) setError("");
   };
 
-  const handleAttachmentChange = (e, idx) => {
+  interface AttachmentChangeEvent {
+    target: {
+      value: string;
+    };
+  }
+
+  const handleAttachmentChange = (e: AttachmentChangeEvent, idx: number) => {
     const arr = [...form.attachments];
     arr[idx] = e.target.value;
     setForm({ ...form, attachments: arr });
@@ -90,13 +155,38 @@ const MedicalRecordForm = ({
     setForm({ ...form, attachments: [...form.attachments, ""] });
   };
 
-  const handleSubmit = async (e) => {
+  interface HandleSubmitEvent {
+    preventDefault: () => void;
+  }
+
+  interface ApiResponse {
+    success: boolean;
+    message?: string;
+    data: MedicalRecordData;
+  }
+
+  interface MedicalRecordRequest {
+    patientId: string;
+    doctorId: string;
+    treatmentPlanId: string;
+    treatmentEventId: string;
+    serviceId: string | null;
+    date: string;
+    type: string;
+    title: string;
+    findings: string;
+    conclusion: string;
+    attachments: string[];
+    notes: string;
+  }
+
+  const handleSubmit = async (e: HandleSubmitEvent): Promise<void> => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      const token = localStorage.getItem("accessToken");
+      const token: string | null = localStorage.getItem("accessToken");
       if (!token) {
         setError("Vui lòng đăng nhập lại");
         setLoading(false);
@@ -119,11 +209,21 @@ const MedicalRecordForm = ({
         setLoading(false);
         return;
       }
+      if (!patientId) {
+        setError("Không tìm thấy thông tin bệnh nhân. Vui lòng thử lại.");
+        setLoading(false);
+        return;
+      }
+      if (!doctorId) {
+        setError("Không tìm thấy thông tin bác sĩ. Vui lòng thử lại.");
+        setLoading(false);
+        return;
+      }
 
-      const requestData = {
+      const requestData: MedicalRecordRequest = {
         patientId,
         doctorId,
-        treatmentPlanId: treatmentPlan._id,
+        treatmentPlanId: treatmentPlan!._id,
         treatmentEventId,
         serviceId: step?.serviceId || null,
         date: new Date(form.date).toISOString(),
@@ -131,14 +231,14 @@ const MedicalRecordForm = ({
         title: form.title,
         findings: form.findings.trim(),
         conclusion: form.conclusion.trim(),
-        attachments: form.attachments.filter((a) => a.trim() !== ""),
+        attachments: form.attachments.filter((a: string) => a.trim() !== ""),
         notes: form.notes.trim(),
       };
 
-      let response;
+      let response: { data: ApiResponse };
       if (medicalRecordId) {
         // Đã có record, cập nhật
-        response = await axios.put(
+        response = await axios.put<ApiResponse>(
           `https://mirava-f0rz.onrender.com/api/medicalRecord/${medicalRecordId}`,
           requestData,
           {
@@ -150,7 +250,7 @@ const MedicalRecordForm = ({
         );
       } else {
         // Chưa có record, tạo mới
-        response = await axios.post(
+        response = await axios.post<ApiResponse>(
           "https://mirava-f0rz.onrender.com/api/medicalRecord",
           requestData,
           {
@@ -172,7 +272,7 @@ const MedicalRecordForm = ({
       } else {
         setError(response.data.message || "Không thể lưu hồ sơ y tế");
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("❌ Error creating/updating medical record:", err);
       setError("Có lỗi xảy ra khi lưu hồ sơ y tế. Vui lòng thử lại.");
     } finally {

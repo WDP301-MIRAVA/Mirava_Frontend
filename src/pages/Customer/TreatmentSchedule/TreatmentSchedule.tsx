@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Card,
   Typography,
@@ -12,7 +12,14 @@ import {
   Select,
 } from "antd";
 import "./TreatmentSchedule.css";
+import type { Dayjs } from "dayjs";
 
+interface TreatmentFormValues {
+  date: Dayjs;
+  time: Dayjs;
+  treatment: string;
+  doctor: string;
+}
 const { Title } = Typography;
 const { Option } = Select;
 
@@ -41,7 +48,7 @@ const TreatmentSchedule = () => {
   const showModal = () => setIsModalOpen(true);
   const handleCancel = () => setIsModalOpen(false);
 
-  const onFinish = (values: any) => {
+  const onFinish = (values: TreatmentFormValues) => {
     const newEntry = {
       key: Date.now().toString(),
       date: values.date.format("YYYY-MM-DD"),
