@@ -4,11 +4,13 @@ import { message } from "antd";
 import { toast } from "react-hot-toast";
 import "./MedicalRecordForm.css";
 
+
 interface MedicalRecordFormProps {
   step: any;
   treatmentPlan: any;
   medicalRecord: any;
   onSuccess: (data?: any) => void;
+
   onCancel: () => void;
 }
 
@@ -83,11 +85,13 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
     }
   }
 
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
     >
   ) => {
+
     setForm({ ...form, [e.target.name]: e.target.value });
     if (error) setError("");
   };
@@ -98,6 +102,7 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
     setShowDeleteModal(false);
     setDeleteUrl(null);
   };
+
 
   // Hàm xóa file đính kèm
   const handleDeleteAttachment = async (url: string) => {
@@ -126,6 +131,7 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
     } finally {
       setLoading(false);
     }
+
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,13 +140,15 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
     }
   };
 
+
   const handleSubmit = async (e: React.FormEvent) => {
+
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      const token = localStorage.getItem("accessToken");
+      const token: string | null = localStorage.getItem("accessToken");
       if (!token) {
         setError("Vui lòng đăng nhập lại");
         setLoading(false);
@@ -163,6 +171,17 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
         setLoading(false);
         return;
       }
+      if (!patientId) {
+        setError("Không tìm thấy thông tin bệnh nhân. Vui lòng thử lại.");
+        setLoading(false);
+        return;
+      }
+      if (!doctorId) {
+        setError("Không tìm thấy thông tin bác sĩ. Vui lòng thử lại.");
+        setLoading(false);
+        return;
+      }
+
 
       // Chuẩn bị dữ liệu gửi đi
       const formData = new FormData();
@@ -192,10 +211,13 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
         });
       }
 
-      let response;
+
+      let response: { data: ApiResponse };
       if (medicalRecordId) {
+
         // Đã có record, cập nhật (không hỗ trợ cập nhật file, chỉ cập nhật thông tin)
         response = await axios.patch(
+
           `https://mirava-f0rz.onrender.com/api/medicalRecord/${medicalRecordId}`,
           formData,
           {
@@ -206,8 +228,10 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
           }
         );
       } else {
+
         // Tạo mới, gửi kèm file
         response = await axios.post(
+
           "https://mirava-f0rz.onrender.com/api/medicalRecord",
           formData,
           {
@@ -236,7 +260,7 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
       } else {
         setError(response.data.message || "Không thể lưu hồ sơ y tế");
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("❌ Error creating/updating medical record:", err);
       setError("Có lỗi xảy ra khi lưu hồ sơ y tế. Vui lòng thử lại.");
     } finally {

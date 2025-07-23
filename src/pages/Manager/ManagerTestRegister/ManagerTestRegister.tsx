@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -39,7 +39,7 @@ import { styled } from "@mui/material/styles";
 import { toast } from "react-hot-toast";
 
 // Styled components
-const StyledCard = styled(Card)(({ theme }) => ({
+const StyledCard = styled(Card)(() => ({
   borderRadius: 16,
   boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
   transition: "transform 0.2s ease-in-out",
@@ -48,7 +48,7 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const GradientButton = styled(Button)(({ theme }) => ({
+const GradientButton = styled(Button)(() => ({
   background: "linear-gradient(45deg, #667eea 30%, #764ba2 90%)",
   border: 0,
   borderRadius: 25,
@@ -197,7 +197,7 @@ const ManagerTestRegister: React.FC = () => {
     return statusMap[status] || status;
   };
 
-  const fetchRegistrations = async () => {
+  const fetchRegistrations = useCallback(async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -230,13 +230,18 @@ const ManagerTestRegister: React.FC = () => {
       } else {
         throw new Error(data.message || "Lỗi khi tải dữ liệu");
       }
-    } catch (error: any) {
-      setError(error.message);
-      toast.error(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(error.message);
+        toast.error(error.message);
+      } else {
+        setError("Lỗi không xác định");
+        toast.error("Lỗi không xác định");
+      }
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, statusFilter, startDate, endDate, searchTerm]);
 
   // Fetch all stats for all status
   const fetchStats = async () => {
@@ -254,15 +259,21 @@ const ManagerTestRegister: React.FC = () => {
         if (data.success) {
           const allData = data.data;
           setStats({
-            pending: allData.filter((r: any) => r.status === "pending").length,
-            scheduled: allData.filter((r: any) => r.status === "scheduled")
-              .length,
-            in_progress: allData.filter((r: any) => r.status === "in_progress")
-              .length,
-            completed: allData.filter((r: any) => r.status === "completed")
-              .length,
-            cancelled: allData.filter((r: any) => r.status === "cancelled")
-              .length,
+            pending: allData.filter(
+              (r: TestRegistration) => r.status === "pending"
+            ).length,
+            scheduled: allData.filter(
+              (r: TestRegistration) => r.status === "scheduled"
+            ).length,
+            in_progress: allData.filter(
+              (r: TestRegistration) => r.status === "in_progress"
+            ).length,
+            completed: allData.filter(
+              (r: TestRegistration) => r.status === "completed"
+            ).length,
+            cancelled: allData.filter(
+              (r: TestRegistration) => r.status === "cancelled"
+            ).length,
           });
         }
       }
@@ -274,7 +285,7 @@ const ManagerTestRegister: React.FC = () => {
   useEffect(() => {
     fetchRegistrations();
     fetchStats();
-  }, [page, statusFilter, startDate, endDate, searchTerm]);
+  }, [fetchRegistrations]);
 
   const handleViewDetails = (registration: TestRegistration) => {
     setSelectedRegistration(registration);
@@ -323,8 +334,12 @@ const ManagerTestRegister: React.FC = () => {
       } else {
         throw new Error(data.message || "Lỗi khi cập nhật");
       }
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Lỗi không xác định");
+      }
     }
   };
 
@@ -358,8 +373,12 @@ const ManagerTestRegister: React.FC = () => {
       } else {
         throw new Error(data.message || "Lỗi khi duyệt lịch");
       }
-    } catch (error: any) {
-      toast.error(error.message || "Có lỗi xảy ra khi duyệt lịch");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        toast.error(error.message || "Có lỗi xảy ra khi duyệt lịch");
+      } else {
+        toast.error("Có lỗi xảy ra khi duyệt lịch");
+      }
     }
   };
 
@@ -420,7 +439,7 @@ const ManagerTestRegister: React.FC = () => {
       <StyledCard sx={{ mb: 3 }}>
         <CardContent>
           <Grid container spacing={2} alignItems="center">
-            <Grid item xs={12} md={3}>
+            <Box flex="1 1 240px" minWidth={240}>
               <TextField
                 fullWidth
                 label="Tìm kiếm"
@@ -433,8 +452,8 @@ const ManagerTestRegister: React.FC = () => {
                 }}
                 placeholder="Tên, email, SĐT, mã BN..."
               />
-            </Grid>
-            <Grid item xs={12} md={2}>
+            </Box>
+            <Box flex="1 1 200px" minWidth={200}>
               <FormControl size="medium" sx={{ minWidth: 200 }}>
                 <InputLabel>Trạng thái</InputLabel>
                 <Select
@@ -454,8 +473,8 @@ const ManagerTestRegister: React.FC = () => {
                   ))}
                 </Select>
               </FormControl>
-            </Grid>
-            <Grid item xs={12} md={2}>
+            </Box>
+            <Box flex="1 1 200px" minWidth={200}>
               <TextField
                 fullWidth
                 label="Từ ngày"
@@ -469,8 +488,8 @@ const ManagerTestRegister: React.FC = () => {
                 }}
                 InputLabelProps={{ shrink: true }}
               />
-            </Grid>
-            <Grid item xs={12} md={2}>
+            </Box>
+            <Box flex="1 1 200px" minWidth={200}>
               <TextField
                 fullWidth
                 label="Đến ngày"
@@ -484,22 +503,28 @@ const ManagerTestRegister: React.FC = () => {
                 }}
                 InputLabelProps={{ shrink: true }}
               />
-            </Grid>
-            <Grid item xs={12} md={3} display="flex" gap={2}>
+            </Box>
+            <Box
+              flex="1 1 300px"
+              minWidth={240}
+              display="flex"
+              gap={2}
+              alignItems="center"
+            >
               <GradientButton
                 sx={{ minWidth: 100, minHeight: 55 }}
                 onClick={handleSearch}
               >
                 Tìm kiếm
               </GradientButton>
-            </Grid>
+            </Box>
           </Grid>
         </CardContent>
       </StyledCard>
 
       {/* Summary Stats */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={3}>
+        <Box flex="1 1 25%" minWidth={240}>
           <StyledCard>
             <CardContent>
               <Typography variant="h6" color="primary">
@@ -510,8 +535,8 @@ const ManagerTestRegister: React.FC = () => {
               </Typography>
             </CardContent>
           </StyledCard>
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Box>
+        <Box flex="1 1 25%" minWidth={240}>
           <StyledCard>
             <CardContent>
               <Typography variant="h6" color="warning.main">
@@ -522,8 +547,8 @@ const ManagerTestRegister: React.FC = () => {
               </Typography>
             </CardContent>
           </StyledCard>
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Box>
+        <Box flex="1 1 25%" minWidth={240}>
           <StyledCard>
             <CardContent>
               <Typography variant="h6" color="info.main">
@@ -534,8 +559,8 @@ const ManagerTestRegister: React.FC = () => {
               </Typography>
             </CardContent>
           </StyledCard>
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Box>
+        <Box flex="1 1 25%" minWidth={240}>
           <StyledCard>
             <CardContent>
               <Typography variant="h6" color="success.main">
@@ -546,8 +571,8 @@ const ManagerTestRegister: React.FC = () => {
               </Typography>
             </CardContent>
           </StyledCard>
-        </Grid>
-        <Grid item xs={12} md={3}>
+        </Box>
+        <Box flex="1 1 25%" minWidth={240}>
           <StyledCard>
             <CardContent>
               <Typography variant="h6" color="secondary.main">
@@ -558,7 +583,7 @@ const ManagerTestRegister: React.FC = () => {
               </Typography>
             </CardContent>
           </StyledCard>
-        </Grid>
+        </Box>
       </Grid>
 
       {/* Registrations Table */}
@@ -710,7 +735,7 @@ const ManagerTestRegister: React.FC = () => {
             <Pagination
               count={totalPages}
               page={page}
-              onChange={(event, value) => setPage(value)}
+              onChange={(_, value) => setPage(value)}
               color="primary"
             />
           </Box>
@@ -734,7 +759,7 @@ const ManagerTestRegister: React.FC = () => {
             <Box>
               <Grid container spacing={3}>
                 {/* Patient Info */}
-                <Grid item xs={12} md={6}>
+                <Box flex="1 1 50%" minWidth={300}>
                   <Typography variant="h6" gutterBottom color="primary">
                     Thông tin bệnh nhân
                   </Typography>
@@ -780,10 +805,10 @@ const ManagerTestRegister: React.FC = () => {
                       </Typography>
                     </Box>
                   )}
-                </Grid>
+                </Box>
 
                 {/* Test Package Info */}
-                <Grid item xs={12} md={6}>
+                <Box flex="1 1 50%" minWidth={300}>
                   <Typography variant="h6" gutterBottom color="primary">
                     Thông tin gói xét nghiệm
                   </Typography>
@@ -841,11 +866,11 @@ const ManagerTestRegister: React.FC = () => {
                       size="small"
                     />
                   </Box>
-                </Grid>
+                </Box>
 
                 {/* Test Details */}
                 {selectedRegistration.testPackage && (
-                  <Grid item xs={12}>
+                  <Box width="100%">
                     <Divider sx={{ my: 2 }} />
                     <Typography variant="h6" gutterBottom color="primary">
                       Chi tiết xét nghiệm
@@ -924,44 +949,44 @@ const ManagerTestRegister: React.FC = () => {
                         </AccordionDetails>
                       </Accordion>
                     )}
-                  </Grid>
+                  </Box>
                 )}
 
                 {/* Registration Info */}
-                <Grid item xs={12}>
+                <Box width="100%">
                   <Divider sx={{ my: 2 }} />
                   <Typography variant="h6" gutterBottom color="primary">
                     Thông tin đăng ký
                   </Typography>
                   <Grid container spacing={2}>
-                    <Grid item xs={6}>
+                    <Box flex="1 1 50%" minWidth={240}>
                       <Typography variant="body2" color="text.secondary">
                         Ngày đăng ký
                       </Typography>
                       <Typography variant="body1">
                         {formatDateTime(selectedRegistration.createdAt)}
                       </Typography>
-                    </Grid>
-                    <Grid item xs={6}>
+                    </Box>
+                    <Box flex="1 1 50%" minWidth={240}>
                       <Typography variant="body2" color="text.secondary">
                         Ngày mong muốn
                       </Typography>
                       <Typography variant="body1">
                         {formatDate(selectedRegistration.requestedDate)}
                       </Typography>
-                    </Grid>
+                    </Box>
                     {selectedRegistration.actualDate && (
-                      <Grid item xs={6}>
+                      <Box flex="1 1 50%" minWidth={240}>
                         <Typography variant="body2" color="text.secondary">
                           Ngày thực hiện
                         </Typography>
                         <Typography variant="body1">
                           {formatDate(selectedRegistration.actualDate)}
                         </Typography>
-                      </Grid>
+                      </Box>
                     )}
                     {selectedRegistration.assignedDoctor && (
-                      <Grid item xs={6}>
+                      <Box flex="1 1 50%" minWidth={240}>
                         <Typography variant="body2" color="text.secondary">
                           Bác sĩ phụ trách
                         </Typography>
@@ -971,20 +996,20 @@ const ManagerTestRegister: React.FC = () => {
                         <Typography variant="caption" color="text.secondary">
                           {selectedRegistration.assignedDoctor.specialty}
                         </Typography>
-                      </Grid>
+                      </Box>
                     )}
                     {selectedRegistration.notes && (
-                      <Grid item xs={12}>
+                      <Box width={"100%"}>
                         <Typography variant="body2" color="text.secondary">
                           Ghi chú
                         </Typography>
                         <Typography variant="body1">
                           {selectedRegistration.notes}
                         </Typography>
-                      </Grid>
+                      </Box>
                     )}
                   </Grid>
-                </Grid>
+                </Box>
               </Grid>
             </Box>
           )}

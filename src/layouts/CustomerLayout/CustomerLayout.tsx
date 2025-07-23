@@ -10,7 +10,7 @@ interface CustomerLayoutProps {
   children: React.ReactNode;
 }
 
-const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
+const CustomerLayout: React.FC<CustomerLayoutProps> = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -23,9 +23,16 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
 
   // Lắng nghe sự kiện thông báo từ các trang con
   useEffect(() => {
-    const handler = (e: any) => {
-      setNotifications((prev) => [e.detail, ...prev]);
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent<{
+        id: string;
+        message: string;
+        read: boolean;
+        time: string;
+      }>;
+      setNotifications((prev) => [customEvent.detail, ...prev]);
     };
+
     window.addEventListener("mirava-notification", handler);
     return () => window.removeEventListener("mirava-notification", handler);
   }, []);
@@ -160,7 +167,7 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = ({ children }) => {
       {/* Sidebar */}
       <div className="sidebar">
         {/* Logo */}
-        <div className="sidebar-logo">
+        <div className="sidebar-logo" onClick={() => navigate("/")}>
           <div className="logo-icon">
             <img src={logo} alt="Mirava Logo" className="logo-image" />
           </div>

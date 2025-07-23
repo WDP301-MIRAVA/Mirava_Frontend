@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Paper,
@@ -200,16 +200,37 @@ const ManagerTreatment: React.FC = () => {
     pausedPlans: 0,
     totalPatients: 0,
   });
+  const filterTreatmentPlans = useCallback((): void => {
+    let filtered = treatmentPlans;
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+    // Search filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (plan) =>
+          plan.patient.userName.toLowerCase().includes(searchLower) ||
+          plan.patient.patientCode.toLowerCase().includes(searchLower) ||
+          plan.patient.phone.includes(searchTerm) ||
+          plan.patient.email.toLowerCase().includes(searchLower)
+      );
+    }
 
-  useEffect(() => {
-    filterTreatmentPlans();
+    // Status filter
+    if (filterStatus !== "all") {
+      filtered = filtered.filter((plan) => plan.status === filterStatus);
+    }
+
+    // Treatment type filter
+    if (filterTreatmentType !== "all") {
+      filtered = filtered.filter(
+        (plan) => plan.treatmentType === filterTreatmentType
+      );
+    }
+
+    setFilteredPlans(filtered);
   }, [treatmentPlans, searchTerm, filterStatus, filterTreatmentType]);
 
-  const fetchData = async (): Promise<void> => {
+  const fetchData = useCallback(async (): Promise<void> => {
     setLoading(true);
     try {
       await Promise.all([fetchTreatmentPlans(), fetchPatients()]);
@@ -219,7 +240,15 @@ const ManagerTreatment: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  useEffect(() => {
+    filterTreatmentPlans();
+  }, [filterTreatmentPlans]);
 
   const fetchTreatmentPlans = async (): Promise<void> => {
     try {
@@ -289,36 +318,6 @@ const ManagerTreatment: React.FC = () => {
     }
   };
 
-  const filterTreatmentPlans = (): void => {
-    let filtered = treatmentPlans;
-
-    // Search filter
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (plan) =>
-          plan.patient.userName.toLowerCase().includes(searchLower) ||
-          plan.patient.patientCode.toLowerCase().includes(searchLower) ||
-          plan.patient.phone.includes(searchTerm) ||
-          plan.patient.email.toLowerCase().includes(searchLower)
-      );
-    }
-
-    // Status filter
-    if (filterStatus !== "all") {
-      filtered = filtered.filter((plan) => plan.status === filterStatus);
-    }
-
-    // Treatment type filter
-    if (filterTreatmentType !== "all") {
-      filtered = filtered.filter(
-        (plan) => plan.treatmentType === filterTreatmentType
-      );
-    }
-
-    setFilteredPlans(filtered);
-  };
-
   const calculateProgress = (events: TreatmentEvent[]): number => {
     if (!events.length) return 0;
     const completedEvents = events.filter(
@@ -379,7 +378,7 @@ const ManagerTreatment: React.FC = () => {
     console.log("Create treatment plan for patient:", patient.userName);
   };
   const handleTabChange = (
-    event: React.SyntheticEvent,
+    _event: React.SyntheticEvent,
     newValue: number
   ): void => {
     setTabValue(newValue);

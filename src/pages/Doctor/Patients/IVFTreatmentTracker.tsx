@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import type { JSX } from "react";
 import {
   Calendar,
   User,
@@ -93,6 +94,7 @@ interface TreatmentPlan {
   };
   cycleStartDate: string;
   treatmentEvents: Array<{
+    _id?: string;
     stage: string;
     title: string;
     description: string;
@@ -242,7 +244,7 @@ const IVFTreatmentTracker: React.FC = () => {
 
         if (!targetPatientId) {
           const urlParams = new URLSearchParams(window.location.search);
-          targetPatientId = urlParams.get("patientId");
+          targetPatientId = urlParams.get("patientId") || undefined;
         }
 
         if (!targetPatientId) {
@@ -1387,17 +1389,45 @@ const IVFTreatmentTracker: React.FC = () => {
                 </button>
               </div>
               <div className="ivf-medical-modal-content">
-                {medicalRecordModal.open && treatmentPlan && (
-                  <MedicalRecordForm
-                    step={medicalRecordModal.step}
-                    treatmentPlan={treatmentPlan}
-                    medicalRecord={medicalRecordModal.medicalRecord || null}
-                    onSuccess={() => {
-                      closeMedicalRecordModal();
-                    }}
-                    onCancel={closeMedicalRecordModal}
-                  />
-                )}
+                {medicalRecordModal.open &&
+                  treatmentPlan &&
+                  medicalRecordModal.step && (
+                    <MedicalRecordForm
+                      step={{
+                        id: medicalRecordModal.step.id,
+                        type: medicalRecordModal.step.type,
+                        name: medicalRecordModal.step.name,
+                        title: medicalRecordModal.step.name,
+                        serviceId: medicalRecordModal.step.serviceId,
+                        medicalRecords:
+                          medicalRecordModal.step.medicalRecords?.map(
+                            (record) =>
+                              typeof record === "string"
+                                ? record
+                                : record.toString()
+                          ),
+                      }}
+                      treatmentPlan={{
+                        _id: treatmentPlan._id,
+                        patient: treatmentPlan.patient._id,
+                        doctor: {
+                          _id: treatmentPlan.doctor._id,
+                        },
+                        treatmentEvents: treatmentPlan.treatmentEvents.map(
+                          (event) => ({
+                            _id: event._id || `temp-${Math.random()}`,
+                          })
+                        ),
+                      }}
+                      medicalRecord={
+                        medicalRecordModal.medicalRecord || undefined
+                      }
+                      onSuccess={() => {
+                        closeMedicalRecordModal();
+                      }}
+                      onCancel={closeMedicalRecordModal}
+                    />
+                  )}
               </div>
             </div>
           </div>

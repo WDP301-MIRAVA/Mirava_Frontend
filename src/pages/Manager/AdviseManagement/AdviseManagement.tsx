@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
@@ -109,7 +109,7 @@ const AdviseManagement: React.FC = () => {
   };
 
   // ✅ Hàm tạo headers với authorization
-  const getAuthHeaders = (): HeadersInit => {
+  const getAuthHeaders = useCallback((): HeadersInit => {
     const token = getAccessToken();
     const headers: HeadersInit = {
       "Content-Type": "application/json",
@@ -120,10 +120,10 @@ const AdviseManagement: React.FC = () => {
     }
 
     return headers;
-  };
+  }, []);
 
   // ✅ Hàm xử lý lỗi authentication
-  const handleAuthError = (error: Error): void => {
+  const handleAuthError = useCallback((error: Error): void => {
     console.error("Lỗi authentication:", error);
 
     if (
@@ -141,76 +141,79 @@ const AdviseManagement: React.FC = () => {
         window.location.href = "/login";
       }, 2000);
     }
-  };
+  }, []);
 
   // Fetch dữ liệu consultations từ API với authentication
-  const fetchConsultations = async (page: number = 1): Promise<void> => {
-    try {
-      setLoading(true);
+  const fetchConsultations = useCallback(
+    async (page: number = 1): Promise<void> => {
+      try {
+        setLoading(true);
 
-      const token = getAccessToken();
-      if (!token) {
-        showSnackbar("Vui lòng đăng nhập để tiếp tục", "error");
-        window.location.href = "/login";
-        return;
-      }
-
-      const queryParams = new URLSearchParams({
-        page: page.toString(),
-        limit: itemsPerPage.toString(),
-      });
-
-      if (filters.status !== "all") {
-        queryParams.append("status", filters.status);
-      }
-
-      if (searchTerm) {
-        queryParams.append("search", searchTerm);
-      }
-
-      const response = await fetch(
-        `https://mirava-f0rz.onrender.com/api/consultation?${queryParams.toString()}`,
-        {
-          method: "GET",
-          headers: getAuthHeaders(),
+        const token = getAccessToken();
+        if (!token) {
+          showSnackbar("Vui lòng đăng nhập để tiếp tục", "error");
+          window.location.href = "/login";
+          return;
         }
-      );
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error("401 - Unauthorized");
+        const queryParams = new URLSearchParams({
+          page: page.toString(),
+          limit: itemsPerPage.toString(),
+        });
+
+        if (filters.status !== "all") {
+          queryParams.append("status", filters.status);
         }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
 
-      const data: ConsultationResponse = await response.json();
+        if (searchTerm) {
+          queryParams.append("search", searchTerm);
+        }
 
-      if (data.success) {
-        setConsultations(data.data);
-        setFilteredConsultations(data.data);
-        setTotalPages(data.totalPages);
-        setTotalCount(data.total);
-        setCurrentPage(data.currentPage);
-      } else {
-        throw new Error("API trả về success: false");
-      }
-    } catch (error) {
-      console.error("Lỗi khi tải danh sách tư vấn:", error);
+        const response = await fetch(
+          `https://mirava-f0rz.onrender.com/api/consultation?${queryParams.toString()}`,
+          {
+            method: "GET",
+            headers: getAuthHeaders(),
+          }
+        );
 
-      if (error instanceof Error) {
-        handleAuthError(error);
-      } else {
-        showSnackbar("Lỗi khi tải danh sách tư vấn", "error");
+        if (!response.ok) {
+          if (response.status === 401) {
+            throw new Error("401 - Unauthorized");
+          }
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data: ConsultationResponse = await response.json();
+
+        if (data.success) {
+          setConsultations(data.data);
+          setFilteredConsultations(data.data);
+          setTotalPages(data.totalPages);
+          setTotalCount(data.total);
+          setCurrentPage(data.currentPage);
+        } else {
+          throw new Error("API trả về success: false");
+        }
+      } catch (error) {
+        console.error("Lỗi khi tải danh sách tư vấn:", error);
+
+        if (error instanceof Error) {
+          handleAuthError(error);
+        } else {
+          showSnackbar("Lỗi khi tải danh sách tư vấn", "error");
+        }
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [filters, searchTerm, itemsPerPage, getAuthHeaders, handleAuthError]
+  );
 
   // Effect để load dữ liệu ban đầu
   useEffect(() => {
     fetchConsultations(currentPage);
-  }, [currentPage, filters]);
+  }, [currentPage, filters, fetchConsultations]);
 
   // Debounce search để tránh gọi API quá nhiều
   useEffect(() => {
@@ -223,7 +226,7 @@ const AdviseManagement: React.FC = () => {
     }, 500);
 
     return () => clearTimeout(timeoutId);
-  }, [searchTerm]);
+  }, [searchTerm, currentPage, fetchConsultations]);
 
   // Utility functions
   const showSnackbar = (
@@ -246,47 +249,6 @@ const AdviseManagement: React.FC = () => {
       [filterType]: value,
     }));
     setCurrentPage(1);
-  };
-
-  // Hàm hủy yêu cầu tư vấn
-  const handleCancelConsultation = async (
-    consultationId: string,
-    reason?: string
-  ) => {
-    try {
-      const token = getAccessToken();
-      if (!token) {
-        showSnackbar("Vui lòng đăng nhập để tiếp tục", "error");
-        return;
-      }
-
-      const response = await fetch(
-        `https://mirava-f0rz.onrender.com/api/consultation/${consultationId}/cancel`,
-        {
-          method: "PATCH",
-          headers: getAuthHeaders(),
-          body: JSON.stringify({ reason }),
-        }
-      );
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          throw new Error("401 - Unauthorized");
-        }
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      showSnackbar("Hủy yêu cầu tư vấn thành công", "success");
-      await fetchConsultations(currentPage);
-    } catch (error) {
-      console.error("Lỗi khi hủy yêu cầu tư vấn:", error);
-
-      if (error instanceof Error) {
-        handleAuthError(error);
-      } else {
-        showSnackbar("Lỗi khi hủy yêu cầu tư vấn", "error");
-      }
-    }
   };
 
   const handleDeleteConsultation = async (consultationId: string) => {
