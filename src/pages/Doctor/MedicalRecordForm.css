@@ -273,3 +273,99 @@
   outline: 2px solid #00b4c6;
   outline-offset: 2px;
 }
+/* Hiển thị file đính kèm */
+.attachments-preview {
+  margin-top: 8px;
+  margin-bottom: 12px;
+}
+
+.attachments-preview label.form-label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #374151;
+}
+
+.attachment-image,
+.attachment-link {
+  display: inline-block;
+  position: relative;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.attachment-image img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  display: block;
+}
+
+.attachment-link a {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #f3f4f6;
+  border-radius: 4px;
+  color: #2563eb;
+  text-decoration: underline;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid #e5e7eb;
+}
+
+.attachment-delete-btn {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 22px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.12);
+  transition: background 0.2s;
+}
+
+.attachment-delete-btn:hover:not(:disabled) {
+  background: #dc2626;
+}
+.modal-overlay {
+  position: fixed;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-confirm {
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px 32px;
+  min-width: 320px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+}
+.modal-header h3 {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  color: #dc2626;
+}
+.modal-actions {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 18px;
+}

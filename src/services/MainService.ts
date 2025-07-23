@@ -2,7 +2,7 @@ import axios, { type AxiosInstance, AxiosError } from "axios";
 import type { AxiosRequestConfig } from "axios";
 const baseURL =
   import.meta.env.VITE_API_BASE_URL || "https://mirava-f0rz.onrender.com";
-const timeout = parseInt(import.meta.env.VITE_API_TIMEOUT || "5000", 10);
+const timeout = parseInt(import.meta.env.VITE_API_TIMEOUT || "10000", 10);
 const axiosInstance: AxiosInstance = axios.create({
   baseURL: baseURL,
   timeout: timeout,
