@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../../services/MainService";
 import "./ResultTest.css";
 
 // API Base URL
@@ -148,7 +148,7 @@ const TestResults: React.FC = () => {
     setIsLoading(true);
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${BASE_URL}/api/test-results/doctor/test-registrations`,
         {
           params: {
@@ -184,7 +184,7 @@ const TestResults: React.FC = () => {
     setIsLoadingResults(true);
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await axios.get(
+      const response = await axiosInstance.get(
         `${BASE_URL}/api/test-results/doctor/my-results`,
         {
           params: {

@@ -24,6 +24,7 @@ import {
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { message } from "antd";
 import axios from "axios";
+import axiosInstance from "@/services/MainService";
 import "./IVFTreatmentTracker.css";
 import MedicalRecordForm from "../MedicalRecordForm";
 
@@ -190,7 +191,7 @@ const IVFTreatmentTracker: React.FC = () => {
 
     try {
       const token = localStorage.getItem("accessToken");
-      const res = await axios.patch(
+      const res = await axiosInstance.patch(
         `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/cycle-start-date`,
         { cycleStartDate: newCycleStartDate },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -254,7 +255,7 @@ const IVFTreatmentTracker: React.FC = () => {
         // Fetch treatment plan
         let response;
         try {
-          response = await axios.get(
+          response = await axiosInstance.get(
             `${BASE_URL}/api/treatment-plan/patient/${targetPatientId}`,
             {
               headers: {
@@ -488,7 +489,7 @@ const IVFTreatmentTracker: React.FC = () => {
         specialMetrics: formData.specialMetrics || {},
       };
 
-      const response = await axios.put(
+      const response = await axiosInstance.put(
         `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/events/${stepIndex}`,
         updateData,
         {
@@ -639,19 +640,6 @@ const IVFTreatmentTracker: React.FC = () => {
     }
   };
 
-  const getStatusText = (status: string): string => {
-    switch (status) {
-      case "completed":
-        return "Hoàn thành";
-      case "in-progress":
-        return "Đang thực hiện";
-      case "pending":
-        return "Chờ thực hiện";
-      default:
-        return "Không xác định";
-    }
-  };
-
   const quickToggleStatus = async (stepId: string): Promise<void> => {
     if (!treatmentPlan) return;
     const stepIndex = treatmentSteps.findIndex((s) => s.id === stepId);
@@ -667,7 +655,7 @@ const IVFTreatmentTracker: React.FC = () => {
       setUpdating(true);
       const token = localStorage.getItem("accessToken");
 
-      const response = await axios.patch(
+      const response = await axiosInstance.patch(
         `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/events/${stepIndex}/status`,
         {
           status: next,
@@ -717,7 +705,7 @@ const IVFTreatmentTracker: React.FC = () => {
       const recordId = step.medicalRecords[0];
       try {
         const token = localStorage.getItem("accessToken");
-        const res = await axios.get(
+        const res = await axiosInstance.get(
           `https://mirava-f0rz.onrender.com/api/medicalRecord/${recordId}`,
           {
             headers: {
@@ -1140,16 +1128,16 @@ const IVFTreatmentTracker: React.FC = () => {
                       <td>
                         <div className="ivf-action-buttons">
                           <button
-                            onClick={() => openForm(step.id)}
+                            onClick={() => openMedicalRecordModal(step)}
                             className="ivf-action-btn ivf-edit-btn"
                             title="Chỉnh sửa"
                           >
                             <Edit3 size={16} />
                           </button>
                           <button
-                            onClick={() => openMedicalRecordModal(step)}
+                            onClick={() => openForm(step.id)}
                             className="ivf-action-btn ivf-record-btn"
-                            title="Kết quả"
+                            title="Xem"
                           >
                             <Eye size={16} />
                           </button>
@@ -1180,7 +1168,7 @@ const IVFTreatmentTracker: React.FC = () => {
             >
               <div className="ivf-modal-header">
                 <h3>
-                  Cập nhật:{" "}
+                  Thông tin chi tiết:{" "}
                   {treatmentSteps.find((s) => s.id === activeForm)?.name}
                 </h3>
                 <button onClick={closeForm} className="ivf-close-btn">

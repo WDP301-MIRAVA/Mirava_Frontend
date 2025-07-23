@@ -1,9 +1,18 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { message } from "antd";
+import { toast } from "react-hot-toast";
 import "./MedicalRecordForm.css";
 
-const MedicalRecordForm = ({
+interface MedicalRecordFormProps {
+  step: any;
+  treatmentPlan: any;
+  medicalRecord: any;
+  onSuccess: (data?: any) => void;
+  onCancel: () => void;
+}
+
+const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
   step,
   treatmentPlan,
   medicalRecord,
@@ -21,12 +30,13 @@ const MedicalRecordForm = ({
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  console.log("MedicalRecordForm mounted", step, treatmentPlan, medicalRecord);
+  const [files, setFiles] = useState<File[]>([]);
+  // State để quản lý modal xóa file đính kèm
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteUrl, setDeleteUrl] = useState<string | null>(null);
   useEffect(() => {
-    console.log("📦 Loaded medicalRecord:", medicalRecord);
-    console.log("step:", step);
-    console.log("medicalRecord:", medicalRecord);
     if (medicalRecord) {
+      console.log("Dữ liệu attachments từ API:", medicalRecord.attachments);
       setForm({
         date: medicalRecord.date
           ? new Date(medicalRecord.date).toISOString().slice(0, 16)
@@ -35,13 +45,14 @@ const MedicalRecordForm = ({
         title: medicalRecord.title || step?.name || step?.title || "",
         findings: medicalRecord.findings || "",
         conclusion: medicalRecord.conclusion || "",
-        attachments: medicalRecord.attachments?.length
-          ? medicalRecord.attachments
-          : [""],
+        attachments:
+          Array.isArray(medicalRecord.attachments) &&
+          medicalRecord.attachments.length > 0
+            ? medicalRecord.attachments
+            : [],
         notes: medicalRecord.notes || "",
       });
     } else {
-      // Nếu chưa có, giữ form trống như mặc định
       setForm({
         date: new Date().toISOString().slice(0, 16),
         type: step?.type || "Khám",
@@ -60,12 +71,11 @@ const MedicalRecordForm = ({
       ? step.medicalRecords[0]
       : null;
 
-  const patientId = treatmentPlan?.patient;
+  const patientId = treatmentPlan?.patient?._id;
   const doctorId = treatmentPlan?.doctor?._id;
   const type = form.type || step?.type || "Khám";
-
   // Lấy treatmentEventId từ step index
-  let treatmentEventId = null;
+  let treatmentEventId: string | null = null;
   if (step?.id && treatmentPlan?.treatmentEvents) {
     const stepIndex = parseInt(step.id) - 1;
     if (stepIndex >= 0 && stepIndex < treatmentPlan.treatmentEvents.length) {
@@ -73,24 +83,58 @@ const MedicalRecordForm = ({
     }
   }
 
-  console.log("treatmentPlan:", treatmentEventId);
-
-  const handleChange = (e) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     setForm({ ...form, [e.target.name]: e.target.value });
     if (error) setError("");
   };
-
-  const handleAttachmentChange = (e, idx) => {
-    const arr = [...form.attachments];
-    arr[idx] = e.target.value;
-    setForm({ ...form, attachments: arr });
+  // Hàm xác nhận xóa file
+  const confirmDeleteAttachment = async () => {
+    if (!deleteUrl) return;
+    await handleDeleteAttachment(deleteUrl);
+    setShowDeleteModal(false);
+    setDeleteUrl(null);
   };
 
-  const addAttachment = () => {
-    setForm({ ...form, attachments: [...form.attachments, ""] });
+  // Hàm xóa file đính kèm
+  const handleDeleteAttachment = async (url: string) => {
+    if (!medicalRecord?._id) return;
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("accessToken");
+      const response = await axios.delete(
+        `https://mirava-f0rz.onrender.com/api/medicalRecord/${medicalRecord._id}/attachments`,
+        {
+          data: { url },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (response.data.success) {
+        setForm((prev) => ({
+          ...prev,
+          attachments: prev.attachments.filter((item) => item !== url),
+        }));
+        message.success("Đã xóa file đính kèm!");
+      } else {
+        message.error("Không thể xóa file đính kèm!");
+      }
+    } catch (err) {
+      message.error("Có lỗi khi xóa file!");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSubmit = async (e) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setFiles(Array.from(e.target.files));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -120,55 +164,75 @@ const MedicalRecordForm = ({
         return;
       }
 
-      const requestData = {
-        patientId,
-        doctorId,
-        treatmentPlanId: treatmentPlan._id,
-        treatmentEventId,
-        serviceId: step?.serviceId || null,
-        date: new Date(form.date).toISOString(),
-        type,
-        title: form.title,
-        findings: form.findings.trim(),
-        conclusion: form.conclusion.trim(),
-        attachments: form.attachments.filter((a) => a.trim() !== ""),
-        notes: form.notes.trim(),
-      };
+      // Chuẩn bị dữ liệu gửi đi
+      const formData = new FormData();
+      formData.append("patientId", patientId);
+      formData.append("doctorId", doctorId);
+      formData.append("treatmentPlanId", treatmentPlan._id);
+      formData.append("treatmentEventId", treatmentEventId);
+      if (step?.serviceId) {
+        formData.append("serviceId", step.serviceId);
+      }
+      formData.append("date", new Date(form.date).toISOString());
+      formData.append("type", type);
+      formData.append("title", form.title);
+      formData.append("findings", form.findings.trim());
+      formData.append("conclusion", form.conclusion.trim());
+      formData.append("notes", form.notes.trim());
+
+      formData.append(
+        "attachments",
+        JSON.stringify(form.attachments.filter((a) => a.trim() !== ""))
+      );
+
+      // Đính kèm file upload CHỈ KHI TẠO MỚI
+      if (files.length > 0) {
+        files.forEach((file) => {
+          formData.append("attachments", file);
+        });
+      }
 
       let response;
       if (medicalRecordId) {
-        // Đã có record, cập nhật
-        response = await axios.put(
+        // Đã có record, cập nhật (không hỗ trợ cập nhật file, chỉ cập nhật thông tin)
+        response = await axios.patch(
           `https://mirava-f0rz.onrender.com/api/medicalRecord/${medicalRecordId}`,
-          requestData,
+          formData,
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
+              "Content-Type": "multipart/form-data",
             },
           }
         );
       } else {
-        // Chưa có record, tạo mới
+        // Tạo mới, gửi kèm file
         response = await axios.post(
           "https://mirava-f0rz.onrender.com/api/medicalRecord",
-          requestData,
+          formData,
           {
             headers: {
               Authorization: `Bearer ${token}`,
-              "Content-Type": "application/json",
+              "Content-Type": "multipart/form-data",
             },
           }
         );
       }
 
       if (response.data.success) {
-        message.success(
+        toast.success(
           medicalRecordId
             ? "Cập nhật hồ sơ thành công!"
             : "Tạo hồ sơ thành công!"
         );
-        onSuccess(response.data.data);
+        if (response.data.data && response.data.data.attachments) {
+          setForm((prev) => ({
+            ...prev,
+            attachments: response.data.data.attachments,
+          }));
+        }
+        // Nếu muốn reset file upload
+        setFiles([]);
       } else {
         setError(response.data.message || "Không thể lưu hồ sơ y tế");
       }
@@ -279,29 +343,126 @@ const MedicalRecordForm = ({
         </div>
 
         <div className="form-group">
-          <label className="form-label">File đính kèm (URL)</label>
-          <div className="attachment-section">
-            {form.attachments.map((att, idx) => (
-              <div key={idx} className="attachment-item">
-                <input
-                  type="text"
-                  value={att}
-                  onChange={(e) => handleAttachmentChange(e, idx)}
-                  placeholder="https://yourdomain.com/uploads/scan1.jpg"
-                  className="attachment-input"
-                />
-                {idx === form.attachments.length - 1 && (
-                  <button
-                    type="button"
-                    onClick={addAttachment}
-                    className="add-attachment-btn"
-                  >
-                    +
-                  </button>
+          <label className="form-label">File đính kèm (hình ảnh, PDF)</label>
+          <input
+            type="file"
+            multiple
+            accept="image/*,application/pdf"
+            onChange={handleFileChange}
+            className="form-input"
+          />
+
+          {/* Hiển thị file đính kèm đã lưu trong database */}
+          {form.attachments && form.attachments.length > 0 && (
+            <div className="attachments-preview">
+              <label className="form-label">File đã lưu:</label>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                {form.attachments.map((url, idx) =>
+                  url ? (
+                    <div
+                      key={idx}
+                      className={
+                        /\.(jpg|jpeg|png|gif)$/i.test(url)
+                          ? "attachment-image"
+                          : "attachment-link"
+                      }
+                      style={{ position: "relative", display: "inline-block" }}
+                    >
+                      {/\.(jpg|jpeg|png|gif)$/i.test(url) ? (
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Xem ảnh lớn"
+                        >
+                          <img src={url} alt={`attachment-${idx + 1}`} />
+                        </a>
+                      ) : (
+                        <a href={url} target="_blank" rel="noopener noreferrer">
+                          {url.split("/").pop()}
+                        </a>
+                      )}
+                      {/* Nút X xóa file */}
+                      <button
+                        type="button"
+                        className="attachment-delete-btn"
+                        onClick={() => {
+                          setDeleteUrl(url);
+                          setShowDeleteModal(true);
+                        }}
+                        title="Xóa file"
+                        disabled={loading}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : null
                 )}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+          {showDeleteModal && (
+            <div
+              className="modal-overlay"
+              onClick={() => setShowDeleteModal(false)}
+            >
+              <div
+                className="modal-confirm"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="modal-header">
+                  <h3>Xác nhận xóa file đính kèm</h3>
+                </div>
+                <div className="modal-body">
+                  <p>Bạn có chắc chắn muốn xóa file này?</p>
+                  {deleteUrl && /\.(jpg|jpeg|png|gif)$/i.test(deleteUrl) ? (
+                    <div
+                      style={{
+                        margin: "12px 0",
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <img
+                        src={deleteUrl}
+                        alt="Ảnh muốn xóa"
+                        style={{
+                          maxWidth: 180,
+                          maxHeight: 180,
+                          borderRadius: 8,
+                          border: "1px solid #eee",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <p style={{ wordBreak: "break-all", color: "#2563eb" }}>
+                      {deleteUrl && deleteUrl.split("/").pop()}
+                    </p>
+                  )}
+                </div>
+                <div className="modal-actions">
+                  <button
+                    type="button"
+                    className="btn-secondary"
+                    onClick={() => setShowDeleteModal(false)}
+                    disabled={loading}
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    onClick={confirmDeleteAttachment}
+                    disabled={loading}
+                  >
+                    Xác nhận xóa
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="form-group">
