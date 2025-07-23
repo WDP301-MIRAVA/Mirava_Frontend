@@ -66,6 +66,7 @@ import ManagerTestRegister from "@/pages/Manager/ManagerTestRegister/ManagerTest
 import AdminBlogManagement from "@/pages/Admin/BlogManagement/BlogManagement";
 import DoctorScheduleManager from "@/pages/Manager/DoctorScheduleManager";
 import AdviseManagement from "@/pages/Manager/AdviseManagement/AdviseManagement";
+import Dashboard from "@/pages/Admin/Dashboard/Dashboard";
 const MainRouter = () => {
   return (
     <Routes>
@@ -125,7 +126,7 @@ const MainRouter = () => {
       <Route
         element={<PrivateRoute allowedRole="Admin" layout={AdminLayout} />}
       >
-        <Route path="/admin" element={<div>Admin Dashboard</div>} />
+        <Route path="/admin" element={<Dashboard />} />
         <Route path="/admin/profile" element={<PersonalInfoPage />} />
         <Route path="/admin/usermanagement" element={<UserManagement />} />
         <Route path="/admin/doctors" element={<DoctorManagement />} />
