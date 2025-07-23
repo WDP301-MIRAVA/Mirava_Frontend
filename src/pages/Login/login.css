@@ -111,14 +111,14 @@ h2 {
 .login-box .ant-input-password:focus,
 .login-box .ant-input-focused,
 .login-box .ant-input-password-focused {
-  border-color: #24B5CF;
+  border-color: #24b5cf;
   box-shadow: 0 0 0 3px rgba(36, 181, 207, 0.1) !important;
   outline: none !important;
 }
 
 .login-box .ant-input:hover,
 .login-box .ant-input-password:hover {
-  border-color: #24B5CF;
+  border-color: #24b5cf;
 }
 
 /* Sửa lỗi Input Password bị lồng */
@@ -145,14 +145,14 @@ h2 {
 
 /* Hover state cho password container */
 .login-box .ant-input-password:hover {
-  border-color: #24B5CF !important;
+  border-color: #24b5cf !important;
 }
 
 /* Focus state cho password container */
 .login-box .ant-input-password:focus,
 .login-box .ant-input-password:focus-within,
 .login-box .ant-input-password-focused {
-  border-color: #24B5CF !important;
+  border-color: #24b5cf !important;
   box-shadow: 0 0 0 3px rgba(36, 181, 207, 0.1) !important;
   outline: none !important;
 }
@@ -175,7 +175,7 @@ h2 {
 }
 
 .login-box .ant-input-password-icon:hover {
-  color: #24B5CF;
+  color: #24b5cf;
 }
 
 /* ===== END PASSWORD INPUT FIX ===== */
@@ -319,5 +319,61 @@ h2 {
   h2 {
     font-size: 24px;
     text-align: center;
+  }
+}
+
+.login-box .ant-input-password {
+  border-radius: 8px !important;
+  border: 2px solid #e5e7eb !important;
+  background: #fff !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+/* Focus & hover giống input thường */
+.login-box .ant-input-password:focus,
+.login-box .ant-input-password:focus-within,
+.login-box .ant-input-password-focused,
+.login-box .ant-input-password:hover {
+  border-color: #24b5cf !important;
+  box-shadow: 0 0 0 3px rgba(36, 181, 207, 0.1) !important;
+  outline: none !important;
+  background-color: #fff !important;
+}
+
+/* Sửa lỗi input bên trong password */
+.login-box .ant-input-password .ant-input {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  padding: 0 16px !important;
+  width: 100% !important;
+  height: 100% !important;
+  font-size: 15px !important;
+  color: rgba(0, 0, 0, 0.85) !important;
+  border-radius: 0 !important;
+}
+
+/* Error giống input thường */
+.login-box .ant-form-item-has-error .ant-input-password {
+  border-color: #ef4444 !important;
+  background-color: #fff !important;
+}
+.login-box .ant-form-item-has-error .ant-input-password:focus {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
+}
+
+/* Responsive giống input thường */
+@media (max-width: 768px) {
+  .login-box .ant-input-password,
+  .login-box .ant-input-password-large {
+    height: 40px !important;
+    font-size: 14px !important;
+    padding: 0 12px !important;
   }
 }
