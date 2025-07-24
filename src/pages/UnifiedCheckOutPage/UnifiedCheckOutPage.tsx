@@ -105,6 +105,10 @@ const UnifiedCheckOutPage: React.FC = () => {
           const normalizedCart = parsedCart.map((item: CartItem) => ({
             ...item,
             quantity: item.quantity || 1, // Mặc định là 1 nếu không có quantity
+            type:
+              item.type === "service" || item.type === "test-package"
+                ? item.type
+                : "service", // Đảm bảo type đúng
           }));
           setCartItems(normalizedCart);
           localStorage.setItem("cart", JSON.stringify(normalizedCart));
@@ -306,46 +310,22 @@ const UnifiedCheckOutPage: React.FC = () => {
     console.log("🛒 Current cart items:", cartItems);
 
     try {
-      // Phân tách items theo loại
-      const services = cartItems.filter((item) => {
-        const isService =
-          item.type === "service" ||
-          (item.type !== "test-package" && !item.testPackageInfo);
-        console.log(
-          `Item ${item.name} - Type: ${item.type}, Is Service: ${isService}`
-        );
-        return isService;
-      });
-      const testPackages = cartItems.filter((item) => {
-        const isTestPackage =
-          item.type === "test-package" || item.testPackageInfo !== undefined;
-        console.log(
-          `Item ${item.name} - Type: ${item.type}, Is Test Package: ${isTestPackage}`
-        );
-        return isTestPackage;
-      });
-      console.log("📊 Phân tích giỏ hàng chi tiết:", {
-        totalItems: cartItems.length,
-        cartItemsRaw: cartItems,
-        services: {
-          count: services.length,
-          items: services,
-          ids: services.map((s) => s.id),
-        },
-        testPackages: {
-          count: testPackages.length,
-          items: testPackages,
-          ids: testPackages.map((t) => t.id),
-        },
-      });
-      // Kiểm tra nếu không có items nào được phân loại
-      if (services.length === 0 && testPackages.length === 0) {
-        console.error("❌ Không thể phân loại items trong giỏ hàng!");
-        toast.error("Có lỗi với dữ liệu giỏ hàng. Vui lòng thử lại!");
-        return;
-      }
-      // Chuẩn bị dữ liệu chung cho cả 2 API
-      const commonData = {
+      // Gộp tất cả items thành một mảng chuẩn cho backend
+      const items = cartItems
+        .map((item) => {
+          if (item.type === "service") {
+            return { serviceId: item.id, quantity: item.quantity || 1 };
+          }
+          if (item.type === "test-package") {
+            return { packageId: item.id, quantity: item.quantity || 1 };
+          }
+          return null;
+        })
+        .filter(Boolean);
+
+      // Chuẩn bị dữ liệu gửi lên backend
+      const orderData = {
+        items,
         paymentMethod: formData.paymentMethod,
         note: formData.notes,
         customerInfo: {
@@ -358,272 +338,45 @@ const UnifiedCheckOutPage: React.FC = () => {
         appointmentDate: formData.appointmentDate || undefined,
         timeSlot: formData.timeSlot || undefined,
         doctorId: formData.doctorId || undefined,
+        platform: "web",
       };
 
-      console.log("📝 Dữ liệu chung:", commonData);
-
-      // Tạo array chứa các promises để gửi đồng thời
-      const orderPromises: Promise<OrderResult>[] = [];
-      const orderTypes: string[] = [];
-
-      // ✅ XỬ LÝ DỊCH VỤ IUI/IVF
-      if (services.length > 0) {
-        console.log("🏥 Chuẩn bị gửi API cho dịch vụ IUI/IVF...");
-
-        const serviceOrderData = {
-          ...commonData,
-          items: services.map((item) => ({
-            serviceId: item.id,
-            quantity: item.quantity || 1,
-          })),
-        };
-
-        console.log("📤 Service Order Data:", serviceOrderData);
-        console.log(
-          "⏰ Thời điểm tạo Service Promise:",
-          new Date().toLocaleTimeString()
-        );
-
-        const servicePromise = fetch(
-          "https://mirava-f0rz.onrender.com/api/orders/guest",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(serviceOrderData),
-          }
-        )
-          .then(async (response) => {
-            console.log("📡 Service API Response Status:", response.status);
-            console.log(
-              "⏰ Service API Response Time:",
-              new Date().toLocaleTimeString()
-            );
-
-            const result = await response.json();
-            console.log("📦 Service API Result:", result);
-
-            if (!response.ok || !result.success) {
-              throw new Error(
-                result.message || "Có lỗi xảy ra khi đặt dịch vụ điều trị!"
-              );
-            }
-
-            const serviceResult: OrderResult = {
-              type: "service" as const,
-              data: result.data,
-              orderCode: result.data.orderCode,
-            };
-
-            console.log("✅ Service Order thành công:", serviceResult);
-            return serviceResult;
-          })
-          .catch((error) => {
-            console.error("❌ Service API Error:", error);
-            throw error;
-          });
-
-        orderPromises.push(servicePromise);
-        orderTypes.push("service");
-
-        console.log("➕ Đã thêm Service Promise vào queue");
-      }
-
-      // ✅ XỬ LÝ GÓI XÉT NGHIỆM
-      if (testPackages.length > 0) {
-        console.log("🧪 Chuẩn bị gửi API cho gói xét nghiệm...");
-
-        const testOrderData = {
-          ...commonData,
-          items: testPackages.map((item) => ({
-            packageId: item.id,
-            quantity: item.quantity || 1,
-          })),
-        };
-
-        console.log("📤 Test Package Order Data:", testOrderData);
-        console.log(
-          "⏰ Thời điểm tạo Test Package Promise:",
-          new Date().toLocaleTimeString()
-        );
-
-        const testPromise = fetch(
-          "https://mirava-f0rz.onrender.com/api/test-registrations/register",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(testOrderData),
-          }
-        )
-          .then(async (response) => {
-            console.log(
-              "📡 Test Package API Response Status:",
-              response.status
-            );
-            console.log(
-              "⏰ Test Package API Response Time:",
-              new Date().toLocaleTimeString()
-            );
-
-            const result = await response.json();
-            console.log("📦 Test Package API Result:", result);
-
-            if (!response.ok || !result.success) {
-              throw new Error(
-                result.message || "Có lỗi xảy ra khi đặt gói xét nghiệm!"
-              );
-            }
-
-            const testResult: OrderResult = {
-              type: "test-package" as const,
-              data: result.data,
-              orderCode: result.data.orderCode,
-            };
-
-            console.log("✅ Test Package Order thành công:", testResult);
-            return testResult;
-          })
-          .catch((error) => {
-            console.error("❌ Test Package API Error:", error);
-            throw error;
-          });
-
-        orderPromises.push(testPromise);
-        orderTypes.push("test-package");
-
-        console.log("➕ Đã thêm Test Package Promise vào queue");
-      }
-
-      console.log("🔄 Sẵn sàng gửi đồng thời các API:", {
-        totalPromises: orderPromises.length,
-        orderTypes: orderTypes,
-      });
-
-      // Kiểm tra nếu không có promise nào
-      if (orderPromises.length === 0) {
-        throw new Error("Không có sản phẩm nào để đặt hàng!");
-      }
-
-      // Ghi log thời gian bắt đầu
-      const startTime = Date.now();
-      console.log(
-        "⏱️ Bắt đầu gửi API đồng thời lúc:",
-        new Date(startTime).toLocaleTimeString()
-      );
-
-      // ✅ GỬI TẤT CẢ API ĐỒNG THỜI
-      const results = await Promise.all(orderPromises);
-
-      const endTime = Date.now();
-      console.log(
-        "⏱️ Hoàn thành tất cả API lúc:",
-        new Date(endTime).toLocaleTimeString()
-      );
-      console.log("⚡ Tổng thời gian xử lý:", endTime - startTime + "ms");
-      console.log("🎯 Tất cả kết quả API:", results);
-
-      // Xử lý thanh toán VNPay - tìm URL từ bất kỳ đơn hàng nào
-      let vnpUrl = null;
-      if (formData.paymentMethod === "VNPay") {
-        console.log("💳 Tìm kiếm VNPay URL...");
-
-        for (const result of results) {
-          console.log("🔍 Kiểm tra VNPay URL trong result:", result.data);
-
-          if (result.data.vnpUrl) {
-            vnpUrl = result.data.vnpUrl;
-            console.log("💰 Tìm thấy VNPay URL:", vnpUrl);
-            break; // Sử dụng URL đầu tiên tìm thấy
-          }
+      // Gửi API duy nhất
+      const response = await fetch(
+        "https://mirava-f0rz.onrender.com/api/orders/guest",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderData),
         }
+      );
+      const result = await response.json();
 
-        if (!vnpUrl) {
-          console.log("⚠️ Không tìm thấy VNPay URL trong bất kỳ response nào");
-        }
+      if (!response.ok || !result.success) {
+        throw new Error(result.message || "Có lỗi xảy ra khi đặt hàng!");
       }
 
-      // Xử lý thanh toán VNPay
-      if (vnpUrl) {
-        console.log("🔄 Chuyển hướng đến VNPay:", vnpUrl);
-        toast.success("Chuyển đến cổng thanh toán...");
-        window.location.href = vnpUrl;
-        return;
-      }
-
-      // Hiển thị thông báo thành công dựa trên loại đơn hàng
-      const orderCodes = results.map((r) => r.orderCode).filter(Boolean);
-      console.log("📋 Danh sách mã đơn hàng:", orderCodes);
-
-      if (services.length > 0 && testPackages.length > 0) {
-        const successMessage = `Đặt hàng thành công! Tạo được ${
-          results.length
-        } đơn hàng: ${orderCodes.join(", ")}`;
-        console.log("🎉 " + successMessage);
-        toast.success(successMessage);
-      } else if (services.length > 0) {
-        const successMessage = `Đặt dịch vụ điều trị thành công! Mã đơn hàng: ${orderCodes[0]}`;
-        console.log("🎉 " + successMessage);
-        toast.success(successMessage);
-      } else {
-        const successMessage = `Đặt gói xét nghiệm thành công! Mã đơn hàng: ${orderCodes[0]}`;
-        console.log("🎉 " + successMessage);
-        toast.success(successMessage);
-      }
+      toast.success("Đặt hàng thành công!");
 
       // Xóa giỏ hàng sau khi đặt hàng thành công
-      console.log("🗑️ Xóa giỏ hàng...");
       localStorage.removeItem("cart");
       window.dispatchEvent(new Event("storage"));
 
       // Chuyển hướng đến trang thanh toán thành công
-      const navigationState = {
-        orderInfo: results,
-        userInfo: formData,
-        orderType:
-          services.length > 0 && testPackages.length > 0
-            ? "separate"
-            : services.length > 0
-            ? "service"
-            : "test-package",
-        totalOrders: results.length,
-      };
-
-      console.log("🧭 Chuyển hướng với state:", navigationState);
-
       navigate("/payment-success", {
-        state: navigationState,
+        state: {
+          orderInfo: result.data.order,
+          userInfo: formData,
+          orderType: "combined",
+        },
       });
     } catch (error: unknown) {
-      console.error("❌ Lỗi tổng thể:", error);
-
-      // Type guard để kiểm tra và xử lý error an toàn
       const errorMessage =
         error instanceof Error
           ? error.message
           : "Có lỗi xảy ra. Vui lòng thử lại!";
-
-      if (error instanceof Error && error.stack) {
-        console.error("❌ Error stack:", error.stack);
-      }
-
-      // Hiển thị lỗi cụ thể
-      if (errorMessage.includes("dịch vụ")) {
-        const errorMsg = `Lỗi đặt dịch vụ: ${errorMessage}`;
-        console.error("🏥 " + errorMsg);
-        toast.error(errorMsg);
-      } else if (errorMessage.includes("xét nghiệm")) {
-        const errorMsg = `Lỗi đặt gói xét nghiệm: ${errorMessage}`;
-        console.error("🧪 " + errorMsg);
-        toast.error(errorMsg);
-      } else {
-        console.error("⚠️ " + errorMessage);
-        toast.error(errorMessage);
-      }
+      toast.error(errorMessage);
     } finally {
-      console.log("🔚 Kết thúc xử lý đơn hàng");
       setIsSubmitting(false);
     }
   };

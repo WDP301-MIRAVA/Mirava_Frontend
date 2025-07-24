@@ -60,6 +60,12 @@ interface APIResponse {
       paymentStatus?: string;
       totalAmount: number;
       paidAt?: string;
+      customerInfo?: {
+        userName: string;
+        email: string;
+        phone: string;
+        address: string;
+      };
     };
     customer?: {
       patientCode?: string;
@@ -77,6 +83,12 @@ interface CheckExistsResponse {
       paymentStatus?: string;
       totalAmount: number;
       paidAt?: string;
+      customerInfo?: {
+        userName: string;
+        email: string;
+        phone: string;
+        address: string;
+      };
     };
     customer?: {
       patientCode?: string;
@@ -93,6 +105,14 @@ interface ObjectIdResponse {
     user?: {
       patientCode?: string;
     };
+    customerInfo?: {
+      userName: string;
+      email: string;
+      phone: string;
+      address: string;
+    };
+    paidAt?: string;
+    paymentStatus?: string;
   };
 }
 
@@ -104,6 +124,14 @@ interface UnifiedResponse {
       id?: string;
       orderCode?: string;
       totalAmount?: number;
+      customerInfo?: {
+        userName: string;
+        email: string;
+        phone: string;
+        address: string;
+      };
+      paidAt?: string;
+      paymentStatus?: string;
     };
     customer?: {
       patientCode?: string;
@@ -118,59 +146,31 @@ const PaymentSuccess: React.FC = () => {
   const [orderInfo, setOrderInfo] = useState<OrderInfo | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ THÊM REF ĐỂ TRÁNH CHẠY LẠI NHIỀU LẦN
   const processedRef = useRef(false);
 
   useEffect(() => {
-    console.log("PaymentSuccess mounted, location.search:", location.search);
-
-    // Tránh chạy lại nếu đã xử lý
-    if (processedRef.current) {
-      console.log("⚠️ Đã xử lý rồi, bỏ qua...");
-      return;
-    }
+    if (processedRef.current) return;
 
     const processPaymentSuccess = async (): Promise<void> => {
       try {
-        processedRef.current = true; // Đánh dấu đã xử lý
+        processedRef.current = true;
 
         const urlParams = new URLSearchParams(location.search);
 
-        // ✅ XỬ LÝ CẢ 2 FORMAT: VNPay gốc và custom
         let tempOrderId = urlParams.get("tempOrderId");
         let status = urlParams.get("status");
         let amount = urlParams.get("amount");
 
-        // Nếu không có custom params, lấy từ VNPay params
         if (!tempOrderId || !status || !amount) {
-          console.log("🔍 Không tìm thấy custom params, đọc từ VNPay params");
-
           const vnp_TxnRef = urlParams.get("vnp_TxnRef");
           const vnp_ResponseCode = urlParams.get("vnp_ResponseCode");
           const vnp_Amount = urlParams.get("vnp_Amount");
 
-          console.log("🔍 VNPay params:", {
-            vnp_TxnRef,
-            vnp_ResponseCode,
-            vnp_Amount,
-          });
-
-          // Chuyển đổi VNPay params sang custom format
-          if (vnp_TxnRef) {
-            tempOrderId = vnp_TxnRef;
-          }
-
-          if (vnp_ResponseCode) {
+          if (vnp_TxnRef) tempOrderId = vnp_TxnRef;
+          if (vnp_ResponseCode)
             status = vnp_ResponseCode === "00" ? "success" : "failed";
-          }
-
-          if (vnp_Amount) {
-            // VNPay amount có đơn vị VND * 100, cần chia cho 100
-            amount = (parseInt(vnp_Amount) / 100).toString();
-          }
+          if (vnp_Amount) amount = (parseInt(vnp_Amount) / 100).toString();
         }
-
-        console.log("🔍 Final URL Params:", { tempOrderId, status, amount });
 
         if (tempOrderId && status === "success") {
           await handleVNPaySuccess(tempOrderId, amount);
@@ -181,7 +181,6 @@ const PaymentSuccess: React.FC = () => {
           handleRegularPayment();
         }
       } catch (error) {
-        console.error("❌ Lỗi xử lý thanh toán:", error);
         toast.error("Có lỗi xảy ra khi xử lý thanh toán!");
         navigate("/");
       }
@@ -190,20 +189,15 @@ const PaymentSuccess: React.FC = () => {
     processPaymentSuccess();
   }, [location.search, navigate]);
 
-  // ✅ KIỂM TRA ĐƠN HÀNG TỒN TẠI
+  // Kiểm tra đơn hàng tồn tại
   const checkOrderExists = async (tempOrderId: string): Promise<boolean> => {
     try {
-      console.log("🔍 Kiểm tra đơn hàng tồn tại:", tempOrderId);
-
       const response = await fetch(
         `https://mirava-f0rz.onrender.com/api/orders/check-exists/${tempOrderId}`
       );
-
       const result: CheckExistsResponse = await response.json();
 
       if (result.success && result.exists && result.data) {
-        console.log("✅ Đơn hàng đã tồn tại:", result.data);
-
         setOrderInfo({
           orderId: result.data.order.id,
           orderCode: result.data.order.orderCode,
@@ -211,71 +205,48 @@ const PaymentSuccess: React.FC = () => {
           totalAmount: result.data.order.totalAmount,
           patientCode: result.data.customer?.patientCode || "",
           paidAt: result.data.order.paidAt || new Date().toISOString(),
+          customerInfo: result.data.order.customerInfo,
         });
-
         localStorage.removeItem("vnpayOrderData");
         localStorage.removeItem("vnpayTestData");
         localStorage.removeItem("vnpayUnifiedData");
-
         toast.success("Đơn hàng đã được xử lý!");
         return true;
       }
-
       return false;
-    } catch (error) {
-      console.error("❌ Lỗi kiểm tra đơn hàng:", error);
+    } catch {
       return false;
     }
   };
 
+  // Xử lý VNPay thành công
   const handleVNPaySuccess = async (
     tempOrderId: string,
     amount: string | null
   ): Promise<void> => {
     try {
       setLoading(true);
-      console.log("💳 Bắt đầu xử lý thanh toán VNPay thành công");
-      console.log("🔍 TempOrderId từ URL:", tempOrderId);
-
-      // Kiểm tra đơn hàng đã tồn tại trước
       const orderExists = await checkOrderExists(tempOrderId);
-      if (orderExists) {
-        return;
-      }
+      if (orderExists) return;
 
-      // Lấy thông tin đơn hàng từ localStorage
       const storedOrderData = localStorage.getItem("vnpayOrderData");
 
       if (!storedOrderData) {
-        console.error("❌ Không tìm thấy dữ liệu đơn hàng trong localStorage");
-
-        // Kiểm tra các loại dữ liệu khác
         const testPackageData = localStorage.getItem("vnpayTestData");
         if (testPackageData) {
-          console.log("🔍 Tìm thấy dữ liệu test package:", testPackageData);
           await handleTestPackageVNPaySuccess(tempOrderId);
           return;
         }
-
         const unifiedData = localStorage.getItem("vnpayUnifiedData");
         if (unifiedData) {
-          console.log("🔍 Tìm thấy dữ liệu unified checkout:", unifiedData);
           await handleUnifiedVNPaySuccess(tempOrderId);
           return;
         }
-
         if (tempOrderId.match(/^[0-9a-fA-F]{24}$/)) {
-          console.log(
-            "🔍 TempOrderId có vẻ là MongoDB ObjectID, thử lấy từ API"
-          );
           await handleObjectIdVNPaySuccess(tempOrderId);
           return;
         }
-
-        // ✅ FALLBACK: Tạo orderData cơ bản từ tempOrderId format TEMP_
         if (tempOrderId.startsWith("TEMP_")) {
-          console.log("🔍 TempOrderId là format TEMP_, tạo orderData cơ bản");
-
           const basicOrderData: OrderData = {
             items: [{ serviceId: "unknown", quantity: 1 }],
             paymentMethod: "VNPay",
@@ -290,12 +261,9 @@ const PaymentSuccess: React.FC = () => {
             totalAmount: amount ? parseInt(amount) : 0,
             orderItems: [],
           };
-
-          console.log("📦 Tạo orderData cơ bản:", basicOrderData);
           await createOrderAfterVNPaySuccess(basicOrderData, tempOrderId);
           return;
         }
-
         toast.error("Không tìm thấy thông tin đơn hàng!");
         navigate("/");
         return;
@@ -303,84 +271,61 @@ const PaymentSuccess: React.FC = () => {
 
       const { orderData }: { orderData: OrderData } =
         JSON.parse(storedOrderData);
-      console.log("📦 Dữ liệu đơn hàng từ localStorage:", orderData);
-
       await createOrderAfterVNPaySuccess(orderData, tempOrderId);
-    } catch (error: unknown) {
-      console.error("❌ Lỗi xử lý VNPay success:", error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Có lỗi xảy ra khi xử lý thanh toán!";
-      toast.error(errorMessage);
+    } catch {
+      toast.error("Có lỗi xảy ra khi xử lý thanh toán!");
       navigate("/");
     } finally {
       setLoading(false);
     }
   };
 
-  // Hàm xử lý cho trường hợp ObjectID
+  // Xử lý ObjectId
   const handleObjectIdVNPaySuccess = async (orderId: string): Promise<void> => {
     try {
-      console.log("🔍 Xử lý ObjectID VNPay success:", orderId);
-
       const response = await fetch(
         `https://mirava-f0rz.onrender.com/api/orders/${orderId}`
       );
-
-      if (!response.ok) {
-        throw new Error("Không thể lấy thông tin đơn hàng");
-      }
-
+      if (!response.ok) throw new Error("Không thể lấy thông tin đơn hàng");
       const result: ObjectIdResponse = await response.json();
-
       if (result.success && result.data) {
         setOrderInfo({
           orderId: result.data._id,
           orderCode: result.data.orderCode,
-          paymentStatus: "success",
+          paymentStatus: result.data.paymentStatus || "success",
           totalAmount: result.data.totalAmount,
           patientCode: result.data.user?.patientCode || "",
-          paidAt: new Date().toISOString(),
+          paidAt: result.data.paidAt || new Date().toISOString(),
+          customerInfo: result.data.customerInfo,
         });
-
         toast.success("Thanh toán thành công!");
       } else {
         throw new Error("Không thể lấy thông tin đơn hàng");
       }
-    } catch (error: unknown) {
-      console.error("❌ Lỗi xử lý ObjectID VNPay:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Có lỗi xảy ra!";
-      toast.error(errorMessage);
+    } catch {
+      toast.error("Có lỗi xảy ra!");
     } finally {
       setLoading(false);
     }
   };
 
-  // Hàm xử lý cho Test Package
+  // Xử lý Test Package
   const handleTestPackageVNPaySuccess = async (
     tempOrderId: string
   ): Promise<void> => {
     try {
-      console.log("🔍 Xử lý Test Package VNPay success:", tempOrderId);
-
       const response = await fetch(
         "https://mirava-f0rz.onrender.com/api/test-registrations/confirm-vnpay",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             orderId: tempOrderId,
             paymentStatus: "success",
           }),
         }
       );
-
       const result: APIResponse = await response.json();
-
       if (result.success && result.data) {
         setOrderInfo({
           orderId: result.data.order.id,
@@ -388,45 +333,36 @@ const PaymentSuccess: React.FC = () => {
           paymentStatus: "success",
           totalAmount: result.data.order.totalAmount,
           patientCode: result.data.customer?.patientCode || "",
-          paidAt: new Date().toISOString(),
+          paidAt: result.data.order.paidAt || new Date().toISOString(),
+          customerInfo: result.data.order.customerInfo,
         });
-
         localStorage.removeItem("vnpayTestData");
         toast.success("Thanh toán thành công!");
       } else {
         throw new Error(result.message || "Có lỗi xảy ra!");
       }
-    } catch (error: unknown) {
-      console.error("❌ Lỗi xử lý Test Package VNPay:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Có lỗi xảy ra!";
-      toast.error(errorMessage);
+    } catch {
+      toast.error("Có lỗi xảy ra!");
     } finally {
       setLoading(false);
     }
   };
 
+  // Xử lý unified checkout
   const handleUnifiedVNPaySuccess = async (
     tempOrderId: string
   ): Promise<void> => {
     try {
-      console.log("🔍 Xử lý Unified Checkout VNPay success:", tempOrderId);
-
       const unifiedData = localStorage.getItem("vnpayUnifiedData");
-      if (!unifiedData) {
+      if (!unifiedData)
         throw new Error("Không tìm thấy dữ liệu unified checkout");
-      }
-
       const parsedData: unknown = JSON.parse(unifiedData);
-      console.log("📦 Dữ liệu unified checkout:", parsedData);
 
       const response = await fetch(
         "https://mirava-f0rz.onrender.com/api/unified-orders/confirm-vnpay",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             tempOrderId,
             paymentStatus: "success",
@@ -434,71 +370,52 @@ const PaymentSuccess: React.FC = () => {
           }),
         }
       );
-
       const result: UnifiedResponse = await response.json();
-
       if (result.success && result.data) {
         setOrderInfo({
           orderId: result.data.order?.id || tempOrderId,
           orderCode: result.data.order?.orderCode || `UNI${Date.now()}`,
-          paymentStatus: "success",
+          paymentStatus: result.data.order?.paymentStatus || "success",
           totalAmount: result.data.order?.totalAmount || 0,
           patientCode: result.data.customer?.patientCode || "",
-          paidAt: new Date().toISOString(),
+          paidAt: result.data.order?.paidAt || new Date().toISOString(),
+          customerInfo: result.data.order?.customerInfo,
         });
-
         localStorage.removeItem("vnpayUnifiedData");
         toast.success("Thanh toán thành công!");
       } else {
         throw new Error(result.message || "Có lỗi xảy ra!");
       }
-    } catch (error: unknown) {
-      console.error("❌ Lỗi xử lý Unified VNPay:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Có lỗi xảy ra!";
-      toast.error(errorMessage);
+    } catch {
+      toast.error("Có lỗi xảy ra!");
       navigate("/");
     } finally {
       setLoading(false);
     }
   };
 
+  // Tạo đơn hàng sau VNPay
   const createOrderAfterVNPaySuccess = async (
     orderData: OrderData,
     tempOrderId: string
   ): Promise<void> => {
     try {
-      console.log("🚀 Tạo đơn hàng sau VNPay với data:", {
-        orderData,
-        tempOrderId,
-      });
-
       const response = await fetch(
         "https://mirava-f0rz.onrender.com/api/orders/create-after-vnpay",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             orderData,
             tempOrderId,
           }),
         }
       );
-
       const result: APIResponse = await response.json();
-
-      console.log("📋 Response từ API create-after-vnpay:", result);
-
       if (!response.ok || !result.success) {
         throw new Error(result.message || "Có lỗi xảy ra khi tạo đơn hàng!");
       }
-
-      if (!result.data) {
-        throw new Error("Không có dữ liệu trả về từ API!");
-      }
-
+      if (!result.data) throw new Error("Không có dữ liệu trả về từ API!");
       setOrderInfo({
         orderId: result.data.order.id,
         orderCode: result.data.order.orderCode,
@@ -506,27 +423,20 @@ const PaymentSuccess: React.FC = () => {
         totalAmount: result.data.order.totalAmount,
         patientCode: result.data.customer?.patientCode || "",
         paidAt: result.data.order.paidAt || new Date().toISOString(),
+        customerInfo: result.data.order.customerInfo,
       });
-
-      // ✅ XÓA TẤT CẢ DỮ LIỆU LOCALSTORAGE
       localStorage.removeItem("vnpayOrderData");
       localStorage.removeItem("vnpayTestData");
       localStorage.removeItem("vnpayUnifiedData");
-
-      console.log("✅ Tạo đơn hàng thành công:", result.data);
       toast.success("Thanh toán thành công! Đơn hàng đã được tạo.");
-    } catch (error: unknown) {
-      console.error("❌ Lỗi tạo đơn hàng sau VNPay:", error);
-      const errorMessage =
-        error instanceof Error
-          ? error.message
-          : "Có lỗi xảy ra khi tạo đơn hàng!";
-      toast.error(errorMessage);
+    } catch {
+      toast.error("Có lỗi xảy ra khi tạo đơn hàng!");
     } finally {
       setLoading(false);
     }
   };
 
+  // Xử lý thanh toán thường (không VNPay)
   const handleRegularPayment = (): void => {
     try {
       const state = location.state as {
@@ -534,24 +444,18 @@ const PaymentSuccess: React.FC = () => {
       } | null;
 
       if (state && state.orderInfo) {
-        console.log("✅ Tìm thấy orderInfo trong state:", state.orderInfo);
-
-        // ✅ XỬ LÝ CẢ SINGLE ORDER VÀ MULTIPLE ORDERS
         if (Array.isArray(state.orderInfo)) {
-          // Multiple orders từ unified checkout
           const firstOrder = state.orderInfo[0];
           setOrderInfo(firstOrder);
         } else {
-          // Single order
           setOrderInfo(state.orderInfo);
         }
-
         setLoading(false);
         toast.success("Thanh toán thành công!");
         return;
       }
 
-      // Kiểm tra thông tin từ query params
+      // Nếu không có state, lấy từ query params
       const orderId = searchParams.get("orderId");
       const orderCode = searchParams.get("orderCode");
       const paymentStatus = searchParams.get("paymentStatus");
@@ -560,7 +464,6 @@ const PaymentSuccess: React.FC = () => {
       const paidAt = searchParams.get("paidAt");
 
       if (orderId && orderCode) {
-        console.log("✅ Tìm thấy thông tin từ query params");
         setOrderInfo({
           orderId,
           orderCode,
@@ -574,21 +477,9 @@ const PaymentSuccess: React.FC = () => {
         return;
       }
 
-      console.error("❌ Thiếu thông tin thanh toán!");
-      console.error("❌ State:", state);
-      console.error("❌ Query params:", {
-        orderId,
-        orderCode,
-        paymentStatus,
-        totalAmount,
-        patientCode,
-        paidAt,
-      });
-
       toast.error("Thiếu thông tin thanh toán!");
       navigate("/");
-    } catch (error) {
-      console.error("❌ Lỗi xử lý thanh toán thường:", error);
+    } catch {
       navigate("/");
     }
   };
@@ -617,7 +508,7 @@ const PaymentSuccess: React.FC = () => {
           </div>
           <h1 className="ps-success-title">Thanh toán thành công!</h1>
           <p className="ps-success-subtitle">
-            Cảm ơn quý khách đã tin tương và sử dụng dịch vụ của Mirava Center
+            Cảm ơn quý khách đã tin tưởng và sử dụng dịch vụ của Mirava Center
           </p>
         </div>
 
@@ -639,7 +530,10 @@ const PaymentSuccess: React.FC = () => {
                 <div className="ps-info-row">
                   <span className="ps-label">Tổng tiền:</span>
                   <span className="ps-value ps-price">
-                    {orderInfo.totalAmount.toLocaleString("vi-VN")} VNĐ
+                    {typeof orderInfo.totalAmount === "number" &&
+                    !isNaN(orderInfo.totalAmount)
+                      ? orderInfo.totalAmount.toLocaleString("vi-VN") + " VNĐ"
+                      : "0 VNĐ"}
                   </span>
                 </div>
                 {orderInfo.patientCode && (
