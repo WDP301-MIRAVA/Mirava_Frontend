@@ -27,6 +27,24 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
     conclusion: "",
     attachments: [""],
     notes: "",
+    vitals: {
+      bloodPressure: "",
+      heartRate: "",
+      weight: "",
+      temperature: "",
+    },
+    hormoneLevels: {
+      fsh: "",
+      lh: "",
+      estradiol: "",
+      progesterone: "",
+    },
+    ultrasound: {
+      follicleCount: "",
+      endometrialThickness: "",
+      leftOvary: "",
+      rightOvary: "",
+    },
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -51,6 +69,24 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
             ? medicalRecord.attachments
             : [],
         notes: medicalRecord.notes || "",
+        vitals: medicalRecord.vitals || {
+          bloodPressure: "",
+          heartRate: "",
+          weight: "",
+          temperature: "",
+        },
+        hormoneLevels: medicalRecord.hormoneLevels || {
+          fsh: "",
+          lh: "",
+          estradiol: "",
+          progesterone: "",
+        },
+        ultrasound: medicalRecord.ultrasound || {
+          follicleCount: "",
+          endometrialThickness: "",
+          leftOvary: "",
+          rightOvary: "",
+        },
       });
     } else {
       setForm({
@@ -61,6 +97,24 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
         conclusion: step?.conclusion || "",
         attachments: [""],
         notes: "",
+        vitals: {
+          bloodPressure: "",
+          heartRate: "",
+          weight: "",
+          temperature: "",
+        },
+        hormoneLevels: {
+          fsh: "",
+          lh: "",
+          estradiol: "",
+          progesterone: "",
+        },
+        ultrasound: {
+          follicleCount: "",
+          endometrialThickness: "",
+          leftOvary: "",
+          rightOvary: "",
+        },
       });
     }
   }, [medicalRecord, step]);
@@ -183,7 +237,9 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
       formData.append("findings", form.findings.trim());
       formData.append("conclusion", form.conclusion.trim());
       formData.append("notes", form.notes.trim());
-
+      formData.append("vitals", JSON.stringify(form.vitals));
+      formData.append("hormoneLevels", JSON.stringify(form.hormoneLevels));
+      formData.append("ultrasound", JSON.stringify(form.ultrasound));
       formData.append(
         "attachments",
         JSON.stringify(form.attachments.filter((a) => a.trim() !== ""))
@@ -402,6 +458,208 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
                     </div>
                   ) : null
                 )}
+              </div>
+              <div className="form-group">
+                <label className="form-label">Dấu hiệu sinh tồn</label>
+                <div className="vitals-row">
+                  <input
+                    type="text"
+                    name="bloodPressure"
+                    value={form.vitals.bloodPressure}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        vitals: {
+                          ...prev.vitals,
+                          bloodPressure: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="Huyết áp (mmHg)"
+                    className="form-input"
+                  />
+                  <input
+                    type="text"
+                    name="heartRate"
+                    value={form.vitals.heartRate}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        vitals: { ...prev.vitals, heartRate: e.target.value },
+                      }))
+                    }
+                    placeholder="Nhịp tim (lần/phút)"
+                    className="form-input"
+                  />
+                  <input
+                    type="number"
+                    name="weight"
+                    value={form.vitals.weight}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        vitals: { ...prev.vitals, weight: e.target.value },
+                      }))
+                    }
+                    placeholder="Cân nặng (kg)"
+                    className="form-input"
+                  />
+                  <input
+                    type="text"
+                    name="temperature"
+                    value={form.vitals.temperature}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        vitals: { ...prev.vitals, temperature: e.target.value },
+                      }))
+                    }
+                    placeholder="Nhiệt độ (°C)"
+                    className="form-input"
+                  />
+                </div>
+              </div>
+
+              {/* Chỉ số hormone */}
+              <div className="form-group">
+                <label className="form-label">Chỉ số hormone</label>
+                <div className="hormone-row">
+                  <input
+                    type="number"
+                    name="fsh"
+                    value={form.hormoneLevels.fsh}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        hormoneLevels: {
+                          ...prev.hormoneLevels,
+                          fsh: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="FSH"
+                    className="form-input"
+                  />
+                  <input
+                    type="number"
+                    name="lh"
+                    value={form.hormoneLevels.lh}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        hormoneLevels: {
+                          ...prev.hormoneLevels,
+                          lh: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="LH"
+                    className="form-input"
+                  />
+                  <input
+                    type="number"
+                    name="estradiol"
+                    value={form.hormoneLevels.estradiol}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        hormoneLevels: {
+                          ...prev.hormoneLevels,
+                          estradiol: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="Estradiol (E2)"
+                    className="form-input"
+                  />
+                  <input
+                    type="number"
+                    name="progesterone"
+                    value={form.hormoneLevels.progesterone}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        hormoneLevels: {
+                          ...prev.hormoneLevels,
+                          progesterone: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="Progesterone (P4)"
+                    className="form-input"
+                  />
+                </div>
+              </div>
+
+              {/* Thông tin siêu âm */}
+              <div className="form-group">
+                <label className="form-label">Thông tin siêu âm</label>
+                <div className="ultrasound-row">
+                  <input
+                    type="number"
+                    name="follicleCount"
+                    value={form.ultrasound.follicleCount}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        ultrasound: {
+                          ...prev.ultrasound,
+                          follicleCount: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="Số nang noãn"
+                    className="form-input"
+                  />
+                  <input
+                    type="number"
+                    name="endometrialThickness"
+                    value={form.ultrasound.endometrialThickness}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        ultrasound: {
+                          ...prev.ultrasound,
+                          endometrialThickness: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="Độ dày nội mạc (mm)"
+                    className="form-input"
+                  />
+                  <input
+                    type="text"
+                    name="leftOvary"
+                    value={form.ultrasound.leftOvary}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        ultrasound: {
+                          ...prev.ultrasound,
+                          leftOvary: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="Buồng trứng trái"
+                    className="form-input"
+                  />
+                  <input
+                    type="text"
+                    name="rightOvary"
+                    value={form.ultrasound.rightOvary}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        ultrasound: {
+                          ...prev.ultrasound,
+                          rightOvary: e.target.value,
+                        },
+                      }))
+                    }
+                    placeholder="Buồng trứng phải"
+                    className="form-input"
+                  />
+                </div>
               </div>
             </div>
           )}
