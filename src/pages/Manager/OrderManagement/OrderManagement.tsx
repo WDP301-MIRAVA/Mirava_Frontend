@@ -363,7 +363,11 @@ const OrderManagement: React.FC = () => {
                           <div className="om-services-list">
                             {order.items.map((item, index) => (
                               <div key={index} className="om-service-item">
-                                {item.service.name} x{item.quantity}
+                                {item.service?.name
+                                  ? `${item.service.name} x${item.quantity}`
+                                  : item.testPackage?.name
+                                  ? `${item.testPackage.name} x${item.quantity}`
+                                  : "Không xác định"}
                               </div>
                             ))}
                           </div>
