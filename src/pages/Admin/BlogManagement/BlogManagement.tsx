@@ -15,6 +15,11 @@ import {
   Calendar,
   User,
   FileText,
+  BookOpen,
+  Users,
+  BarChart3,
+  AlertCircle,
+  X,
 } from "lucide-react";
 
 const AdminBlogManagement: React.FC = () => {
@@ -73,6 +78,19 @@ const AdminBlogManagement: React.FC = () => {
     fetchBlogs();
     fetchCategories();
   }, [currentPage, selectedCategory]);
+
+  // Tính toán stats từ dữ liệu blogs
+  const getBlogStats = () => {
+    const total = totalBlogs;
+    const published = blogs.filter((b) => b.status === "published").length;
+    const draft = blogs.filter((b) => b.status === "draft").length;
+    const totalViews = blogs.reduce(
+      (sum, blog) => sum + (blog.viewCount || 0),
+      0
+    );
+
+    return { total, published, draft, totalViews };
+  };
 
   // Fetch blogs with pagination and filters
   const fetchBlogs = async () => {
@@ -338,15 +356,16 @@ const AdminBlogManagement: React.FC = () => {
     return pages;
   };
 
+  const stats = getBlogStats();
+
   if (loading && blogs.length === 0) {
     return (
       <div className="admin-blog-management">
-        <div className="admin-blog-management__header">
-          <h1 className="admin-blog-management__title">Quản lý Blog</h1>
-          <p className="admin-blog-management__subtitle">Đang tải dữ liệu...</p>
-        </div>
-        <div style={{ textAlign: "center", padding: "50px" }}>
-          <div>⏳ Đang tải dữ liệu...</div>
+        <div className="admin-blog-management-container">
+          <div className="admin-blog-loading">
+            <div className="admin-blog-loading-spinner"></div>
+            <p>Đang tải danh sách blog...</p>
+          </div>
         </div>
       </div>
     );
@@ -355,18 +374,18 @@ const AdminBlogManagement: React.FC = () => {
   if (error) {
     return (
       <div className="admin-blog-management">
-        <div className="admin-blog-management__header">
-          <h1 className="admin-blog-management__title">Quản lý Blog</h1>
-          <p className="admin-blog-management__subtitle">Có lỗi xảy ra</p>
-        </div>
-        <div style={{ textAlign: "center", padding: "50px", color: "red" }}>
-          <div>{error}</div>
-          <button
-            onClick={() => window.location.reload()}
-            style={{ marginTop: "20px", padding: "10px 20px" }}
-          >
-            Thử lại
-          </button>
+        <div className="admin-blog-management-container">
+          <div className="admin-blog-error">
+            <AlertCircle size={48} className="error-icon" />
+            <h3>Có lỗi xảy ra</h3>
+            <p>{error}</p>
+            <button
+              onClick={() => window.location.reload()}
+              className="admin-create-button"
+            >
+              Thử lại
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -374,27 +393,76 @@ const AdminBlogManagement: React.FC = () => {
 
   return (
     <div className="admin-blog-management">
-      <div className="admin-blog-management__header">
-        <h1 className="admin-blog-management__title">Quản lý Blog</h1>
-        <p className="admin-blog-management__subtitle">
-          Quản lý bài viết blog của hệ thống ({totalBlogs} bài viết)
-        </p>
-      </div>
+      <div className="admin-blog-management-container">
+        {/* Notification */}
+        {notification && (
+          <div
+            className={`admin-notification admin-notification--${notification.type}`}
+          >
+            {notification.message}
+          </div>
+        )}
 
-      {/* Notification */}
-      {notification && (
-        <div
-          className={`admin-notification admin-notification--${notification.type}`}
-        >
-          {notification.message}
+        {/* Header */}
+        <div className="admin-blog-management__header">
+          <div className="admin-blog-management__header-content">
+            <div>
+              <h1 className="admin-blog-management__title">Quản lý Blog</h1>
+              <p className="admin-blog-management__subtitle">
+                Quản lý bài viết blog của hệ thống ({totalBlogs} bài viết)
+              </p>
+            </div>
+            <button onClick={handleCreate} className="admin-create-button">
+              <Plus size={20} />
+              Thêm bài viết
+            </button>
+          </div>
         </div>
-      )}
 
-      {/* Controls */}
-      <div className="admin-blog-management__controls">
-        <div className="admin-controls-left">
+        {/* Stats Cards */}
+        <div className="admin-blog-stats">
+          <div className="admin-stat-card">
+            <div className="admin-stat-icon total">
+              <BookOpen size={24} />
+            </div>
+            <div className="admin-stat-content">
+              <h3>Tổng bài viết</h3>
+              <p>{stats.total}</p>
+            </div>
+          </div>
+          <div className="admin-stat-card">
+            <div className="admin-stat-icon published">
+              <FileText size={24} />
+            </div>
+            <div className="admin-stat-content">
+              <h3>Đã xuất bản</h3>
+              <p>{stats.published}</p>
+            </div>
+          </div>
+          <div className="admin-stat-card">
+            <div className="admin-stat-icon draft">
+              <Edit size={24} />
+            </div>
+            <div className="admin-stat-content">
+              <h3>Bản nháp</h3>
+              <p>{stats.draft}</p>
+            </div>
+          </div>
+          <div className="admin-stat-card">
+            <div className="admin-stat-icon views">
+              <BarChart3 size={24} />
+            </div>
+            <div className="admin-stat-content">
+              <h3>Tổng lượt xem</h3>
+              <p>{stats.totalViews}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Controls */}
+        <div className="admin-blog-management__controls">
           <div className="admin-search-container">
-            <Search className="admin-search-icon" size={20} />
+            <Search className="admin-search-icon" size={18} />
             <input
               type="text"
               placeholder="Tìm kiếm theo tiêu đề, tác giả, nội dung..."
@@ -416,9 +484,7 @@ const AdminBlogManagement: React.FC = () => {
               </option>
             ))}
           </select>
-        </div>
 
-        <div className="admin-controls-right">
           <div className="admin-sort-controls">
             <button
               onClick={() => handleSort("createdAt")}
@@ -440,394 +506,410 @@ const AdminBlogManagement: React.FC = () => {
               Tiêu đề {sortBy === "title" && (sortOrder === "asc" ? "▲" : "▼")}
             </button>
           </div>
-
-          <button onClick={handleCreate} className="admin-create-button">
-            <Plus size={16} />
-            Thêm bài viết
-          </button>
         </div>
-      </div>
 
-      {/* Blog Table */}
-      <div className="admin-table-container">
-        <table className="admin-blog-table">
-          <thead>
-            <tr>
-              <th>Tiêu đề</th>
-              <th>Tác giả</th>
-              <th>Danh mục</th>
-              <th>Trạng thái</th>
-              <th>Ngày tạo</th>
-              <th>Lượt xem</th>
-              <th>Hành động</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredAndSortedBlogs.map((blog) => (
-              <tr key={blog._id} className="admin-blog-row">
-                <td className="admin-blog-title">
-                  <div>
-                    <strong>{blog.title}</strong>
-                    <p className="admin-blog-excerpt">{blog.excerpt}</p>
-                  </div>
-                </td>
-                <td className="admin-blog-author">
-                  <User size={14} style={{ marginRight: "5px" }} />
-                  {blog.author?.userName || "Không xác định"}
-                </td>
-                <td className="admin-blog-category">
-                  <span className="admin-category-tag">
-                    {blog.category || "Chưa phân loại"}
-                  </span>
-                </td>
-                <td className="admin-blog-status">
-                  <span
-                    className={`admin-status-badge admin-status-${blog.status}`}
-                  >
-                    {blog.status === "published"
-                      ? "Đã xuất bản"
-                      : blog.status === "draft"
-                      ? "Bản nháp"
-                      : blog.status === "archived"
-                      ? "Lưu trữ"
-                      : blog.status}
-                  </span>
-                </td>
-                <td className="admin-blog-date">
-                  {formatDate(blog.createdAt)}
-                </td>
-                <td className="admin-blog-views">{blog.viewCount || 0}</td>
-                <td className="admin-blog-actions">
-                  <button
-                    onClick={() => handleView(blog)}
-                    className="admin-action-button admin-action-button--view"
-                    title="Xem chi tiết"
-                  >
-                    <Eye size={14} />
-                  </button>
-                  <button
-                    onClick={() => handleEdit(blog)}
-                    className="admin-action-button admin-action-button--edit"
-                    title="Chỉnh sửa"
-                  >
-                    <Edit size={14} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteRequest(blog)}
-                    className="admin-action-button admin-action-button--delete"
-                    title="Xóa"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </td>
-              </tr>
+        {/* Table Container */}
+        <div className="admin-table-container">
+          <div className="admin-table-header">
+            <h2>Danh sách bài viết ({filteredAndSortedBlogs.length})</h2>
+          </div>
+
+          {filteredAndSortedBlogs.length === 0 ? (
+            <div className="admin-empty-state">
+              <FileText size={40} />
+              <p>Không tìm thấy bài viết nào</p>
+            </div>
+          ) : (
+            <div className="admin-table-wrapper">
+              <table className="admin-blog-table">
+                <thead>
+                  <tr>
+                    <th>Tiêu đề</th>
+                    <th>Tác giả</th>
+                    <th>Danh mục</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày tạo</th>
+                    <th>Lượt xem</th>
+                    <th>Hành động</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredAndSortedBlogs.map((blog) => (
+                    <tr key={blog._id} className="admin-blog-row">
+                      <td className="admin-blog-title">
+                        <div>
+                          <strong>{blog.title}</strong>
+                          <p className="admin-blog-excerpt">{blog.excerpt}</p>
+                        </div>
+                      </td>
+                      <td className="admin-blog-author">
+                        <User size={14} style={{ marginRight: "5px" }} />
+                        {blog.author?.userName || "Không xác định"}
+                      </td>
+                      <td>
+                        <span className="admin-category-tag">
+                          {blog.category || "Chưa phân loại"}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className={`admin-status-badge admin-status-${blog.status}`}
+                        >
+                          {blog.status === "published"
+                            ? "Đã xuất bản"
+                            : blog.status === "draft"
+                            ? "Bản nháp"
+                            : blog.status === "archived"
+                            ? "Lưu trữ"
+                            : blog.status}
+                        </span>
+                      </td>
+                      <td className="admin-blog-date">
+                        {formatDate(blog.createdAt)}
+                      </td>
+                      <td className="admin-blog-views">
+                        {blog.viewCount || 0}
+                      </td>
+                      <td className="admin-blog-actions">
+                        <button
+                          onClick={() => handleView(blog)}
+                          className="admin-action-button admin-action-button--view"
+                          title="Xem chi tiết"
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleEdit(blog)}
+                          className="admin-action-button admin-action-button--edit"
+                          title="Chỉnh sửa"
+                        >
+                          <Edit size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteRequest(blog)}
+                          className="admin-action-button admin-action-button--delete"
+                          title="Xóa"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="admin-pagination">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="admin-pagination-button"
+            >
+              Trước
+            </button>
+
+            {getPaginationNumbers().map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`admin-pagination-button ${
+                  currentPage === page ? "active" : ""
+                }`}
+              >
+                {page}
+              </button>
             ))}
-          </tbody>
-        </table>
 
-        {filteredAndSortedBlogs.length === 0 && (
-          <div className="admin-empty-state">
-            <p>Không tìm thấy bài viết nào.</p>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="admin-pagination-button"
+            >
+              Sau
+            </button>
+
+            <span className="admin-pagination-info">
+              Trang {currentPage} / {totalPages} (Tổng: {totalBlogs} bài viết)
+            </span>
           </div>
         )}
-      </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="admin-pagination">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className="admin-pagination-button"
-          >
-            Trước
-          </button>
-
-          {getPaginationNumbers().map((page) => (
-            <button
-              key={page}
-              onClick={() => handlePageChange(page)}
-              className={`admin-pagination-button ${
-                currentPage === page ? "active" : ""
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className="admin-pagination-button"
-          >
-            Sau
-          </button>
-
-          <span className="admin-pagination-info">
-            Trang {currentPage} / {totalPages} (Tổng: {totalBlogs} bài viết)
-          </span>
-        </div>
-      )}
-
-      {/* Create/Edit Modal */}
-      {(showCreateModal || showEditModal) && (
-        <div
-          className="admin-modal-overlay"
-          onClick={() => {
-            setShowCreateModal(false);
-            setShowEditModal(false);
-          }}
-        >
+        {/* Create/Edit Modal */}
+        {(showCreateModal || showEditModal) && (
           <div
-            className="admin-modal admin-modal--form"
-            onClick={(e) => e.stopPropagation()}
+            className="admin-modal-overlay"
+            onClick={() => {
+              setShowCreateModal(false);
+              setShowEditModal(false);
+            }}
           >
-            <div className="admin-modal__header">
-              <h2>
-                {showCreateModal ? "Thêm bài viết mới" : "Chỉnh sửa bài viết"}
-              </h2>
-              <button
-                onClick={() => {
-                  setShowCreateModal(false);
-                  setShowEditModal(false);
-                }}
-                className="admin-modal__close"
-              >
-                ×
-              </button>
-            </div>
-            <form
-              onSubmit={showCreateModal ? handleCreateSubmit : handleEditSubmit}
+            <div
+              className="admin-modal admin-modal--form"
+              onClick={(e) => e.stopPropagation()}
             >
-              <div className="admin-modal__body">
-                <div className="admin-form-group">
-                  <label>Tiêu đề *</label>
-                  <input
-                    type="text"
-                    value={blogForm.title}
-                    onChange={(e) => handleFormChange("title", e.target.value)}
-                    required
-                    placeholder="Nhập tiêu đề bài viết"
-                  />
-                </div>
-
-                <div className="admin-form-group">
-                  <label>Tóm tắt *</label>
-                  <textarea
-                    value={blogForm.excerpt}
-                    onChange={(e) =>
-                      handleFormChange("excerpt", e.target.value)
-                    }
-                    required
-                    placeholder="Nhập tóm tắt bài viết"
-                    rows={3}
-                  />
-                </div>
-
-                <div className="admin-form-row">
-                  <div className="admin-form-group">
-                    <label>Danh mục</label>
-                    <select
-                      value={blogForm.category}
-                      onChange={(e) =>
-                        handleFormChange("category", e.target.value)
-                      }
-                    >
-                      <option value="">Chọn danh mục</option>
-                      {categories.map((category) => (
-                        <option key={category} value={category}>
-                          {category}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="admin-form-group">
-                    <label>Trạng thái</label>
-                    <select
-                      value={blogForm.status}
-                      onChange={(e) =>
-                        handleFormChange("status", e.target.value)
-                      }
-                    >
-                      <option value="draft">Bản nháp</option>
-                      <option value="published">Xuất bản</option>
-                      <option value="archived">Lưu trữ</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="admin-form-group">
-                  <label>Ảnh đại diện (URL)</label>
-                  <input
-                    type="url"
-                    value={blogForm.featuredImage}
-                    onChange={(e) =>
-                      handleFormChange("featuredImage", e.target.value)
-                    }
-                    placeholder="https://example.com/image.jpg"
-                  />
-                </div>
-
-                <div className="admin-form-group">
-                  <label>Nội dung *</label>
-                  <textarea
-                    value={blogForm.content}
-                    onChange={(e) =>
-                      handleFormChange("content", e.target.value)
-                    }
-                    required
-                    placeholder="Nhập nội dung bài viết"
-                    rows={10}
-                  />
-                </div>
-              </div>
-              <div className="admin-modal__actions">
+              <div className="admin-modal__header">
+                <h2>
+                  {showCreateModal ? "Thêm bài viết mới" : "Chỉnh sửa bài viết"}
+                </h2>
                 <button
-                  type="button"
                   onClick={() => {
                     setShowCreateModal(false);
                     setShowEditModal(false);
                   }}
+                  className="admin-modal__close"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <form
+                onSubmit={
+                  showCreateModal ? handleCreateSubmit : handleEditSubmit
+                }
+              >
+                <div className="admin-modal__body">
+                  <div className="admin-form-group">
+                    <label>Tiêu đề *</label>
+                    <input
+                      type="text"
+                      value={blogForm.title}
+                      onChange={(e) =>
+                        handleFormChange("title", e.target.value)
+                      }
+                      required
+                      placeholder="Nhập tiêu đề bài viết"
+                    />
+                  </div>
+
+                  <div className="admin-form-group">
+                    <label>Tóm tắt *</label>
+                    <textarea
+                      value={blogForm.excerpt}
+                      onChange={(e) =>
+                        handleFormChange("excerpt", e.target.value)
+                      }
+                      required
+                      placeholder="Nhập tóm tắt bài viết"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div className="admin-form-row">
+                    <div className="admin-form-group">
+                      <label>Danh mục</label>
+                      <select
+                        value={blogForm.category}
+                        onChange={(e) =>
+                          handleFormChange("category", e.target.value)
+                        }
+                      >
+                        <option value="">Chọn danh mục</option>
+                        {categories.map((category) => (
+                          <option key={category} value={category}>
+                            {category}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="admin-form-group">
+                      <label>Trạng thái</label>
+                      <select
+                        value={blogForm.status}
+                        onChange={(e) =>
+                          handleFormChange("status", e.target.value)
+                        }
+                      >
+                        <option value="draft">Bản nháp</option>
+                        <option value="published">Xuất bản</option>
+                        <option value="archived">Lưu trữ</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="admin-form-group">
+                    <label>Ảnh đại diện (URL)</label>
+                    <input
+                      type="url"
+                      value={blogForm.featuredImage}
+                      onChange={(e) =>
+                        handleFormChange("featuredImage", e.target.value)
+                      }
+                      placeholder="https://example.com/image.jpg"
+                    />
+                  </div>
+
+                  <div className="admin-form-group">
+                    <label>Nội dung *</label>
+                    <textarea
+                      value={blogForm.content}
+                      onChange={(e) =>
+                        handleFormChange("content", e.target.value)
+                      }
+                      required
+                      placeholder="Nhập nội dung bài viết"
+                      rows={10}
+                    />
+                  </div>
+                </div>
+                <div className="admin-modal__actions">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowCreateModal(false);
+                      setShowEditModal(false);
+                    }}
+                    className="admin-modal-button admin-modal-button--cancel"
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    type="submit"
+                    className="admin-modal-button admin-modal-button--primary"
+                  >
+                    {showCreateModal ? "Tạo bài viết" : "Cập nhật"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* View Modal */}
+        {showViewModal && selectedBlog && (
+          <div
+            className="admin-modal-overlay"
+            onClick={() => setShowViewModal(false)}
+          >
+            <div
+              className="admin-modal admin-modal--view"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="admin-modal__header">
+                <h2>{selectedBlog.title}</h2>
+                <button
+                  onClick={() => setShowViewModal(false)}
+                  className="admin-modal__close"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="admin-modal__body">
+                <div className="admin-blog-meta">
+                  <div className="admin-meta-row">
+                    <span>
+                      <strong>Tác giả:</strong>
+                    </span>
+                    <span>
+                      {selectedBlog.author?.userName || "Không xác định"}
+                    </span>
+                  </div>
+                  <div className="admin-meta-row">
+                    <span>
+                      <strong>Danh mục:</strong>
+                    </span>
+                    <span>{selectedBlog.category || "Chưa phân loại"}</span>
+                  </div>
+                  <div className="admin-meta-row">
+                    <span>
+                      <strong>Trạng thái:</strong>
+                    </span>
+                    <span
+                      className={`admin-status-badge admin-status-${selectedBlog.status}`}
+                    >
+                      {selectedBlog.status === "published"
+                        ? "Đã xuất bản"
+                        : selectedBlog.status === "draft"
+                        ? "Bản nháp"
+                        : selectedBlog.status === "archived"
+                        ? "Lưu trữ"
+                        : selectedBlog.status}
+                    </span>
+                  </div>
+                  <div className="admin-meta-row">
+                    <span>
+                      <strong>Ngày tạo:</strong>
+                    </span>
+                    <span>{formatDate(selectedBlog.createdAt)}</span>
+                  </div>
+                  <div className="admin-meta-row">
+                    <span>
+                      <strong>Lượt xem:</strong>
+                    </span>
+                    <span>{selectedBlog.viewCount || 0}</span>
+                  </div>
+                </div>
+
+                {selectedBlog.featuredImage && (
+                  <div className="admin-featured-image">
+                    <img
+                      src={selectedBlog.featuredImage}
+                      alt={selectedBlog.title}
+                    />
+                  </div>
+                )}
+
+                <div className="admin-blog-content">
+                  <h3>Tóm tắt:</h3>
+                  <p>{selectedBlog.excerpt}</p>
+
+                  <h3>Nội dung:</h3>
+                  <div className="admin-content-display">
+                    {selectedBlog.content}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {showDeleteModal && blogToDelete && (
+          <div
+            className="admin-modal-overlay"
+            onClick={() => setShowDeleteModal(false)}
+          >
+            <div
+              className="admin-modal admin-modal--confirm"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="admin-modal__header">
+                <h2>Xác nhận xóa</h2>
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="admin-modal__close"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+              <div className="admin-modal__body">
+                <p>Bạn có chắc chắn muốn xóa bài viết:</p>
+                <p className="admin-blog-title-confirm">
+                  "{blogToDelete.title}"
+                </p>
+                <p>Hành động này không thể hoàn tác.</p>
+              </div>
+              <div className="admin-modal__actions">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
                   className="admin-modal-button admin-modal-button--cancel"
                 >
                   Hủy
                 </button>
                 <button
-                  type="submit"
-                  className="admin-modal-button admin-modal-button--primary"
+                  onClick={confirmDelete}
+                  className="admin-modal-button admin-modal-button--delete"
                 >
-                  {showCreateModal ? "Tạo bài viết" : "Cập nhật"}
+                  Xóa
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* View Modal */}
-      {showViewModal && selectedBlog && (
-        <div
-          className="admin-modal-overlay"
-          onClick={() => setShowViewModal(false)}
-        >
-          <div
-            className="admin-modal admin-modal--view"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="admin-modal__header">
-              <h2>{selectedBlog.title}</h2>
-              <button
-                onClick={() => setShowViewModal(false)}
-                className="admin-modal__close"
-              >
-                ×
-              </button>
-            </div>
-            <div className="admin-modal__body">
-              <div className="admin-blog-meta">
-                <div className="admin-meta-row">
-                  <span>
-                    <strong>Tác giả:</strong>
-                  </span>
-                  <span>
-                    {selectedBlog.author?.userName || "Không xác định"}
-                  </span>
-                </div>
-                <div className="admin-meta-row">
-                  <span>
-                    <strong>Danh mục:</strong>
-                  </span>
-                  <span>{selectedBlog.category || "Chưa phân loại"}</span>
-                </div>
-                <div className="admin-meta-row">
-                  <span>
-                    <strong>Trạng thái:</strong>
-                  </span>
-                  <span
-                    className={`admin-status-badge admin-status-${selectedBlog.status}`}
-                  >
-                    {selectedBlog.status === "published"
-                      ? "Đã xuất bản"
-                      : selectedBlog.status === "draft"
-                      ? "Bản nháp"
-                      : selectedBlog.status === "archived"
-                      ? "Lưu trữ"
-                      : selectedBlog.status}
-                  </span>
-                </div>
-                <div className="admin-meta-row">
-                  <span>
-                    <strong>Ngày tạo:</strong>
-                  </span>
-                  <span>{formatDate(selectedBlog.createdAt)}</span>
-                </div>
-                <div className="admin-meta-row">
-                  <span>
-                    <strong>Lượt xem:</strong>
-                  </span>
-                  <span>{selectedBlog.viewCount || 0}</span>
-                </div>
-              </div>
-
-              {selectedBlog.featuredImage && (
-                <div className="admin-featured-image">
-                  <img
-                    src={selectedBlog.featuredImage}
-                    alt={selectedBlog.title}
-                  />
-                </div>
-              )}
-
-              <div className="admin-blog-content">
-                <h3>Tóm tắt:</h3>
-                <p>{selectedBlog.excerpt}</p>
-
-                <h3>Nội dung:</h3>
-                <div className="admin-content-display">
-                  {selectedBlog.content}
-                </div>
-              </div>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && blogToDelete && (
-        <div
-          className="admin-modal-overlay"
-          onClick={() => setShowDeleteModal(false)}
-        >
-          <div
-            className="admin-modal admin-modal--confirm"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="admin-modal__header">
-              <h2>Xác nhận xóa</h2>
-            </div>
-            <div className="admin-modal__body">
-              <p>Bạn có chắc chắn muốn xóa bài viết:</p>
-              <p className="admin-blog-title-confirm">"{blogToDelete.title}"</p>
-              <p>Hành động này không thể hoàn tác.</p>
-            </div>
-            <div className="admin-modal__actions">
-              <button
-                onClick={() => setShowDeleteModal(false)}
-                className="admin-modal-button admin-modal-button--cancel"
-              >
-                Hủy
-              </button>
-              <button
-                onClick={confirmDelete}
-                className="admin-modal-button admin-modal-button--delete"
-              >
-                Xóa
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };
