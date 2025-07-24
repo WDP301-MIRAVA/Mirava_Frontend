@@ -367,6 +367,10 @@ const OrderManagement: React.FC = () => {
                                   ? `${item.service.name} x${item.quantity}`
                                   : item.testPackage?.name
                                   ? `${item.testPackage.name} x${item.quantity}`
+                                  : item.serviceName
+                                  ? `${item.serviceName} x${item.quantity}`
+                                  : item.testPackageName
+                                  ? `${item.testPackageName} x${item.quantity}`
                                   : "Không xác định"}
                               </div>
                             ))}
