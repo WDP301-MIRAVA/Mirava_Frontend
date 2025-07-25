@@ -49,12 +49,11 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [files, setFiles] = useState<File[]>([]);
-  // State để quản lý modal xóa file đính kèm
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [deleteUrl, setDeleteUrl] = useState<string | null>(null);
+
   useEffect(() => {
     if (medicalRecord) {
-      console.log("Dữ liệu attachments từ API:", medicalRecord.attachments);
       setForm({
         date: medicalRecord.date
           ? new Date(medicalRecord.date).toISOString().slice(0, 16)
@@ -119,7 +118,6 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
     }
   }, [medicalRecord, step]);
 
-  // Lấy medicalRecordId nếu đã có
   const medicalRecordId =
     step?.medicalRecords && step.medicalRecords.length > 0
       ? step.medicalRecords[0]
@@ -128,7 +126,6 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
   const patientId = treatmentPlan?.patient;
   const doctorId = treatmentPlan?.doctor?._id;
   const type = form.type || step?.type || "Khám";
-  // Lấy treatmentEventId từ step index
   let treatmentEventId: string | null = null;
   if (step?.id && treatmentPlan?.treatmentEvents) {
     const stepIndex = parseInt(step.id) - 1;
@@ -136,8 +133,6 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
       treatmentEventId = treatmentPlan.treatmentEvents[stepIndex]._id;
     }
   }
-  console.log("treatmentPlan:", treatmentPlan);
-  console.log("treatmentPlan.patient:", treatmentPlan?.patient);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -147,7 +142,7 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
     setForm({ ...form, [e.target.name]: e.target.value });
     if (error) setError("");
   };
-  // Hàm xác nhận xóa file
+
   const confirmDeleteAttachment = async () => {
     if (!deleteUrl) return;
     await handleDeleteAttachment(deleteUrl);
@@ -155,7 +150,6 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
     setDeleteUrl(null);
   };
 
-  // Hàm xóa file đính kèm
   const handleDeleteAttachment = async (url: string) => {
     if (!medicalRecord?._id) return;
     try {
@@ -191,6 +185,12 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log("✅ Submit form:");
+    console.log("patientId:", patientId);
+    console.log("doctorId:", doctorId);
+    console.log("treatmentEventId:", treatmentEventId);
+    console.log("form.attachments:", form.attachments);
+    console.log("files:", files);
     e.preventDefault();
     setLoading(true);
     setError("");
@@ -203,7 +203,6 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
         return;
       }
 
-      // Validate dữ liệu bắt buộc
       if (!form.findings.trim()) {
         setError("Vui lòng nhập kết quả khám");
         setLoading(false);
@@ -219,10 +218,7 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
         setLoading(false);
         return;
       }
-      console.log("Submitting medical record with data:", {
-        patientId,
-      });
-      // Chuẩn bị dữ liệu gửi đi
+
       const formData = new FormData();
       formData.append("patientId", patientId);
       formData.append("doctorId", doctorId);
@@ -245,7 +241,6 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
         JSON.stringify(form.attachments.filter((a) => a.trim() !== ""))
       );
 
-      // Đính kèm file upload CHỈ KHI TẠO MỚI
       if (files.length > 0) {
         files.forEach((file) => {
           formData.append("attachments", file);
@@ -253,51 +248,103 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
       }
 
       let response;
-      if (medicalRecordId) {
-        // Đã có record, cập nhật (không hỗ trợ cập nhật file, chỉ cập nhật thông tin)
-        response = await axiosInstance.patch(
-          `https://mirava-f0rz.onrender.com/api/medicalRecord/${medicalRecordId}`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
+      const isValidId =
+        typeof medicalRecordId === "string" &&
+        medicalRecordId.trim().length === 24;
+      if (isValidId) {
+        try {
+          response = await axiosInstance.patch(
+            `https://mirava-f0rz.onrender.com/api/medicalRecord/${medicalRecordId}`,
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "multipart/form-data",
+              },
+            }
+          );
+        } catch (err: any) {
+          // Nếu lỗi 404 thì fallback sang tạo mới
+          if (err.response && err.response.status === 404) {
+            console.warn("Không tìm thấy hồ sơ y tế, chuyển sang tạo mới!");
+            response = await axiosInstance.post(
+              "/api/medicalRecord",
+              formData,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "multipart/form-data",
+                },
+              }
+            );
+          } else {
+            throw err;
           }
-        );
+        }
       } else {
-        // Tạo mới, gửi kèm file
-        response = await axiosInstance.post(
-          "https://mirava-f0rz.onrender.com/api/medicalRecord",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        // Không có ID hợp lệ, tạo mới luôn
+        console.warn("Không tìm thấy hồ sơ y tế, chuyển sang tạo mới!");
+        response = await axiosInstance.post("/api/medicalRecord", formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
       }
-
-      if (response.data.success) {
+      console.log("Response backend:", response);
+      if (response.data.success && response.data.data) {
         toast.success(
           medicalRecordId
             ? "Cập nhật hồ sơ thành công!"
             : "Tạo hồ sơ thành công!"
         );
-        if (response.data.data && response.data.data.attachments) {
-          setForm((prev) => ({
-            ...prev,
-            attachments: response.data.data.attachments,
-          }));
-        }
-        // Nếu muốn reset file upload
+        // Cập nhật toàn bộ form với dữ liệu mới từ backend
+        const record = response.data.data;
+        setForm({
+          date: record.date
+            ? new Date(record.date).toISOString().slice(0, 16)
+            : new Date().toISOString().slice(0, 16),
+          type: record.type || step?.type || "Khám",
+          title: record.title || step?.name || step?.title || "",
+          findings: record.findings || "",
+          conclusion: record.conclusion || "",
+          attachments:
+            Array.isArray(record.attachments) && record.attachments.length > 0
+              ? record.attachments
+              : [],
+          notes: record.notes || "",
+          vitals: record.vitals || {
+            bloodPressure: "",
+            heartRate: "",
+            weight: "",
+            temperature: "",
+          },
+          hormoneLevels: record.hormoneLevels || {
+            fsh: "",
+            lh: "",
+            estradiol: "",
+            progesterone: "",
+          },
+          ultrasound: record.ultrasound || {
+            follicleCount: "",
+            endometrialThickness: "",
+            leftOvary: "",
+            rightOvary: "",
+          },
+        });
         setFiles([]);
+        if (onSuccess) {
+          onSuccess(record);
+        }
       } else {
         setError(response.data.message || "Không thể lưu hồ sơ y tế");
+        console.error("❌ Error response:", response.data);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("❌ Error creating/updating medical record:", err);
+      if (err.response) {
+        console.error("Lỗi chi tiết từ backend:", err.response.data);
+      }
       setError("Có lỗi xảy ra khi lưu hồ sơ y tế. Vui lòng thử lại.");
     } finally {
       setLoading(false);
@@ -335,39 +382,6 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
             value={form.date}
             onChange={handleChange}
             className="form-input"
-            required
-          />
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">
-            Loại khám <span className="required">*</span>
-          </label>
-          <select
-            name="type"
-            value={form.type}
-            onChange={handleChange}
-            className="form-input"
-            required
-          >
-            <option value="">Chọn loại khám</option>
-            <option value="Khám">Khám</option>
-            <option value="Thủ thuật">Thủ thuật</option>
-            <option value="Xét nghiệm">Xét nghiệm</option>
-            <option value="Siêu âm">Siêu âm</option>
-          </select>
-        </div>
-
-        <div className="form-group">
-          <label className="form-label">
-            Tiêu đề <span className="required">*</span>
-          </label>
-          <input
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            className="form-input"
-            placeholder="Nhập tiêu đề bài khám"
             required
           />
         </div>
@@ -412,7 +426,6 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
             className="form-input"
           />
 
-          {/* Hiển thị file đính kèm đã lưu trong database */}
           {form.attachments && form.attachments.length > 0 && (
             <div className="attachments-preview">
               <label className="form-label">File đã lưu:</label>
@@ -442,7 +455,6 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
                           {url.split("/").pop()}
                         </a>
                       )}
-                      {/* Nút X xóa file */}
                       <button
                         type="button"
                         className="attachment-delete-btn"
@@ -520,7 +532,6 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
                 </div>
               </div>
 
-              {/* Chỉ số hormone */}
               <div className="form-group">
                 <label className="form-label">Chỉ số hormone</label>
                 <div className="hormone-row">
@@ -591,7 +602,6 @@ const MedicalRecordForm: React.FC<MedicalRecordFormProps> = ({
                 </div>
               </div>
 
-              {/* Thông tin siêu âm */}
               <div className="form-group">
                 <label className="form-label">Thông tin siêu âm</label>
                 <div className="ultrasound-row">

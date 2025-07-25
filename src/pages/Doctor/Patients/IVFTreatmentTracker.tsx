@@ -243,7 +243,7 @@ const IVFTreatmentTracker: React.FC = () => {
       };
 
       const response = await axiosInstance.put(
-        `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/events/${stepIndex}`,
+        `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/events/${stepIndex}/status`,
         updateData,
         {
           headers: {
@@ -421,7 +421,7 @@ const IVFTreatmentTracker: React.FC = () => {
 
       if (response.data.success) {
         const updatedTreatmentPlan = response.data.data.treatmentPlan;
-        setTreatmentPlan(updatedTreatmentPlan);
+        updateTreatmentPlan(updatedTreatmentPlan);
 
         const updatedSteps = treatmentSteps.map((step, idx) =>
           idx === stepIndex
@@ -436,7 +436,7 @@ const IVFTreatmentTracker: React.FC = () => {
               }
             : step
         );
-        setTreatmentSteps(updatedSteps);
+        updateTreatmentSteps(updatedSteps);
 
         message.success("Đã cập nhật trạng thái!");
       } else {
@@ -570,7 +570,8 @@ const IVFTreatmentTracker: React.FC = () => {
       </div>
     );
   }
-
+  console.log("treatmentPlan:", treatmentPlan);
+  console.log("treatmentPlan.patient:", treatmentPlan?.patient);
   return (
     <div className="ivf-tracker">
       <div className="ivf-container">
@@ -585,7 +586,7 @@ const IVFTreatmentTracker: React.FC = () => {
           <div className="ivf-header-content">
             <div className="ivf-patient-info">
               <h1 className="ivf-title">
-                Kế hoạch điều trị IVF - {treatmentPlan.patient.userName}
+                Kế hoạch điều trị IVF - {treatmentPlan.patient?.userName}
               </h1>
               <div className="ivf-patient-details">
                 <div className="ivf-detail-item">
@@ -594,15 +595,15 @@ const IVFTreatmentTracker: React.FC = () => {
                 </div>
                 <div className="ivf-detail-item">
                   <span>SĐT:</span>
-                  <strong>{treatmentPlan.patient.phone}</strong>
+                  <strong>{treatmentPlan.patient?.phone}</strong>
                 </div>
                 <div className="ivf-detail-item">
                   <span>Email:</span>
-                  <strong>{treatmentPlan.patient.email}</strong>
+                  <strong>{treatmentPlan.patient?.email}</strong>
                 </div>
                 <div className="ivf-detail-item">
                   <span>Bác sĩ:</span>
-                  <strong>{treatmentPlan.doctor.user.userName}</strong>
+                  <strong>{treatmentPlan.doctor?.user?.userName}</strong>
                 </div>
               </div>
             </div>
@@ -1172,7 +1173,7 @@ const IVFTreatmentTracker: React.FC = () => {
                         medicalRecordModal.medicalRecord || undefined
                       }
                       onSuccess={() => {
-                        closeMedicalRecordModal();
+                        // closeMedicalRecordModal();
                       }}
                       onCancel={closeMedicalRecordModal}
                     />
