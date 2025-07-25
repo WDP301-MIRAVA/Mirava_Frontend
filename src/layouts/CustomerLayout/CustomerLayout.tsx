@@ -52,7 +52,6 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = () => {
     if (path.includes("/customer/profile")) return "Hồ sơ";
     if (path.includes("/customer/medical-history")) return "Tiền sử y tế";
     if (path.includes("/customer/treatmentplan")) return "Kế hoạch điều trị";
-    if (path.includes("/customer/schedule")) return "Lịch điều trị";
     if (path.includes("/customer/prescription")) return "Đơn thuốc";
     if (path.includes("/customer/list-feedback")) return "Đánh giá";
     if (path.includes("/customer/contact")) return "Liên hệ bác sĩ";
@@ -70,10 +69,10 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = () => {
       path: "/customer",
     },
     {
-      id: 2,
-      name: "Hồ sơ Bệnh nhân",
-      label: "Hồ sơ Bệnh nhân",
-      path: "/customer/profile",
+      id: 8,
+      name: "Tiền sư y tế",
+      label: "Tiền sử y tế",
+      path: "/customer/medical-history",
     },
 
     {
@@ -81,12 +80,6 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = () => {
       name: "Kế hoạch điều trị",
       label: "Kế hoạch điều trị",
       path: "/customer/treatmentplan",
-    },
-    {
-      id: 4,
-      name: "Lịch điều trị",
-      label: "Lịch điều trị",
-      path: "/customer/schedule",
     },
 
     {
@@ -109,10 +102,10 @@ const CustomerLayout: React.FC<CustomerLayoutProps> = () => {
       path: "/customer/orders",
     },
     {
-      id: 8,
-      name: "Tiền sư y tế",
-      label: "Tiền sử y tế",
-      path: "/customer/medical-history",
+      id: 2,
+      name: "Thông tin cá nhân",
+      label: "Thông tin cá nhân",
+      path: "/customer/profile",
     },
   ];
 

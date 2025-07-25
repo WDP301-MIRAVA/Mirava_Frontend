@@ -31,7 +31,6 @@ import ResultTest from "@/pages/Customer/ResultTest/ResultTest";
 import PersonalInfoPage from "@/pages/Users/PersonalInfoPage";
 import AppointmentPage from "@/pages/Users/AppointmentPage";
 import TreatmentPlan from "@/pages/Customer/TreatmentPlan/TreatmentPlan";
-import TreatmentSchedule from "@/pages/Customer/TreatmentSchedule/TreatmentSchedule";
 import ContactDoctor from "@/pages/Customer/ContactDoctor/ContactDoctor";
 import ReproductiveHealthTesting from "@/pages/ReproductiveHealthTesting/ReproductiveHealthTesting";
 import MedicalHistoryCustomer from "@/pages/Customer/MedicalHistory/MedicalHistory";
@@ -112,7 +111,6 @@ const MainRouter = () => {
         <Route path="/customer/profile" element={<PersonalInfoPage />} />
         <Route path="/customer/treatmentplan" element={<TreatmentPlan />} />
         <Route path="/customer/contact" element={<ContactDoctor />} />
-        <Route path="/customer/schedule" element={<TreatmentSchedule />} />
         <Route path="/customer/orders" element={<OrderHistory />} />
         <Route path="/customer/feedback" element={<CreateFeedback />} />
         <Route path="/customer/list-feedback" element={<ListFeedback />} />

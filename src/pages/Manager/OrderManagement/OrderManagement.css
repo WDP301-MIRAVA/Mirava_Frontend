@@ -447,8 +447,8 @@
   color: #1e293b;
 }
 .doctor-name {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 16px !important;
+  font-weight: 400 !important;
   color: #1e293b;
 }
 .doctor-item {
