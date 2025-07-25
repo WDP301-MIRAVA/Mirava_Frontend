@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Plus, Clock, FileText, Users, ShoppingCart } from "lucide-react";
 import "./TestPackageDetail.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import toast from "react-hot-toast";
-
+import { isLoggedIn } from "@/utils/Auth";
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
@@ -75,7 +75,7 @@ const TestPackageDetail: React.FC = () => {
 
   const { id: packageId } = useParams();
   const navigate = useNavigate();
-
+  const location = useLocation();
   useEffect(() => {
     const fetchTestPackage = async () => {
       try {
@@ -261,6 +261,15 @@ const TestPackageDetail: React.FC = () => {
   };
 
   const handleBookNow = () => {
+    if (!isLoggedIn()) {
+      // Lưu lại đường dẫn hiện tại để redirect sau khi login
+      localStorage.setItem(
+        "redirectAfterLogin",
+        location.pathname + location.search
+      );
+      navigate("/login");
+      return;
+    }
     if (testPackage) {
       navigate("/checkout-page", {
         state: { testPackage: testPackage },

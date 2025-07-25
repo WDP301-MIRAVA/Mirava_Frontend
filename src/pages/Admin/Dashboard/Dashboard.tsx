@@ -134,15 +134,58 @@ const Dashboard: React.FC = () => {
           data={chartData}
           xField="date"
           yField="total"
-          xAxis={{ label: { autoHide: true, autoRotate: false } }}
+          color="#4ECDC4"
+          columnStyle={{
+            radius: [8, 8, 0, 0],
+            fill: "#4ECDC4",
+            stroke: "#fff",
+            lineWidth: 1,
+          }}
+          xAxis={{
+            label: {
+              style: {
+                fill: "#64748B",
+                fontSize: 14,
+              },
+              autoHide: false,
+              autoRotate: false,
+              formatter: (text: string) => {
+                // Hiển thị ngày dạng dd/MM
+                const [day, month, year] = text.split("/");
+                return `${day}/${month}`;
+              },
+            },
+            title: {
+              text: "Ngày",
+              style: { fontWeight: 600, fill: "#222" },
+            },
+          }}
           yAxis={{
             label: {
               formatter: (v: number | string) =>
                 `${Number(v).toLocaleString()} đ`,
+              style: { fill: "#64748B", fontSize: 14 },
             },
+            title: {
+              text: "Doanh thu (VNĐ)",
+              style: { fontWeight: 600, fill: "#222" },
+            },
+            grid: { line: { style: { stroke: "#E2E8F0", lineDash: [4, 4] } } },
           }}
-          meta={{ total: { alias: "Doanh thu" } }}
-          height={300}
+          tooltip={{
+            showMarkers: true,
+            formatter: (datum: any) => ({
+              name: "Doanh thu",
+              value: `${Number(datum.total).toLocaleString()} đ`,
+            }),
+          }}
+          meta={{
+            total: { alias: "Doanh thu" },
+            date: { alias: "Ngày" },
+          }}
+          height={320}
+          legend={false}
+          animation={true}
         />
       </Card>
 

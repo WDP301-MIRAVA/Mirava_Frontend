@@ -477,12 +477,6 @@ const HomePage: React.FC = () => {
                         >
                           {service.name}
                         </Typography>
-                        <Chip
-                          label={`${service.successRate}%`}
-                          color="success"
-                          size="small"
-                          sx={{ ml: 1 }}
-                        />
                       </Box>
 
                       <Typography

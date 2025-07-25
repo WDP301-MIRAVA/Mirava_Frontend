@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import "./DetailServices.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import toast from "react-hot-toast";
+import { isLoggedIn } from "@/utils/Auth";
 interface ContentBlock {
   title: string;
   description: string;
@@ -38,6 +39,7 @@ const DetailServices: React.FC = () => {
   const [selectedService, setSelectedService] = useState<ServicePackage | null>(
     null
   );
+  const location = useLocation();
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -78,6 +80,14 @@ const DetailServices: React.FC = () => {
   };
 
   const handleBuyNow = () => {
+    if (!isLoggedIn()) {
+      localStorage.setItem(
+        "redirectAfterLogin",
+        location.pathname + location.search
+      );
+      navigate("/login");
+      return;
+    }
     if (id) navigate(`/checkout/${id}`);
   };
 
