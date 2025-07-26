@@ -27,7 +27,6 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
   const [activeMenuItem, setActiveMenuItem] = useState(getActiveMenuItem());
 
   const menuItems = [
-    { id: 1, name: "Dashboard", label: "Dashboard", path: "/manager" },
     {
       id: 2,
       name: "Quản lý bác sĩ",
