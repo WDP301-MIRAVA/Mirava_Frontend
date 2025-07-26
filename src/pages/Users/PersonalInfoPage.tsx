@@ -4,7 +4,7 @@ import { decodeToken } from "@/utils/decodeToken";
 import { userServ } from "@/services/userServie";
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
-
+import "./PersonalInfoPage.css"; // Assuming you have a CSS file for styles
 const { Title } = Typography;
 
 type Gender = "Male" | "Female" | "Other";

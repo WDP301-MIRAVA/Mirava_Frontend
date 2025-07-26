@@ -37,30 +37,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
       label: "Quản lý người dùng",
       path: "/admin/usermanagement",
     },
-    {
-      id: 3,
-      name: "Quản lý đơn hàng",
-      label: "Quản lý đơn hàng",
-      path: "/admin/order",
-    },
-    {
-      id: 4,
-      name: "Quản lý lịch hẹn",
-      label: "Quản lý lịch hẹn",
-      path: "/admin/appointments",
-    },
+
     {
       id: 5,
       name: "Quản lý gói điều trị",
       label: "Quản lý gói điều trị",
       path: "/admin/test-package",
     },
-    {
-      id: 6,
-      name: "Danh sách đăng ký khám",
-      label: "Danh sách đăng ký khám",
-      path: "/admin/prescriptions",
-    },
+
     {
       id: 7,
       name: "Quản lý bài viết",
