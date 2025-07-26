@@ -3,7 +3,7 @@ import "./TreatmentPlan.css";
 import { type TreatmentPlan as ApiTreatmentPlan } from "../../../services/treatmentPlan.service";
 import {
   FileText,
-  Calendar,
+  // Calendar,
   Clock,
   User,
   Phone,
@@ -66,6 +66,24 @@ interface RecordDetail {
   conclusion?: string;
   notes?: string;
   attachments?: Attachment[]; // hoặc interface Attachment[] nếu có định dạng chuẩn
+  vitals?: {
+    bloodPressure?: string;
+    heartRate?: string;
+    weight?: string;
+    temperature?: string;
+  };
+  hormoneLevels?: {
+    fsh?: string;
+    lh?: string;
+    estradiol?: string;
+    progesterone?: string;
+  };
+  ultrasound?: {
+    follicleCount?: number;
+    endometrialThickness?: string;
+    leftOvary?: string;
+    rightOvary?: string;
+  };
 }
 interface TreatmentEventStep {
   title: string;
@@ -262,16 +280,16 @@ const TreatmentPlan: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("vi-VN", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
+  // const formatDate = (dateString?: string) => {
+  //   if (!dateString) return "";
+  //   const date = new Date(dateString);
+  //   return date.toLocaleDateString("vi-VN", {
+  //     weekday: "long",
+  //     year: "numeric",
+  //     month: "long",
+  //     day: "numeric",
+  //   });
+  // };
 
   const formatDateShort = (dateString?: string) => {
     if (!dateString) return "Chưa xác định";
@@ -439,24 +457,107 @@ const TreatmentPlan: React.FC = () => {
                 <div className="tp-record-item">
                   <strong>Ghi chú:</strong> {recordDetail.notes || "-"}
                 </div>
+                <div className="tp-record-item">
+                  <strong>Dấu hiệu sinh tồn:</strong>
+                  <div>
+                    Huyết áp: {recordDetail.vitals?.bloodPressure || "-"}
+                    <br />
+                    Nhịp tim: {recordDetail.vitals?.heartRate || "-"}
+                    <br />
+                    Cân nặng: {recordDetail.vitals?.weight || "-"} kg
+                    <br />
+                    Nhiệt độ: {recordDetail.vitals?.temperature || "-"} °C
+                  </div>
+                </div>
+                <div className="tp-record-item">
+                  <strong>Chỉ số hormone:</strong>
+                  <div>
+                    FSH: {recordDetail.hormoneLevels?.fsh ?? "-"}
+                    <br />
+                    LH: {recordDetail.hormoneLevels?.lh ?? "-"}
+                    <br />
+                    Estradiol: {recordDetail.hormoneLevels?.estradiol ?? "-"}
+                    <br />
+                    Progesterone:{" "}
+                    {recordDetail.hormoneLevels?.progesterone ?? "-"}
+                  </div>
+                </div>
+                <div className="tp-record-item">
+                  <strong>Kết quả siêu âm:</strong>
+                  <div>
+                    Số nang noãn:{" "}
+                    {recordDetail.ultrasound?.follicleCount ?? "-"}
+                    <br />
+                    Độ dày nội mạc:{" "}
+                    {recordDetail.ultrasound?.endometrialThickness ?? "-"} mm
+                    <br />
+                    Buồng trứng trái:{" "}
+                    {recordDetail.ultrasound?.leftOvary || "-"}
+                    <br />
+                    Buồng trứng phải:{" "}
+                    {recordDetail.ultrasound?.rightOvary || "-"}
+                  </div>
+                </div>
                 {recordDetail.attachments &&
                   recordDetail.attachments.length > 0 && (
                     <div className="tp-record-item">
-                      <strong>File đính kèm:</strong>
+                      <strong>File đính kèm (Hình ảnh):</strong>
                       <div className="tp-attachments">
-                        {recordDetail.attachments.map(
-                          (attachment: Attachment, idx: number) => (
+                        {recordDetail.attachments.map((attachment, idx) => {
+                          // attachment là string (url)
+                          const url =
+                            typeof attachment === "string"
+                              ? attachment
+                              : attachment.url;
+                          const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(
+                            url
+                          );
+                          return isImage ? (
                             <a
                               key={idx}
-                              href={attachment.url}
+                              href={url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              title="Xem ảnh lớn"
+                              style={{
+                                display: "inline-block",
+                                marginRight: 12,
+                                marginBottom: 12,
+                                borderRadius: 8,
+                                border: "1px solid #ccc",
+                                overflow: "hidden",
+                                boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                              }}
+                            >
+                              <img
+                                src={url}
+                                alt={`attachment-${idx + 1}`}
+                                style={{
+                                  maxWidth: 120,
+                                  maxHeight: 120,
+                                  display: "block",
+                                }}
+                              />
+                            </a>
+                          ) : (
+                            <a
+                              key={idx}
+                              href={url}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="tp-attachment-link"
+                              style={{
+                                display: "inline-block",
+                                marginRight: 12,
+                                marginBottom: 12,
+                                color: "#2563eb",
+                                wordBreak: "break-all",
+                              }}
                             >
-                              📎 {attachment.name || `Xem file ${idx + 1}`}
+                              📎 {`Tệp đính kèm ${idx + 1}`}
                             </a>
-                          )
-                        )}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -650,7 +751,7 @@ const TreatmentPlan: React.FC = () => {
           <Clock size={16} />
           Timeline
         </button>
-        <button
+        {/* <button
           className={`tp-toggle-btn ${
             activeView === "calendar" ? "active" : ""
           }`}
@@ -658,7 +759,7 @@ const TreatmentPlan: React.FC = () => {
         >
           <Calendar size={16} />
           Lịch
-        </button>
+        </button> */}
       </div>
 
       {/* Content Area */}
@@ -886,7 +987,7 @@ const TreatmentPlan: React.FC = () => {
               </div>
             </div>
 
-            {selectedDate && (
+            {/* {selectedDate && (
               <div className="tp-event-details">
                 <div className="tp-event-header">
                   <h3>Chi tiết lịch hẹn - {formatDate(selectedDate)}</h3>
@@ -953,7 +1054,7 @@ const TreatmentPlan: React.FC = () => {
                     ))}
                 </div>
               </div>
-            )}
+            )} */}
           </div>
         )}
       </div>

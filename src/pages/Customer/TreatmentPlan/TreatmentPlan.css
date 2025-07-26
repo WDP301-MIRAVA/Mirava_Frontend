@@ -1690,3 +1690,42 @@
 .modal a:hover {
   text-decoration: underline;
 }
+.tp-attachments {
+  display: inline-block;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.tp-attachments a {
+  flex: 0 0 calc(33.333% - 11px);
+  max-width: calc(33.333% - 11px);
+  box-sizing: border-box;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  background: #fff;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.tp-attachments img {
+  display: block;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f8fafb;
+  transition: filter 0.2s;
+}
+
+/* Chỉ 1 ảnh 1 hàng khi dưới 600px */
+@media (max-width: 600px) {
+  .tp-attachments a {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+  .tp-attachments img {
+    height: 140px;
+  }
+}
