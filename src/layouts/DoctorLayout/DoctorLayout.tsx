@@ -53,12 +53,12 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
       label: "Lịch làm việc",
       path: "/doctor/schedules",
     },
-    // {
-    //   id: 9,
-    //   name: "Tiền sử y tế",
-    //   label: "Tiền sử y tế",
-    //   path: "/doctor/medical-history",
-    // },
+    {
+      id: 9,
+      name: "Tiền sử y tế",
+      label: "Tiền sử y tế",
+      path: "/doctor/medical-history",
+    },
     {
       id: 10,
       name: "Liên hệ",

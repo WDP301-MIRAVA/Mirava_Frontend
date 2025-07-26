@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../../../services/MainService";
+import ResultDetailModal from "./ResultDetailModal";
 import "./ResultTest.css";
 
 // API Base URL
@@ -59,6 +60,7 @@ interface DoctorTestResult {
   results: TestResultDetail[];
   doctorNotes: string;
   recommendations: string;
+  attachments?: string[];
 }
 
 interface FormData {
@@ -85,8 +87,8 @@ interface FormData {
   overallStatus: "normal" | "abnormal" | "requires_attention";
   doctorNotes: string;
   recommendations: string;
+  attachments: string[];
   testResults: TestResultDetail[];
-  isConsultationProvided: boolean;
   nextAppointment: string;
 }
 
@@ -100,12 +102,13 @@ const TestResults: React.FC = () => {
     doctorNotes: "",
     recommendations: "",
     testResults: [],
-    isConsultationProvided: false,
+    attachments: [],
     nextAppointment: "",
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submittedResult, setSubmittedResult] = useState<any>(null);
+  const [submittedResult, setSubmittedResult] =
+    useState<DoctorTestResult | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [showNotification, setShowNotification] = useState(false);
   const [notificationMessage, setNotificationMessage] = useState("");
@@ -129,12 +132,17 @@ const TestResults: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [files, setFiles] = useState<File[]>([]);
 
   // States cho kết quả xét nghiệm của bác sĩ
   const [doctorTestResults, setDoctorTestResults] = useState<
     DoctorTestResult[]
   >([]);
   const [isLoadingResults, setIsLoadingResults] = useState(false);
+
+  // xem chi tiết
+  const [selectedResult, setSelectedResult] = useState<TestResult | null>(null);
+  const [openModal, setOpenModal] = useState(false);
 
   const steps = [
     "Chọn đăng ký xét nghiệm",
@@ -171,7 +179,6 @@ const TestResults: React.FC = () => {
         setTotalPages(1);
       }
     } catch (error) {
-      console.error("Lỗi khi tải danh sách đăng ký:", error);
       setTestRegistrations([]);
       setTotalPages(1);
     } finally {
@@ -268,7 +275,9 @@ const TestResults: React.FC = () => {
         status: "normal" as const,
         notes: "",
       })),
+      attachments: [],
     }));
+    setFiles([]);
     setErrorMessage("");
   };
 
@@ -349,8 +358,18 @@ const TestResults: React.FC = () => {
 
     return true;
   };
+  const handleViewDetails = async (resultId: string) => {
+    try {
+      const res = await axiosInstance.get(`/api/test-results/${resultId}`);
+      setSelectedResult(res.data.data);
+      setOpenModal(true);
+    } catch (err) {
+      console.error("Lỗi khi lấy chi tiết:", err);
+    }
+  };
 
   const handleSubmit = async () => {
+    console.log("Files gửi lên:", files);
     if (!validateForm()) {
       return;
     }
@@ -358,25 +377,29 @@ const TestResults: React.FC = () => {
     setIsSubmitting(true);
     try {
       const token = localStorage.getItem("accessToken");
+      const formDataToSend = new FormData();
+      formDataToSend.append("testRegistrationId", formData.testRegistrationId);
+      formDataToSend.append(
+        "testDate",
+        new Date(formData.testDate).toISOString()
+      );
+      formDataToSend.append("results", JSON.stringify(formData.testResults));
+      formDataToSend.append("overallStatus", formData.overallStatus.trim());
+      formDataToSend.append("doctorNotes", formData.doctorNotes);
+      formDataToSend.append("recommendations", formData.recommendations);
 
-      const submitData = {
-        testRegistrationId: formData.testRegistrationId,
-        testDate: new Date(formData.testDate).toISOString(),
-        results: JSON.stringify(formData.testResults),
-        overallStatus: formData.overallStatus,
-        doctorNotes: formData.doctorNotes,
-        recommendations: formData.recommendations,
-      };
+      // Gửi file lên backend
+      files.forEach((file) => {
+        formDataToSend.append("attachments", file);
+      });
 
-      console.log("Submitting data:", submitData);
-
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${BASE_URL}/api/test-results/create`,
-        submitData,
+        formDataToSend,
         {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
           },
         }
       );
@@ -388,7 +411,7 @@ const TestResults: React.FC = () => {
         setShowNotification(true);
         setActiveStep(0);
 
-        // Reset form
+        // Reset form và cập nhật attachments từ backend (Cloudinary)
         setFormData({
           testRegistrationId: "",
           patientInfo: null,
@@ -398,17 +421,16 @@ const TestResults: React.FC = () => {
           doctorNotes: "",
           recommendations: "",
           testResults: [],
-          isConsultationProvided: false,
+          attachments: response.data.data.attachments || [],
           nextAppointment: "",
         });
 
-        // Refresh danh sách
+        setFiles([]);
         fetchTestRegistrations();
       } else {
         throw new Error(response.data.message || "Có lỗi xảy ra");
       }
     } catch (error: any) {
-      console.error("Lỗi tạo kết quả:", error);
       const errorMsg =
         error.response?.data?.message ||
         error.message ||
@@ -551,7 +573,7 @@ const TestResults: React.FC = () => {
                         <td>
                           <button
                             className="rt-action-btn rt-select-btn"
-                            onClick={() => setSubmittedResult(result)}
+                            onClick={() => handleViewDetails(result._id)}
                           >
                             Xem chi tiết
                           </button>
@@ -940,6 +962,34 @@ const TestResults: React.FC = () => {
                 <div className="rt-form-grid">
                   <div className="rt-form-group">
                     <label className="rt-form-label">
+                      File đính kèm (ảnh, PDF...)
+                    </label>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*,application/pdf"
+                      onChange={(e) => {
+                        if (e.target.files)
+                          setFiles(Array.from(e.target.files));
+                      }}
+                      className="rt-form-input"
+                    />
+                    <div style={{ marginTop: 8 }}>
+                      {formData.attachments.map((url, idx) => (
+                        <div key={idx} style={{ marginBottom: 4 }}>
+                          <a
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {`File đính kèm ${idx + 1}`}
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="rt-form-group">
+                    <label className="rt-form-label">
                       Tình trạng tổng quát *
                     </label>
                     <select
@@ -953,21 +1003,6 @@ const TestResults: React.FC = () => {
                       <option value="abnormal">Bất thường</option>
                       <option value="requires_attention">Cần theo dõi</option>
                     </select>
-                  </div>
-                  <div className="rt-form-group">
-                    <label className="rt-checkbox-label">
-                      <input
-                        type="checkbox"
-                        checked={formData.isConsultationProvided}
-                        onChange={(e) =>
-                          handleInputChange(
-                            "isConsultationProvided",
-                            e.target.checked
-                          )
-                        }
-                      />
-                      Đã tư vấn trực tiếp
-                    </label>
                   </div>
                 </div>
                 <div className="rt-form-group">
@@ -1375,6 +1410,25 @@ const TestResults: React.FC = () => {
           </button>
         </div>
       )}
+      {submittedResult &&
+        submittedResult.attachments &&
+        submittedResult.attachments.length > 0 && (
+          <div className="rt-success-attachments">
+            <h4>File đính kèm:</h4>
+            {submittedResult.attachments.map((file, idx) => (
+              <div key={idx}>
+                <a href={file} target="_blank" rel="noopener noreferrer">
+                  {`File đính kèm ${idx + 1}`}
+                </a>
+              </div>
+            ))}
+          </div>
+        )}
+      <ResultDetailModal
+        open={openModal}
+        onClose={() => setOpenModal(false)}
+        result={selectedResult}
+      />
     </div>
   );
 };
