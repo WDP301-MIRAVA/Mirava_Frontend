@@ -226,30 +226,7 @@ const PatientList: React.FC = () => {
             <div>Kết quả khám</div>
           </div>
         );
-      case "test_result":
-        return (
-          <div>
-            <p>
-              <strong>Bệnh nhân:</strong> {selectedPatient.name}
-            </p>
-            <p>
-              <strong>Mã BN:</strong> {selectedPatient.patientCode}
-            </p>
-            <div>Kết quả xét nghiệm</div>
-          </div>
-        );
-      case "injection_result":
-        return (
-          <div>
-            <p>
-              <strong>Bệnh nhân:</strong> {selectedPatient.name}
-            </p>
-            <p>
-              <strong>Mã BN:</strong> {selectedPatient.patientCode}
-            </p>
-            <div>Kết quả tiêm thuốc</div>
-          </div>
-        );
+
       default:
         return null;
     }
@@ -259,10 +236,7 @@ const PatientList: React.FC = () => {
     switch (modalType) {
       case "examination":
         return "Kết quả khám";
-      case "test_result":
-        return "Kết quả xét nghiệm";
-      case "injection_result":
-        return "Kết quả tiêm thuốc";
+
       default:
         return "";
     }
@@ -487,27 +461,9 @@ const PatientList: React.FC = () => {
                           onClick={() =>
                             handleModalOpen(patient, "examination")
                           }
-                          title="Tiền sử"
+                          title="Kết quả"
                         >
                           👨‍⚕️
-                        </button>
-                        <button
-                          className="pl-action-btn pl-test-btn"
-                          onClick={() =>
-                            handleModalOpen(patient, "test_result")
-                          }
-                          title="Xét nghiệm"
-                        >
-                          🧪
-                        </button>
-                        <button
-                          className="pl-action-btn pl-injection-btn"
-                          onClick={() =>
-                            handleModalOpen(patient, "injection_result")
-                          }
-                          title="Tiêm thuốc"
-                        >
-                          💉
                         </button>
                       </div>
                     </td>

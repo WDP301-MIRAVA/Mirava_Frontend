@@ -83,7 +83,7 @@ const Schedules: React.FC = () => {
         }
         console.log("doctorId:", doctorId);
         const response = await axios.get(
-          `https://mirava-f0rz.onrender.com/api/doctor/${doctorId}`,
+          `https://mirava-f0rz.onrender.com/api/work-schedules/doctor/${doctorId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -91,11 +91,11 @@ const Schedules: React.FC = () => {
           }
         );
 
-        if (response.data) {
-          setDoctor(response.data);
-          parseWorkSchedule(response.data.workSchedule);
+        if (response.data?.success) {
+          const schedules = response.data.data;
+          parseWorkScheduleFromAPI(schedules);
         } else {
-          setError("Không tìm thấy thông tin bác sĩ");
+          setError("Không tìm thấy lịch làm việc");
         }
       } catch (err) {
         console.error("Error fetching doctor schedule:", err);
@@ -117,43 +117,20 @@ const Schedules: React.FC = () => {
     fetchDoctorSchedule();
   }, [id]);
 
-  const parseWorkSchedule = (scheduleArray: string[]) => {
+  const parseWorkScheduleFromAPI = (
+    schedules: {
+      dayOfWeek: number;
+      startTime: string;
+      endTime: string;
+    }[]
+  ) => {
     const schedulesMap = new Map<string, { start: string; end: string }>();
-
-    const dayMapping: Record<string, number> = {
-      monday: 1,
-      tuesday: 2,
-      wednesday: 3,
-      thursday: 4,
-      friday: 5,
-      saturday: 6,
-      sunday: 0,
-      "thứ hai": 1,
-      "thứ ba": 2,
-      "thứ tư": 3,
-      "thứ năm": 4,
-      "thứ sáu": 5,
-      "thứ bảy": 6,
-      "chủ nhật": 0,
-    };
-
-    scheduleArray.forEach((schedule) => {
-      // Format dự kiến: "Tuesday 9:00-17:00"
-      const parts = schedule.trim().split(" ");
-      if (parts.length >= 2) {
-        const dayName = parts[0].toLowerCase();
-        const timeRange = parts[parts.length - 1];
-
-        // Lấy số thứ tự của ngày trong tuần (0 = Chủ nhật, 1 = Thứ hai, ...)
-        const dayNumber = dayMapping[dayName];
-
-        if (dayNumber !== undefined && timeRange.includes("-")) {
-          const [start, end] = timeRange.split("-");
-          schedulesMap.set(dayNumber.toString(), { start, end });
-        }
-      }
+    schedules.forEach((item) => {
+      schedulesMap.set(item.dayOfWeek.toString(), {
+        start: item.startTime,
+        end: item.endTime,
+      });
     });
-
     setParsedSchedule(schedulesMap);
   };
 
@@ -364,7 +341,6 @@ const Schedules: React.FC = () => {
             dateCellRender={dateCellRender}
             monthCellRender={monthCellRender}
             className="schedule-calendar"
-            onSelect={handleDateSelect}
           />
         </Card>
       </div>
