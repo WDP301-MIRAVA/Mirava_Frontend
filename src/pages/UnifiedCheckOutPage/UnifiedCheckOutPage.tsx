@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./UnifiedCheckOutPage.css";
 import Header from "@/components/Header";
@@ -50,15 +51,15 @@ interface DoctorApiResponse {
   };
   specialty?: string;
 }
-interface OrderResult {
-  type: "service" | "test-package";
-  data: {
-    orderCode: string;
-    vnpUrl?: string;
-    [key: string]: unknown;
-  };
-  orderCode: string;
-}
+// interface OrderResult {
+//   type: "service" | "test-package";
+//   data: {
+//     orderCode: string;
+//     vnpUrl?: string;
+//     [key: string]: unknown;
+//   };
+//   orderCode: string;
+// }
 const UnifiedCheckOutPage: React.FC = () => {
   const navigate = useNavigate();
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
