@@ -16,6 +16,16 @@ interface TestResultDetail {
   notes?: string;
 }
 
+interface TestResult {
+  _id: string;
+  testName: string;
+  testCode: string;
+  value: string;
+  unit: string;
+  normalRange: string;
+  status: "normal" | "abnormal" | "borderline";
+  notes?: string;
+}
 interface TestRegistration {
   _id: string;
   patient: {
