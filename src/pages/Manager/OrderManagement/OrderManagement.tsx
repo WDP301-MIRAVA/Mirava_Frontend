@@ -174,6 +174,46 @@ const OrderManagement: React.FC = () => {
       );
       const data = await response.json();
       if (response.ok && data.success) {
+        if (data.data && Array.isArray(data.data.testRegistrations)) {
+          if (data.data.testRegistrations.length === 0) {
+            console.warn("⚠️ Không có testRegistrations nào được trả về.");
+          }
+
+          const updatePromises = data.data.testRegistrations.map(
+            async (reg: any) => {
+              if (!reg?._id) {
+                console.warn("⚠️ Thiếu _id trong testRegistration:", reg);
+                return;
+              }
+
+              const url = `https://mirava-f0rz.onrender.com/api/test-registrations/${reg._id}/status`;
+              const payload = { status: "completed" };
+
+              console.log("🔥 Gửi PUT để cập nhật status:", { url, payload });
+
+              const response = await fetch(url, {
+                method: "PUT",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+              });
+
+              const resJson = await response.json();
+              console.log("📥 Kết quả từ server:", resJson);
+
+              if (!response.ok || !resJson.success) {
+                console.error(
+                  `❌ Cập nhật thất bại cho ${reg._id} – status: ${response.status}`,
+                  resJson.message
+                );
+              }
+            }
+          );
+
+          await Promise.all(updatePromises);
+        }
         alert("Xác nhận đơn hàng và tạo kế hoạch điều trị thành công!");
         fetchOrders(); // Refresh lại danh sách
       } else {
