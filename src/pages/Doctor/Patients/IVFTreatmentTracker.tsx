@@ -81,6 +81,7 @@ const IVFTreatmentTracker: React.FC = () => {
   // ✅ State cho cập nhật ngày bắt đầu chu kỳ
   const [editingCycleStart, setEditingCycleStart] = useState<boolean>(false);
   const [newCycleStartDate, setNewCycleStartDate] = useState<string>("");
+  const [viewOnlyFormId, setViewOnlyFormId] = useState<string | null>(null);
 
   const BASE_URL = "https://mirava-f0rz.onrender.com";
   useEffect(() => {
@@ -155,7 +156,7 @@ const IVFTreatmentTracker: React.FC = () => {
     }
   }, [formData, activeForm]);
 
-  const openForm = (stepId: string): void => {
+  const openForm = (stepId: string, viewOnly: boolean = false): void => {
     const step = treatmentSteps.find((s) => s.id === stepId);
     if (step) {
       setFormData({
@@ -182,10 +183,12 @@ const IVFTreatmentTracker: React.FC = () => {
     }
 
     setActiveForm(stepId);
+    setViewOnlyFormId(viewOnly ? stepId : null);
   };
 
   const closeForm = (): void => {
     setActiveForm(null);
+    setViewOnlyFormId(null);
     setFormData({
       date: new Date().toISOString().split("T")[0],
       performedBy: "",
@@ -887,7 +890,7 @@ const IVFTreatmentTracker: React.FC = () => {
                             <Edit3 size={16} />
                           </button>
                           <button
-                            onClick={() => openForm(step.id)}
+                            onClick={() => openForm(step.id, true)}
                             className="ivf-action-btn ivf-record-btn"
                             title="Xem"
                           >
@@ -939,13 +942,7 @@ const IVFTreatmentTracker: React.FC = () => {
                       treatmentSteps.find((s) => s.id === activeForm)?.stage ||
                       ""
                     }
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        stage: e.target.value,
-                      }))
-                    }
-                    placeholder="Giai đoạn điều trị"
+                    readOnly={!!viewOnlyFormId}
                     className="ivf-form-input"
                   />
                 </div>
@@ -960,13 +957,7 @@ const IVFTreatmentTracker: React.FC = () => {
                       treatmentSteps.find((s) => s.id === activeForm)?.name ||
                       ""
                     }
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        title: e.target.value,
-                      }))
-                    }
-                    placeholder="Tên bước điều trị"
+                    readOnly={!!viewOnlyFormId}
                     className="ivf-form-input"
                   />
                 </div>
@@ -981,41 +972,10 @@ const IVFTreatmentTracker: React.FC = () => {
                         ?.description ||
                       ""
                     }
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        description: e.target.value,
-                      }))
-                    }
-                    placeholder="Mô tả chi tiết về bước điều trị"
+                    readOnly={!!viewOnlyFormId}
                     className="ivf-form-textarea"
                     rows={3}
                   />
-                </div>
-
-                {/* Type */}
-                <div className="ivf-form-group">
-                  <label className="ivf-form-label">Loại</label>
-                  <select
-                    value={
-                      formData.type ||
-                      treatmentSteps.find((s) => s.id === activeForm)?.type ||
-                      ""
-                    }
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        type: e.target.value,
-                      }))
-                    }
-                    className="ivf-form-input"
-                  >
-                    <option value="">Chọn loại</option>
-                    <option value="Khám">Khám</option>
-                    <option value="Thủ thuật">Thủ thuật</option>
-                    <option value="Xét nghiệm">Xét nghiệm</option>
-                    <option value="Siêu âm">Siêu âm</option>
-                  </select>
                 </div>
 
                 {/* Execution Date */}
@@ -1090,9 +1050,7 @@ const IVFTreatmentTracker: React.FC = () => {
                           <input
                             type="text"
                             value={formData.specialMetrics[field] || ""}
-                            onChange={(e) =>
-                              updateSpecialMetric(field, e.target.value)
-                            }
+                            readOnly={!!viewOnlyFormId}
                             className="ivf-metric-input"
                           />
                         </div>
@@ -1104,23 +1062,25 @@ const IVFTreatmentTracker: React.FC = () => {
                 {formError && <div className="ivf-form-error">{formError}</div>}
               </div>
 
-              <div className="ivf-modal-footer">
-                <button
-                  onClick={closeForm}
-                  className="ivf-btn-cancel"
-                  disabled={updating}
-                >
-                  Hủy
-                </button>
-                <button
-                  onClick={saveFormData}
-                  className="ivf-btn-save"
-                  disabled={updating}
-                >
-                  <Check size={16} />
-                  {updating ? "Đang lưu..." : "Lưu kết quả"}
-                </button>
-              </div>
+              {!viewOnlyFormId && (
+                <div className="ivf-modal-footer">
+                  <button
+                    onClick={closeForm}
+                    className="ivf-btn-cancel"
+                    disabled={updating}
+                  >
+                    Hủy
+                  </button>
+                  <button
+                    onClick={saveFormData}
+                    className="ivf-btn-save"
+                    disabled={updating}
+                  >
+                    <Check size={16} />
+                    {updating ? "Đang lưu..." : "Lưu kết quả"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1173,7 +1133,7 @@ const IVFTreatmentTracker: React.FC = () => {
                         medicalRecordModal.medicalRecord || undefined
                       }
                       onSuccess={() => {
-                        // closeMedicalRecordModal();
+                        closeMedicalRecordModal();
                       }}
                       onCancel={closeMedicalRecordModal}
                     />
