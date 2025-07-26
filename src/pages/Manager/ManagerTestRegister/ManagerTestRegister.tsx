@@ -37,6 +37,7 @@ import {
 import { Visibility, Edit, CheckCircle, ExpandMore } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { toast } from "react-hot-toast";
+import "./ManagerTestRegister.css"
 
 // Styled components
 const StyledCard = styled(Card)(() => ({
@@ -85,6 +86,7 @@ const StatusChip = styled(Chip)(({ status }: { status: string }) => {
     borderRadius: 20,
   };
 });
+
 type TestItem =
   | string
   | {
@@ -94,6 +96,7 @@ type TestItem =
       unit?: string;
       _id?: string;
     };
+
 interface TestRegistration {
   _id: string;
   patient: {
@@ -412,335 +415,259 @@ const ManagerTestRegister: React.FC = () => {
 
   if (loading) {
     return (
-      <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        minHeight="400px"
-      >
-        <CircularProgress />
-      </Box>
+      <div className="mtr-container">
+        <div className="mtr-loading">
+          <div className="mtr-loading-spinner"></div>
+          <p>Đang tải danh sách đăng ký...</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" gutterBottom fontWeight="bold" color="#1976d2">
-        Quản lý đăng ký xét nghiệm
-      </Typography>
+    <div className="mtr-container">
+      <h1 className="mtr-title">Quản lý đăng ký xét nghiệm</h1>
 
       {error && (
-        <Alert severity="error" sx={{ mb: 2 }}>
+        <div className="mtr-alert">
           {error}
-        </Alert>
+        </div>
       )}
 
       {/* Filters */}
-      <StyledCard sx={{ mb: 3 }}>
-        <CardContent>
-          <Grid container spacing={2} alignItems="center">
-            <Box flex="1 1 240px" minWidth={240}>
-              <TextField
-                fullWidth
-                label="Tìm kiếm"
-                value={filters.searchTerm}
-                onChange={(e) =>
-                  setFilters({ ...filters, searchTerm: e.target.value })
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSearch();
-                }}
-                placeholder="Tên, email, SĐT, mã BN..."
-              />
-            </Box>
-            <Box flex="1 1 200px" minWidth={200}>
-              <FormControl size="medium" sx={{ minWidth: 200 }}>
-                <InputLabel>Trạng thái</InputLabel>
-                <Select
-                  value={filters.statusFilter}
-                  label="Trạng thái"
-                  onChange={(e) =>
-                    setFilters({ ...filters, statusFilter: e.target.value })
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") handleSearch();
-                  }}
-                >
-                  {statusOptions.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Box>
-            <Box flex="1 1 200px" minWidth={200}>
-              <TextField
-                fullWidth
-                label="Từ ngày"
-                type="date"
-                value={filters.startDate}
-                onChange={(e) =>
-                  setFilters({ ...filters, startDate: e.target.value })
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSearch();
-                }}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Box>
-            <Box flex="1 1 200px" minWidth={200}>
-              <TextField
-                fullWidth
-                label="Đến ngày"
-                type="date"
-                value={filters.endDate}
-                onChange={(e) =>
-                  setFilters({ ...filters, endDate: e.target.value })
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSearch();
-                }}
-                InputLabelProps={{ shrink: true }}
-              />
-            </Box>
-            <Box
-              flex="1 1 300px"
-              minWidth={240}
-              display="flex"
-              gap={2}
-              alignItems="center"
+      <div className="mtr-filters">
+        <div className="mtr-filter-row">
+          <div className="mtr-filter-item search">
+            <input
+              className="mtr-filter-input"
+              placeholder="Tìm kiếm theo tên, email, SĐT, mã BN..."
+              value={filters.searchTerm}
+              onChange={(e) =>
+                setFilters({ ...filters, searchTerm: e.target.value })
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
+            />
+          </div>
+          <div className="mtr-filter-item">
+            <select
+              className="mtr-filter-select"
+              value={filters.statusFilter}
+              onChange={(e) =>
+                setFilters({ ...filters, statusFilter: e.target.value })
+              }
             >
-              <GradientButton
-                sx={{ minWidth: 100, minHeight: 55 }}
-                onClick={handleSearch}
-              >
-                Tìm kiếm
-              </GradientButton>
-            </Box>
-          </Grid>
-        </CardContent>
-      </StyledCard>
+              {statusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="mtr-filter-item">
+            <input
+              className="mtr-filter-input"
+              type="date"
+              placeholder="Từ ngày"
+              value={filters.startDate}
+              onChange={(e) =>
+                setFilters({ ...filters, startDate: e.target.value })
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
+            />
+          </div>
+          <div className="mtr-filter-item">
+            <input
+              className="mtr-filter-input"
+              type="date"
+              placeholder="Đến ngày"
+              value={filters.endDate}
+              onChange={(e) =>
+                setFilters({ ...filters, endDate: e.target.value })
+              }
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSearch();
+              }}
+            />
+          </div>
+          <div className="mtr-filter-item actions">
+            <button
+              className="mtr-search-btn"
+              onClick={handleSearch}
+            >
+              Tìm kiếm
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Summary Stats */}
-      <Grid container spacing={2} sx={{ mb: 3 }}>
-        <Box flex="1 1 25%" minWidth={240}>
-          <StyledCard>
-            <CardContent>
-              <Typography variant="h6" color="primary">
-                Tổng đăng ký
-              </Typography>
-              <Typography variant="h4" fontWeight="bold">
-                {totalCount}
-              </Typography>
-            </CardContent>
-          </StyledCard>
-        </Box>
-        <Box flex="1 1 25%" minWidth={240}>
-          <StyledCard>
-            <CardContent>
-              <Typography variant="h6" color="warning.main">
-                Chờ xử lý
-              </Typography>
-              <Typography variant="h4" fontWeight="bold">
-                {stats.pending}
-              </Typography>
-            </CardContent>
-          </StyledCard>
-        </Box>
-        <Box flex="1 1 25%" minWidth={240}>
-          <StyledCard>
-            <CardContent>
-              <Typography variant="h6" color="info.main">
-                Đang thực hiện
-              </Typography>
-              <Typography variant="h4" fontWeight="bold">
-                {stats.in_progress}
-              </Typography>
-            </CardContent>
-          </StyledCard>
-        </Box>
-        <Box flex="1 1 25%" minWidth={240}>
-          <StyledCard>
-            <CardContent>
-              <Typography variant="h6" color="success.main">
-                Hoàn thành
-              </Typography>
-              <Typography variant="h4" fontWeight="bold">
-                {stats.completed}
-              </Typography>
-            </CardContent>
-          </StyledCard>
-        </Box>
-        <Box flex="1 1 25%" minWidth={240}>
-          <StyledCard>
-            <CardContent>
-              <Typography variant="h6" color="secondary.main">
-                Đã lên lịch
-              </Typography>
-              <Typography variant="h4" fontWeight="bold">
-                {stats.scheduled}
-              </Typography>
-            </CardContent>
-          </StyledCard>
-        </Box>
-      </Grid>
+      <div className="mtr-stats">
+        <div className="mtr-stat-card">
+          <h3 className="mtr-stat-title primary">Tổng đăng ký</h3>
+          <p className="mtr-stat-value">{totalCount}</p>
+        </div>
+        <div className="mtr-stat-card">
+          <h3 className="mtr-stat-title warning">Chờ xử lý</h3>
+          <p className="mtr-stat-value">{stats.pending}</p>
+        </div>
+        <div className="mtr-stat-card">
+          <h3 className="mtr-stat-title info">Đang thực hiện</h3>
+          <p className="mtr-stat-value">{stats.in_progress}</p>
+        </div>
+        <div className="mtr-stat-card">
+          <h3 className="mtr-stat-title success">Hoàn thành</h3>
+          <p className="mtr-stat-value">{stats.completed}</p>
+        </div>
+        <div className="mtr-stat-card">
+          <h3 className="mtr-stat-title secondary">Đã lên lịch</h3>
+          <p className="mtr-stat-value">{stats.scheduled}</p>
+        </div>
+      </div>
 
       {/* Registrations Table */}
-      <StyledCard>
-        <CardContent>
-          <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>
-                    <strong>Mã BN</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Bệnh nhân</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Gói xét nghiệm</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Ngày mong muốn</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Trạng thái</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Bác sĩ</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Giá</strong>
-                  </TableCell>
-                  <TableCell>
-                    <strong>Thao tác</strong>
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
+      <div className="mtr-table-container">
+        {filteredRegistrations.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6b7280' }}>
+            <p>Không có đăng ký xét nghiệm nào được tìm thấy</p>
+          </div>
+        ) : (
+          <div className="mtr-table-wrapper">
+            <table className="mtr-table">
+              <thead>
+                <tr>
+                  <th>Mã BN</th>
+                  <th>Bệnh nhân</th>
+                  <th>Gói xét nghiệm</th>
+                  <th>Ngày mong muốn</th>
+                  <th>Trạng thái</th>
+                  <th>Bác sĩ</th>
+                  <th>Giá</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+              <tbody>
                 {filteredRegistrations.map((registration) => (
-                  <TableRow key={registration._id} hover>
-                    <TableCell>
-                      <Typography variant="body2" fontWeight="bold">
+                  <tr key={registration._id}>
+                    <td>
+                      <span className="mtr-patient-code">
                         {registration.patient.patientCode}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Box display="flex" alignItems="center">
-                        <Avatar sx={{ mr: 2, bgcolor: "primary.main" }}>
+                      </span>
+                    </td>
+                    <td>
+                      <div className="mtr-patient-info">
+                        {/* <div className="mtr-patient-avatar">
                           {registration.patient.userName.charAt(0)}
-                        </Avatar>
-                        <Box>
-                          <Typography variant="body2" fontWeight="bold">
+                        </div> */}
+                        <div className="mtr-patient-details">
+                          <div className="mtr-patient-name">
                             {registration.patient.userName}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          </div>
+                          <div className="mtr-patient-email">
                             {registration.patient.email}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </TableCell>
-                    <TableCell>
-                      <Typography variant="body2" fontWeight="bold">
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="mtr-package-name">
                         {registration.testPackage
                           ? registration.testPackage.name
                           : "Không có dữ liệu"}
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
+                      </div>
+                      <div className="mtr-package-type">
                         {registration.testPackage
                           ? registration.testPackage.type
                           : ""}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      {formatDate(registration.requestedDate)}
-                    </TableCell>
-                    <TableCell>
-                      <StatusChip
-                        status={registration.status}
-                        label={getStatusLabel(registration.status)}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="mtr-date">
+                        {formatDate(registration.requestedDate)}
+                      </div>
+                    </td>
+                    <td>
+                      <span className={`mtr-status-badge mtr-status-${registration.status}`}>
+                        {getStatusLabel(registration.status)}
+                      </span>
+                    </td>
+                    <td>
                       {registration.assignedDoctor ? (
-                        <Box>
-                          <Typography variant="body2" fontWeight="bold">
+                        <div className="mtr-doctor-info">
+                          <div className="mtr-doctor-name">
                             {registration.assignedDoctor.user.userName}
-                          </Typography>
-                          <Typography variant="caption" color="text.secondary">
+                          </div>
+                          <div className="mtr-doctor-specialty">
                             {registration.assignedDoctor.specialty}
-                          </Typography>
-                        </Box>
+                          </div>
+                        </div>
                       ) : (
-                        <Typography variant="body2" color="text.secondary">
+                        <div className="mtr-no-doctor">
                           Chưa phân công
-                        </Typography>
+                        </div>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      <Typography
-                        variant="body2"
-                        fontWeight="bold"
-                        color="primary"
-                      >
+                    </td>
+                    <td>
+                      <div className="mtr-price">
                         {registration.testPackage
                           ? formatPrice(registration.testPackage.price)
                           : "0"}
-                      </Typography>
-                    </TableCell>
-                    <TableCell>
-                      <Box display="flex" gap={1}>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          startIcon={<Visibility />}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="mtr-action-buttons">
+                        <button
+                          className="mtr-action-btn mtr-view-btn"
+                          title="Xem chi tiết"
                           onClick={() => handleViewDetails(registration)}
                         >
-                          Chi tiết
-                        </Button>
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          startIcon={<Edit />}
+                          <Visibility fontSize="small" />
+                        </button>
+                        <button
+                          className="mtr-action-btn mtr-edit-btn"
+                          title="Chỉnh sửa"
                           onClick={() => handleEditRegistration(registration)}
                         >
-                          Sửa
-                        </Button>
+                          <Edit fontSize="small" />
+                        </button>
                         {registration.status === "pending" && (
-                          <Button
-                            size="small"
-                            variant="contained"
-                            color="success"
-                            startIcon={<CheckCircle />}
+                          <button
+                            className="mtr-action-btn mtr-approve-btn"
+                            title="Duyệt"
                             onClick={() =>
                               handleApproveSchedule(registration._id)
                             }
                           >
-                            Duyệt
-                          </Button>
+                            <CheckCircle fontSize="small" />
+                          </button>
                         )}
-                      </Box>
-                    </TableCell>
-                  </TableRow>
+                      </div>
+                    </td>
+                  </tr>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
+              </tbody>
+            </table>
+          </div>
+        )}
 
-          {/* Pagination */}
-          <Box display="flex" justifyContent="center" mt={3}>
-            <Pagination
-              count={totalPages}
-              page={page}
-              onChange={(_, value) => setPage(value)}
-              color="primary"
-            />
-          </Box>
-        </CardContent>
-      </StyledCard>
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="mtr-pagination">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+              <button
+                key={pageNum}
+                className={`mtr-page-btn ${page === pageNum ? 'active' : ''}`}
+                onClick={() => setPage(pageNum)}
+              >
+                {pageNum}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Detail Modal */}
       <Dialog
@@ -1070,7 +997,7 @@ const ManagerTestRegister: React.FC = () => {
           </GradientButton>
         </DialogActions>
       </Dialog>
-    </Box>
+    </div>
   );
 };
 
