@@ -19,7 +19,7 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
     if (path.includes("/doctor/patients")) return "Bệnh nhân";
     if (path.includes("/doctor/treatment-plans")) return "Kế hoạch điều trị";
     if (path.includes("/doctor/prescriptions")) return "Kê đơn thuốc";
-    if (path.includes("/doctor/medicalrecord")) return "Hồ sơ y tế";
+    // if (path.includes("/doctor/medicalrecord")) return "Hồ sơ y tế";
     if (path.includes("/doctor/schedule")) return "Lịch làm việc";
     if (path.includes("/doctor/contact")) return "Liên hệ";
     if (path.includes("/doctor/reports")) return "Báo cáo";
@@ -35,30 +35,30 @@ const DoctorLayout: React.FC<DoctorLayoutProps> = ({ children }) => {
     { id: 1, name: "Trang chủ", label: "Trang chủ", path: "/doctor" },
     { id: 3, name: "Bệnh nhân", label: "Bệnh nhân", path: "/doctor/patients" },
 
-    {
-      id: 5,
-      name: "Kế hoạch điều trị",
-      label: "Tạo kế hoạch điều trị",
-      path: "/doctor/treatment-plans",
-    },
-    {
-      id: 7,
-      name: "Hồ sơ y tế",
-      label: "Hồ sơ y tế",
-      path: "/doctor/medicalrecord",
-    },
+    // {
+    //   id: 5,
+    //   name: "Kế hoạch điều trị",
+    //   label: "Tạo kế hoạch điều trị",
+    //   path: "/doctor/treatment-plans",
+    // },
+    // {
+    //   id: 7,
+    //   name: "Hồ sơ y tế",
+    //   label: "Hồ sơ y tế",
+    //   path: "/doctor/medicalrecord",
+    // },
     {
       id: 8,
       name: "Lịch làm việc",
       label: "Lịch làm việc",
       path: "/doctor/schedules",
     },
-    {
-      id: 9,
-      name: "Tiền sử y tế",
-      label: "Tiền sử y tế",
-      path: "/doctor/medical-history",
-    },
+    // {
+    //   id: 9,
+    //   name: "Tiền sử y tế",
+    //   label: "Tiền sử y tế",
+    //   path: "/doctor/medical-history",
+    // },
     {
       id: 10,
       name: "Liên hệ",
