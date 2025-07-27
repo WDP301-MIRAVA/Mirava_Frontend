@@ -43,66 +43,9 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import type { ChipPropsColorOverrides } from "@mui/material/Chip";
 import type { OverridableStringUnion } from "@mui/types";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
-interface TestResult {
-  _id: string;
-  testRegistration: string;
-  patient: string;
-  testPackage: {
-    _id: string;
-    name: string;
-    type: string;
-    tests: Array<{
-      _id: string;
-      testName: string;
-      normalRange: string;
-      unit: string;
-    }>;
-    duration: string;
-    preparation: string;
-    price: number;
-  } | null;
-  performedBy: {
-    _id: string;
-    user: {
-      _id: string;
-      userName: string;
-    };
-    degree: string;
-    specialty: string;
-  };
-  reviewedBy?: {
-    _id: string;
-    user: string;
-    degree: string;
-    specialty: string;
-  };
-  testDate: string;
-  results: Array<{
-    testName: string;
-    testCode: string;
-    value: string;
-    unit: string;
-    normalRange: string;
-    status: "normal" | "abnormal" | "borderline";
-    notes?: string;
-    _id: string;
-  }>;
-  overallStatus: "normal" | "abnormal" | "requires_attention";
-  doctorNotes: string;
-  recommendations: string;
-  attachments: Array<{
-    filename: string;
-    originalName: string;
-    path: string;
-    mimetype: string;
-    size: number;
-  }>;
-  isReviewed: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import type { TestResult } from "../../../types/testResult.types";
+import { handleDownloadPDF } from "@/utils/pdfUtils";
+import axiosInstance from "@/services/MainService";
 
 const ResultTest: React.FC = () => {
   const [testResults, setTestResults] = useState<TestResult[]>([]);
@@ -123,22 +66,18 @@ const ResultTest: React.FC = () => {
         return;
       }
 
-      const response = await fetch(
+      const response = await axiosInstance.get(
         "https://mirava-f0rz.onrender.com/api/test-results/my-results",
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
           },
         }
       );
-
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error("Không thể tải kết quả xét nghiệm");
       }
-
-      const data = await response.json();
-      console.log("API Response:", data); // Debug log
+      const data = response.data;
 
       if (data.success) {
         // KHÔNG lọc bỏ kết quả có testPackage null - hiển thị tất cả
@@ -226,94 +165,68 @@ const ResultTest: React.FC = () => {
     }
   };
 
-  const handleDownloadPDF = async (result: TestResult) => {
-    // Tạo một div ẩn chứa nội dung cần xuất PDF
-    const element = document.createElement("div");
-    element.style.padding = "24px";
-    element.innerHTML = `
-    <h2>KẾT QUẢ XÉT NGHIỆM</h2>
-    <p><b>Tên gói:</b> ${getTestPackageName(result)}</p>
-    <p><b>Ngày xét nghiệm:</b> ${formatDate(result.testDate)}</p>
-    <p><b>Bác sĩ thực hiện:</b> ${result.performedBy.user.userName}</p>
-    <table border="1" cellpadding="8" style="width:100%;margin-top:16px">
-      <thead>
-        <tr>
-          <th>Tên xét nghiệm</th>
-          <th>Kết quả</th>
-          <th>Đơn vị</th>
-          <th>Giá trị bình thường</th>
-          <th>Trạng thái</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${result.results
-          .map(
-            (r) =>
-              `<tr>
-                <td>${r.testName}</td>
-                <td>${r.value}</td>
-                <td>${r.unit}</td>
-                <td>${r.normalRange}</td>
-                <td>${getStatusText(r.status)}</td>
-              </tr>`
-          )
-          .join("")}
-      </tbody>
-    </table>
-    ${
-      result.doctorNotes
-        ? `<p><b>Nhận xét bác sĩ:</b> ${result.doctorNotes}</p>`
-        : ""
-    }
-    ${
-      result.recommendations
-        ? `<p><b>Khuyến nghị:</b> ${result.recommendations}</p>`
-        : ""
-    }
-  `;
-    document.body.appendChild(element);
+  // const handleDownloadPDF = async (result: TestResult) => {
+  //   // Tạo một div ẩn chứa nội dung cần xuất PDF
+  //   const element = document.createElement("div");
+  //   element.style.padding = "24px";
+  //   element.innerHTML = `
+  //   <h2>KẾT QUẢ XÉT NGHIỆM</h2>
+  //   <p><b>Tên gói:</b> ${getTestPackageName(result)}</p>
+  //   <p><b>Ngày xét nghiệm:</b> ${formatDate(result.testDate)}</p>
+  //   <p><b>Bác sĩ thực hiện:</b> ${result.performedBy.user.userName}</p>
+  //   <table border="1" cellpadding="8" style="width:100%;margin-top:16px">
+  //     <thead>
+  //       <tr>
+  //         <th>Tên xét nghiệm</th>
+  //         <th>Kết quả</th>
+  //         <th>Đơn vị</th>
+  //         <th>Giá trị bình thường</th>
+  //         <th>Trạng thái</th>
+  //       </tr>
+  //     </thead>
+  //     <tbody>
+  //       ${result.results
+  //         .map(
+  //           (r) =>
+  //             `<tr>
+  //               <td>${r.testName}</td>
+  //               <td>${r.value}</td>
+  //               <td>${r.unit}</td>
+  //               <td>${r.normalRange}</td>
+  //               <td>${getStatusText(r.status)}</td>
+  //             </tr>`
+  //         )
+  //         .join("")}
+  //     </tbody>
+  //   </table>
+  //   ${
+  //     result.doctorNotes
+  //       ? `<p><b>Nhận xét bác sĩ:</b> ${result.doctorNotes}</p>`
+  //       : ""
+  //   }
+  //   ${
+  //     result.recommendations
+  //       ? `<p><b>Khuyến nghị:</b> ${result.recommendations}</p>`
+  //       : ""
+  //   }
+  // `;
+  //   document.body.appendChild(element);
 
-    const canvas = await html2canvas(element);
-    const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF();
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`ket-qua-xet-nghiem-${result._id}.pdf`);
-    document.body.removeChild(element);
-  };
+  //   const canvas = await html2canvas(element);
+  //   const imgData = canvas.toDataURL("image/png");
+  //   const pdf = new jsPDF();
+  //   const imgProps = pdf.getImageProperties(imgData);
+  //   const pdfWidth = pdf.internal.pageSize.getWidth();
+  //   const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+  //   pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+  //   pdf.save(`ket-qua-xet-nghiem-${result._id}.pdf`);
+  //   document.body.removeChild(element);
+  // };
 
   const handleViewDetails = (result: TestResult) => {
     setSelectedResult(result);
     setDetailDialogOpen(true);
   };
-
-  // const handleDownloadResult = async (resultId: string) => {
-  //   try {
-  //     const token = localStorage.getItem("accessToken");
-  //     const response = await fetch(
-  //       `${BASE_URL}/api/test-results/${resultId}/download`,
-  //       {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-  //     if (!response.ok) throw new Error("Không thể tải file kết quả");
-  //     const blob = await response.blob();
-  //     const url = window.URL.createObjectURL(blob);
-  //     const a = document.createElement("a");
-  //     a.href = url;
-  //     a.download = `ket-qua-xet-nghiem-${resultId}.pdf`; // hoặc lấy tên file từ response header
-  //     document.body.appendChild(a);
-  //     a.click();
-  //     window.URL.revokeObjectURL(url);
-  //     document.body.removeChild(a);
-  //   } catch (error) {
-  //     alert("Có lỗi khi tải file");
-  //   }
-  // };
 
   const calculateAbnormalCount = (results: TestResult["results"]) => {
     return results.filter((r) => r.status === "abnormal").length;
@@ -578,7 +491,14 @@ const ResultTest: React.FC = () => {
                           variant="outlined"
                           size="small"
                           startIcon={<Download />}
-                          onClick={() => handleDownloadPDF(result)}
+                          onClick={() =>
+                            handleDownloadPDF(
+                              result,
+                              getTestPackageName,
+                              getStatusText,
+                              formatDate
+                            )
+                          }
                         >
                           Tải xuống
                         </Button>
@@ -638,13 +558,23 @@ const ResultTest: React.FC = () => {
                         {formatDate(selectedResult.testDate)}
                       </Typography>
                     </Box>
-                    <Box sx={{ width: "100%", p: 1 }}>
+                    <Box sx={{ width: "50%", p: 1 }}>
                       <Typography variant="body2" color="text.secondary">
                         Bác sĩ thực hiện
                       </Typography>
                       <Typography variant="body1">
                         {selectedResult.performedBy?.user.userName ||
-                          "Chưa cập nhật"}{" "}
+                          "Chưa cập nhật"}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ width: "100%", p: 1 }}>
+                      <Typography variant="body2" color="text.secondary">
+                        Tình trạng tổng quát
+                      </Typography>
+                      <Typography variant="body1">
+                        {getStatusText(
+                          selectedResult.overallStatus || "Chưa cập nhật"
+                        )}{" "}
                       </Typography>
                     </Box>
                   </Grid>
