@@ -10,7 +10,7 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import { MedicalServices, Save, Cancel } from "@mui/icons-material";
+import { MedicalServices, Save } from "@mui/icons-material";
 import type {
   MedicalHistoryData,
   MedicalHistoryFormData,
@@ -121,9 +121,7 @@ const MedicalHistoryModal: React.FC<MedicalHistoryModalProps> = ({
         </Stack>
       </DialogContent>
       <DialogActions sx={{ p: 3 }}>
-        <Button onClick={handleCancel} startIcon={<Cancel />}>
-          Hủy bỏ
-        </Button>
+        <Button onClick={handleCancel}>Hủy bỏ</Button>
         <Button
           onClick={handleSubmit}
           variant="contained"

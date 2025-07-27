@@ -1,58 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./PatientList.css";
-import axios from "axios";
+import axiosInstance from "@/services/MainService";
+import type { Patient, RawPlan } from "@/types/patient.types";
 
-interface TreatmentEvent {
-  id: string;
-  type: string;
-  date: string;
-  description?: string;
-  status: string;
-  result?: string;
-}
-
-interface Patient {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  location: string;
-  specialty: string;
-  gender: string;
-  status: "planned" | "in_progress" | "completed" | "cancelled";
-  appointmentDate: string;
-  appointmentTime: string;
-  note?: string;
-  doctor: string;
-  startDate: string;
-  patientCode?: string;
-  treatmentEvents?: TreatmentEvent[];
-}
-interface RawPlan {
-  patient: {
-    _id: string;
-    userName: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-    gender?: string;
-    patientCode?: string;
-  };
-  doctor?: {
-    user?: {
-      userName: string;
-    };
-    specialty?: string;
-  };
-  status?: "planned" | "in_progress" | "completed" | "cancelled";
-  cycleStartDate?: string;
-  hcgInjection?: {
-    time?: string;
-  };
-  notes?: string;
-  treatmentEvents?: TreatmentEvent[];
-}
 type ModalType =
   | "detail"
   | "examination"
@@ -90,7 +41,7 @@ const PatientList: React.FC = () => {
         const token = localStorage.getItem("accessToken");
         if (!token) return;
 
-        const res = await axios.get(
+        const res = await axiosInstance.get(
           "https://mirava-f0rz.onrender.com/api/treatment-plan",
           {
             headers: { Authorization: `Bearer ${token}` },

@@ -1,6 +1,8 @@
 import React from "react";
 import { useEffect } from "react";
 import "./ResultTest.css";
+import { handleDownloadPDF } from "@/utils/pdfUtils";
+import type { TestResult } from "@/types/testResult.types";
 interface TestResultDetail {
   testName: string;
   testCode: string;
@@ -206,6 +208,21 @@ const ResultDetailModal: React.FC<ResultDetailModalProps> = ({
         <div className="rt-modal-actions">
           <button className="rt-btn rt-btn-secondary" onClick={onClose}>
             Đóng
+          </button>
+          <button
+            className="rt-btn rt-btn-primary"
+            onClick={() =>
+              handleDownloadPDF(
+                result as unknown as TestResult,
+                (r) => r.testPackage?.name || "Gói xét nghiệm",
+                getStatusText,
+                formatDate,
+                result.patient?.userName,
+                result.patient?.patientCode
+              )
+            }
+          >
+            Tải về PDF
           </button>
         </div>
       </div>
