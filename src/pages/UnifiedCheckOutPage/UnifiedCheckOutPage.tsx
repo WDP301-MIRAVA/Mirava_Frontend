@@ -532,41 +532,40 @@ const UnifiedCheckOutPage: React.FC = () => {
                         <p>Đang kiểm tra lịch bác sĩ...</p>
                       </div>
                     ) : availableDoctors.length > 0 ? (
-                      <div className="doctor-list">
-                        <div className="doctor-option">
-                          <input
-                            type="radio"
-                            id="no-doctor"
-                            name="doctorId"
-                            value=""
-                            checked={formData.doctorId === ""}
-                            onChange={handleInputChange}
-                          />
-                          <label htmlFor="no-doctor">
-                            Không chọn bác sĩ cụ thể
-                          </label>
-                        </div>
-                        {availableDoctors.map((doctor) => (
-                          <div key={doctor._id} className="doctor-option">
-                            <input
-                              type="radio"
-                              id={`doctor-${doctor._id}`}
-                              name="doctorId"
-                              value={doctor._id}
-                              checked={formData.doctorId === doctor._id}
-                              onChange={handleInputChange}
-                            />
-                            <label htmlFor={`doctor-${doctor._id}`}>
-                              <div className="doctor-info">
-                                <strong>{doctor.name}</strong> -{" "}
-                                {doctor.specialty}
-                                <span className="availability-badge">
-                                  Có thể đặt lịch
-                                </span>
-                              </div>
-                            </label>
+                      <div className="doctor-dropdown-container">
+                        <select
+                          name="doctorId"
+                          value={formData.doctorId}
+                          onChange={handleInputChange}
+                          className="doctor-dropdown"
+                        >
+                          <option value="">Không chọn bác sĩ cụ thể</option>
+                          {availableDoctors.map((doctor) => (
+                            <option key={doctor._id} value={doctor._id}>
+                              {doctor.name} - {doctor.specialty}
+                            </option>
+                          ))}
+                        </select>
+
+                        {/* Hiển thị thông tin chi tiết của bác sĩ được chọn */}
+                        {formData.doctorId && (
+                          <div className="selected-doctor-info">
+                            {(() => {
+                              const selectedDoctor = availableDoctors.find(
+                                (doctor) => doctor._id === formData.doctorId
+                              );
+                              return selectedDoctor ? (
+                                <div className="doctor-details">
+                                  <strong>{selectedDoctor.name}</strong> -{" "}
+                                  {selectedDoctor.specialty}
+                                  <span className="availability-badge">
+                                    Có thể đặt lịch
+                                  </span>
+                                </div>
+                              ) : null;
+                            })()}
                           </div>
-                        ))}
+                        )}
                       </div>
                     ) : (
                       <div className="no-doctors">
