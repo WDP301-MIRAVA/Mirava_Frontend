@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -12,7 +12,7 @@ import {
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { TestPackageService } from "@/services/test-packages.service";
-import { Table, Popconfirm, Space, message } from "antd";
+import { Table, Space } from "antd";
 import toast from "react-hot-toast";
 
 interface Test {
@@ -63,6 +63,7 @@ export default function TestPackagePage() {
         ...item,
         treatmentSubjects: item.treatmentSubjects.join("\n"),
         treatmentProcess: item.treatmentProcess.join("\n"),
+        tests: JSON.stringify(item.tests, null, 2),
       });
     } else {
       setEditingItem(null);

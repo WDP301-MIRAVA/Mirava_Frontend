@@ -1,20 +1,32 @@
-import React, { useEffect, useState } from "react";
-import { Card, Col, Row, Table, Statistic, Typography, Tag } from "antd";
-import { DollarOutlined, ShoppingCartOutlined } from "@ant-design/icons";
-import { Column } from "@ant-design/charts";
-import "./Dashboard.css";
+import { useEffect, useState } from "react";
+import {
+  Box,
+  Typography,
+  Grid,
+  Card,
+  CardContent,
+  CircularProgress,
+  Chip,
+  TableContainer,
+  Paper,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+} from "@mui/material";
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import MonetizationOnIcon from "@mui/icons-material/MonetizationOn";
+import { BarChart } from "@mui/x-charts/BarChart";
 import { getOrders } from "@/services/order.service";
 
-const { Title } = Typography;
-
-const Dashboard: React.FC = () => {
+const Dashboard = () => {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchOrders = async () => {
     try {
       const res = await getOrders();
-      console.log({ res });
       setOrders(res || []);
     } catch (err) {
       console.error(err);
@@ -49,156 +61,132 @@ const Dashboard: React.FC = () => {
   const dataSource = orders.map((order) => ({
     id: order.orderCode,
     customerName: order.customerInfo?.userName || "N/A",
-    createdAt: order.createdAt,
+    createdAt: new Date(order.createdAt).toLocaleString("vi-VN"),
     total: order.totalAmount,
     status: order.orderStatus,
   }));
 
-  const columns = [
-    { title: "Mã đơn", dataIndex: "id", key: "id" },
-    { title: "Tên khách hàng", dataIndex: "customerName", key: "customerName" },
-    {
-      title: "Ngày tạo",
-      dataIndex: "createdAt",
-      key: "createdAt",
-      render: (text: string) => new Date(text).toLocaleString("vi-VN"),
-    },
-    {
-      title: "Tổng tiền",
-      dataIndex: "total",
-      key: "total",
-      render: (value: number) => `${value.toLocaleString()} đ`,
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "status",
-      key: "status",
-      render: (status: string) => {
-        let color = "default";
-        let text = "Không xác định";
-
-        switch (status) {
-          case "pending":
-            color = "orange";
-            text = "Đang xử lý";
-            break;
-          case "paid":
-            color = "green";
-            text = "Đã thanh toán";
-            break;
-          case "cancelled":
-            color = "red";
-            text = "Đã hủy";
-            break;
-          default:
-            color = "default";
-            text = status;
-        }
-
-        return <Tag color={color}>{text}</Tag>;
-      },
-    },
-  ];
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "pending":
+        return "warning";
+      case "paid":
+        return "success";
+      case "cancelled":
+        return "error";
+      default:
+        return "default";
+    }
+  };
 
   return (
-    <div className="dashboard-container">
-      <Title level={2}>Thống kê đơn hàng</Title>
+    <Box sx={{ p: 4, bgcolor: "#f9fafc", minHeight: "100vh" }}>
+      <Typography variant="h5" gutterBottom fontWeight={600}>
+        Dashboard
+      </Typography>
 
-      <Row gutter={16} className="dashboard-statistics">
-        <Col span={6}>
-          <Card bordered={false}>
-            <Statistic
-              title="Tổng đơn hàng"
-              value={orders.length}
-              prefix={<ShoppingCartOutlined />}
-            />
+      <Grid container spacing={3} mb={3}>
+        <Grid item xs={12} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="subtitle2" color="text.secondary">
+                Tổng đơn hàng
+              </Typography>
+              <Typography variant="h5" mt={1} fontWeight={600}>
+                <ShoppingCartIcon sx={{ mr: 1, color: "#0ea5e9" }} />
+                {orders.length.toLocaleString()}
+              </Typography>
+            </CardContent>
           </Card>
-        </Col>
+        </Grid>
 
-        <Col span={6}>
-          <Card bordered={false}>
-            <Statistic
-              title="Tổng doanh thu"
-              value={totalRevenue}
-              precision={0}
-              valueStyle={{ color: "#3f8600" }}
-              prefix={<DollarOutlined />}
-              suffix=" đ"
-            />
+        <Grid item xs={12} md={3}>
+          <Card>
+            <CardContent>
+              <Typography variant="subtitle2" color="text.secondary">
+                Tổng doanh thu
+              </Typography>
+              <Typography variant="h5" mt={1} fontWeight={600}>
+                <MonetizationOnIcon sx={{ mr: 1, color: "#10b981" }} />
+                {totalRevenue.toLocaleString()} đ
+              </Typography>
+            </CardContent>
           </Card>
-        </Col>
-      </Row>
+        </Grid>
+      </Grid>
 
-      <Card title="Biểu đồ doanh thu theo ngày" className="dashboard-chart">
-        <Column
-          data={chartData}
-          xField="date"
-          yField="total"
-          color="#4ECDC4"
-          columnStyle={{
-            radius: [8, 8, 0, 0],
-            fill: "#4ECDC4",
-            stroke: "#fff",
-            lineWidth: 1,
-          }}
-          xAxis={{
-            label: {
-              style: {
-                fill: "#64748B",
-                fontSize: 14,
+      <Card sx={{ mb: 3 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Doanh thu theo ngày
+          </Typography>
+          <BarChart
+            height={300}
+            xAxis={[{ scaleType: "band", data: chartData.map((d) => d.date) }]}
+            series={[
+              {
+                data: chartData.map((d) => d.total),
+                label: "Doanh thu",
+                color: "#4ECDC4",
               },
-              autoHide: false,
-              autoRotate: false,
-              formatter: (text: string) => {
-                // Hiển thị ngày dạng dd/MM
-                const [day, month] = text.split("/");
-                return `${day}/${month}`;
-              },
-            },
-            title: {
-              text: "Ngày",
-              style: { fontWeight: 600, fill: "#222" },
-            },
-          }}
-          yAxis={{
-            label: {
-              formatter: (v: number | string) =>
-                `${Number(v).toLocaleString()} đ`,
-              style: { fill: "#64748B", fontSize: 14 },
-            },
-            title: {
-              text: "Doanh thu (VNĐ)",
-              style: { fontWeight: 600, fill: "#222" },
-            },
-            grid: { line: { style: { stroke: "#E2E8F0", lineDash: [4, 4] } } },
-          }}
-          tooltip={{
-            showMarkers: true,
-            formatter: (datum: any) => ({
-              name: "Doanh thu",
-              value: `${Number(datum.total).toLocaleString()} đ`,
-            }),
-          }}
-          meta={{
-            total: { alias: "Doanh thu" },
-            date: { alias: "Ngày" },
-          }}
-          height={320}
-          legend={false}
-          animation={true}
-        />
+            ]}
+            grid={{ vertical: true }}
+          />
+        </CardContent>
       </Card>
 
-      <Card title="Danh sách đơn hàng" className="dashboard-table">
-        <Table
-          dataSource={dataSource}
-          columns={columns}
-          loading={loading}
-          rowKey="id"
-          pagination={{ pageSize: 5 }}
-        />
+      <Card>
+        <CardContent>
+          <Typography variant="h6" gutterBottom>
+            Danh sách đơn hàng
+          </Typography>
+          {loading ? (
+            <Box display="flex" justifyContent="center" p={2}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <TableContainer component={Paper}>
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Mã đơn</TableCell>
+                    <TableCell>Tên khách hàng</TableCell>
+                    <TableCell>Ngày tạo</TableCell>
+                    <TableCell>Tổng tiền</TableCell>
+                    <TableCell>Trạng thái</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {dataSource.map((row) => (
+                    <TableRow key={row.id}>
+                      <TableCell>{row.id}</TableCell>
+                      <TableCell>{row.customerName}</TableCell>
+                      <TableCell>{row.createdAt}</TableCell>
+                      <TableCell>{row.total?.toLocaleString()} đ</TableCell>
+                      <TableCell>
+                        <Chip
+                          label={
+                            row.status === "pending"
+                              ? "Đang xử lý"
+                              : row.status === "paid"
+                              ? "Đã thanh toán"
+                              : row.status === "cancelled"
+                              ? "Đã hủy"
+                              : row.status
+                          }
+                          color={getStatusColor(row.status)}
+                          size="small"
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </CardContent>
       </Card>
-    </div>
+    </Box>
   );
 };
 

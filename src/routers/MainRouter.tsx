@@ -61,7 +61,6 @@ import CreateFeedback from "@/pages/Customer/Feedback/CreateFeedback/CreateFeedb
 import ListFeedback from "@/pages/Customer/Feedback/ListFeedback/ListFeedback";
 import FeedbackManagement from "@/pages/Admin/Feedback/FeedbackManagement/FeedbackManagement";
 import ManagerTreatment from "@/pages/Manager/ManagerTreatment/ManagerTreatment";
-import ManagerTestRegister from "@/pages/Manager/ManagerTestRegister/ManagerTestRegister";
 import AdminBlogManagement from "@/pages/Admin/BlogManagement/BlogManagement";
 import DoctorScheduleManager from "@/pages/Manager/DoctorScheduleManager";
 import AdviseManagement from "@/pages/Manager/AdviseManagement/AdviseManagement";
@@ -166,7 +165,7 @@ const MainRouter = () => {
       <Route
         element={<PrivateRoute allowedRole="Manager" layout={ManagerLayout} />}
       >
-        <Route path="/manager" element={<ManagerDashboard />} />
+        <Route path="/manager" element={<ManagerDoctor />} />
         <Route path="/manager/profile" element={<PersonalInfoPage />} />
         <Route
           path="/manager/doctor-schedule-management"
