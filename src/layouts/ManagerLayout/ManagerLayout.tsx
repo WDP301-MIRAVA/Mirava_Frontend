@@ -17,6 +17,7 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
     const path = location.pathname;
     if (path === "/manager" || path === "/manager/") return "Dashboard";
     if (path.includes("/manager/doctors")) return "Quản lý bác sĩ";
+    if (path.includes("/manager/package-service")) return "Quản lý gói dịch vụ";
     if (path.includes("/manager/doctor-schedule-management"))
       return "Quản lý lịch làm việc";
     if (path.includes("/manager/treatments")) return "Quản lý điều trị";
@@ -64,7 +65,13 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
       label: "Quản lý tư vấn",
       path: "/manager/advise",
     },
-    { id: 8, name: "Hồ sơ", label: "Hồ sơ", path: "/manager/profile" },
+    {
+      id: 8,
+      name: "Quản lý gói dịch vụ",
+      label: "Quản lý gói dịch vụ",
+      path: "/manager/package-service",
+    },
+    { id: 9, name: "Hồ sơ", label: "Hồ sơ", path: "/manager/profile" },
   ];
 
   // Tạo breadcrumb dựa trên active menu
