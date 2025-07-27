@@ -1,4 +1,13 @@
-
+import {
+  Stethoscope,
+  TestTube,
+  Syringe,
+  Activity,
+  Clipboard,
+  CheckCircle,
+  Clock,
+  AlertCircle,
+} from "lucide-react";
 import type { JSX } from "react";
 
 export const mapStatusToDisplayStatus = (
@@ -78,12 +87,7 @@ export const getMetricFields = (stepName: string): string[] => {
     case "Khám theo dõi ngày 1 chu kỳ":
       return ["Ngày chu kỳ", "Nang cơ bản", "Liều thuốc", "E2 (pg/ml)"];
     case "Khám theo dõi ngày 5 chu kỳ":
-      return [
-        "Ngày chu kỳ",
-        "Nang lớn nhất",
-        "Điều chỉnh liều",
-        "E2 (pg/ml)",
-      ];
+      return ["Ngày chu kỳ", "Nang lớn nhất", "Điều chỉnh liều", "E2 (pg/ml)"];
     case "Khám theo dõi ngày 8 chu kỳ":
       return ["Ngày chu kỳ", "Nang lớn nhất", "Số nang >12mm", "E2 (pg/ml)"];
     case "Khám theo dõi ngày 10 chu kỳ":

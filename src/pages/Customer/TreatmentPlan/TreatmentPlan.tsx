@@ -108,7 +108,7 @@ const TreatmentPlan: React.FC = () => {
     "overview" | "timeline" | "calendar"
   >("overview");
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [, setSelectedDate] = useState<string | null>(null);
   const [treatmentSteps, setTreatmentSteps] = useState<TreatmentStep[]>([]);
   const [patientInfo, setPatientInfo] = useState<PatientInfo | null>(null);
   const [doctorInfo, setDoctorInfo] = useState<DoctorInfo | null>(null);

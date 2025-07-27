@@ -16,16 +16,16 @@ interface TestResultDetail {
   notes?: string;
 }
 
-interface TestResult {
-  _id: string;
-  testName: string;
-  testCode: string;
-  value: string;
-  unit: string;
-  normalRange: string;
-  status: "normal" | "abnormal" | "borderline";
-  notes?: string;
-}
+// interface TestResult {
+//   _id: string;
+//   testName: string;
+//   testCode: string;
+//   value: string;
+//   unit: string;
+//   normalRange: string;
+//   status: "normal" | "abnormal" | "borderline";
+//   notes?: string;
+// }
 interface TestRegistration {
   _id: string;
   patient: {
@@ -151,7 +151,9 @@ const TestResults: React.FC = () => {
   const [isLoadingResults, setIsLoadingResults] = useState(false);
 
   // xem chi tiết
-  const [selectedResult, setSelectedResult] = useState<TestResult | null>(null);
+  const [selectedResult, setSelectedResult] = useState<DoctorTestResult | null>(
+    null
+  );
   const [openModal, setOpenModal] = useState(false);
 
   const steps = [
@@ -370,8 +372,16 @@ const TestResults: React.FC = () => {
   };
   const handleViewDetails = async (resultId: string) => {
     try {
-      const res = await axiosInstance.get(`/api/test-results/${resultId}`);
-      setSelectedResult(res.data.data);
+      const token = localStorage.getItem("accessToken");
+      const res = await axiosInstance.get(
+        `${BASE_URL}/api/test-results/doctor/my-results/${resultId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setSelectedResult(res.data.data as DoctorTestResult);
       setOpenModal(true);
     } catch (err) {
       console.error("Lỗi khi lấy chi tiết:", err);

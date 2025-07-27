@@ -485,15 +485,15 @@ const IVFTreatmentTracker: React.FC = () => {
     navigate("/doctor/patients");
   };
 
-  const updateSpecialMetric = (key: string, value: string): void => {
-    setFormData((prev) => ({
-      ...prev,
-      specialMetrics: {
-        ...prev.specialMetrics,
-        [key]: value,
-      },
-    }));
-  };
+  // const updateSpecialMetric = (key: string, value: string): void => {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     specialMetrics: {
+  //       ...prev.specialMetrics,
+  //       [key]: value,
+  //     },
+  //   }));
+  // };
 
   const getMetricFields = (stepName: string): string[] => {
     switch (stepName) {
