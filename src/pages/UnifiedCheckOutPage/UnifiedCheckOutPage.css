@@ -589,3 +589,97 @@
 .back-to-shop-btn:hover {
   background-color: #009a97;
 }
+
+.doctor-dropdown-container {
+  margin-top: 10px;
+}
+
+.doctor-dropdown {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid #00bcd4;
+  border-radius: 8px;
+  background-color: white;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+  appearance: none;
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="12" height="8" viewBox="0 0 12 8"><path fill="%23666" d="M6 8L0 2h12z"/></svg>');
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 12px;
+}
+
+.doctor-dropdown:focus {
+  outline: none;
+  border-color: #0097a7;
+  box-shadow: 0 0 0 3px rgba(0, 188, 212, 0.2);
+}
+
+.doctor-dropdown:hover {
+  border-color: #0097a7;
+}
+
+.doctor-dropdown option {
+  padding: 12px;
+  background-color: white;
+  color: #333;
+}
+
+.doctor-dropdown option:hover {
+  background-color: #f5f5f5;
+}
+
+/* Selected option styling */
+.doctor-dropdown option:checked {
+  background-color: #6c5ce7;
+  color: white;
+}
+
+.selected-doctor-info {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  border-left: 4px solid #00bcd4;
+}
+
+.doctor-details {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.availability-badge {
+  background-color: #4caf50;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.loading-doctors {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
+.no-doctors {
+  padding: 16px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 6px;
+  color: #856404;
+}
+
+.no-doctors p {
+  margin: 8px 0;
+}
+
+.label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #333;
+}
