@@ -498,3 +498,33 @@
   background: white;
   border: 1px solid #ccc;
 }
+.select-doctor-btn {
+  background: linear-gradient(90deg, #00b3b0 0%, #10b981 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.08);
+  outline: none;
+  margin: 0 auto;
+  display: block;
+}
+.select-doctor-btn:hover,
+.select-doctor-btn:focus {
+  background: linear-gradient(90deg, #10b981 0%, #00b3b0 100%);
+  color: #fff;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 16px rgba(0, 179, 176, 0.15);
+}
+
+@media (max-width: 600px) {
+  .select-doctor-btn {
+    width: 100%;
+    padding: 10px 0;
+    font-size: 16px;
+  }
+}
