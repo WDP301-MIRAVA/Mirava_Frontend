@@ -151,7 +151,7 @@ const Dashboard: React.FC = () => {
               autoRotate: false,
               formatter: (text: string) => {
                 // Hiển thị ngày dạng dd/MM
-                const [day, month, year] = text.split("/");
+                const [day, month] = text.split("/");
                 return `${day}/${month}`;
               },
             },

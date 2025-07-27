@@ -2,12 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   Box,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Button,
   Dialog,
   DialogTitle,
@@ -20,13 +14,7 @@ import {
   FormControl,
   InputLabel,
   Select,
-  Pagination,
-  Card,
-  CardContent,
-  Avatar,
   Divider,
-  Alert,
-  CircularProgress,
   Accordion,
   AccordionSummary,
   AccordionDetails,
@@ -37,17 +25,7 @@ import {
 import { Visibility, Edit, CheckCircle, ExpandMore } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import { toast } from "react-hot-toast";
-import "./ManagerTestRegister.css"
-
-// Styled components
-const StyledCard = styled(Card)(() => ({
-  borderRadius: 16,
-  boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1)",
-  transition: "transform 0.2s ease-in-out",
-  "&:hover": {
-    transform: "translateY(-2px)",
-  },
-}));
+import "./ManagerTestRegister.css";
 
 const GradientButton = styled(Button)(() => ({
   background: "linear-gradient(45deg, #667eea 30%, #764ba2 90%)",
@@ -428,11 +406,7 @@ const ManagerTestRegister: React.FC = () => {
     <div className="mtr-container">
       <h1 className="mtr-title">Quản lý đăng ký xét nghiệm</h1>
 
-      {error && (
-        <div className="mtr-alert">
-          {error}
-        </div>
-      )}
+      {error && <div className="mtr-alert">{error}</div>}
 
       {/* Filters */}
       <div className="mtr-filters">
@@ -494,10 +468,7 @@ const ManagerTestRegister: React.FC = () => {
             />
           </div>
           <div className="mtr-filter-item actions">
-            <button
-              className="mtr-search-btn"
-              onClick={handleSearch}
-            >
+            <button className="mtr-search-btn" onClick={handleSearch}>
               Tìm kiếm
             </button>
           </div>
@@ -531,7 +502,13 @@ const ManagerTestRegister: React.FC = () => {
       {/* Registrations Table */}
       <div className="mtr-table-container">
         {filteredRegistrations.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 20px', color: '#6b7280' }}>
+          <div
+            style={{
+              textAlign: "center",
+              padding: "60px 20px",
+              color: "#6b7280",
+            }}
+          >
             <p>Không có đăng ký xét nghiệm nào được tìm thấy</p>
           </div>
         ) : (
@@ -590,7 +567,9 @@ const ManagerTestRegister: React.FC = () => {
                       </div>
                     </td>
                     <td>
-                      <span className={`mtr-status-badge mtr-status-${registration.status}`}>
+                      <span
+                        className={`mtr-status-badge mtr-status-${registration.status}`}
+                      >
                         {getStatusLabel(registration.status)}
                       </span>
                     </td>
@@ -605,9 +584,7 @@ const ManagerTestRegister: React.FC = () => {
                           </div>
                         </div>
                       ) : (
-                        <div className="mtr-no-doctor">
-                          Chưa phân công
-                        </div>
+                        <div className="mtr-no-doctor">Chưa phân công</div>
                       )}
                     </td>
                     <td>
@@ -656,15 +633,17 @@ const ManagerTestRegister: React.FC = () => {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="mtr-pagination">
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-              <button
-                key={pageNum}
-                className={`mtr-page-btn ${page === pageNum ? 'active' : ''}`}
-                onClick={() => setPage(pageNum)}
-              >
-                {pageNum}
-              </button>
-            ))}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+              (pageNum) => (
+                <button
+                  key={pageNum}
+                  className={`mtr-page-btn ${page === pageNum ? "active" : ""}`}
+                  onClick={() => setPage(pageNum)}
+                >
+                  {pageNum}
+                </button>
+              )
+            )}
           </div>
         )}
       </div>
