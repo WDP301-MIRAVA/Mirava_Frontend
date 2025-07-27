@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Bell, LogOut, ChevronRight } from "react-feather";
+import { LogOut, ChevronRight } from "react-feather";
 import "./ManagerLayout.css";
 import logo from "../../assets/mirava-logo.png";
 import { userServ } from "@/services/userServie";
@@ -51,12 +51,12 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
       label: "Quản lý đơn hàng",
       path: "/manager/orders",
     },
-    {
-      id: 6,
-      name: "Quản lý đăng ký xét nghiệm",
-      label: "Quản lý xét nghiệm",
-      path: "/manager/test-register",
-    },
+    // {
+    //   id: 6,
+    //   name: "Quản lý đăng ký xét nghiệm",
+    //   label: "Quản lý xét nghiệm",
+    //   path: "/manager/test-register",
+    // },
 
     {
       id: 7,
@@ -167,12 +167,6 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
               </span>
             ))}
           </div>
-          <div className="topbar-actions">
-            <button className="notification-btn">
-              <Bell size={20} />
-              <span className="notification-badge">5</span>
-            </button>
-          </div>
         </div>
 
         {/* Page Content */}
@@ -183,4 +177,3 @@ const ManagerLayout: React.FC<ManagerLayoutProps> = ({ children }) => {
 };
 
 export default ManagerLayout;
-// Đổi tên file thành ManagerLayout.tsx khi sử dụng cho manager

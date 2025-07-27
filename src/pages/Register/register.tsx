@@ -8,6 +8,7 @@ import logo from "../../assets/mirava-logo.png";
 import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
+  const [form] = Form.useForm();
   const navigate = useNavigate();
   interface RegisterFormData {
     userName: string;
@@ -47,7 +48,7 @@ const RegisterPage = () => {
             <img src={logo} alt="Mirava Logo" className="logo-image" />
             <h2>Tạo tài khoản mới</h2>
 
-            <Form layout="vertical" onFinish={onFinish}>
+            <Form layout="vertical" form={form} onFinish={onFinish}>
               <Form.Item
                 label="Họ và tên"
                 name="userName"

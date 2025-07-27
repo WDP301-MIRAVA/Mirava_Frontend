@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "@/services/MainService";
 import ChatBox from "@/components/ChatBox";
 import { User, MessageCircle } from "lucide-react";
 import "./ContactPatient.css";
@@ -9,7 +9,7 @@ const ContactPatient: React.FC = () => {
   const [selectedPatient, setSelectedPatient] = useState<any | null>(null);
 
   useEffect(() => {
-    axios
+    axiosInstance
       .get("https://mirava-f0rz.onrender.com/api/treatment-plan/my-patients", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("accessToken")}`,

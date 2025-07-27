@@ -331,7 +331,6 @@ const MedicalHistory: React.FC = () => {
             sx={{
               width: {
                 xs: "100%", // tương đương xs={12}
-                md: "50%", // tương đương md={6}
               },
               px: 1, // padding ngang (tùy ý nếu bạn cần giữ khoảng cách giống Grid spacing)
               boxSizing: "border-box",
@@ -339,30 +338,32 @@ const MedicalHistory: React.FC = () => {
           >
             <StyledCard>
               <CardContent>
-                <Box display="flex" alignItems="center" mb={2}>
-                  <AccessTime color="primary" sx={{ mr: 1 }} />
-                  <Typography variant="h6">Thông tin cập nhật</Typography>
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  mb={2}
+                  flexWrap="wrap"
+                  gap={2}
+                >
+                  <Box display="flex" alignItems="center">
+                    <AccessTime color="primary" sx={{ mr: 1 }} />
+                    <Typography variant="h6">Thông tin cập nhật</Typography>
+                  </Box>
+                  <Box display="flex" alignItems="center" gap={0.5}>
+                    <Add fontSize="small" color="action" />
+                    <Typography variant="body2" color="text.secondary">
+                      Ngày tạo: {formatDate(medicalHistory.createdAt)}
+                    </Typography>
+                  </Box>
+                  <Box display="flex" alignItems="center" gap={0.5}>
+                    <Update fontSize="small" color="action" />
+                    <Typography variant="body2" color="text.secondary">
+                      Cập nhật: {formatDate(medicalHistory.updatedAt)}
+                    </Typography>
+                  </Box>
                 </Box>
-                <List dense>
-                  <ListItem>
-                    <ListItemIcon>
-                      <Add fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary="Ngày tạo"
-                      secondary={formatDate(medicalHistory.createdAt)}
-                    />
-                  </ListItem>
-                  <ListItem>
-                    <ListItemIcon>
-                      <Update fontSize="small" />
-                    </ListItemIcon>
-                    <ListItemText
-                      primary="Cập nhật lần cuối"
-                      secondary={formatDate(medicalHistory.updatedAt)}
-                    />
-                  </ListItem>
-                </List>
+                {/* Bỏ List ngày tạo/cập nhật cũ */}
               </CardContent>
             </StyledCard>
           </Box>

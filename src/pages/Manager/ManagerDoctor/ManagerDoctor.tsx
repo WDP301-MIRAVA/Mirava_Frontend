@@ -6,7 +6,6 @@ import {
   Eye,
   UserCheck,
   UserX,
-  Trash2,
   Stethoscope,
   Users,
   UserPlus,
@@ -149,7 +148,7 @@ const ManagerDoctor: React.FC = () => {
       }
 
       const data = await response.json();
-      console.log("API Response:", data);
+      // console.log("API Response:", data);
 
       if (Array.isArray(data)) {
         setDoctors(data);
@@ -712,7 +711,7 @@ const ManagerDoctor: React.FC = () => {
                             <UserCheck size={16} />
                           )}
                         </button>
-                        <button
+                        {/* <button
                           className="md-action-btn md-delete-btn"
                           onClick={() =>
                             showConfirmDialog(
@@ -724,7 +723,7 @@ const ManagerDoctor: React.FC = () => {
                           title="Xóa"
                         >
                           <Trash2 size={16} />
-                        </button>
+                        </button> */}
                       </div>
                     </td>
                   </tr>
