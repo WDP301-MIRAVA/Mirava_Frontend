@@ -460,12 +460,23 @@
 
 .doctor-option {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: center; /* Căn chỉnh radio button với nội dung */
+  gap: 12px; /* Khoảng cách giữa radio button và label */
   margin-bottom: 8px;
-  padding: 8px;
+  padding: 12px;
   border-radius: 4px;
   transition: background-color 0.2s;
+}
+
+.doctor-option input[type="radio"] {
+  margin: 0; /* Loại bỏ margin mặc định */
+  flex-shrink: 0; /* Không cho phép radio button co lại */
+}
+
+.doctor-option label {
+  flex: 1; /* Cho phép label chiếm hết không gian còn lại */
+  cursor: pointer;
+  margin: 0; /* Loại bỏ margin mặc định của label */
 }
 
 .doctor-option:hover {
@@ -473,19 +484,28 @@
 }
 
 .doctor-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+   display: flex;
+  align-items: center; /* Căn giữa theo chiều dọc */
+  gap: 8px; /* Khoảng cách giữa các phần tử */
+  flex-wrap: wrap; /* Cho phép wrap nếu cần thiết trên màn hình nhỏ */
 }
 
+.doctor-info strong {
+  margin-right: 4px; /* Khoảng cách nhỏ sau tên bác sĩ */
+}
+
+
 .availability-badge {
-  background-color: #10b981;
+ background-color: #10b981;
   color: white;
   padding: 2px 6px;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap; /* Đảm bảo badge không bị wrap */
+  margin-left: 8px; /* Khoảng cách trước badge */
 }
+
 
 .no-doctors {
   padding: 16px;
