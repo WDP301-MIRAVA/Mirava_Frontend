@@ -24,6 +24,7 @@ interface Order {
     };
     serviceName?: string;
   }>;
+  orderStatus: string;
 }
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -35,7 +36,16 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     fontSize: 14,
   },
 }));
-
+const getTextStatus = (status: string) => {
+  switch (status) {
+    case "pending":
+      return "Đang chờ thanh toán";
+    case "paid":
+      return "Đã thanh toán";
+    default:
+      return "Chưa xác định";
+  }
+};
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   "&:nth-of-type(odd)": {
     backgroundColor: theme.palette.action.hover,
@@ -76,6 +86,7 @@ export default function CustomizedTables() {
             <StyledTableCell align="center">Mã đơn hàng</StyledTableCell>
             <StyledTableCell align="center">Tên dịch vụ</StyledTableCell>
             <StyledTableCell align="center">Ngày hẹn khám</StyledTableCell>
+            <StyledTableCell align="center">Trạng thái</StyledTableCell>
             <StyledTableCell align="center">Tổng giá</StyledTableCell>
           </TableRow>
         </TableHead>
@@ -103,6 +114,9 @@ export default function CustomizedTables() {
               <StyledTableCell align="center">
                 {order.appointmentDate || "Chưa có ngày hẹn"} |{" "}
                 {order.timeSlot || "Chưa có khung giờ"}
+              </StyledTableCell>
+              <StyledTableCell align="center">
+                {getTextStatus(order.orderStatus) || "Chưa xác định"}
               </StyledTableCell>
               <StyledTableCell align="center">
                 {order.totalAmount}
