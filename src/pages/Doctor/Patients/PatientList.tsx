@@ -174,7 +174,10 @@ const PatientList: React.FC = () => {
             <p>
               <strong>Mã BN:</strong> {selectedPatient.patientCode}
             </p>
-            <div>Kết quả khám</div>
+            <div>
+              <strong>Kết quả khám:</strong>{" "}
+              {selectedPatient.note || "Chưa có kết quả"}
+            </div>
           </div>
         );
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Select } from "antd";
+import { Select, Input } from "antd";
+
 import type { JSX } from "react";
 import {
   Calendar,
@@ -82,6 +83,9 @@ const IVFTreatmentTracker: React.FC = () => {
   const [newCycleStartDate, setNewCycleStartDate] = useState<string>("");
   const [viewOnlyFormId, setViewOnlyFormId] = useState<string | null>(null);
   const [updatingPlanStatus, setUpdatingPlanStatus] = useState(false);
+  const [editingNotes, setEditingNotes] = useState(false);
+  const [notesValue, setNotesValue] = useState<string>("");
+  const [updatingNotes, setUpdatingNotes] = useState(false);
 
   const BASE_URL = "https://mirava-f0rz.onrender.com";
   useEffect(() => {
@@ -351,6 +355,36 @@ const IVFTreatmentTracker: React.FC = () => {
 
     updateTreatmentSteps(updatedSteps);
     setTimeout(() => openForm(newVisit.id), 100);
+  };
+
+  // Hàm cập nhật notes
+  const handleUpdateNotes = async () => {
+    if (!treatmentPlan) return;
+    setUpdatingNotes(true);
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await axiosInstance.put(
+        `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/notes`,
+        { notes: notesValue },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.data.success) {
+        updateTreatmentPlan(response.data.data);
+        setEditingNotes(false);
+        message.success("Cập nhật ghi chú thành công!");
+      } else {
+        message.error(response.data.message || "Không thể cập nhật ghi chú");
+      }
+    } catch (err) {
+      message.error("Có lỗi khi cập nhật ghi chú");
+    } finally {
+      setUpdatingNotes(false);
+    }
   };
 
   // Hàm cập nhật trạng thái kế hoạch điều trị
@@ -1048,12 +1082,51 @@ const IVFTreatmentTracker: React.FC = () => {
         </div>
 
         {/* ✅ Treatment Plan Notes */}
-        {treatmentPlan.notes && (
-          <div className="ivf-notes-card">
-            <h3>Ghi chú kế hoạch điều trị</h3>
-            <p>{treatmentPlan.notes}</p>
-          </div>
-        )}
+        {treatmentPlan &&
+          (editingNotes ? (
+            <div className="ivf-notes-card">
+              <h3>Ghi chú kế hoạch điều trị</h3>
+              <Input.TextArea
+                rows={4}
+                value={notesValue}
+                onChange={(e) => setNotesValue(e.target.value)}
+                style={{ marginBottom: 8 }}
+              />
+              <div className="ivf-notes-actions">
+                <button
+                  className="ivf-btn-save"
+                  onClick={handleUpdateNotes}
+                  disabled={updatingNotes}
+                >
+                  Lưu
+                </button>
+                <button
+                  className="ivf-btn-cancel"
+                  onClick={() => {
+                    setEditingNotes(false);
+                    setNotesValue(treatmentPlan.notes || "");
+                  }}
+                  disabled={updatingNotes}
+                >
+                  Hủy
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="ivf-notes-card">
+              <h3>Ghi chú kế hoạch điều trị</h3>
+              <p>{treatmentPlan.notes || "Chưa có ghi chú"}</p>
+              <button
+                className="ivf-btn-edit"
+                onClick={() => {
+                  setEditingNotes(true);
+                  setNotesValue(treatmentPlan.notes || "");
+                }}
+              >
+                Sửa ghi chú
+              </button>
+            </div>
+          ))}
 
         {/* ✅ Form Modal */}
         {activeForm && (
