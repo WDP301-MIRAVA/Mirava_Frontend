@@ -117,6 +117,12 @@ const TreatmentPlan: React.FC = () => {
   const [recordDetail, setRecordDetail] = useState<RecordDetail | null>(null);
   const [recordModalOpen, setRecordModalOpen] = useState(false);
   const [loadingRecord, setLoadingRecord] = useState(false);
+  // Kết quả khám
+  const [examinationResult, setExaminationResult] = useState<{
+    name: string;
+    patientCode: string;
+    note: string;
+  } | null>(null);
 
   // Notification handler
   useEffect(() => {
@@ -228,6 +234,15 @@ const TreatmentPlan: React.FC = () => {
 
     fetchPlans();
   }, []);
+  // Hàm lấy kết quả tổng quan lấy của kế hoạch điều trị chứ không phải từng bước
+  const getOverviewExamination = () => {
+    if (!selectedPlan || !patientInfo) return null;
+    return {
+      name: patientInfo.userName || "",
+      patientCode: patientInfo.patientCode || "",
+      note: selectedPlan.notes || "Chưa có ghi chú kế hoạch điều trị",
+    };
+  };
 
   // Calendar helpers
   const getDaysInMonth = (date: Date) => {
@@ -751,15 +766,18 @@ const TreatmentPlan: React.FC = () => {
           <Clock size={16} />
           Timeline
         </button>
-        {/* <button
-          className={`tp-toggle-btn ${
-            activeView === "calendar" ? "active" : ""
-          }`}
-          onClick={() => setActiveView("calendar")}
+        {/* Nút mở modal kết quả tổng quan */}
+        <button
+          className="tp-btn-primary"
+          onClick={() => {
+            const overview = getOverviewExamination();
+            if (overview) setExaminationResult(overview);
+            else toast("Chưa có kết quả tổng quan từ bác sĩ hoặc mô tả.");
+          }}
         >
-          <Calendar size={16} />
-          Lịch
-        </button> */}
+          <Eye size={16} style={{ marginRight: 6, verticalAlign: "middle" }} />
+          Xem kết quả tổng quan
+        </button>
       </div>
 
       {/* Content Area */}
@@ -986,79 +1004,42 @@ const TreatmentPlan: React.FC = () => {
                 })}
               </div>
             </div>
-
-            {/* {selectedDate && (
-              <div className="tp-event-details">
-                <div className="tp-event-header">
-                  <h3>Chi tiết lịch hẹn - {formatDate(selectedDate)}</h3>
-                  <button
-                    className="tp-close-btn"
-                    onClick={() => setSelectedDate(null)}
-                  >
-                    ×
-                  </button>
-                </div>
-                <div className="tp-event-content">
-                  {treatmentSteps
-                    .filter(
-                      (step) =>
-                        step.executionDate === selectedDate ||
-                        step.date === selectedDate
-                    )
-                    .map((step) => (
-                      <div
-                        key={step.id}
-                        className={`tp-event-card ${step.status}`}
-                      >
-                        <div className="tp-event-card-header">
-                          {getStatusIcon(step.status)}
-                          <span className="tp-event-title">{step.name}</span>
-                        </div>
-                        <div className="tp-event-card-content">
-                          <p>
-                            <strong>Giai đoạn:</strong> {step.stage || "-"}
-                          </p>
-                          <p>
-                            <strong>Loại:</strong> {step.type || "-"}
-                          </p>
-                          <p>
-                            <strong>Trạng thái:</strong>{" "}
-                            {getStatusText(step.status)}
-                          </p>
-                          {step.description && (
-                            <p>
-                              <strong>Mô tả:</strong> {step.description}
-                            </p>
-                          )}
-                          {step.performedBy && (
-                            <p>
-                              <strong>Thực hiện bởi:</strong> {step.performedBy}
-                            </p>
-                          )}
-                          {step.medicalRecords &&
-                            step.medicalRecords.length > 0 && (
-                              <button
-                                className="tp-view-btn"
-                                onClick={() =>
-                                  handleViewMedicalRecord(
-                                    step.medicalRecords![0]
-                                  )
-                                }
-                              >
-                                <Eye size={14} />
-                                Xem kết quả
-                              </button>
-                            )}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )} */}
           </div>
         )}
       </div>
 
+      {examinationResult && (
+        <div
+          className="tp-modal-overlay"
+          onClick={() => setExaminationResult(null)}
+        >
+          <div
+            className="tp-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="tp-modal-header">
+              <h3>Kết quả khám tổng quan</h3>
+              <button
+                className="tp-modal-close"
+                onClick={() => setExaminationResult(null)}
+              >
+                ×
+              </button>
+            </div>
+            <div className="tp-modal-body">
+              <p>
+                <strong>Bệnh nhân:</strong> {examinationResult.name}
+              </p>
+              <p>
+                <strong>Mã BN:</strong> {examinationResult?.patientCode}
+              </p>
+              <div>
+                <strong>Kết quả khám:</strong> {examinationResult.note}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Notification Section */}
       <div className="tp-notification">
         <div className="tp-notification-icon">🔔</div>
