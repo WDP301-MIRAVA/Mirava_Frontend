@@ -9,6 +9,21 @@ interface Doctor {
     userName: string;
   };
 }
+interface OrderItem {
+  service: {
+    _id: string;
+    name: string;
+    price: number;
+  };
+  quantity: number;
+  subtotal: number;
+  // 👇 Thêm các trường optional
+  testPackage?: {
+    name: string;
+  };
+  serviceName?: string;
+  testPackageName?: string;
+}
 interface Order {
   _id: string;
   orderCode: string;
@@ -18,22 +33,14 @@ interface Order {
     phone: string;
     patientCode: string;
   };
-  items: Array<{
-    service: {
-      _id: string; // Thêm dòng này
-      name: string;
-      price: number;
-    };
-    quantity: number;
-    subtotal: number;
-  }>;
+  items: OrderItem[]; // 👈 Dùng kiểu riêng cho item
   totalAmount: number;
   paymentStatus: "pending" | "success" | "failed";
   orderStatus: "pending" | "paid" | "completed" | "cancelled";
   createdAt: string;
   appointmentDate?: string;
   timeSlot?: string;
-  doctorId?: Doctor; // Thêm trường doctorId
+  doctorId?: Doctor;
   customerInfo?: {
     userName: string;
   };

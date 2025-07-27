@@ -9,7 +9,6 @@ import {
   CardMedia,
   CircularProgress,
   Fade,
-  Chip,
   Avatar,
   Stack,
   Paper,

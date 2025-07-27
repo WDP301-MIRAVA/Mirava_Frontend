@@ -38,7 +38,7 @@ import {
 import {
   Search,
   Add,
-  Edit,
+  // Edit,
   Visibility,
   Assignment,
   Person,
@@ -53,6 +53,14 @@ import {
 } from "@mui/icons-material";
 import { styled } from "@mui/material/styles";
 import "./ManagerTreatment.css";
+import type {
+  Patient,
+  TreatmentEvent,
+  TreatmentPlan,
+  Statistics,
+  TabPanelProps,
+} from "@/types/managerTreatment";
+import axiosInstance from "@/services/MainService";
 
 // Styled components
 const StyledCard = styled(Card)(({ theme }) => ({
@@ -60,14 +68,6 @@ const StyledCard = styled(Card)(({ theme }) => ({
   color: "white",
   "& .MuiCardContent-root": {
     padding: theme.spacing(3),
-  },
-}));
-
-const GradientButton = styled(Button)(() => ({
-  background: "linear-gradient(45deg, #00B4C6, #0284c7)",
-  color: "white",
-  "&:hover": {
-    background: "linear-gradient(45deg, #0284c7, #00B4C6)",
   },
 }));
 
@@ -90,73 +90,6 @@ const StatusChip = styled(Chip)<{ status: string }>(({ status }) => ({
     color: "#dc2626",
   }),
 }));
-
-// ✅ FIXED: Định nghĩa đầy đủ interfaces
-interface Patient {
-  _id: string;
-  userName: string;
-  email: string;
-  phone: string;
-  patientCode: string;
-  gender: string;
-  address: string;
-  treatmentPlans?: TreatmentPlan[];
-}
-
-interface Doctor {
-  _id: string;
-  user: {
-    userName: string;
-  };
-  specialty: string;
-}
-
-interface MedicalRecord {
-  _id: string;
-  type: string;
-  content: string;
-  date: string;
-}
-
-interface TreatmentEvent {
-  _id: string;
-  stage: string;
-  title: string;
-  description: string;
-  type: string;
-  status: string;
-  scheduledDates: string[];
-  executionDate: string | null;
-  performedBy: string;
-  medicalRecords: MedicalRecord[];
-}
-
-interface TreatmentPlan {
-  _id: string;
-  patient: Patient;
-  doctor: Doctor;
-  treatmentType: string;
-  cycleStartDate: string;
-  status: string;
-  treatmentEvents: TreatmentEvent[];
-  progress: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  value: number;
-}
-
-interface Statistics {
-  totalPlans: number;
-  activePlans: number;
-  completedPlans: number;
-  pausedPlans: number;
-  totalPatients: number;
-}
 
 // ✅ FIXED: Custom TabPanel component với proper typing
 const CustomTabPanel: React.FC<TabPanelProps> = ({
@@ -257,8 +190,8 @@ const ManagerTreatment: React.FC = () => {
         throw new Error("Không tìm thấy token xác thực");
       }
 
-      const response = await fetch(
-        "https://mirava-f0rz.onrender.com/api/treatment-plans",
+      const response = await axiosInstance.get(
+        "https://mirava-f0rz.onrender.com/api/treatment-plan",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -267,21 +200,23 @@ const ManagerTreatment: React.FC = () => {
         }
       );
 
-      if (!response.ok) {
+      if (response.status !== 200) {
         throw new Error("Không thể tải danh sách kế hoạch điều trị");
       }
 
-      const data = await response.json();
+      const data = response.data;
       const plans: TreatmentPlan[] = data.data || [];
       setTreatmentPlans(plans);
 
-      // Calculate statistics
+      // Chỉ lấy những plan có patient hợp lệ để tính thống kê
+      const validPlans = plans.filter((p) => p.patient && p.patient._id);
+
       setStats({
         totalPlans: plans.length,
         activePlans: plans.filter((p) => p.status === "active").length,
         completedPlans: plans.filter((p) => p.status === "completed").length,
         pausedPlans: plans.filter((p) => p.status === "paused").length,
-        totalPatients: new Set(plans.map((p) => p.patient._id)).size,
+        totalPatients: new Set(validPlans.map((p) => p.patient._id)).size,
       });
     } catch (error) {
       console.error("Error fetching treatment plans:", error);
@@ -297,7 +232,7 @@ const ManagerTreatment: React.FC = () => {
       }
 
       const response = await fetch(
-        "https://mirava-f0rz.onrender.com/api/treatment-plans/patients",
+        "https://mirava-f0rz.onrender.com/api/treatment-plan",
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -311,7 +246,16 @@ const ManagerTreatment: React.FC = () => {
       }
 
       const data = await response.json();
-      setPatients(data.data || []);
+      const plans: TreatmentPlan[] = data.data || [];
+
+      // Lọc danh sách bệnh nhân duy nhất, chỉ lấy plan có patient hợp lệ
+      const patientMap: Record<string, Patient> = {};
+      plans.forEach((plan) => {
+        if (plan.patient && plan.patient._id) {
+          patientMap[plan.patient._id] = plan.patient;
+        }
+      });
+      setPatients(Object.values(patientMap));
     } catch (error) {
       console.error("Error fetching patients:", error);
       setError("Không thể tải danh sách bệnh nhân");
@@ -328,14 +272,14 @@ const ManagerTreatment: React.FC = () => {
 
   const getStatusText = (status: string): string => {
     switch (status) {
-      case "active":
-        return "Đang điều trị";
+      case "pending":
+        return "Đang chờ";
       case "completed":
-        return "Hoàn thành";
-      case "paused":
-        return "Tạm dừng";
-      case "cancelled":
-        return "Đã hủy";
+        return "Đã hoàn thành";
+      case "in-progress":
+        return "Đang thực hiện";
+      case "planned":
+        return "Đã lập kế hoạch";
       default:
         return "Không xác định";
     }
@@ -662,16 +606,20 @@ const ManagerTreatment: React.FC = () => {
                     <TableCell>
                       <Box>
                         <Typography variant="body2" fontWeight={600}>
-                          {plan.patient.userName}
+                          {plan.patient ? (
+                            plan.patient.userName
+                          ) : (
+                            <span style={{ color: "#aaa" }}>Chưa có</span>
+                          )}
                         </Typography>
                         <Typography variant="caption" color="text.secondary">
-                          {plan.patient.email}
+                          {plan.patient ? plan.patient.email : ""}
                         </Typography>
                       </Box>
                     </TableCell>
                     <TableCell>
                       <Typography variant="body2" fontWeight={500}>
-                        {plan.patient.patientCode}
+                        {plan.patient ? plan.patient.patientCode : ""}
                       </Typography>
                     </TableCell>
                     <TableCell>
@@ -725,18 +673,13 @@ const ManagerTreatment: React.FC = () => {
                       />
                     </TableCell>
                     <TableCell>
-                      <Box display="flex" gap={1}>
+                      <Box display="flex" gap={1} justifyContent="center">
                         <Tooltip title="Xem chi tiết">
                           <IconButton
                             size="small"
                             onClick={() => handleViewDetails(plan)}
                           >
                             <Visibility />
-                          </IconButton>
-                        </Tooltip>
-                        <Tooltip title="Chỉnh sửa">
-                          <IconButton size="small">
-                            <Edit />
                           </IconButton>
                         </Tooltip>
                       </Box>
@@ -1068,9 +1011,6 @@ const ManagerTreatment: React.FC = () => {
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDetailModal}>Đóng</Button>
-          <GradientButton onClick={handleCloseDetailModal}>
-            Cập nhật
-          </GradientButton>
         </DialogActions>
       </Dialog>
     </Box>

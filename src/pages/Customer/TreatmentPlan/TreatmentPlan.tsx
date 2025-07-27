@@ -15,7 +15,7 @@ import {
   XCircle,
   AlertCircle,
 } from "lucide-react";
-import axios from "axios";
+import axiosInstance from "@/services/MainService";
 import toast from "react-hot-toast";
 
 interface TreatmentStep {
@@ -108,7 +108,7 @@ const TreatmentPlan: React.FC = () => {
     "overview" | "timeline" | "calendar"
   >("overview");
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [, setSelectedDate] = useState<string | null>(null);
   const [treatmentSteps, setTreatmentSteps] = useState<TreatmentStep[]>([]);
   const [patientInfo, setPatientInfo] = useState<PatientInfo | null>(null);
   const [doctorInfo, setDoctorInfo] = useState<DoctorInfo | null>(null);
@@ -155,7 +155,7 @@ const TreatmentPlan: React.FC = () => {
         }
 
         const token = localStorage.getItem("accessToken");
-        const response = await axios.get(
+        const response = await axiosInstance.get(
           `https://mirava-f0rz.onrender.com/api/treatment-plan/patient/${patientId}`,
           {
             headers: {
@@ -301,7 +301,7 @@ const TreatmentPlan: React.FC = () => {
   const handleViewMedicalRecord = async (recordId: string) => {
     setLoadingRecord(true);
     try {
-      const res = await axios.get(
+      const res = await axiosInstance.get(
         `https://mirava-f0rz.onrender.com/api/medicalRecord/${recordId}`,
         {
           headers: {

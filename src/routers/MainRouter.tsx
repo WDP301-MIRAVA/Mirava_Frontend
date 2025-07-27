@@ -179,10 +179,10 @@ const MainRouter = () => {
           path="/manager/package-service"
           element={<ServiceManagement />}
         />
-        <Route
+        {/* <Route
           path="/manager/test-register"
           element={<ManagerTestRegister />}
-        />
+        /> */}
         <Route path="/manager/advise" element={<AdviseManagement />} />
       </Route>
 

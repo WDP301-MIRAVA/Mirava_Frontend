@@ -16,7 +16,6 @@ import {
   User,
   FileText,
   BookOpen,
-  Users,
   BarChart3,
   AlertCircle,
   X,

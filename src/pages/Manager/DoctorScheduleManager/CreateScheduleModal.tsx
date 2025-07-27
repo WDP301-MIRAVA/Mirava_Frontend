@@ -1,5 +1,5 @@
 import { Modal, message } from "antd";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { WorkScheduleService } from "@/services/work-schedule.service";
 import toast from "react-hot-toast";
 
@@ -12,12 +12,20 @@ const daysOfWeek = [
   { label: "Thứ 6", value: 5 },
   { label: "Thứ 7", value: 6 },
 ];
-
+export interface ScheduleItem {
+  dayOfWeek: string | number;
+  startTime: string;
+  endTime: string;
+  breakStartTime: string;
+  breakEndTime: string;
+  maxPatients: number;
+}
 interface CreateScheduleModalProps {
   open: boolean;
   onClose?: () => void;
   doctorId: string;
   onSuccess?: () => void;
+  currentSchedules: ScheduleItem[];
 }
 
 export default function CreateScheduleModal({
@@ -25,6 +33,7 @@ export default function CreateScheduleModal({
   onClose,
   doctorId,
   onSuccess,
+  currentSchedules = [],
 }: CreateScheduleModalProps) {
   const [loading, setLoading] = useState(false);
   const [schedules, setSchedules] = useState([
@@ -37,6 +46,34 @@ export default function CreateScheduleModal({
       maxPatients: 1,
     },
   ]);
+  // Thêm useEffect để fill dữ liệu khi mở modal
+  useEffect(() => {
+    if (open) {
+      if (currentSchedules && currentSchedules.length > 0) {
+        setSchedules(
+          currentSchedules.map((item) => ({
+            dayOfWeek: String(item.dayOfWeek ?? ""),
+            startTime: item.startTime ?? "",
+            endTime: item.endTime ?? "",
+            breakStartTime: item.breakStartTime ?? "",
+            breakEndTime: item.breakEndTime ?? "",
+            maxPatients: item.maxPatients ?? 1,
+          }))
+        );
+      } else {
+        setSchedules([
+          {
+            dayOfWeek: "",
+            startTime: "",
+            endTime: "",
+            breakStartTime: "",
+            breakEndTime: "",
+            maxPatients: 1,
+          },
+        ]);
+      }
+    }
+  }, [open, currentSchedules]);
 
   interface ScheduleItem {
     dayOfWeek: string;

@@ -103,6 +103,7 @@ export default function WeeklySchedule({ doctor }: WeeklyScheduleProps) {
         onClose={() => setShowCreateModal(false)}
         doctorId={doctor._id}
         onSuccess={fetchSchedule}
+        currentSchedules={schedules}
       />
     </>
   );

@@ -56,16 +56,16 @@ moment.locale("vi");
 
 const Schedules: React.FC = () => {
   const { id } = useParams<{ id: string }>();
-  const [doctor, setDoctor] = useState<Doctor | null>(null);
+  const [doctor] = useState<Doctor | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [parsedSchedule, setParsedSchedule] = useState<
     Map<string, { start: string; end: string }>
   >(new Map());
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
-  const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
-  const [loadingTimeSlots, setLoadingTimeSlots] = useState<boolean>(false);
+  const [selectedDate] = useState<Dayjs | null>(null);
+  const [timeSlots] = useState<TimeSlot[]>([]);
+  const [loadingTimeSlots] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchDoctorSchedule = async () => {
@@ -135,60 +135,60 @@ const Schedules: React.FC = () => {
   };
 
   // Hàm tạo các khung giờ từ lịch làm việc
-  const generateTimeSlots = (start: string, end: string): TimeSlot[] => {
-    const slots: TimeSlot[] = [];
-    const startTime = moment(start, "H:mm");
-    const endTime = moment(end, "H:mm");
+  // const generateTimeSlots = (start: string, end: string): TimeSlot[] => {
+  //   const slots: TimeSlot[] = [];
+  //   const startTime = moment(start, "H:mm");
+  //   const endTime = moment(end, "H:mm");
 
-    // Tạo các khung giờ 1 tiếng một
-    let currentTime = startTime.clone();
-    while (currentTime.isBefore(endTime)) {
-      const slotStart = currentTime.format("HH:mm");
-      currentTime = currentTime.add(1, "hour");
-      const slotEnd = currentTime.format("HH:mm");
+  //   // Tạo các khung giờ 1 tiếng một
+  //   let currentTime = startTime.clone();
+  //   while (currentTime.isBefore(endTime)) {
+  //     const slotStart = currentTime.format("HH:mm");
+  //     currentTime = currentTime.add(1, "hour");
+  //     const slotEnd = currentTime.format("HH:mm");
 
-      // Tạo ngẫu nhiên một số khung giờ đã được đặt để demo
-      const isBooked = Math.random() > 0.6;
+  //     // Tạo ngẫu nhiên một số khung giờ đã được đặt để demo
+  //     const isBooked = Math.random() > 0.6;
 
-      slots.push({
-        time: `${slotStart} - ${slotEnd}`,
-        isBooked,
-        patientName: isBooked
-          ? `Bệnh nhân ${Math.floor(Math.random() * 100) + 1}`
-          : undefined,
-        appointmentId: isBooked
-          ? `APT${Math.floor(Math.random() * 10000)}`
-          : undefined,
-      });
-    }
+  //     slots.push({
+  //       time: `${slotStart} - ${slotEnd}`,
+  //       isBooked,
+  //       patientName: isBooked
+  //         ? `Bệnh nhân ${Math.floor(Math.random() * 100) + 1}`
+  //         : undefined,
+  //       appointmentId: isBooked
+  //         ? `APT${Math.floor(Math.random() * 10000)}`
+  //         : undefined,
+  //     });
+  //   }
 
-    return slots;
-  };
+  //   return slots;
+  // };
 
   // Hàm xử lý khi click vào một ngày trên lịch
-  const handleDateSelect = (date: Dayjs) => {
-    const day = date.day().toString();
-    const isWorkingDay = parsedSchedule.has(day);
+  // const handleDateSelect = (date: Dayjs) => {
+  //   const day = date.day().toString();
+  //   const isWorkingDay = parsedSchedule.has(day);
 
-    if (isWorkingDay) {
-      setSelectedDate(date);
-      setLoadingTimeSlots(true);
+  //   if (isWorkingDay) {
+  //     setSelectedDate(date);
+  //     setLoadingTimeSlots(true);
 
-      // Lấy thời gian làm việc của ngày đó
-      const schedule = parsedSchedule.get(day);
+  //     // Lấy thời gian làm việc của ngày đó
+  //     const schedule = parsedSchedule.get(day);
 
-      if (schedule) {
-        // Trong thực tế, bạn sẽ gọi API để lấy các lịch hẹn theo ngày
-        // Ở đây chúng ta sẽ tạo dữ liệu demo
-        setTimeout(() => {
-          const slots = generateTimeSlots(schedule.start, schedule.end);
-          setTimeSlots(slots);
-          setLoadingTimeSlots(false);
-          setModalVisible(true);
-        }, 500);
-      }
-    }
-  };
+  //     if (schedule) {
+  //       // Trong thực tế, bạn sẽ gọi API để lấy các lịch hẹn theo ngày
+  //       // Ở đây chúng ta sẽ tạo dữ liệu demo
+  //       setTimeout(() => {
+  //         const slots = generateTimeSlots(schedule.start, schedule.end);
+  //         setTimeSlots(slots);
+  //         setLoadingTimeSlots(false);
+  //         setModalVisible(true);
+  //       }, 500);
+  //     }
+  //   }
+  // };
 
   const dateCellRender = (value: Dayjs) => {
     const day = value.day().toString();
