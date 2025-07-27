@@ -3,7 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { message } from "antd";
 import axios from "axios";
 import axiosInstance from "@/services/MainService";
-import type { TreatmentPlan, TreatmentStep, MedicalRecord } from "@/types/treatment.types";
+import type {
+  TreatmentPlan,
+  TreatmentStep,
+  MedicalRecord,
+} from "@/types/treatment.types";
 
 interface UseTreatmentPlanProps {
   patientId?: string;
@@ -27,7 +31,9 @@ export const useTreatmentPlan = ({
   patientId,
   locationState,
 }: UseTreatmentPlanProps): UseTreatmentPlanReturn => {
-  const [treatmentPlan, setTreatmentPlan] = useState<TreatmentPlan | null>(null);
+  const [treatmentPlan, setTreatmentPlan] = useState<TreatmentPlan | null>(
+    null
+  );
   const [treatmentSteps, setTreatmentSteps] = useState<TreatmentStep[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -144,9 +150,7 @@ export const useTreatmentPlan = ({
               type: typedEvent.type,
               scheduledDates: typedEvent.scheduledDates,
               executionDate: typedEvent.executionDate
-                ? new Date(typedEvent.executionDate)
-                    .toISOString()
-                    .split("T")[0]
+                ? new Date(typedEvent.executionDate).toISOString().split("T")[0]
                 : undefined,
               date:
                 typedEvent.scheduledDates &&
@@ -209,36 +213,41 @@ export const useTreatmentPlan = ({
   }, []);
 
   // Function để update cycle start date
-  const updateCycleStartDate = useCallback(async (newDate: string): Promise<void> => {
-    if (!treatmentPlan) {
-      message.error("Không tìm thấy kế hoạch điều trị");
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem("accessToken");
-      const res = await axiosInstance.patch(
-        `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/cycle-start-date`,
-        { cycleStartDate: newDate },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      if (res.data.success) {
-        message.success("Cập nhật ngày bắt đầu chu kỳ thành công!");
-        setTreatmentPlan(prev => 
-          prev ? { ...prev, cycleStartDate: newDate } : prev
-        );
-        return Promise.resolve();
-      } else {
-        message.error(res.data.message || "Cập nhật thất bại");
-        return Promise.reject(new Error(res.data.message || "Cập nhật thất bại"));
+  const updateCycleStartDate = useCallback(
+    async (newDate: string): Promise<void> => {
+      if (!treatmentPlan) {
+        message.error("Không tìm thấy kế hoạch điều trị");
+        return;
       }
-    } catch (err: unknown) {
-      console.error("Error updating cycle start date:", err);
-      message.error("Có lỗi khi cập nhật ngày bắt đầu chu kỳ");
-      return Promise.reject(err);
-    }
-  }, [treatmentPlan]);
+
+      try {
+        const token = localStorage.getItem("accessToken");
+        const res = await axiosInstance.patch(
+          `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/cycle-start-date`,
+          { cycleStartDate: newDate },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        if (res.data.success) {
+          message.success("Cập nhật ngày bắt đầu chu kỳ thành công!");
+          setTreatmentPlan((prev) =>
+            prev ? { ...prev, cycleStartDate: newDate } : prev
+          );
+          return Promise.resolve();
+        } else {
+          message.error(res.data.message || "Cập nhật thất bại");
+          return Promise.reject(
+            new Error(res.data.message || "Cập nhật thất bại")
+          );
+        }
+      } catch (err: unknown) {
+        console.error("Error updating cycle start date:", err);
+        message.error("Có lỗi khi cập nhật ngày bắt đầu chu kỳ");
+        return Promise.reject(err);
+      }
+    },
+    [treatmentPlan]
+  );
 
   useEffect(() => {
     fetchTreatmentPlan();

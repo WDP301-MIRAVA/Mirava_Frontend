@@ -212,7 +212,7 @@ const OrderManagement: React.FC = () => {
               }
 
               const url = `https://mirava-f0rz.onrender.com/api/test-registrations/${reg._id}/status`;
-              const payload = { status: "completed" };
+              const payload = { status: "scheduled" };
 
               console.log("🔥 Gửi PUT để cập nhật status:", { url, payload });
 

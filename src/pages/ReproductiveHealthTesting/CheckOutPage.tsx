@@ -318,6 +318,7 @@ const CheckOutPage: React.FC = () => {
         timeSlot: formData.timeSlot || undefined,
         doctorId: formData.doctorId || undefined,
         platform: "web",
+        totalAmount: testPackage.price,
       };
 
       console.log("Submitting test registration:", registrationData);
