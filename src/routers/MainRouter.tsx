@@ -67,6 +67,7 @@ import DoctorScheduleManager from "@/pages/Manager/DoctorScheduleManager";
 import AdviseManagement from "@/pages/Manager/AdviseManagement/AdviseManagement";
 import Dashboard from "@/pages/Admin/Dashboard/Dashboard";
 import TestPackagePage from "@/pages/Admin/TestPackage/TestPackage";
+import ServiceManagement from "@/pages/Admin/ServiceManagement/ServiceManagement";
 const MainRouter = () => {
   return (
     <Routes>
@@ -174,6 +175,10 @@ const MainRouter = () => {
         <Route path="/manager/orders" element={<OrderManagement />} />
         <Route path="/manager/doctors" element={<ManagerDoctor />} />
         <Route path="/manager/treatments" element={<ManagerTreatment />} />
+        <Route
+          path="/manager/package-service"
+          element={<ServiceManagement />}
+        />
         {/* <Route
           path="/manager/test-register"
           element={<ManagerTestRegister />}

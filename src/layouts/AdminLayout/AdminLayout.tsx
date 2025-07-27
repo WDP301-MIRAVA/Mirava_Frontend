@@ -72,6 +72,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
 
   const handleMenuClick = (itemId: number, itemLabel: string) => {
     const selectedItem = menuItems.find((item) => item.id === itemId);
+    console.log({ selectedItem });
     if (selectedItem) {
       setActiveMenuItem(itemLabel);
       navigate(selectedItem.path);
