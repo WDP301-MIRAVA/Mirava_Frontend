@@ -3,7 +3,6 @@ import {
   Search,
   Plus,
   Edit,
-  Eye,
   Ban,
   CheckCircle,
   X,
@@ -482,9 +481,9 @@ const UserManagement: React.FC = () => {
     return date.toLocaleDateString("vi-VN");
   };
 
-  const formatDateTime = (dateString: string) => {
-    return new Date(dateString).toLocaleString("vi-VN");
-  };
+  // const formatDateTime = (dateString: string) => {
+  //   return new Date(dateString).toLocaleString("vi-VN");
+  // };
 
   const getRoleDisplayName = (role: string) => {
     const roleMap: Record<string, string> = {
