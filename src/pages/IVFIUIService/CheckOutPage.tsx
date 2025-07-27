@@ -304,6 +304,7 @@ const CheckoutPage: React.FC = () => {
             price: service.price,
             salePrice: service.salePrice,
           },
+
           userInfo: formData,
           timestamp: new Date().toISOString(),
         };

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Select } from "antd";
 import type { JSX } from "react";
 import {
   Calendar,
@@ -80,6 +81,7 @@ const IVFTreatmentTracker: React.FC = () => {
   const [editingCycleStart, setEditingCycleStart] = useState<boolean>(false);
   const [newCycleStartDate, setNewCycleStartDate] = useState<string>("");
   const [viewOnlyFormId, setViewOnlyFormId] = useState<string | null>(null);
+  const [updatingPlanStatus, setUpdatingPlanStatus] = useState(false);
 
   const BASE_URL = "https://mirava-f0rz.onrender.com";
   useEffect(() => {
@@ -133,7 +135,7 @@ const IVFTreatmentTracker: React.FC = () => {
     switch (status) {
       case "completed":
         return "completed";
-      case "in_progress":
+      case "in-progress":
         return "in-progress";
       case "planned":
       default:
@@ -349,6 +351,35 @@ const IVFTreatmentTracker: React.FC = () => {
 
     updateTreatmentSteps(updatedSteps);
     setTimeout(() => openForm(newVisit.id), 100);
+  };
+
+  // Hàm cập nhật trạng thái kế hoạch điều trị
+  const handleUpdatePlanStatus = async (newStatus: string) => {
+    if (!treatmentPlan) return;
+    setUpdatingPlanStatus(true);
+    try {
+      const token = localStorage.getItem("accessToken");
+      const response = await axiosInstance.put(
+        `${BASE_URL}/api/treatment-plan/${treatmentPlan._id}/status`,
+        { status: newStatus },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      if (response.data.success) {
+        updateTreatmentPlan(response.data.data);
+        message.success("Cập nhật trạng thái kế hoạch điều trị thành công!");
+      } else {
+        message.error(response.data.message || "Không thể cập nhật trạng thái");
+      }
+    } catch (err) {
+      message.error("Có lỗi khi cập nhật trạng thái kế hoạch điều trị");
+    } finally {
+      setUpdatingPlanStatus(false);
+    }
   };
 
   const getStatusIcon = (status: string): JSX.Element => {
@@ -728,15 +759,127 @@ const IVFTreatmentTracker: React.FC = () => {
             )}
           </div>
           <div className="ivf-status-badge">
-            <span className={`status-badge ${treatmentPlan.status}`}>
-              {treatmentPlan.status === "planned"
-                ? "Đã lên kế hoạch"
-                : treatmentPlan.status === "in_progress"
-                ? "Đang thực hiện"
-                : treatmentPlan.status === "completed"
-                ? "Hoàn thành"
-                : "Đã hủy"}
-            </span>
+            <Select
+              value={treatmentPlan.status}
+              onChange={handleUpdatePlanStatus}
+              disabled={updatingPlanStatus}
+              style={{ minWidth: 200 }}
+              optionLabelProp="label"
+              dropdownMatchSelectWidth={false}
+            >
+              <Select.Option
+                value="planned"
+                label={
+                  <span
+                    style={{
+                      color: "#64748b",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <AlertCircle size={16} style={{ color: "#64748b" }} />
+                    Đã lên kế hoạch
+                  </span>
+                }
+              >
+                <span
+                  style={{
+                    color: "#64748b",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <AlertCircle size={16} style={{ color: "#64748b" }} />
+                  Đã lên kế hoạch
+                </span>
+              </Select.Option>
+              <Select.Option
+                value="in-progress"
+                label={
+                  <span
+                    style={{
+                      color: "#F59E42",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <Clock size={16} style={{ color: "#F59E42" }} />
+                    Đang thực hiện
+                  </span>
+                }
+              >
+                <span
+                  style={{
+                    color: "#F59E42",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <Clock size={16} style={{ color: "#F59E42" }} />
+                  Đang thực hiện
+                </span>
+              </Select.Option>
+              <Select.Option
+                value="completed"
+                label={
+                  <span
+                    style={{
+                      color: "#10B981",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <CheckCircle size={16} style={{ color: "#10B981" }} />
+                    Hoàn thành
+                  </span>
+                }
+              >
+                <span
+                  style={{
+                    color: "#10B981",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <CheckCircle size={16} style={{ color: "#10B981" }} />
+                  Hoàn thành
+                </span>
+              </Select.Option>
+              <Select.Option
+                value="cancelled"
+                label={
+                  <span
+                    style={{
+                      color: "#EF4444",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                    }}
+                  >
+                    <AlertCircle size={16} style={{ color: "#EF4444" }} />
+                    Đã hủy
+                  </span>
+                }
+              >
+                <span
+                  style={{
+                    color: "#EF4444",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                  }}
+                >
+                  <AlertCircle size={16} style={{ color: "#EF4444" }} />
+                  Đã hủy
+                </span>
+              </Select.Option>
+            </Select>
           </div>
         </div>
 

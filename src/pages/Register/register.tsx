@@ -6,6 +6,7 @@ import Header from "../../components/Header/index";
 import Footer from "../../components/Footer";
 import logo from "../../assets/mirava-logo.png";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 
 const RegisterPage = () => {
   const [form] = Form.useForm();
@@ -21,10 +22,32 @@ const RegisterPage = () => {
   const onFinish = async (values: RegisterFormData): Promise<void> => {
     try {
       await userServ.postSignUp(values);
-      console.log("Đăng ký thành công:", values);
+      toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
       navigate("/login");
-    } catch (error) {
-      console.error("Đăng ký thất bại:", error);
+    } catch (error: unknown) {
+      let message = "Đăng ký thất bại. Vui lòng thử lại!";
+      if (typeof error === "object" && error !== null) {
+        if (
+          // @ts-expect-error: kiểm tra động cho axios error
+          error.response?.data?.message
+        ) {
+          // @ts-expect-error: kiểm tra động cho axios error
+          message = error.response.data.message;
+        } else if (
+          "message" in error &&
+          typeof (error as { message?: string }).message === "string"
+        ) {
+          message = (error as { message?: string }).message as string;
+        }
+      }
+      if (
+        message.includes("User already exists") ||
+        message.includes("Email đã tồn tại")
+      ) {
+        toast.error("Email đã tồn tại. Vui lòng dùng email khác!");
+      } else {
+        toast.error(message);
+      }
     }
   };
 
