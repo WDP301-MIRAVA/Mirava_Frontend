@@ -165,64 +165,6 @@ const ResultTest: React.FC = () => {
     }
   };
 
-  // const handleDownloadPDF = async (result: TestResult) => {
-  //   // Tạo một div ẩn chứa nội dung cần xuất PDF
-  //   const element = document.createElement("div");
-  //   element.style.padding = "24px";
-  //   element.innerHTML = `
-  //   <h2>KẾT QUẢ XÉT NGHIỆM</h2>
-  //   <p><b>Tên gói:</b> ${getTestPackageName(result)}</p>
-  //   <p><b>Ngày xét nghiệm:</b> ${formatDate(result.testDate)}</p>
-  //   <p><b>Bác sĩ thực hiện:</b> ${result.performedBy.user.userName}</p>
-  //   <table border="1" cellpadding="8" style="width:100%;margin-top:16px">
-  //     <thead>
-  //       <tr>
-  //         <th>Tên xét nghiệm</th>
-  //         <th>Kết quả</th>
-  //         <th>Đơn vị</th>
-  //         <th>Giá trị bình thường</th>
-  //         <th>Trạng thái</th>
-  //       </tr>
-  //     </thead>
-  //     <tbody>
-  //       ${result.results
-  //         .map(
-  //           (r) =>
-  //             `<tr>
-  //               <td>${r.testName}</td>
-  //               <td>${r.value}</td>
-  //               <td>${r.unit}</td>
-  //               <td>${r.normalRange}</td>
-  //               <td>${getStatusText(r.status)}</td>
-  //             </tr>`
-  //         )
-  //         .join("")}
-  //     </tbody>
-  //   </table>
-  //   ${
-  //     result.doctorNotes
-  //       ? `<p><b>Nhận xét bác sĩ:</b> ${result.doctorNotes}</p>`
-  //       : ""
-  //   }
-  //   ${
-  //     result.recommendations
-  //       ? `<p><b>Khuyến nghị:</b> ${result.recommendations}</p>`
-  //       : ""
-  //   }
-  // `;
-  //   document.body.appendChild(element);
-
-  //   const canvas = await html2canvas(element);
-  //   const imgData = canvas.toDataURL("image/png");
-  //   const pdf = new jsPDF();
-  //   const imgProps = pdf.getImageProperties(imgData);
-  //   const pdfWidth = pdf.internal.pageSize.getWidth();
-  //   const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-  //   pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-  //   pdf.save(`ket-qua-xet-nghiem-${result._id}.pdf`);
-  //   document.body.removeChild(element);
-  // };
-
   const handleViewDetails = (result: TestResult) => {
     setSelectedResult(result);
     setDetailDialogOpen(true);
@@ -314,7 +256,7 @@ const ResultTest: React.FC = () => {
       </Alert>
 
       {/* Statistics Cards */}
-      <Grid container spacing={3} mb={4}>
+      <Grid container mb={4}>
         <Box sx={{ width: { xs: "100%", md: "33.3333%" }, p: 1 }}>
           <Card>
             <CardContent>
@@ -478,7 +420,7 @@ const ResultTest: React.FC = () => {
                       </Box>
                     </Box>
                     <Box sx={{ width: { xs: "100%", md: "50%" }, p: 1 }}>
-                      <Box display="flex" gap={1} justifyContent="flex-end">
+                      <Box display="flex" gap={1} justifyContent="flex-start">
                         <Button
                           variant="outlined"
                           size="small"

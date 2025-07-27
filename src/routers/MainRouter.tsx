@@ -172,10 +172,10 @@ const MainRouter = () => {
         <Route path="/manager/orders" element={<OrderManagement />} />
         <Route path="/manager/doctors" element={<ManagerDoctor />} />
         <Route path="/manager/treatments" element={<ManagerTreatment />} />
-        <Route
+        {/* <Route
           path="/manager/test-register"
           element={<ManagerTestRegister />}
-        />
+        /> */}
         <Route path="/manager/advise" element={<AdviseManagement />} />
       </Route>
 
