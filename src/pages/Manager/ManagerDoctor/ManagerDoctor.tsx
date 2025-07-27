@@ -603,12 +603,12 @@ const ManagerDoctor: React.FC = () => {
                   >
                     Chuyên khoa{getSortIcon("specialty")}
                   </th>
-                  <th
+                  {/* <th
                     onClick={() => handleSort("experience")}
                     className="md-sortable"
                   >
                     Kinh nghiệm{getSortIcon("experience")}
-                  </th>
+                  </th> */}
                   <th
                     onClick={() => handleSort("status")}
                     className="md-sortable"
@@ -660,11 +660,11 @@ const ManagerDoctor: React.FC = () => {
                         {doctor.specialty}
                       </div>
                     </td>
-                    <td>
+                    {/* <td>
                       <div className="md-experience">
                         {doctor.experience} năm
                       </div>
-                    </td>
+                    </td> */}
                     <td>
                       <span className={`md-status md-status-${doctor.status}`}>
                         {getStatusText(doctor.status)}
@@ -821,7 +821,7 @@ const ManagerDoctor: React.FC = () => {
                     placeholder="Nhập bằng cấp"
                   />
                 </div>
-                <div className="md-form-group">
+                {/* <div className="md-form-group">
                   <label>Kinh nghiệm (năm) *</label>
                   <input
                     type="number"
@@ -835,7 +835,7 @@ const ManagerDoctor: React.FC = () => {
                     placeholder="Nhập số năm kinh nghiệm"
                     min="0"
                   />
-                </div>
+                </div> */}
                 <div className="md-form-group">
                   <label>URL ảnh đại diện</label>
                   <input
@@ -930,7 +930,7 @@ const ManagerDoctor: React.FC = () => {
                     placeholder="Nhập bằng cấp"
                   />
                 </div>
-                <div className="md-form-group">
+                {/* <div className="md-form-group">
                   <label>Kinh nghiệm (năm) *</label>
                   <input
                     type="number"
@@ -944,7 +944,7 @@ const ManagerDoctor: React.FC = () => {
                     placeholder="Nhập số năm kinh nghiệm"
                     min="0"
                   />
-                </div>
+                </div> */}
                 <div className="md-form-group">
                   <label>URL ảnh đại diện</label>
                   <input
@@ -1049,10 +1049,10 @@ const ManagerDoctor: React.FC = () => {
                     <label>Số điện thoại:</label>
                     <span>{selectedDoctor.user.phone}</span>
                   </div>
-                  <div className="md-detail-item">
+                  {/* <div className="md-detail-item">
                     <label>Kinh nghiệm:</label>
                     <span>{selectedDoctor.experience} năm</span>
-                  </div>
+                  </div> */}
                   <div className="md-detail-item">
                     <label>Ngày tham gia:</label>
                     <span>

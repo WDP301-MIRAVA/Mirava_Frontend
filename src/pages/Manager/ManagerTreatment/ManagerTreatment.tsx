@@ -593,7 +593,7 @@ const ManagerTreatment: React.FC = () => {
                   <TableCell>Bệnh nhân</TableCell>
                   <TableCell>Mã BN</TableCell>
                   <TableCell>Bác sĩ</TableCell>
-                  <TableCell>Loại điều trị</TableCell>
+                  {/* <TableCell>Loại điều trị</TableCell>   */}
                   <TableCell>Ngày bắt đầu</TableCell>
                   <TableCell>Tiến độ</TableCell>
                   <TableCell>Trạng thái</TableCell>
@@ -632,7 +632,7 @@ const ManagerTreatment: React.FC = () => {
                         </Typography>
                       </Box>
                     </TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <Chip
                         label={plan.treatmentType}
                         variant="outlined"
@@ -641,7 +641,7 @@ const ManagerTreatment: React.FC = () => {
                           plan.treatmentType === "IVF" ? "primary" : "secondary"
                         }
                       />
-                    </TableCell>
+                    </TableCell> */}
                     <TableCell>
                       <Typography variant="body2">
                         {new Date(plan.cycleStartDate).toLocaleDateString(

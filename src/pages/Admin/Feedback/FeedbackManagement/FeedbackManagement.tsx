@@ -345,11 +345,6 @@ const FeedbackManagement: React.FC = () => {
     setViewModal(feedback);
   };
 
-  // TODO: Thay thế bằng component EditFeedbackModal khi hoàn thành
-  const handleEdit = (feedback: Feedback) => {
-    setEditModal(feedback);
-  };
-
   const handleSaveEdit = async (updatedData: any) => {
     try {
       setLoading(true);
@@ -650,13 +645,7 @@ const FeedbackManagement: React.FC = () => {
                   >
                     Xem
                   </button>
-                  <button
-                    onClick={() => handleEdit(feedback)}
-                    className="feedback-action-btn feedback-edit-btn"
-                    disabled={loading}
-                  >
-                    Sửa
-                  </button>
+
                   <button
                     onClick={() => setDeleteConfirm(feedback.id)}
                     className="feedback-action-btn feedback-delete-btn"
