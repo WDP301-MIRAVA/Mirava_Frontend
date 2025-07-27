@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import type { JSX } from "react";
 import {
   Calendar,
-  User,
   Edit3,
   Check,
   Clock,
@@ -14,7 +13,6 @@ import {
   Activity,
   AlertCircle,
   CheckCircle,
-  Eye,
   Save,
   X,
   Stethoscope,
@@ -803,7 +801,7 @@ const IVFTreatmentTracker: React.FC = () => {
                     <th>Bước điều trị</th>
                     <th>Giai đoạn</th>
                     <th>Ngày thực hiện</th>
-                    <th>Người thực hiện</th>
+                    {/* <th>Người thực hiện</th> */}
                     <th>Ghi chú</th>
                     <th>Thao tác</th>
                   </tr>
@@ -857,7 +855,7 @@ const IVFTreatmentTracker: React.FC = () => {
                           </span>
                         )}
                       </td>
-                      <td>
+                      {/* <td>
                         {step.performedBy ? (
                           <div className="ivf-user-info">
                             <User size={16} />
@@ -866,7 +864,7 @@ const IVFTreatmentTracker: React.FC = () => {
                         ) : (
                           <span className="ivf-no-data-text">-</span>
                         )}
-                      </td>
+                      </td> */}
                       <td>
                         <div className="ivf-notes">
                           {step.description ? (
@@ -889,13 +887,13 @@ const IVFTreatmentTracker: React.FC = () => {
                           >
                             <Edit3 size={16} />
                           </button>
-                          <button
+                          {/* <button
                             onClick={() => openForm(step.id, true)}
                             className="ivf-action-btn ivf-record-btn"
                             title="Xem"
                           >
                             <Eye size={16} />
-                          </button>
+                          </button> */}
                         </div>
                       </td>
                     </tr>
