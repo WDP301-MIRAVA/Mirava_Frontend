@@ -33,7 +33,21 @@ interface Order {
     phone: string;
     patientCode: string;
   };
-  items: OrderItem[]; // 👈 Dùng kiểu riêng cho item
+  items: Array<{
+    testPackage?: {
+      _id: string; // Thêm dòng này
+      name: string;
+      price: number;
+    };
+    service: {
+      _id: string; // Thêm dòng này
+      name: string;
+      price: number;
+    };
+    quantity: number;
+    subtotal: number;
+  }>;
+
   totalAmount: number;
   paymentStatus: "pending" | "success" | "failed";
   orderStatus: "pending" | "paid" | "completed" | "cancelled";
@@ -67,7 +81,11 @@ const OrderManagement: React.FC = () => {
     setSelectedDoctorId("");
     try {
       // Lấy packageId từ dịch vụ đầu tiên của đơn hàng
-      const packageId = order.items[0]?.service?._id || order.items[0]?.service;
+      const packageId =
+        order.items[0]?.service?._id ||
+        order.items[0]?.service ||
+        order.items[0]?.testPackage?._id ||
+        order.items[0]?.testPackage;
       if (!packageId) {
         setError("Không tìm thấy gói xét nghiệm trong đơn hàng!");
         return;

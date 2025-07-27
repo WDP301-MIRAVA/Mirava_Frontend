@@ -90,6 +90,56 @@ const CheckOutPage: React.FC = () => {
   ];
 
   useEffect(() => {
+    const userStr = localStorage.getItem("userInfo");
+    const token = localStorage.getItem("accessToken");
+    if (userStr) {
+      try {
+        const user = JSON.parse(userStr);
+        if (user.userName && user.phone && user.email && user.address) {
+          setFormData((prev) => ({
+            ...prev,
+            userName: user.userName || "",
+            phone: user.phone || "",
+            email: user.email || "",
+            address: user.address || "",
+            gender: user.gender || "Male",
+          }));
+        } else if (user.id && token) {
+          // Gọi API lấy thông tin chi tiết với token
+          fetch(
+            `https://mirava-f0rz.onrender.com/api/user/profile/${user.id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            }
+          )
+            .then((res) => {
+              if (!res.ok) throw new Error("Không thể lấy thông tin user");
+              return res.json();
+            })
+            .then((data) => {
+              if (data && data.userName) {
+                setFormData((prev) => ({
+                  ...prev,
+                  userName: data.userName || "",
+                  phone: data.phone || "",
+                  email: data.email || "",
+                  address: data.address || "",
+                  gender: data.gender || "Male",
+                }));
+              }
+            })
+            .catch(() => {});
+        }
+      } catch (err) {
+        // Không làm gì nếu lỗi parse
+      }
+    }
+  }, []);
+
+  useEffect(() => {
     if (location.state?.testPackage) {
       setTestPackage(location.state.testPackage);
     } else {
@@ -346,71 +396,76 @@ const CheckOutPage: React.FC = () => {
               <h2>Thông tin đăng ký xét nghiệm</h2>
 
               <form onSubmit={handleSubmit} className="order-form">
-                <div className="form-group">
-                  <label htmlFor="userName">Họ và Tên *</label>
-                  <input
-                    type="text"
-                    id="userName"
-                    name="userName"
-                    value={formData.userName}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Nhập họ và tên"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="phone">Số điện thoại *</label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Nhập số điện thoại (10-11 số)"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="email">Email *</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Nhập email"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="address">Địa chỉ *</label>
-                  <input
-                    type="text"
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    required
-                    placeholder="Nhập địa chỉ"
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="gender">Giới tính</label>
-                  <select
-                    id="gender"
-                    name="gender"
-                    value={formData.gender}
-                    onChange={handleInputChange}
-                  >
-                    <option value="Male">Nam</option>
-                    <option value="Female">Nữ</option>
-                  </select>
-                </div>
-
+                {!formData.userName && (
+                  <div className="form-group">
+                    <label htmlFor="userName">Họ và Tên *</label>
+                    <input
+                      type="text"
+                      id="userName"
+                      name="userName"
+                      value={formData.userName}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Nhập họ và tên"
+                    />
+                  </div>
+                )}
+                {!formData.phone && (
+                  <div className="form-group">
+                    <label htmlFor="phone">Số điện thoại *</label>
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Nhập số điện thoại (10-11 số)"
+                    />
+                  </div>
+                )}
+                {!formData.email && (
+                  <div className="form-group">
+                    <label htmlFor="email">Email *</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Nhập email"
+                    />
+                  </div>
+                )}
+                {!formData.address && (
+                  <div className="form-group">
+                    <label htmlFor="address">Địa chỉ *</label>
+                    <input
+                      type="text"
+                      id="address"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Nhập địa chỉ"
+                    />
+                  </div>
+                )}
+                {!formData.gender && (
+                  <div className="form-group">
+                    <label htmlFor="gender">Giới tính</label>
+                    <select
+                      id="gender"
+                      name="gender"
+                      value={formData.gender}
+                      onChange={handleInputChange}
+                    >
+                      <option value="Male">Nam</option>
+                      <option value="Female">Nữ</option>
+                    </select>
+                  </div>
+                )}
                 {/* Phần đặt lịch hẹn */}
                 <div className="appointment-section">
                   <h3>Thông tin đặt lịch</h3>
