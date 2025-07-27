@@ -66,6 +66,7 @@ import AdminBlogManagement from "@/pages/Admin/BlogManagement/BlogManagement";
 import DoctorScheduleManager from "@/pages/Manager/DoctorScheduleManager";
 import AdviseManagement from "@/pages/Manager/AdviseManagement/AdviseManagement";
 import Dashboard from "@/pages/Admin/Dashboard/Dashboard";
+import TestPackagePage from "@/pages/Admin/TestPackage/TestPackage";
 const MainRouter = () => {
   return (
     <Routes>
@@ -130,6 +131,7 @@ const MainRouter = () => {
         <Route path="/admin/doctors" element={<DoctorManagement />} />
         <Route path="/admin/admin-feedback" element={<FeedbackManagement />} />
         <Route path="/admin/blog" element={<AdminBlogManagement />} />
+        <Route path="/admin/test-package" element={<TestPackagePage />} />
       </Route>
 
       {/* 🩺 Doctor Protected Routes */}
