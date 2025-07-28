@@ -86,7 +86,15 @@ const Dashboard = () => {
       </Typography>
 
       <Grid container spacing={3} mb={3}>
-        <Grid item xs={12} md={3}>
+        <Box
+          sx={{
+            width: {
+              xs: "100%",
+              md: "25%",
+            },
+            px: 1,
+          }}
+        >
           <Card>
             <CardContent>
               <Typography variant="subtitle2" color="text.secondary">
@@ -98,9 +106,17 @@ const Dashboard = () => {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
 
-        <Grid item xs={12} md={3}>
+        <Box
+          sx={{
+            width: {
+              xs: "100%",
+              md: "25%",
+            },
+            px: 1,
+          }}
+        >
           <Card>
             <CardContent>
               <Typography variant="subtitle2" color="text.secondary">
@@ -112,7 +128,7 @@ const Dashboard = () => {
               </Typography>
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
       </Grid>
 
       <Card sx={{ mb: 3 }}>

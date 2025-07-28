@@ -9,16 +9,31 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { Table, Space, Popconfirm, message } from "antd";
+import { Table, Space, message } from "antd";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import { PackageService } from "@/services/package-service.service";
+interface IService {
+  _id: string;
+  name: string;
+  shortDescription: string[];
+  description: string;
+  price: number;
+  method: string;
+  imageUrl?: string;
+}
 
+interface IColumn {
+  title: string;
+  dataIndex?: keyof IService;
+  key: string;
+  render?: (value: any, record?: IService) => React.ReactNode;
+}
 const ServiceManagement = () => {
   const [services, setServices] = useState([]);
   const [open, setOpen] = useState(false);
-  const [editingService, setEditingService] = useState(null);
+  const [editingService, setEditingService] = useState<IService | null>(null);
 
   const fetchServices = async () => {
     try {
@@ -77,20 +92,20 @@ const ServiceManagement = () => {
     formik.resetForm();
   };
 
-  const handleEdit = (record) => {
+  const handleEdit = (record: IService) => {
     setEditingService(record);
     formik.setValues({
       name: record.name,
       shortDescription: record.shortDescription.join("\n"),
       description: record.description || "",
-      price: record.price,
+      price: record.price.toString(),
       method: record.method,
       imageUrl: record.imageUrl || "",
     });
     setOpen(true);
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     try {
       await PackageService.delete(id);
       message.success("Xóa thành công");
@@ -100,7 +115,7 @@ const ServiceManagement = () => {
     }
   };
 
-  const columns = [
+  const columns: IColumn[] = [
     {
       title: "Tên dịch vụ",
       dataIndex: "name",
@@ -115,24 +130,24 @@ const ServiceManagement = () => {
       title: "Giá (VND)",
       dataIndex: "price",
       key: "price",
-      render: (price) => price.toLocaleString() + " đ",
+      render: (price: number) => price.toLocaleString() + " đ",
     },
     {
       title: "Thao tác",
       key: "actions",
-      render: (_, record) => (
+      render: (_: any, record?: IService) => (
         <Space>
           <Button
             variant="outlined"
             color="primary"
-            onClick={() => handleEdit(record)}
+            onClick={() => record && handleEdit(record)}
           >
             Cập nhật
           </Button>
           <Button
             variant="outlined"
             color="error"
-            onClick={() => handleDelete(record._id)}
+            onClick={() => record && handleDelete(record._id)}
           >
             Xóa
           </Button>

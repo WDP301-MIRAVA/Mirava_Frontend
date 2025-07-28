@@ -213,7 +213,7 @@ const LoginPage = () => {
         // Lỗi mạng - không nhận được response từ server
         showErrorNotification(
           "Lỗi kết nối",
-          "Không thể kết nối đến server. Vui lòng kiểm tra kết nối internet và thử lại!"
+          " Vui lòng kiểm tra kết nối internet và thử lại!"
         );
       } else if (error?.code === "ECONNABORTED") {
         // Timeout

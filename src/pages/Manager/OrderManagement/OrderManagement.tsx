@@ -9,21 +9,21 @@ interface Doctor {
     userName: string;
   };
 }
-interface OrderItem {
-  service: {
-    _id: string;
-    name: string;
-    price: number;
-  };
-  quantity: number;
-  subtotal: number;
-  // 👇 Thêm các trường optional
-  testPackage?: {
-    name: string;
-  };
-  serviceName?: string;
-  testPackageName?: string;
-}
+// interface OrderItem {
+//   service: {
+//     _id: string;
+//     name: string;
+//     price: number;
+//   };
+//   quantity: number;
+//   subtotal: number;
+//   // 👇 Thêm các trường optional
+//   testPackage?: {
+//     name: string;
+//   };
+//   serviceName?: string;
+//   testPackageName?: string;
+// }
 interface Order {
   _id: string;
   orderCode: string;
@@ -432,10 +432,6 @@ const OrderManagement: React.FC = () => {
                                   ? `${item.service.name} x${item.quantity}`
                                   : item.testPackage?.name
                                   ? `${item.testPackage.name} x${item.quantity}`
-                                  : item.serviceName
-                                  ? `${item.serviceName} x${item.quantity}`
-                                  : item.testPackageName
-                                  ? `${item.testPackageName} x${item.quantity}`
                                   : "Không xác định"}
                               </div>
                             ))}
