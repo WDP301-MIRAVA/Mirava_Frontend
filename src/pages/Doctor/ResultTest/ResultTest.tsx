@@ -374,7 +374,7 @@ const TestResults: React.FC = () => {
     try {
       const token = localStorage.getItem("accessToken");
       const res = await axiosInstance.get(
-        `${BASE_URL}/api/test-results/doctor/my-results/${resultId}`,
+        `${BASE_URL}/api/test-results/${resultId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
