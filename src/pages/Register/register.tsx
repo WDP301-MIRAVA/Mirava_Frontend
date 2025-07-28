@@ -21,7 +21,7 @@ const RegisterPage = () => {
 
   const onFinish = async (values: RegisterFormData): Promise<void> => {
     try {
-      await userServ.postSignUp(values);
+      await userServ.postSignUp({ ...values, role: "Customer" });
       toast.success("Đăng ký thành công! Vui lòng đăng nhập.");
       navigate("/login");
     } catch (error: unknown) {
