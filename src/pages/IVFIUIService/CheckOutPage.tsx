@@ -250,6 +250,7 @@ const CheckoutPage: React.FC = () => {
         ? calculateFinalPrice(service.price, service.salePrice)
         : service.price;
 
+      // CHỈ gửi items, KHÔNG gửi orderItems lên backend
       const orderData = {
         items: [{ serviceId: service._id, quantity: 1 }],
         paymentMethod: formData.paymentMethod,
@@ -266,16 +267,6 @@ const CheckoutPage: React.FC = () => {
         doctorId: formData.doctorId,
         platform: "web",
         totalAmount: finalPrice,
-        orderItems: [
-          {
-            service: service._id,
-            serviceName: service.name,
-            price: finalPrice,
-            originalPrice: service.price,
-            quantity: 1,
-            subtotal: finalPrice,
-          },
-        ],
       };
 
       const res = await fetch(
@@ -304,7 +295,6 @@ const CheckoutPage: React.FC = () => {
             price: service.price,
             salePrice: service.salePrice,
           },
-
           userInfo: formData,
           timestamp: new Date().toISOString(),
         };
@@ -489,7 +479,6 @@ const CheckoutPage: React.FC = () => {
                               Có thể đặt lịch
                             </span>
                           </strong>
-                          {/* {doctor.specialty || "Chưa cập nhật"} */}
                         </div>
                       </label>
                     ))}
